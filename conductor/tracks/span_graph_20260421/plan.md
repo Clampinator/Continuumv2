@@ -4,7 +4,7 @@
 - [x] Task: Create SVG Viewport Infrastructure (ae68b78)
     - [ ] Write Tests: Define basic SVG container and coordinate mapping tests in `tests/span-graph/viewport.test.js`.
     - [ ] Implement: Create `modules/span-graph/viewport.js` to manage the root SVG element and base view state.
-- [ ] Task: Implement Diagonal Rail Renderer
+- [x] Task: Implement Diagonal Rail Renderer (bebf73c)
     - [ ] Write Tests: Define expectations for mapping character history segments to SVG paths.
     - [ ] Implement: Create `modules/span-graph/renderers/rail-renderer.js` to draw the 1:1 diagonal rail based on the Temporal Projection Service.
 - [ ] Task: Character Sheet Tab Integration
