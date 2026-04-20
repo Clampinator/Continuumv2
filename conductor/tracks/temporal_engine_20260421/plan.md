@@ -26,3 +26,6 @@
     - [ ] Perform stress-testing on nested insertions (Event inside Span, Span inside Span).
     - [ ] Verify that "The Yet" fulfillment correctly triggers the insertion engine.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration & Validation' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions a4636bd
