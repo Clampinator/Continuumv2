@@ -1,5 +1,6 @@
 /**
  * Renders the 1:1 diagonal rail segments for a character's history.
+ * Optimized for high-volume lifelines.
  */
 export class RailRenderer {
   /**
@@ -16,19 +17,30 @@ export class RailRenderer {
   render(segments) {
     if (!segments || segments.length === 0) return;
 
-    // Clear existing rail paths if necessary
-    // (This will be more robust in future iterations)
+    // Use a document fragment for batching if many segments exist
+    const fragment = typeof document !== 'undefined' ? document.createDocumentFragment() : null;
 
     for (const segment of segments) {
       if (segment.events.length < 2) continue;
 
       const pathData = this._generatePathData(segment);
-      this._createPathElement(pathData);
+      const pathElement = this._createPathElement(pathData);
+      
+      if (fragment && pathElement) {
+        fragment.appendChild(pathElement);
+      } else if (pathElement && this.viewport.svg) {
+        this.viewport.svg.appendChild(pathElement);
+      }
+    }
+
+    if (fragment && this.viewport.svg) {
+      this.viewport.svg.appendChild(fragment);
     }
   }
 
   /**
    * Generates SVG path 'd' attribute for a segment.
+   * Optimized to reduce string concatenations.
    * @private
    */
   _generatePathData(segment) {
@@ -36,22 +48,20 @@ export class RailRenderer {
       this.viewport.worldToScreen(event.age, event.time)
     );
 
-    const start = points[0];
-    const path = [`M ${start.x} ${start.y}`];
-
+    let d = `M ${points[0].x} ${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
-      path.push(`L ${points[i].x} ${points[i].y}`);
+      d += ` L ${points[i].x} ${points[i].y}`;
     }
 
-    return path.join(' ');
+    return d;
   }
 
   /**
-   * Creates and appends the SVG path element.
+   * Creates the SVG path element.
    * @private
    */
   _createPathElement(d) {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return null;
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', d);
@@ -60,8 +70,6 @@ export class RailRenderer {
     path.style.stroke = 'var(--continuum-rail-color, #888)';
     path.style.strokeWidth = '2';
 
-    if (this.viewport.svg) {
-      this.viewport.svg.appendChild(path);
-    }
+    return path;
   }
 }

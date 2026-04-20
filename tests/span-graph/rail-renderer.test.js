@@ -15,6 +15,9 @@ describe('RailRenderer', () => {
         setAttribute: vi.fn(),
         classList: { add: vi.fn() },
         style: {}
+      })),
+      createDocumentFragment: vi.fn(() => ({
+        appendChild: vi.fn()
       }))
     };
   }
