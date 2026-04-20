@@ -12,6 +12,7 @@
   "description": "",
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.4",
+    "jsdom": "^27.0.1",
     "vitest": "^4.1.4"
   }
 }
