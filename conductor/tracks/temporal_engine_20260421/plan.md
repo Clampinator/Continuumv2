@@ -22,7 +22,7 @@
 - [x] Task: Create Unified Temporal State Middleware (8cf3b50)
     - [ ] Implement `modules/temporal-engine/get-temporal-state.js` to provide a read-only, unified state to UI/System.
     - [ ] Integrate Span Pool Ledger for real-time cost calculation.
-- [ ] Task: Validate Insertion Resilience
+- [x] Task: Validate Insertion Resilience (6a03eb2)
     - [ ] Perform stress-testing on nested insertions (Event inside Span, Span inside Span).
     - [ ] Verify that "The Yet" fulfillment correctly triggers the insertion engine.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration & Validation' (Protocol in workflow.md)
