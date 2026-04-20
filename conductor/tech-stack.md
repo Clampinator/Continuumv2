@@ -17,6 +17,10 @@
 
 ## Testing & Automation
 - **Playwright (playwright-cli)**: Used for browser automation, visual regression testing, and diagnostic snapshots within the Foundry VTT environment.
+- **Vitest**: ESM-native unit testing framework for validating complex mathematical and logical services.
+
+## Architectural Patterns
+- **Segment-Based Temporal Engine**: Treats the character lifeline as a hierarchy of isolated chronological segments (Epochs), ensuring robust downward propagation of time shifts and non-destructive event insertion.
 
 ## AI & External Services
 - **Gemini / OpenRouter**: Integrated via `npc-generator` for lore-accurate, automated character and lifeline generation.
