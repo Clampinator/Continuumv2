@@ -31,7 +31,7 @@
 - [x] Task: High-Volume Performance Optimization (5e1d246)
     - [ ] Write Tests: Stress-test rendering with 1000+ events.
     - [ ] Implement: Implement LOD (Level of Detail) or SVG grouping optimizations in the render loop.
-- [ ] Task: Animated Timeline Transitions
+- [x] Task: Animated Timeline Transitions (0a58e06)
     - [ ] Write Tests: Define timing and easing expectations for view-state shifts.
     - [ ] Implement: Add CSS/JS transitions to coordinate shifts.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Visual Polish & High-Volume Optimization' (Protocol in workflow.md)
