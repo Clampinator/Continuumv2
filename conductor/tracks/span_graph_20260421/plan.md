@@ -12,7 +12,7 @@
     - [ ] Implement: Modify the Character Sheet handler to inject the SVG viewport into the "Lifeline" section.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Infrastructure & Core Rendering' (Protocol in workflow.md)
 
-## Phase 2: Navigation & Interaction
+## Phase 2: Navigation & Interaction [checkpoint: 065cdb7]
 - [x] Task: Implement Pan and Zoom System (b64d8d4)
     - [ ] Write Tests: Define wheel-zoom and click-drag pan logic in `tests/span-graph/navigation.test.js`.
     - [ ] Implement: Add interaction handlers to `modules/span-graph/viewport.js`.
