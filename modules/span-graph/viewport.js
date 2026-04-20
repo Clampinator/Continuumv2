@@ -17,7 +17,97 @@ export class SpanGraphViewport {
     this.svg = this._createSVG();
     if (this.container && this.svg) {
       this.container.appendChild(this.svg);
+      this._activateListeners();
     }
+  }
+
+  /**
+   * Attaches interaction listeners to the container.
+   * @private
+   */
+  _activateListeners() {
+    if (!this.container || typeof window === 'undefined') return;
+
+    this.container.addEventListener('wheel', this._onWheel.bind(this), { passive: false });
+    this.container.addEventListener('mousedown', this._onMouseDown.bind(this));
+  }
+
+  /**
+   * Handles wheel zoom event.
+   * @private
+   */
+  _onWheel(event) {
+    event.preventDefault();
+    const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+    const anchor = { x: event.offsetX, y: event.offsetY };
+    this.handleZoom(zoomFactor, anchor);
+  }
+
+  /**
+   * Handles mouse down for panning.
+   * @private
+   */
+  _onMouseDown(event) {
+    if (event.button !== 0) return; // Only left click
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const initialPanX = this.viewState.panX;
+    const initialPanY = this.viewState.panY;
+
+    const onMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      this.setViewState({
+        panX: initialPanX + dx,
+        panY: initialPanY + dy
+      });
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  /**
+   * Manually updates the pan state.
+   * @param {number} dx - Delta X.
+   * @param {number} dy - Delta Y.
+   */
+  handlePan(dx, dy) {
+    this.setViewState({
+      panX: this.viewState.panX + dx,
+      panY: this.viewState.panY + dy
+    });
+  }
+
+  /**
+   * Manually updates the zoom state relative to an anchor point.
+   * @param {number} factor - Zoom multiplier.
+   * @param {Object} [anchor] - Optional anchor point {x, y}.
+   */
+  handleZoom(factor, anchor) {
+    const oldZoom = this.viewState.zoom;
+    const newZoom = oldZoom * factor;
+
+    if (!anchor) {
+      this.setViewState({ zoom: newZoom });
+      return;
+    }
+
+    // New Pan = Anchor - (Anchor - OldPan) * (NewZoom / OldZoom)
+    const newPanX = anchor.x - (anchor.x - this.viewState.panX) * (newZoom / oldZoom);
+    const newPanY = anchor.y - (anchor.y - this.viewState.panY) * (newZoom / oldZoom);
+
+    this.setViewState({
+      panX: newPanX,
+      panY: newPanY,
+      zoom: newZoom
+    });
   }
 
   /**
@@ -25,8 +115,6 @@ export class SpanGraphViewport {
    * @private
    */
   _createSVG() {
-    // In a browser environment, this creates a real SVG.
-    // In our test environment (Node/JSDOM), it will use the global document.
     if (typeof document === 'undefined') return null;
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
