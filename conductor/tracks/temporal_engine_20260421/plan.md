@@ -18,7 +18,7 @@
     - [ ] Implement Diagonal Preservation logic to project manual overrides onto the rail.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Stable Insertion & Chronology Management' (Protocol in workflow.md)
 
-## Phase 3: Integration & Validation
+## Phase 3: Integration & Validation [checkpoint: 58c490e]
 - [x] Task: Create Unified Temporal State Middleware (8cf3b50)
     - [ ] Implement `modules/temporal-engine/get-temporal-state.js` to provide a read-only, unified state to UI/System.
     - [ ] Integrate Span Pool Ledger for real-time cost calculation.
