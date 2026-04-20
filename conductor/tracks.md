@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Implement Core Temporal Projection and Robust Insertion Engine**
+- [~] **Track: Implement Core Temporal Projection and Robust Insertion Engine**
   *Link: [./tracks/temporal_engine_20260421/](./tracks/temporal_engine_20260421/)*
