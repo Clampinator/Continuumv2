@@ -1,0 +1,54 @@
+
+/*===========================*/
+/* ORG MANDATES SECTION CSS  */
+/*===========================*/
+
+/* Header Controls Alignment */
+.section-header-row .org-mandates-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Add Button in Header */
+.section-header-row .org-mandates-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.org-mandates-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.org-mandates-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Reuse existing Goal Styles via inheritance, specific overrides here */
+.organization .goal-item {
+    border-left: 4px solid #555; /* Default border */
+}
+
+.organization .goal-item[data-importance="Critical"] { border-left-color: #d63031; }
+.organization .goal-item[data-importance="Extreme"] { border-left-color: #e17055; }
+.organization .goal-item[data-importance="Important"] { border-left-color: #fdcb6e; }
+.organization .goal-item[data-importance="Mild"] { border-left-color: #00b894; }
+.organization .goal-item[data-importance="Passing"] { border-left-color: #74b9ff; }
+.organization .goal-item[data-importance="Achieved"] { border-left-color: #6c5ce7; opacity: 0.7; }

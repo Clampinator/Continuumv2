@@ -1,0 +1,134 @@
+/*==========================*/
+/* ARMOR SECTION            */
+/*==========================*/
+.armor-layout-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.armor-layout-left {
+  flex: 1 1 33%;
+  min-width: 180px;
+}
+
+.armor-layout-right {
+  flex: 1 1 67%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.armor-summary-display {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.armor-summary-display img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.armor-summary-display .location-ip {
+  position: absolute;
+  color: #fff;
+  background: rgba(220, 53, 69, 0.85);
+  border: 1px solid #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9em;
+  box-shadow: 0 0 5px black;
+  user-select: none;
+}
+
+.location-ip.loc-a { top: 9%; left: 72%; }
+.location-ip.loc-b { top: 35%; left: 25%; }
+.location-ip.loc-c { top: 67%; left: 47%; }
+.location-ip.loc-d { top: 20%; left: 80%; }
+.location-ip.loc-e { top: 60%; left: 15%; }
+.location-ip.loc-f { top: 28%; left: 7%; }
+.location-ip.loc-g { top: 78%; left: 85%; }
+
+.armor-summary-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 0;
+}
+
+.summary-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c2c2c;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.summary-stat-row label {
+  font-weight: bold;
+  color: #dcdcdc;
+}
+
+.summary-stat-row span {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+}
+
+.summary-stat-row.penalty span {
+  color: #ff6060;
+}
+
+/* --- ARMOR LIST ALIGNMENT FIXES --- */
+.armor-layout-right .combat-item-header.armor-header,
+.armor-layout-right .combat-item {
+  gap: 5px;
+}
+
+/* CRITICAL: Unified width for Name and Enc columns to prevent drift */
+.armor-layout-right .combat-item-header .weapon-name,
+.armor-layout-right .combat-item .weapon-name {
+  flex: 0 0 160px !important; 
+  padding-left: 4px; 
+}
+
+.armor-layout-right .combat-item-header .weapon-stat,
+.armor-layout-right .combat-item .weapon-stat {
+  flex: 0 0 45px !important; 
+}
+
+/* Fixed width for the entire damage group to lock header and boxes together */
+.armor-layout-right .combat-item-header .weapon-damage-group,
+.armor-layout-right .combat-item .weapon-damage-group {
+  flex: 0 0 255px !important; 
+}
+
+/* Spacer for alignment matching delete button icon */
+.armor-layout-right .combat-item-header .weapon-controls,
+.armor-layout-right .combat-item .weapon-controls {
+  flex: 0 0 24px !important;
+}
+
+.armor-layout-right .weapon-damage-item {
+  min-width: 32px; 
+  justify-content: center;
+}
+
+.armor-layout-right input[readonly] {
+  background-color: #222;
+  border-color: #444;
+  color: #ccc;
+  pointer-events: none;
+  text-align: center;
+}

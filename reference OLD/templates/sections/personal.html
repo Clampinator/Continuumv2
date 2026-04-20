@@ -1,0 +1,150 @@
+
+<!--==============================-->
+<!-- PERSONAL INFORMATION SECTION -->
+<!--==============================-->
+<div class="section-container">
+  <input type="checkbox" id="toggle-personal-info-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-personal-info-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-personal-info-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Personal Information</h2>
+    </label>
+    <div class="personal-controls">
+      <button type="button" class="personal-info-help" title="Help"><i class="fas fa-question"></i></button>
+      {{#if isGM}}
+      <button type="button" class="sheet-settings-button" data-tooltip="Sheet Settings"><i class="fas fa-cogs"></i></button>
+      {{/if}}
+    </div>
+  </div>
+  <div class="columns">
+
+      <!-- Description Column -->
+      <div class="column">
+        <h3>Description</h3>
+        <div class="form-row">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" value="{{actor.name}}" />
+        </div>
+        <div class="form-row">
+          <label for="pronouns">Identity:</label>
+          <input type="text" id="pronouns" name="system.personal.pronouns" value="{{system.personal.pronouns}}" />
+        </div>
+        <div class="form-row">
+          <label for="heritage">Heritage:</label>
+          <input type="text" id="heritage" name="system.personal.heritage" value="{{system.personal.heritage}}" />
+        </div>
+        <div class="form-row-double">
+          <div class="form-subrow">
+            <label for="height">Height:</label>
+            <input type="text" name="system.personal.height" value="{{system.personal.height}}">
+            <span class="static-text">cm.</span>
+          </div>
+          <div class="form-subrow">
+            <label for="weight">Weight:</label>
+            <input type="text" name="system.personal.weight" value="{{system.personal.weight}}">
+            <span class="static-text">kg.</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="appearance">Appearance:</label>
+          <input type="text" id="appearance" name="system.personal.appearance" value="{{system.personal.appearance}}" placeholder="Apparent age or visual description" />
+        </div>
+      </div>
+
+      <!-- Locality Column -->
+      <div class="column">
+        <h3>Locality</h3>
+        <div class="form-row">
+          <label for="dob">Date of Birth:</label>
+          <div class="date-picker-container">
+            <input type="text" class="date-text-input" id="dob" name="system.personal.dob" value="{{system.personal.dob}}" placeholder="YYYY-MM-DD" />
+            <i class="fas fa-calendar-alt date-picker-icon"></i>
+            <input type="date" class="date-picker-hidden" tabindex="-1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="birth-location">Birthplace:</label>
+          <div style="display: flex; gap: 5px; align-items: center; flex: 1;">
+            <input type="text" id="birth-location" name="system.personal.birthLocation" value="{{system.personal.birthLocation}}" placeholder="City, Country" />
+            <input type="hidden" name="system.personal.birthLat" value="{{system.personal.birthLat}}"/>
+            <input type="hidden" name="system.personal.birthLng" value="{{system.personal.birthLng}}"/>
+            <button type="button" class="personal-geo-btn personal-locate-btn" title="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
+            <button type="button" class="personal-geo-btn personal-grab-btn" title="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="locality">Locality:</label>
+          <input type="text" id="locality" name="system.personal.locality" value="{{system.personal.locality}}" />
+        </div>
+        <div class="form-row">
+          <label for="society">Society:</label>
+          <input type="text" id="society" name="system.personal.society" value="{{system.personal.society}}" />
+        </div>
+        <div class="form-row">
+          <label for="grace">Grace:</label>
+          <input type="text" id="grace" name="system.personal.grace" value="{{system.personal.grace}}" />
+        </div>
+      </div>
+
+      <!-- Continuum Column -->
+      <div class="column">
+        <h3>Continuum</h3>
+        <div class="form-row">
+          <label for="date-invitation">Date of Invitation:</label>
+          <div class="date-picker-container">
+            <input type="text" class="date-text-input" id="date-invitation" name="system.personal.invitationDate" value="{{system.personal.invitationDate}}" placeholder="YYYY-MM-DD" />
+            <i class="fas fa-calendar-alt date-picker-icon"></i>
+            <input type="date" class="date-picker-hidden" tabindex="-1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="corner">Corner:</label>
+          <input type="text" id="corner" name="system.personal.corner" value="{{system.personal.corner}}" />
+        </div>
+        <div class="form-row">
+          <label for="fraternity">Fraternity:</label>
+          <select id="fraternity" name="system.personal.fraternity">
+			  <option value="" {{#unless system.personal.fraternity}}selected{{/unless}}>None</option>
+			  <option value="Antequarians" {{#if (eq system.personal.fraternity "Antequarians")}}selected{{/if}}>Antequarians</option>
+            <option value="Engineers" {{#if (eq system.personal.fraternity "Engineers")}}selected{{/if}}>Engineers</option>
+            <option value="Foxhorn" {{#if (eq system.personal.fraternity "Foxhorn")}}selected{{/if}}>Foxhorn</option>
+			<option value="Midwives" {{#if (eq system.personal.fraternity "Midwives")}}selected{{/if}}>Midwives</option>
+			<option value="Moneychangers" {{#if (eq system.personal.fraternity "Moneychangers")}}selected{{/if}}>Moneychangers</option>
+			<option value="Physicians" {{#if (eq system.personal.fraternity "Physicians")}}selected{{/if}}>Physicians</option>
+			<option value="Quicker" {{#if (eq system.personal.fraternity "Quicker")}}selected{{/if}}>Quicker</option>
+			<option value="Scribes" {{#if (eq system.personal.fraternity "Scribes")}}selected{{/if}}>Scribes</option>
+			<option value="Thesbians" {{#if (eq system.personal.fraternity "Thesbians")}}selected{{/if}}>Thesbians</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="era">Era:</label>
+          <select id="era" name="system.personal.era">
+            <option value="" disabled>Select...</option>
+            <option value="Aquarian" {{#if (eq system.personal.era "Aquarian")}}selected{{/if}}>Aquarian</option>
+            <option value="Piscean" {{#if (eq system.personal.era "Piscean")}}selected{{/if}}>Piscean</option>
+            <option value="Ariesian" {{#if (eq system.personal.era "Ariesian")}}selected{{/if}}>Ariesian</option>
+			<option value="Tauran" {{#if (eq system.personal.era "Tauran")}}selected{{/if}}>Tauran</option>
+			<option value="Geminid" {{#if (eq system.personal.era "Geminid")}}selected{{/if}}>Geminid</option>
+			<option value="Cancerean" {{#if (eq system.personal.era "Cancerean")}}selected{{/if}}>Cancerean</option>
+			<option value="Leonid" {{#if (eq system.personal.era "Leonid")}}selected{{/if}}>Leonid</option>
+			<option value="Virgin" {{#if (eq system.personal.era "Virgin")}}selected{{/if}}>Virgin</option>
+			<option value="Libran" {{#if (eq system.personal.era "Libran")}}selected{{/if}}>Libran</option>
+			<option value="Scorpiod" {{#if (eq system.personal.era "Scorpiod")}}selected{{/if}}>Scorpiod</option>
+			<option value="Sagittarian" {{#if (eq system.personal.era "Sagittarian")}}selected{{/if}}>Sagittarian</option>
+          </select>
+        </div>
+        <div class="form-row-double">
+          <div class="form-subrow">
+            <label>Age:</label>
+            <div class="form-subrow-pair">
+              <input type="text" value="{{calculatedAge.years}}" readonly class="locked-input" data-tooltip="Calculated automatically from the Lifeline">
+              <span class="static-text">Yrs</span>
+            </div>
+          </div>
+          <div class="form-subrow">
+            <label>Days:</label>
+            <input type="text" value="{{calculatedAge.days}}" readonly class="locked-input" data-tooltip="Calculated automatically from the Lifeline">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

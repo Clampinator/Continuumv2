@@ -1,0 +1,161 @@
+/*==========================*/
+/* GOALS SECTION            */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .goals-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Help button styling */
+.goals-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.goals-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Override base.css important rule to reset margin inside flex container */
+.section-header-row .goals-controls .item-add {
+    margin-left: 0 !important;
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between each goal item */
+}
+
+.goal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Space between the two rows inside a goal item */
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.goal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.goal-label {
+  flex: 0 0 60px; /* Fixed width for "I will..." and "by..." */
+  text-align: right;
+  font-style: italic;
+  color: #aaa;
+}
+
+.goal-description,
+.goal-condition {
+  flex-grow: 1; /* Text inputs take up remaining space */
+}
+
+.goal-importance,
+.goal-controls {
+  flex: 0 0 150px; /* Fixed width for the dropdown and the control container */
+}
+
+.goal-controls {
+    display: flex;
+    justify-content: flex-end; /* Push delete button to the right of its container */
+    align-items: center;
+}
+
+/* --- RESOLVED GOALS --- */
+
+.goals-resolved-section {
+    margin-top: 12px;
+    border-top: 1px solid #444;
+    padding-top: 8px;
+}
+
+.goals-resolved-heading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+    margin: 0 0 8px 0;
+}
+
+.goals-resolved-heading i {
+    color: #5a9e6f;
+}
+
+.goal-item--resolved {
+    background-color: #2a2a2a;
+    border-left: 3px solid #5a9e6f;
+    opacity: 0.7;
+    padding: 7px 10px;
+}
+
+.goal-resolved-icon {
+    color: #5a9e6f;
+    flex: 0 0 auto;
+    margin-right: 4px;
+}
+
+.goal-description--resolved {
+    flex-grow: 1;
+    text-decoration: line-through;
+    color: #888;
+    font-style: italic;
+}
+
+.goal-condition--resolved {
+    flex-grow: 1;
+    color: #666;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.goal-resolved-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.goal-resolved-row input[type="checkbox"] {
+    flex: 0 0 auto;
+}
+
+/* --- ARCHIVED GOALS PANEL (below Lifeline) --- */
+
+.archived-goals-panel {
+    display: none;
+}
+
+.archived-goals-panel.visible {
+    display: block;
+}
+
+.toggle-archived-goals.active {
+    background: #3a5a3a;
+    border-color: #5a9e6f;
+    color: #5a9e6f;
+}

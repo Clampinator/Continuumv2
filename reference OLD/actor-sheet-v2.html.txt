@@ -1,0 +1,1224 @@
+<form class="{{cssClass}}" autocomplete="off" data-fraternity="{{fraternityClass}}">
+<!-- The <form> tag is the root element for the entire sheet -->
+
+
+  <!--==============================-->
+  <!-- PERSONAL INFORMATION SECTION -->
+  <!--==============================-->
+<div class="section-container">
+  <input type="checkbox" id="toggle-personal-info-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-personal-info-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-personal-info-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Personal Information</h2>
+    </label>
+    {{#if isGM}}
+    <button type="button" class="sheet-settings-button" data-tooltip="Sheet Settings"><i class="fas fa-cogs"></i></button>
+    {{/if}}
+  </div>
+  <div class="columns">
+
+      <!-- Description Column -->
+      <div class="column">
+        <h3>Description</h3>
+        <div class="form-row">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="system.personal.name" value="{{system.personal.name}}" />
+        </div>
+        <div class="form-row">
+          <label for="pronouns">Pronouns:</label>
+          <input type="text" id="pronouns" name="system.personal.pronouns" value="{{system.personal.pronouns}}" />
+        </div>
+        <div class="form-row">
+          <label for="heritage">Heritage:</label>
+          <input type="text" id="heritage" name="system.personal.heritage" value="{{system.personal.heritage}}" />
+        </div>
+        <div class="form-row-double">
+          <div class="form-subrow">
+            <label for="height">Height:</label>
+            <input type="text" name="system.personal.height" value="{{system.personal.height}}">
+            <span class="static-text">cm.</span>
+          </div>
+          <div class="form-subrow">
+            <label for="age_years">Age:</label>
+            <div class="form-subrow-pair">
+              <input type="text" name="system.personal.age.years" value="{{system.personal.age.years}}">
+              <span class="static-text">Years</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-row-double">
+          <div class="form-subrow">
+            <label for="weight">Weight:</label>
+            <input type="text" name="system.personal.weight" value="{{system.personal.weight}}">
+            <span class="static-text">kg.</span>
+          </div>
+          <div class="form-subrow">
+            <label for="age_days">Days:</label>
+            <input type="text" name="system.personal.age.days" value="{{system.personal.age.days}}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Locality Column -->
+      <div class="column">
+        <h3>Locality</h3>
+        <div class="form-row">
+          <label for="dob">Date of Birth:</label>
+          <input type="date" id="dob" name="system.personal.dob" value="{{system.personal.dob}}" />
+        </div>
+        <div class="form-row">
+          <label for="locality">Locality:</label>
+          <input type="text" id="locality" name="system.personal.locality" value="{{system.personal.locality}}" />
+        </div>
+        <div class="form-row">
+          <label for="society">Society:</label>
+          <input type="text" id="society" name="system.personal.society" value="{{system.personal.society}}" />
+        </div>
+        <div class="form-row">
+          <label for="grace">Grace:</label>
+          <input type="text" id="grace" name="system.personal.grace" value="{{system.personal.grace}}" />
+        </div>
+      </div>
+
+      <!-- Continuum Column -->
+      <div class="column">
+        <h3>Continuum</h3>
+        <div class="form-row">
+          <label for="date-invitation">Date of Invitation:</label>
+          <input type="date" id="date-invitation" name="system.personal.invitationDate" value="{{system.personal.invitationDate}}" />
+        </div>
+        <div class="form-row">
+          <label for="corner">Corner:</label>
+          <input type="text" id="corner" name="system.personal.corner" value="{{system.personal.corner}}" />
+        </div>
+        <div class="form-row">
+          <label for="fraternity">Fraternity:</label>
+          <select id="fraternity" name="system.personal.fraternity">
+			  <option value="" {{#unless system.personal.fraternity}}selected{{/unless}}>None</option>
+			  <option value="Antequarians" {{#if (eq system.personal.fraternity "Antequarians")}}selected{{/if}}>Antequarians</option>
+            <option value="Engineers" {{#if (eq system.personal.fraternity "Engineers")}}selected{{/if}}>Engineers</option>
+            <option value="Foxhorn" {{#if (eq system.personal.fraternity "Foxhorn")}}selected{{/if}}>Foxhorn</option>
+			<option value="Midwives" {{#if (eq system.personal.fraternity "Midwives")}}selected{{/if}}>Midwives</option>
+			<option value="Moneychangers" {{#if (eq system.personal.fraternity "Moneychangers")}}selected{{/if}}>Moneychangers</option>
+			<option value="Physicians" {{#if (eq system.personal.fraternity "Physicians")}}selected{{/if}}>Physicians</option>
+			<option value="Quicker" {{#if (eq system.personal.fraternity "Quicker")}}selected{{/if}}>Quicker</option>
+			<option value="Scribes" {{#if (eq system.personal.fraternity "Scribes")}}selected{{/if}}>Scribes</option>
+			<option value="Thesbians" {{#if (eq system.personal.fraternity "Thesbians")}}selected{{/if}}>Thesbians</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="era">Era:</label>
+          <select id="era" name="system.personal.era">
+            <option value="" disabled>Select...</option>
+            <option value="Aquarian" {{#if (eq system.personal.era "Aquarian")}}selected{{/if}}>Aquarian</option>
+            <option value="Piscean" {{#if (eq system.personal.era "Piscean")}}selected{{/if}}>Piscean</option>
+            <option value="Ariesian" {{#if (eq system.personal.era "Ariesian")}}selected{{/if}}>Ariesian</option>
+			<option value="Tauran" {{#if (eq system.personal.era "Tauran")}}selected{{/if}}>Tauran</option>
+			<option value="Geminid" {{#if (eq system.personal.era "Geminid")}}selected{{/if}}>Geminid</option>
+			<option value="Cancerean" {{#if (eq system.personal.era "Cancerean")}}selected{{/if}}>Cancerean</option>
+			<option value="Leonid" {{#if (eq system.personal.era "Leonid")}}selected{{/if}}>Leonid</option>
+			<option value="Virgin" {{#if (eq system.personal.era "Virgin")}}selected{{/if}}>Virgin</option>
+			<option value="Libran" {{#if (eq system.personal.era "Libran")}}selected{{/if}}>Libran</option>
+			<option value="Scorpiod" {{#if (eq system.personal.era "Scorpiod")}}selected{{/if}}>Scorpiod</option>
+			<option value="Sagittarian" {{#if (eq system.personal.era "Sagittarian")}}selected{{/if}}>Sagittarian</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!--====================-->
+  <!-- ATTRIBUTES SECTION -->
+  <!--====================-->
+  <div class="section-container">
+        <input type="checkbox" id="toggle-attributes-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-attributes-" actor.id))}}checked{{/if}}>
+    <div class="section-header-row">
+        <label for="toggle-attributes-{{actor.id}}" class="section-heading-toggle">
+            <h2 class="section-heading">Attributes</h2>
+        </label>
+    </div>
+    <div class="attributes-container">
+      <!-- Character Image -->
+      <div class="character-image-container">
+        <img class="character-image" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+      </div>
+
+      <div class="attributes-single-row">
+		<!-- Body Block -->
+		<div class="attribute-block">
+		  <button type="button" class="roll-attribute" data-attribute="body" data-tooltip="Roll Body">Body</button>
+		  <input type="number" name="system.attributes.body.value" value="{{system.attributes.body.value}}" data-dtype="Number" min="0" max="20" />
+		  <button type="button" class="roll-ap" data-attribute="body" data-tooltip="Roll Body for Action Points">AP</button>
+			
+		</div> <!-- ✅ this closing tag was missing -->
+
+		<!-- Mind Block -->
+		<div class="attribute-block">
+		  <button type="button" class="roll-attribute" data-attribute="mind" data-tooltip="Roll Mind">Mind</button>
+		  <input type="number" name="system.attributes.mind.value" value="{{system.attributes.mind.value}}" data-dtype="Number" min="0" max="20" />
+		  <button type="button" class="roll-ap" data-attribute="mind" data-tooltip="Roll Mind for Action Points">AP</button>
+		 </div>
+
+		<!-- EQ Block -->
+		<div class="attribute-block">
+		  <button type="button" class="roll-attribute" data-attribute="eq" data-tooltip="Roll EQ">EQ</button>
+		  <input type="number" name="system.attributes.eq.value" value="{{system.attributes.eq.value}}" data-dtype="Number" min="0" max="20" />
+		  <button type="button" class="roll-ap" data-attribute="eq" data-tooltip="Roll EQ for Action Points">AP</button>
+		</div>
+
+		<!-- Quick Block -->
+		<div class="attribute-block">
+		  <button type="button" class="roll-attribute" data-attribute="quick" data-tooltip="Roll Quick">Quick</button>
+		  <input type="number" name="system.attributes.quick.value" value="{{system.attributes.quick.value}}" data-dtype="Number" min="0" max="20" />
+		  <button type="button" class="roll-ap" data-attribute="quick" data-tooltip="Roll Quick for Action Points">AP</button>
+		</div>
+
+		<!-- Willpower Column -->
+		<div class="willpower-column">
+		  <div class="attribute-block willpower-block">
+			<button type="button" class="roll-attribute" data-attribute="willpowerTemp" data-tooltip="Roll Temp Will">Temp Will</button>
+			<input type="number" name="system.attributes.willpower.temp" value="{{system.attributes.willpower.temp}}" data-dtype="Number" min="0" max="20" />
+		  </div>
+		  <div class="attribute-block willpower-block">
+			<button type="button" class="roll-attribute" data-attribute="willpowerPerm" data-tooltip="Roll Perm Will">Perm Will</button>
+			<input type="number" name="system.attributes.willpower.perm" value="{{system.attributes.willpower.perm}}" data-dtype="Number" min="0" max="20" />
+		  </div>
+		</div>
+
+<!-- --- END of new code for actor-sheet.html --- -->
+      </div>
+
+      <!-- Benefits & Limits Box -->
+      <div class="benefits-limits-container">
+        <h3>Benefits & Limits</h3>
+        <textarea name="system.benefitsAndLimits" placeholder="Enter benefits, limits, special abilities, etc.">{{system.benefitsAndLimits}}</textarea>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<!-- In actor-sheet.html -->
+  <!-- Dialog Popup -->
+  <input type="checkbox" name="dialog_flag" class="sheet-hidden" />
+  <div class="dialog-overlay">
+    <!-- NEW: Container for info boxes on the left -->
+    <div class="metability-info-container metability-info-left">
+      <!-- JS will populate this area -->
+    </div>
+
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h3>
+          <span>{{actor.name}}</span> rolls <span class="rolling-attribute-name"></span>
+        </h3>
+      </div>
+      <div class="dialog-rows-container">
+        <div class="dialog-row">
+          <label>Situational Modifier</label>
+          <input type="number" name="situational_modifier" value="0" />
+        </div>
+
+        <!-- Resonance Section (for Attributes) -->
+        <div class="dialog-row-column dialog-resonance-section">
+          <h4>Resonance</h4>
+          <div class="resonance-buttons">
+            <input type="radio" name="resonance_choice" value="none" id="res-none" checked="checked" /><label for="res-none">None</label>
+            <input type="radio" name="resonance_choice" value="slight" id="res-slight" /><label for="res-slight">Slight</label>
+            <input type="radio" name="resonance_choice" value="firm" id="res-firm" /><label for="res-firm">Firm</label>
+            <input type="radio" name="resonance_choice" value="strong" id="res-strong" /><label for="res-strong">Strong</label>
+          </div>
+        </div>
+
+        <!-- Push Section (for Metabilities) -->
+        <div class="dialog-row-column dialog-push-section">
+            <h4>Push <span class="push-modifier-display">(+0)</span></h4>
+            <div class="push-slider-container">
+                                <img src="systems/continuum/assets/metability-push-slider.png" class="push-slider-background" alt="Slider Background">
+                <div class="push-slider-pointer">
+                    <!-- The pointer graphic is applied via CSS -->
+                </div>
+                <div class="push-slider-zones">
+                    <div class="push-zone" data-rank="1"></div>
+                    <div class="push-zone" data-rank="2"></div>
+                    <div class="push-zone" data-rank="3"></div>
+                    <div class="push-zone" data-rank="4"></div>
+                    <div class="push-zone" data-rank="5"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dialog-row-column">
+          <h4>Situation</h4>
+          <div class="situation-buttons">
+            <button type="button" class="situation-roll-button" data-roll-type="advantage">Advantage</button>
+            <button type="button" class="situation-roll-button" data-roll-type="normal">Normal</button>
+            <button type="button" class="situation-roll-button" data-roll-type="disadvantage">Disadvantage</button>
+          </div>
+        </div>
+      </div>
+      <!-- UPDATED: Footer now only contains the cancel button for a cleaner look -->
+      <div class="dialog-footer">
+        <button type="button" class="dialog-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <!-- NEW: Container for info boxes on the right -->
+    <div class="metability-info-container metability-info-right">
+      <!-- JS will populate this area -->
+    </div>
+  </div>
+
+<!--=================-->
+<!-- BACKGROUND SECTION -->
+<!--=================-->
+<div class="section-container">
+
+  <input type="checkbox" id="toggle-background-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-background-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-background-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Background</h2>
+    </label>
+  </div>
+  <div class="section-content collapsible">
+  <!-- Stuff Column -->
+      <div class="stuff-column">
+        <h3>Stuff</h3>
+        <div class="assets-row">
+          <label>Assets: $</label>
+          <input type="text" name="system.combat.assets" value="{{system.combat.assets}}" />
+        </div>
+		<textarea name="system.combat.stuff" placeholder="List equipment, contacts, notes, etc.">{{system.combat.stuff}}</textarea>
+      </div>
+    <textarea name="system.background" class="background-textarea" spellcheck="true" placeholder="Write your character's background...">{{system.background}}</textarea>
+  </div>
+</div>
+
+
+
+<!--====================-->
+<!-- GOALS SECTION      -->
+<!--====================-->
+
+<div class="section-container">
+  <!-- The checkbox is OUTSIDE the header, with a UNIQUE ID -->
+  <input type="checkbox" id="toggle-goals-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-goals-" actor.id))}}checked{{/if}}>
+
+  <div class="section-header-row">
+    <!-- The label correctly points to the checkbox's unique ID -->
+        <label for="toggle-goals-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Goals</h2>
+    </label>
+    <button type="button" class="item-add" data-type="goal" data-tooltip="Add a new Goal"><i class="fas fa-plus"></i> Add Goal</button>
+  </div>
+
+  <div class="goals-list">
+    {{#each goals as |goal|}}
+        <div class="goal-item" data-id="{{goal.id}}" {{#if goal.displayColor}}style="background-color: {{goal.displayColor}};"{{/if}}>
+      <div class="goal-row">
+        <label class="goal-label">I will...</label>
+        <input type="text" class="goal-description" name="system.goals.{{goal.id}}.description" value="{{goal.description}}" placeholder="...achieve something great."/>
+        <select class="goal-importance" name="system.goals.{{goal.id}}.importance">
+          <option value="" disabled {{#unless goal.importance}}selected{{/unless}}>Importance...</option>
+          <option value="Passing" {{#if (eq goal.importance "Passing")}}selected{{/if}}>Passing</option>
+          <option value="Mild" {{#if (eq goal.importance "Mild")}}selected{{/if}}>Mild</option>
+          <option value="Important" {{#if (eq goal.importance "Important")}}selected{{/if}}>Important</option>
+          <option value="Extreme" {{#if (eq goal.importance "Extreme")}}selected{{/if}}>Extreme</option>
+          <option value="Critical" {{#if (eq goal.importance "Critical")}}selected{{/if}}>Critical</option>
+          <option value="Achieved" {{#if (eq goal.importance "Achieved")}}selected{{/if}}>Achieved</option>
+        </select>
+      </div>
+      <div class="goal-row">
+        <label class="goal-label">by...</label>
+        <input type="text" class="goal-condition" name="system.goals.{{goal.id}}.condition" value="{{goal.condition}}" placeholder="...completing this task."/>
+        <div class="goal-controls">
+            <a class="item-delete" data-tooltip="Delete Goal" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+
+<!-- ================= -->
+<!-- SPANNING SECTION  -->
+<!-- ================= -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-spanning-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-spanning-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-spanning-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Spanning</h2>
+    </label>
+    <!--<button type="button" class="item-add" data-type="spanningSkill" data-tooltip="Add a new Spanning Skill"><i class="fas fa-plus"></i> Add Skill</button>-->
+  </div>
+
+  <div class="spanning-content">
+    <!-- Static Row -->
+    <div class="spanning-static-row">
+      <div class="form-group">
+        <label>Span:</label>
+        <input type="number" name="system.spanning.span" value="{{system.spanning.span}}" />
+      </div>
+{{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
+<div class="form-group">
+<label>Natural Span:</label>
+<input type="number" name="system.spanning.naturalSpan" value="{{system.spanning.naturalSpan}}" />
+</div>
+{{/if}}
+      <div class="form-group">
+        <label>Deliberate Frag:</label>
+        <input type="number" name="system.spanning.deliberateFrag" value="{{system.spanning.deliberateFrag}}" />
+      </div>
+      <div class="form-group">
+        <label>Natural Frag:</label>
+        <input type="number" name="system.spanning.naturalFrag" value="{{system.spanning.naturalFrag}}" />
+      </div>
+    </div>
+
+    <!-- Repeating Skills List -->
+    <div class="spanning-skills-list">
+      {{#each spanningSkills as |skill|}}
+      <div class="spanning-skill-item" data-id="{{skill.id}}">
+        <input type="text" class="spanning-skill-name" name="system.spanning.skills.{{skill.id}}.name" value="{{skill.name}}" placeholder="Spanning Skill Name"/>
+        <div class="spanning-skill-controls">
+          <button type="button" class="roll-spanning-skill" data-id="{{skill.id}}">Roll</button>
+          <a class="item-delete" data-tooltip="Delete Skill" data-type="spanningSkill" data-id="{{skill.id}}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ===================== -->
+<!-- METABILIITES SECTION  -->
+<!-- ===================== -->
+{{#if (or @root.isGM @root.playersCanSeeMetabilities)}}
+<div class="section-container">
+        <input type="checkbox" id="toggle-metabilities-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-metabilities-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-metabilities-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Metabilites</h2>
+    </label>
+  </div>
+  <div class="attributes-container">
+    <div class="attributes-single-row">
+      <!-- Coercion Block -->
+      <div class="attribute-block metability-block">
+        <button type="button" class="roll-attribute" data-attribute="meta-coercion" data-tooltip="Roll Coercion" {{#unless (gt system.metabilities.coercion.value 0)}}disabled{{/unless}}>Coercion</button>
+        <div class="metability-spinner-viewport" data-metability="coercion">
+          <img src="systems/continuum/assets/metability-spinner.png" class="metability-spinner-image" alt="Coercion Rank Spinner">
+        </div>
+        <input type="hidden" name="system.metabilities.coercion.value" value="{{system.metabilities.coercion.value}}" />
+      </div>
+      <!-- Creativity Block -->
+      <div class="attribute-block metability-block">
+        <button type="button" class="roll-attribute" data-attribute="meta-creativity" data-tooltip="Roll Creativity" {{#unless (gt system.metabilities.creativity.value 0)}}disabled{{/unless}}>Creativity</button>
+        <div class="metability-spinner-viewport" data-metability="creativity">
+          <img src="systems/continuum/assets/metability-spinner.png" class="metability-spinner-image" alt="Creativity Rank Spinner">
+        </div>
+        <input type="hidden" name="system.metabilities.creativity.value" value="{{system.metabilities.creativity.value}}" />
+      </div>
+      <!-- Farsense Block -->
+      <div class="attribute-block metability-block">
+        <button type="button" class="roll-attribute" data-attribute="meta-farsense" data-tooltip="Roll Farsense" {{#unless (gt system.metabilities.farsense.value 0)}}disabled{{/unless}}>Farsense</button>
+        <div class="metability-spinner-viewport" data-metability="farsense">
+          <img src="systems/continuum/assets/metability-spinner.png" class="metability-spinner-image" alt="Farsense Rank Spinner">
+        </div>
+        <input type="hidden" name="system.metabilities.farsense.value" value="{{system.metabilities.farsense.value}}" />
+      </div>
+      <!-- PK Block -->
+      <div class="attribute-block metability-block">
+        <button type="button" class="roll-attribute" data-attribute="meta-pk" data-tooltip="Roll PK" {{#unless (gt system.metabilities.pk.value 0)}}disabled{{/unless}}>PK</button>
+        <div class="metability-spinner-viewport" data-metability="pk">
+          <img src="systems/continuum/assets/metability-spinner.png" class="metability-spinner-image" alt="PK Rank Spinner">
+        </div>
+        <input type="hidden" name="system.metabilities.pk.value" value="{{system.metabilities.pk.value}}" />
+      </div>
+      <!-- Redaction Block -->
+      <div class="attribute-block metability-block">
+        <button type="button" class="roll-attribute" data-attribute="meta-redaction" data-tooltip="Roll Redaction" {{#unless (gt system.metabilities.redaction.value 0)}}disabled{{/unless}}>Redaction</button>
+        <div class="metability-spinner-viewport" data-metability="redaction">
+          <img src="systems/continuum/assets/metability-spinner.png" class="metability-spinner-image" alt="Redaction Rank Spinner">
+        </div>
+        <input type="hidden" name="system.metabilities.redaction.value" value="{{system.metabilities.redaction.value}}" />
+      </div>
+    </div>
+  </div>
+</div>
+{{/if}}
+
+
+
+    <!--==========================-->
+    <!-- EXPERIENCES SECTION      -->
+    <!--==========================-->
+    <div class="section-container">
+      <input type="checkbox" id="toggle-experiences-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-experiences-" actor.id))}}checked{{/if}}>
+      <div class="section-header-row">
+        <label for="toggle-experiences-{{actor.id}}" class="section-heading-toggle">
+          <h2 class="section-heading">Ages & Experiences</h2>
+        </label>
+        <div class="experience-search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="experience-search" placeholder="Search Ages, Experiences & Events...">
+        </div>
+        <button type="button" class="item-add" data-type="age" data-tooltip="Add a new Age"><i class="fas fa-plus"></i> Add Age</button>
+      </div>
+
+      <div class="ages-list">
+        {{#each ages as |age|}}
+      <div class="age-item draggable-container" data-id="{{age.id}}" draggable="true">
+          <div class="age-header">
+            <input type="text" class="age-title" name="system.ages.{{age.id}}.name" value="{{age.name}}" placeholder="Age Name (e.g., Childhood, The War Years)">
+            <label>From:</label>
+            <input type="date" class="age-date" name="system.ages.{{age.id}}.dateFrom" value="{{age.dateFrom}}">
+            <label>To:</label>
+            <input type="date" class="age-date" name="system.ages.{{age.id}}.dateTo" value="{{age.dateTo}}">
+            <div class="age-header-controls">
+              <button type="button" class="item-add" data-type="experience" data-age-id="{{age.id}}"><i class="fas fa-plus"></i> Add Experience</button>
+              <a class="drag-handle" title="Drag to sort"><i class="fas fa-grip-lines"></i></a>
+              <a class="item-delete" data-type="age" data-id="{{age.id}}" data-tooltip="Delete Age"><i class="fas fa-trash"></i></a>
+            </div>
+          </div>
+
+          <div class="experiences-list">
+            {{#each age.experiences as |experience|}}
+			<div class="experience-item draggable-container" data-id="{{experience.id}}" style="border-left: 5px solid {{experience.displayColor}};" draggable="true">
+              <input type="checkbox" id="toggle-events-{{experience.id}}" class="sheet-hidden event-toggle-checkbox" />
+
+              <div class="experience-content">
+                <div class="experience-title-row">
+                  <input type="text" class="experience-title" name="system.ages.{{../id}}.experiences.{{experience.id}}.name" value="{{experience.name}}" placeholder="Experience Title" />
+                  <label>From:</label>
+                  <input type="date" class="experience-date" name="system.ages.{{../id}}.experiences.{{experience.id}}.dateFrom" value="{{experience.dateFrom}}" />
+                  <label>To:</label>
+                  <input type="date" class="experience-date" name="system.ages.{{../id}}.experiences.{{experience.id}}.dateTo" value="{{experience.dateTo}}" />
+                </div>
+                <textarea name="system.ages.{{../id}}.experiences.{{experience.id}}.description" placeholder="Experience Notes">{{experience.description}}</textarea>
+
+                <div class="events-container">
+                  {{#each experience.events as |event|}}
+					<div class="event-item draggable-container" data-age-id="{{../../id}}" data-exp-id="{{../id}}" data-event-id="{{event.id}}" draggable="true">
+                    <div class="event-content">
+                      <div class="event-title-row">
+                        <input type="text" class="event-title-input" name="system.ages.{{../../id}}.experiences.{{../id}}.events.{{event.id}}.title" value="{{event.title}}" placeholder="Event Title" />
+                        <input type="date" class="event-date-input" name="system.ages.{{../../id}}.experiences.{{../id}}.events.{{event.id}}.date" value="{{event.date}}" />
+                        <input type="time" class="event-time-input" name="system.ages.{{../../id}}.experiences.{{../id}}.events.{{event.id}}.time" value="{{event.time}}" />
+                      </div>
+                      {{#if event.keyframeId}}
+                      <div class="event-keyframe-indicator" data-tooltip="Linked to Spacetime Keyframe">
+                          <i class="fas fa-map-marker-alt"></i> <span>Spacetime Link</span>
+                      </div>
+                      {{/if}}
+                      <textarea name="system.ages.{{../../id}}.experiences.{{../id}}.events.{{event.id}}.notes" placeholder="Event Notes">{{event.notes}}</textarea>
+                    </div>
+                    <div class="event-controls">
+                      <a class="event-control event-link-keyframe" 
+                         data-tooltip="{{#if event.keyframeId}}Unlink Keyframe{{else}}Link to Keyframe{{/if}}" 
+                         data-age-id="{{../../id}}" 
+                         data-exp-id="{{../id}}" 
+                         data-event-id="{{event.id}}"
+                         data-kf-id="{{event.keyframeId}}">
+                         <i class="fas {{#if event.keyframeId}}fa-unlink{{else}}fa-link{{/if}}"></i>
+                      </a>
+                      <a class="event-control event-delete" data-tooltip="Delete Event"><i class="fas fa-trash"></i></a>
+                      <a class="event-control drag-handle" title="Drag to sort"><i class="fas fa-grip-lines"></i></a>
+                    </div>
+                  </div>
+                  {{/each}}
+                </div>
+              </div>
+
+              <div class="item-controls">
+                <button type="button" class="item-delete" data-id="{{experience.id}}" data-type="experience" data-age-id="{{../id}}">Delete</button>
+                <a class="drag-handle" title="Drag to sort"><i class="fas fa-grip-lines"></i></a>
+                <input type="color" class="color-swatch" name="system.ages.{{../id}}.experiences.{{experience.id}}.color" value="{{experience.color}}" data-tooltip="Set Experience Color">
+                <label class="item-toggle" for="toggle-events-{{experience.id}}">
+                  <span class="show-text">Show</span>
+                  <span class="hide-text">Hide</span>
+                </label>
+                <div class="collapsible-controls">
+                  <button type="button" class="event-add" data-age-id="{{../id}}" data-exp-id="{{experience.id}}">Add Event</button>
+                </div>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+
+
+<!-- =============== -->
+<!-- COMBAT SECTION  -->
+<!-- =============== -->
+
+
+<div class="section-container">
+  <input type="checkbox" id="toggle-combat-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-combat-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-combat-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Combat</h2>
+    </label>
+  </div>
+
+  <!-- Container for all combat subsections -->
+  <div class="combat-grid">
+
+    <!-- Ranged Weapons Section -->
+    <div class="combat-subsection">
+      <div class="subsection-header">
+        <h3>Ranged Weapons</h3>
+        <button type="button" class="item-add" data-type="rangedWeapon" data-tooltip="Add Ranged Weapon"><i class="fas fa-plus"></i> Add</button>
+      </div>
+
+      <!-- Ranged Weapon Header Row -->
+      <div class="combat-item-header">
+        <div class="weapon-name">Weapon</div>
+        <div class="weapon-stat">Ammo</div>
+        <div class="weapon-stat">RoF</div>
+        <div class="weapon-stat">Conceal</div>
+        <div class="weapon-damage-group">
+		    <span>G</span>
+            <span>F</span>
+            <span>E</span>
+            <span>D</span>
+            <span>C</span>
+            <span>B</span>
+            <span>A</span>
+		</div>
+        <div class="weapon-controls"></div> <!-- Spacer for alignment -->
+      </div>
+
+      <!-- Ranged Weapon List -->
+      <div class="combat-items-list">
+        {{#each rangedWeapons as |weapon|}}
+        <div class="combat-item" data-id="{{weapon.id}}">
+          <div class="weapon-name">
+            <select name="system.combat.rangedWeapons.{{weapon.id}}.name" class="weapon-select">
+              {{#each @root.weaponData as |stats key|}}
+              <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="weapon-rating">
+            <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="quick">Attack</button>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.ammo}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.rof}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.conceal}}</span>
+          </div>
+          <div class="weapon-damage-group">
+		    <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageG}}</span>
+            </div>
+			<div class="weapon-damage-item">
+                <span class="weapon-stat-display">{{weapon.damageF}}</span>
+            </div>
+			<div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageE}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageD}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageC}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageB}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageA}}</span>
+            </div>
+          </div>
+          <!-- The delete button is now the last item in the row -->
+          <div class="weapon-controls">
+            <a class="item-delete" title="Delete Weapon" data-type="rangedWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+<!-- Melee Weapons Section -->
+<div class="combat-subsection">
+  <div class="subsection-header">
+    <h3>Melee Weapons</h3>
+    <button type="button" class="item-add" data-type="meleeWeapon" data-tooltip="Add Melee Weapon"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <!-- Melee Weapon Header Row -->
+  <div class="combat-item-header">
+    <div class="weapon-name">Weapon</div>
+    <div class="weapon-rating">Attack</div>
+    <div class="weapon-stat">Conceal</div>
+    <div class="weapon-stat">Damage</div>
+    <div class="weapon-controls"></div> <!-- Spacer for alignment -->
+  </div>
+
+  <!-- Melee Weapon List -->
+  <div class="combat-items-list">
+    {{#each meleeWeapons as |weapon|}}
+    <div class="combat-item" data-id="{{weapon.id}}">
+      <div class="weapon-name">
+        <select name="system.combat.meleeWeapons.{{weapon.id}}.name" class="melee-weapon-select">
+          {{#each @root.meleeWeaponData as |stats key|}}
+          <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="weapon-rating">
+        <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="body">Attack</button>
+      </div>
+      <div class="weapon-stat">
+        <span class="weapon-stat-display">{{weapon.conceal}}</span>
+      </div>
+      <div class="weapon-stat">
+        <span class="weapon-stat-display">{{weapon.damage}}</span>
+      </div>
+      <div class="weapon-controls">
+        <a class="item-delete" title="Delete Weapon" data-type="meleeWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+    <!-- Armor Section -->
+    <div class="combat-subsection"> <!-- This is the container for the whole Armor subsection -->
+      <div class="subsection-header">
+        <h3>Armor</h3>
+        <button type="button" class="item-add" data-type="armor" data-tooltip="Add Armor"><i class="fas fa-plus"></i> Add</button>
+      </div>
+
+      <!-- New Layout Container -->
+      <div class="armor-layout-container">
+
+        <!-- Left Column (Image) -->
+        <div class="armor-layout-left">
+          <div class="armor-summary-display">
+            <img src="systems/continuum/assets/Continuum_Hit_Diagram_v2.png" alt="Hit Locations">
+            <div class="location-ip loc-a">{{armorSummary.totalIpA}}</div>
+            <div class="location-ip loc-b">{{armorSummary.totalIpB}}</div>
+            <div class="location-ip loc-c">{{armorSummary.totalIpC}}</div>
+            <div class="location-ip loc-d">{{armorSummary.totalIpD}}</div>
+			<div class="location-ip loc-e">{{armorSummary.totalIpE}}</div>
+			<div class="location-ip loc-f">{{armorSummary.totalIpF}}</div>
+			<div class="location-ip loc-g">{{armorSummary.totalIpG}}</div>
+          </div>
+        </div>
+
+<!-- Right Column (List & Stats) -->
+        <div class="armor-layout-right">
+          <!-- Armor Header Row -->
+          <div class="combat-item-header">
+            <div class="weapon-name">Armor Type</div>
+            <div class="weapon-stat">Weight</div>
+            <div class="weapon-stat">Encum.</div>
+            <!-- MODIFIED: Header for IP locations -->
+            <div class="weapon-damage-group">
+                <span>G</span>
+                <span>F</span>
+                <span>E</span>
+                <span>D</span>
+                <span>C</span>
+                <span>B</span>
+                <span>A</span>
+            </div>
+            <div class="weapon-controls"></div> <!-- Spacer for alignment -->
+          </div>
+
+          <!-- Armor List -->
+          <div class="combat-items-list">
+            {{#each armorItems as |armor|}}
+            <div class="combat-item" data-id="{{armor.id}}">
+              <div class="weapon-name">
+                <select name="system.combat.armor.{{armor.id}}.name" class="armor-select">
+                  {{#each @root.armorData as |stats key|}}
+                  <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              <div class="weapon-stat">
+                <span class="weapon-stat-display">{{armor.weight}}</span>
+              </div>
+              <div class="weapon-stat">
+                <span class="weapon-stat-display">{{armor.encumbrance}}</span>
+              </div>
+              <div class="weapon-damage-group">
+			    <div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipG" value="{{armor.ipG}}" data-dtype="Number" />
+                </div>
+				<div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipF" value="{{armor.ipF}}" data-dtype="Number" />
+                </div>
+				<div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipE" value="{{armor.ipE}}" data-dtype="Number" />
+                </div>
+                <div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipD" value="{{armor.ipD}}" data-dtype="Number" />
+                </div>
+                <div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipC" value="{{armor.ipC}}" data-dtype="Number" />
+                </div>
+                <div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipB" value="{{armor.ipB}}" data-dtype="Number" />
+                </div>
+                <div class="weapon-damage-item">
+                  
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipA" value="{{armor.ipA}}" data-dtype="Number" />
+                </div>
+              </div>
+              <div class="weapon-controls">
+                <a class="item-delete" title="Delete Armor" data-type="armor" data-id="{{armor.id}}"><i class="fas fa-trash"></i></a>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+
+          <!-- Armor Summary Stats -->
+          <div class="armor-summary-stats">
+            <div class="summary-stat-row">
+              <label>Total Encumbrance:</label>
+              <span>{{armorSummary.totalEncumbrance}}</span>
+            </div>
+            <div class="summary-stat-row">
+              <label>Body Attribute:</label>
+              <span>{{system.attributes.body.value}}</span>
+            </div>
+            <div class="summary-stat-row penalty">
+              <label>Quick Penalty:</label>
+              <span>-{{armorSummary.quickPenalty}}</span>
+            </div>
+          </div>
+        </div> <!-- closes armor-layout-right -->
+      </div> <!-- closes armor-layout-container -->
+    </div> <!-- This is the important closing tag that was missing -->
+
+    <!-- Wounds / Stuff Section -->
+    <div class="combat-subsection wounds-stuff-container">
+      <!-- Wounds Column -->
+      <div class="wounds-column">
+        <h3>Wounds</h3>
+        <div class="wounds-grid">
+          <!-- Header Row -->
+          <div class="wounds-header">
+            <div>IP</div>
+            <div>Bruise/Lethal</div>
+            <div>Bleed</div>
+          </div>
+          <!-- Data Rows -->
+          {{#each woundEntries as |wound|}}
+          <div class="wounds-row">
+            <input type="number" name="system.combat.wounds.{{wound.key}}.ip" value="{{wound.ip}}" data-dtype="Number" />
+            <select name="system.combat.wounds.{{wound.key}}.type">
+              <option value="" {{#if (eq wound.type "")}}selected{{/if}}>---</option>
+              <option value="Bruise" {{#if (eq wound.type "Bruise")}}selected{{/if}}>Bruise</option>
+              <option value="Lethal" {{#if (eq wound.type "Lethal")}}selected{{/if}}>Lethal</option>
+            </select>
+            <input type="checkbox" name="system.combat.wounds.{{wound.key}}.bleeding" {{#if wound.bleeding}}checked{{/if}} />
+          </div>
+          {{/each}}
+        </div>
+        <!-- Summary Row -->
+        <div class="wounds-summary">
+          <div class="summary-item">
+            <label>IP Total:</label>
+            <span>{{woundsSummary.ipTotal}}</span>
+          </div>
+          <div class="summary-item">
+            <label>IP Remaining:</label>
+            <span>{{woundsSummary.ipRemaining}}</span>
+          </div>
+        </div>
+      </div>
+
+<!-- Rounds & Phases Column -->
+        <div class="stuff-column">
+          <h3>Rounds & Phases</h3>
+			{{#if combat.active}}
+			<div class="round-phase-container">
+			  <div class="round-phase-display">
+				<span>Round: {{combat.round}}</span>
+				<span>Phase: {{combat.phase}}</span>
+			  </div>
+
+			  <div class="phase-bar" data-tooltip="{{combat.ap}} Action Points this round">
+				{{#each phases}}
+				<div class="phase-column" data-phase="{{this.phaseNum}}">
+				  <div class="phase-block off">{{this.phaseNum}}</div>
+
+				  <div class="phase-actions">
+					<button type="button" class="phase-action defer {{#if (eq this.selectedAction 'defer')}}selected{{/if}}" data-phase="{{this.phaseNum}}" data-action="defer" {{this.buttonState}}>Defer</button>
+					<button type="button" class="phase-action defend {{#if (eq this.selectedAction 'defend')}}selected{{/if}}" data-phase="{{this.phaseNum}}" data-action="defend" {{this.buttonState}}>Defend</button>
+					<button type="button" class="phase-action flee {{#if (eq this.selectedAction 'flee')}}selected{{/if}}" data-phase="{{this.phaseNum}}" data-action="flee" {{this.buttonState}}>Flee</button>
+					<button type="button" class="phase-action fight {{#if (eq this.selectedAction 'fight')}}selected{{/if}}" data-phase="{{this.phaseNum}}" data-action="fight" {{this.buttonState}}>Fight</button>
+				  </div>
+				</div>
+				{{/each}}
+			  </div>
+
+			  {{#if combat.needsToRollAP}}
+				<p class="ap-roll-message">You need to roll for Action Points this round.</p>
+			  {{else}}
+				<p class="ap-rolled-message">AP rolled for this round.</p>
+			  {{/if}}
+			</div>
+			{{else}}
+
+            {{! If combat is not active, show the disabled state by default }}
+            <div class="round-phase-container">
+                <p class="not-in-combat">Not currently in combat.</p>
+                <div class="phase-bar">
+                    {{#each phases}}
+                    <div class="phase-column">
+                        <div class="phase-block off" data-phase="{{this.phaseNum}}">{{this.phaseNum}}</div>
+                        <div class="phase-actions">
+                            <button type="button" class="phase-action" data-phase="{{this.phaseNum}}" data-action="defer" {{this.buttonState}}>Defer</button>
+                            <button type="button" class="phase-action" data-phase="{{this.phaseNum}}" data-action="defend" {{this.buttonState}}>Defend</button>
+                            <button type="button" class="phase-action" data-phase="{{this.phaseNum}}" data-action="flee" {{this.buttonState}}>Flee</button>
+                            <button type="button" class="phase-action" data-phase="{{this.phaseNum}}" data-action="fight" {{this.buttonState}}>Fight</button>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+
+
+
+<!-- ================= -->
+<!-- THE YET SECTION   -->
+<!-- ================= -->
+
+<div class="section-container">
+  <input type="checkbox" id="toggle-yet-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-yet-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-yet-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">The Yet</h2>
+    </label>
+    <button type="button" class="item-add" data-type="yetItem" data-tooltip="Add Yet Item"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <div class="yet-list">
+    <!-- Header Row -->
+    <div class="yet-item-header">
+      <div class="yet-description">In the Yet</div>
+      <div class="yet-done">Done</div>
+      <div class="yet-frag">Frag</div>
+      <div class="yet-when">When</div>
+      <div class="yet-controls"></div> <!-- Spacer for delete button -->
+    </div>
+
+    <!-- Repeating Items List -->
+    {{#each yetItems as |yet|}}
+    <div class="yet-item" data-id="{{yet.id}}">
+      <div class="yet-description">
+        <input type="text" name="system.theYet.{{yet.id}}.description" value="{{yet.description}}" placeholder="An event that has yet to happen..."/>
+      </div>
+      <div class="yet-done">
+        <input type="checkbox" name="system.theYet.{{yet.id}}.done" {{#if yet.done}}checked{{/if}}/>
+      </div>
+      <div class="yet-frag">
+        <input type="number" name="system.theYet.{{yet.id}}.frag" value="{{yet.frag}}" max="99" min="0"/>
+      </div>
+      <div class="yet-when">
+        <input type="date" name="system.theYet.{{yet.id}}.date" value="{{yet.date}}"/>
+        <input type="time" name="system.theYet.{{yet.id}}.time" value="{{yet.time}}"/>
+      </div>
+      <div class="yet-controls">
+        <a class="item-delete" title="Delete Yet Item" data-type="yetItem" data-id="{{yet.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+<!-- =============== -->
+<!-- FAVORS SECTION  -->
+<!-- =============== -->
+
+<div class="section-container">
+  <input type="checkbox" id="toggle-favors-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-favors-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-favors-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Favors</h2>
+    </label>
+    <button type="button" class="item-add" data-type="favor" data-tooltip="Add Favor"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <div class="favors-list">
+    <!-- Header Row -->
+    <div class="favor-item-header">
+      <div class="favor-description">Favor</div>
+      <div class="favor-importance">Importance</div>
+      <div class="favor-when">When</div>
+      <div class="favor-controls"></div> <!-- Spacer for delete button -->
+    </div>
+
+    <!-- Repeating Items List -->
+    {{#each favors as |favor|}}
+    <div class="favor-item" data-id="{{favor.id}}" {{#if favor.displayColor}}style="background-color: {{favor.displayColor}};"{{/if}}>
+      <div class="favor-description">
+        <input type="text" name="system.favors.{{favor.id}}.description" value="{{favor.description}}" placeholder="A favor owed or to be collected..."/>
+      </div>
+      <div class="favor-importance">
+        <select name="system.favors.{{favor.id}}.importance">
+          <option value="" disabled {{#unless favor.importance}}selected{{/unless}}>Select...</option>
+          <option value="Critical" {{#if (eq favor.importance "Critical")}}selected{{/if}}>Critical</option>
+          <option value="Extremely Important" {{#if (eq favor.importance "Extremely Important")}}selected{{/if}}>Extremely Important</option>
+          <option value="Very Important" {{#if (eq favor.importance "Very Important")}}selected{{/if}}>Very Important</option>
+          <option value="Important" {{#if (eq favor.importance "Important")}}selected{{/if}}>Important</option>
+          <option value="Moderately Important" {{#if (eq favor.importance "Moderately Important")}}selected{{/if}}>Moderately Important</option>
+          <option value="Less Important" {{#if (eq favor.importance "Less Important")}}selected{{/if}}>Less Important</option>
+          <option value="Unimportant" {{#if (eq favor.importance "Unimportant")}}selected{{/if}}>Unimportant</option>
+          <option value="Done" {{#if (eq favor.importance "Done")}}selected{{/if}}>Done</option>
+        </select>
+      </div>
+      <div class="favor-when">
+        <input type="date" name="system.favors.{{favor.id}}.when" value="{{favor.when}}"/>
+      </div>
+      <div class="favor-controls">
+        <a class="item-delete" title="Delete Favor" data-type="favor" data-id="{{favor.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+<!-- ===================== -->
+<!-- RELATIONSHIPS SECTION -->
+<!-- ===================== -->
+
+<div class="section-container">
+  <input type="checkbox" id="toggle-relationships-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-relationships-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-relationships-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Relationships</h2>
+    </label>
+    <button type="button" class="item-add" data-type="relationship" data-tooltip="Add Relationship"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <div class="relationships-list">
+    <!-- Header Row -->
+    <div class="relationship-item-header">
+      <div class="relationship-name">Name</div>
+      <div class="relationship-type">Relationship</div>
+      <div class="relationship-importance">Sphere</div>
+      <div class="relationship-when">When</div>
+      <div class="relationship-where">Where</div>
+      <div class="relationship-controls"></div> <!-- Spacer for delete button -->
+    </div>
+
+    <!-- Repeating Items List -->
+    {{#each relationships as |rel|}}
+    <div class="relationship-item" data-id="{{rel.id}}">
+      <div class="relationship-name">
+        <input type="text" name="system.relationships.{{rel.id}}.name" value="{{rel.name}}" placeholder="Character Name"/>
+      </div>
+      <div class="relationship-type">
+        <select name="system.relationships.{{rel.id}}.relationshipType">
+          <option value="" disabled {{#unless rel.relationshipType}}selected{{/unless}}>Select...</option>
+          <option value="Sibling" {{#if (eq rel.relationshipType "Sibling")}}selected{{/if}}>Sibling</option>
+          <option value="Parent" {{#if (eq rel.relationshipType "Parent")}}selected{{/if}}>Parent</option>
+          <option value="Grandparent" {{#if (eq rel.relationshipType "Grandparent")}}selected{{/if}}>Grandparent</option>
+          <option value="Aunt" {{#if (eq rel.relationshipType "Aunt")}}selected{{/if}}>Aunt</option>
+          <option value="Uncle" {{#if (eq rel.relationshipType "Uncle")}}selected{{/if}}>Uncle</option>
+          <option value="Cousin" {{#if (eq rel.relationshipType "Cousin")}}selected{{/if}}>Cousin</option>
+          <option value="Friend" {{#if (eq rel.relationshipType "Friend")}}selected{{/if}}>Friend</option>
+          <option value="Ex" {{#if (eq rel.relationshipType "Ex")}}selected{{/if}}>Ex</option>
+          <option value="Partner" {{#if (eq rel.relationshipType "Partner")}}selected{{/if}}>Partner</option>
+          <option value="Progeny" {{#if (eq rel.relationshipType "Progeny")}}selected{{/if}}>Progeny</option>
+          <option value="Spouse" {{#if (eq rel.relationshipType "Spouse")}}selected{{/if}}>Spouse</option>
+          <option value="Acquaintance" {{#if (eq rel.relationshipType "Acquaintance")}}selected{{/if}}>Acquaintance</option>
+          <option value="Subordinate" {{#if (eq rel.relationshipType "Subordinate")}}selected{{/if}}>Subordinate</option>
+          <option value="Superior" {{#if (eq rel.relationshipType "Superior")}}selected{{/if}}>Superior</option>
+          <option value="Colleague" {{#if (eq rel.relationshipType "Colleague")}}selected{{/if}}>Colleague</option>
+        </select>
+      </div>
+      <div class="relationship-importance">
+        <select name="system.relationships.{{rel.id}}.importance">
+          <option value="" disabled {{#unless rel.importance}}selected{{/unless}}>Select...</option>
+          <option value="Public" {{#if (eq rel.importance "Public")}}selected{{/if}}>Public</option>
+          <option value="Social" {{#if (eq rel.importance "Social")}}selected{{/if}}>Social</option>
+          <option value="Professional" {{#if (eq rel.importance "Professional")}}selected{{/if}}>Professional</option>
+          <option value="Personal" {{#if (eq rel.importance "Personal")}}selected{{/if}}>Personal</option>
+          <option value="Intimate" {{#if (eq rel.importance "Intimate")}}selected{{/if}}>Intimate</option>
+        </select>
+      </div>
+      <div class="relationship-when">
+        <input type="date" name="system.relationships.{{rel.id}}.when" value="{{rel.when}}"/>
+      </div>
+      <div class="relationship-where">
+        <input type="text" name="system.relationships.{{rel.id}}.where" value="{{rel.where}}" placeholder="Location Met"/>
+      </div>
+      <div class="relationship-controls">
+        <a class="item-delete" title="Delete Relationship" data-type="relationship" data-id="{{rel.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+<!-- ===================== -->
+<!-- LAND VEHICLES SECTION -->
+<!-- ===================== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-vehicles-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-vehicles-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-vehicles-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Land Vehicles</h2>
+    </label>
+    <button type="button" class="item-add" data-type="vehicle" data-tooltip="Add Land Vehicle"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <div class="vehicles-list">
+    <div class="vehicle-item-header">
+      <div class="vehicle-name">Vehicle</div>
+      <div class="vehicle-drive">Drive</div>
+      <div class="vehicle-stat">Mass (t)</div>
+      <div class="vehicle-stat">IP</div>
+      <div class="vehicle-stat">Armor</div>
+      <div class="vehicle-stat">Passengers</div>
+      <div class="vehicle-controls"></div>
+    </div>
+    {{#each vehicles as |vehicle|}}
+    <div class="vehicle-item" data-id="{{vehicle.id}}" data-type="vehicles">
+      <div class="vehicle-name">
+<select name="system.vehicles.{{vehicle.id}}.name" class="vehicle-select">
+  {{#each (lookup @root.allVehicleData "Land Vehicles") as |stats key|}}
+    <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+  {{/each}}
+</select>
+      </div>
+      <div class="vehicle-drive">
+        <button type="button" class="roll-vehicle" data-id="{{vehicle.id}}">Drive</button>
+      </div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.mass}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.ip}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.armor}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.passengers}}</span></div>
+      <div class="vehicle-controls">
+        <a class="item-delete" title="Delete Vehicle" data-type="vehicle" data-id="{{vehicle.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+<!-- =================== -->
+<!-- AIR VEHICLES SECTION  -->
+<!-- =================== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-air-vehicles-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-air-vehicles-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-air-vehicles-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Air Vehicles</h2>
+    </label>
+    <button type="button" class="item-add" data-type="airVehicle" data-tooltip="Add Air Vehicle"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <div class="vehicles-list">
+    <div class="vehicle-item-header">
+      <div class="vehicle-name">Vehicle</div>
+      <div class="vehicle-drive">Pilot</div>
+      <div class="vehicle-stat">Mass (t)</div>
+      <div class="vehicle-stat">IP</div>
+      <div class="vehicle-stat">Armor</div>
+      <div class="vehicle-stat">Passengers</div>
+      <div class="vehicle-controls"></div>
+    </div>
+    {{#each airVehicles as |vehicle|}}
+    <div class="vehicle-item" data-id="{{vehicle.id}}" data-type="airVehicles">
+      <div class="vehicle-name">
+<select name="system.airVehicles.{{vehicle.id}}.name" class="vehicle-select">
+  {{#each (lookup @root.allVehicleData "Air Vehicles") as |stats key|}}
+    <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+  {{/each}}
+</select>
+      </div>
+      <div class="vehicle-drive">
+        <button type="button" class="roll-vehicle" data-id="{{vehicle.id}}">Pilot</button>
+      </div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.mass}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.ip}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.armor}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.passengers}}</span></div>
+      <div class="vehicle-controls">
+        <a class="item-delete" title="Delete Vehicle" data-type="airVehicle" data-id="{{vehicle.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+<!-- ===================== -->
+<!-- WATER VEHICLES SECTION  -->
+<!-- ===================== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-water-vehicles-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-water-vehicles-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-water-vehicles-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Water Vehicles</h2>
+    </label>
+    <button type="button" class="item-add" data-type="waterVehicle" data-tooltip="Add Water Vehicle"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <div class="vehicles-list">
+    <div class="vehicle-item-header">
+      <div class="vehicle-name">Vehicle</div>
+      <div class="vehicle-drive">Pilot</div>
+      <div class="vehicle-stat">Mass (t)</div>
+      <div class="vehicle-stat">IP</div>
+      <div class="vehicle-stat">Armor</div>
+      <div class="vehicle-stat">Passengers</div>
+      <div class="vehicle-controls"></div>
+    </div>
+    {{#each waterVehicles as |vehicle|}}
+    <div class="vehicle-item" data-id="{{vehicle.id}}" data-type="waterVehicles">
+      <div class="vehicle-name">
+<select name="system.waterVehicles.{{vehicle.id}}.name" class="vehicle-select">
+  {{#each (lookup @root.allVehicleData "Water Vehicles") as |stats key|}}
+    <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+  {{/each}}
+</select>
+      </div>
+      <div class="vehicle-drive">
+        <button type="button" class="roll-vehicle" data-id="{{vehicle.id}}">Pilot</button>
+      </div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.mass}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.ip}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.armor}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.passengers}}</span></div>
+      <div class="vehicle-controls">
+        <a class="item-delete" title="Delete Vehicle" data-type="waterVehicle" data-id="{{vehicle.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+
+ <!-- Don't forget to close the form tag at the end -->
+</form>

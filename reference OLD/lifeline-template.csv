@@ -1,0 +1,4 @@
+type,date,time,title,notes,location,isSpan,spanFromDate,spanFromTime,spanFromLocation,spanToDate,spanToTime,spanToLocation,experience,startExperience,endExperience,age,isBirth
+age,,,College Years,,,,,,,,,,,,,
+event,1985-06-12,09:00,First Day of College,Moved into the dorms.,State University,,,,,,,,College Years,true,,College Years
+event,1989-05-20,,Graduation Day,Finally done.,State University,,,,,,,,College Years,,true,College Years

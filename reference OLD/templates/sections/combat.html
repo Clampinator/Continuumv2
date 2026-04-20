@@ -1,0 +1,395 @@
+<!-- =============== -->
+<!-- COMBAT SECTION  -->
+<!-- =============== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-combat-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-combat-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-combat-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Combat</h2>
+    </label>
+    <div class="combat-controls">
+      <button type="button" class="combat-help" data-tooltip="Help"><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+
+  <!-- Container for all combat subsections -->
+  <div class="combat-grid">
+
+    <!-- Custom Firearms Section -->
+    {{#if firearmItems}}
+    <div class="combat-subsection custom-firearms-section">
+      <div class="subsection-header">
+        <h3>Custom Firearms</h3>
+      </div>
+      <div class="combat-item-header custom-firearm-header">
+        <div class="weapon-name">Firearm</div>
+        <div class="weapon-carried">Carried</div>
+        <div class="weapon-rating">Attack</div>
+        <div class="weapon-stat">Bonus</div>
+        <div class="weapon-stat">Hnd</div>
+        <div class="weapon-stat">Amm</div>
+        <div class="weapon-stat">Rel</div>
+        <div class="weapon-stat">Ammo</div>
+        <div class="weapon-stat">RoF</div>
+        <div class="weapon-stat">Conc.</div>
+        <div class="weapon-stat">Wt.</div>
+        <div class="weapon-damage-group">
+		    <div class="weapon-damage-item"><span>G</span></div>
+            <div class="weapon-damage-item"><span>F</span></div>
+            <div class="weapon-damage-item"><span>E</span></div>
+            <div class="weapon-damage-item"><span>D</span></div>
+            <div class="weapon-damage-item"><span>C</span></div>
+            <div class="weapon-damage-item"><span>B</span></div>
+            <div class="weapon-damage-item"><span>A</span></div>
+        </div>
+        <div class="weapon-controls"></div>
+      </div>
+      <div class="combat-items-list">
+        {{#each firearmItems as |firearm|}}
+        <div class="combat-item custom-firearm-item" data-gear-id="{{firearm.id}}" data-gear-type="firearm">
+          <div class="weapon-name">
+            <span class="custom-firearm-name">{{firearm.name}}{{#if firearm.system.firearmModel}} <small>({{firearm.system.firearmModel}})</small>{{/if}}</span>
+          </div>
+          <div class="weapon-carried">
+            <input type="checkbox" class="gear-carried-toggle" data-item-id="{{firearm.id}}" {{#if firearm.system.carried}}checked{{/if}} />
+          </div>
+          <div class="weapon-rating">
+            <button type="button" class="roll-weapon roll-custom-firearm" data-gear-id="{{firearm.id}}" data-attribute="quick">Attack</button>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">+{{firearm.computedBonus}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{firearm.system.aspects.aspect1}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{firearm.system.aspects.aspect2}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{firearm.system.aspects.aspect3}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.ammo}}{{else}}-{{/if}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.rof}}{{else}}-{{/if}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.conceal}}{{else}}-{{/if}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.weight}}{{else}}-{{/if}}</span>
+          </div>
+          <div class="weapon-damage-group">
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageG}}{{else}}-{{/if}}</span></div>
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageF}}{{else}}-{{/if}}</span></div>
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageE}}{{else}}-{{/if}}</span></div>
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageD}}{{else}}-{{/if}}</span></div>
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageC}}{{else}}-{{/if}}</span></div>
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageB}}{{else}}-{{/if}}</span></div>
+            <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageA}}{{else}}-{{/if}}</span></div>
+          </div>
+          <div class="weapon-controls">
+            <a class="item-edit" title="Edit Firearm" data-item-id="{{firearm.id}}"><i class="fas fa-edit"></i></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Ranged Weapons Section -->
+    <div class="combat-subsection">
+      <div class="subsection-header">
+        <h3>Ranged Weapons</h3>
+        <button type="button" class="item-add" data-type="rangedWeapon" data-tooltip="Add Ranged Weapon"><i class="fas fa-plus"></i> Add</button>
+      </div>
+
+      <!-- Ranged Weapon Header Row -->
+      <div class="combat-item-header">
+        <div class="weapon-name">Weapon</div>
+        <div class="weapon-carried">Carried</div>
+        <div class="weapon-rating">Attack</div>
+        <div class="weapon-stat">Ammo</div>
+        <div class="weapon-stat">RoF</div>
+        <div class="weapon-stat">Conc.</div>
+        <div class="weapon-stat">Wt.</div>
+        <div class="weapon-damage-group">
+		    <div class="weapon-damage-item"><span>G</span></div>
+            <div class="weapon-damage-item"><span>F</span></div>
+            <div class="weapon-damage-item"><span>E</span></div>
+            <div class="weapon-damage-item"><span>D</span></div>
+            <div class="weapon-damage-item"><span>C</span></div>
+            <div class="weapon-damage-item"><span>B</span></div>
+            <div class="weapon-damage-item"><span>A</span></div>
+		</div>
+        <div class="weapon-controls"></div> <!-- Spacer for alignment -->
+      </div>
+
+      <!-- Ranged Weapon List -->
+      <div class="combat-items-list">
+        {{#each rangedWeapons as |weapon|}}
+        <div class="combat-item" data-id="{{weapon.id}}">
+          <div class="weapon-name">
+            <select name="system.combat.rangedWeapons.{{weapon.id}}.name" class="weapon-select">
+              {{#each @root.weaponData as |stats key|}}
+              <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="weapon-carried">
+            <input type="checkbox" name="system.combat.rangedWeapons.{{weapon.id}}.carried" {{#if weapon.carried}}checked{{/if}} />
+          </div>
+          <div class="weapon-rating">
+            <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="quick">Attack</button>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.ammo}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.rof}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.conceal}}</span>
+          </div>
+          <div class="weapon-stat">
+            <span class="weapon-stat-display">{{weapon.weight}}</span>
+          </div>
+          <div class="weapon-damage-group">
+		    <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageG}}</span>
+            </div>
+			<div class="weapon-damage-item">
+                <span class="weapon-stat-display">{{weapon.damageF}}</span>
+            </div>
+			<div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageE}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageD}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageC}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageB}}</span>
+            </div>
+            <div class="weapon-damage-item">
+				<span class="weapon-stat-display">{{weapon.damageA}}</span>
+            </div>
+          </div>
+          <div class="weapon-controls">
+            <a class="item-delete" data-tooltip="Delete Weapon" data-type="rangedWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+<!-- Melee Weapons Section -->
+<div class="combat-subsection">
+  <div class="subsection-header">
+    <h3>Melee Weapons</h3>
+    <button type="button" class="item-add" data-type="meleeWeapon" data-tooltip="Add Melee Weapon"><i class="fas fa-plus"></i> Add</button>
+  </div>
+
+  <!-- Melee Weapon Header Row -->
+  <div class="combat-item-header">
+    <div class="weapon-name">Weapon</div>
+    <div class="weapon-carried">Carried</div>
+    <div class="weapon-rating">Attack</div>
+    <div class="weapon-stat">Conc.</div>
+    <div class="weapon-stat">Wt.</div>
+    <div class="weapon-stat">Dmg.</div>
+    <div class="weapon-controls"></div> <!-- Spacer for alignment -->
+  </div>
+
+  <!-- Melee Weapon List -->
+  <div class="combat-items-list">
+    {{#each meleeWeapons as |weapon|}}
+    <div class="combat-item" data-id="{{weapon.id}}">
+      <div class="weapon-name">
+        <select name="system.combat.meleeWeapons.{{weapon.id}}.name" class="melee-weapon-select">
+          {{#each @root.meleeWeaponData as |stats key|}}
+          <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="weapon-carried">
+        <input type="checkbox" name="system.combat.meleeWeapons.{{weapon.id}}.carried" {{#if weapon.carried}}checked{{/if}} />
+      </div>
+      <div class="weapon-rating">
+        <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="body">Attack</button>
+      </div>
+      <div class="weapon-stat">
+        <span class="weapon-stat-display">{{weapon.conceal}}</span>
+      </div>
+      <div class="weapon-stat">
+        <span class="weapon-stat-display">{{weapon.weight}}</span>
+      </div>
+      <div class="weapon-stat">
+        <span class="weapon-stat-display">{{weapon.damage}}</span>
+      </div>
+      <div class="weapon-controls">
+        <a class="item-delete" data-tooltip="Delete Weapon" data-type="meleeWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+    <!-- Armor Section -->
+    <div class="combat-subsection"> <!-- This is the container for the whole Armor subsection -->
+      <div class="subsection-header">
+        <h3>Armor</h3>
+        <button type="button" class="item-add" data-type="armor" data-tooltip="Add Armor"><i class="fas fa-plus"></i> Add</button>
+      </div>
+
+      <!-- New Layout Container -->
+      <div class="armor-layout-container">
+
+        <!-- Left Column (Image) -->
+        <div class="armor-layout-left">
+          <div class="armor-summary-display">
+            <img src="systems/continuum/assets/Continuum_Hit_Diagram_v2.png" alt="Hit Locations">
+            <div class="location-ip loc-a">{{armorSummary.totalIpA}}</div>
+            <div class="location-ip loc-b">{{armorSummary.totalIpB}}</div>
+            <div class="location-ip loc-c">{{armorSummary.totalIpC}}</div>
+            <div class="location-ip loc-d">{{armorSummary.totalIpD}}</div>
+			<div class="location-ip loc-e">{{armorSummary.totalIpE}}</div>
+			<div class="location-ip loc-f">{{armorSummary.totalIpF}}</div>
+			<div class="location-ip loc-g">{{armorSummary.totalIpG}}</div>
+          </div>
+        </div>
+
+<!-- Right Column (List & Stats) -->
+        <div class="armor-layout-right">
+          <!-- Armor Header Row -->
+          <div class="combat-item-header armor-header">
+            <div class="weapon-name">Armor Type</div>
+            <div class="weapon-stat">Enc.</div>
+            <!-- MODIFIED: Header for IP locations now matches row structure -->
+            <div class="weapon-damage-group">
+                <div class="weapon-damage-item"><span>G</span></div>
+                <div class="weapon-damage-item"><span>F</span></div>
+                <div class="weapon-damage-item"><span>E</span></div>
+                <div class="weapon-damage-item"><span>D</span></div>
+                <div class="weapon-damage-item"><span>C</span></div>
+                <div class="weapon-damage-item"><span>B</span></div>
+                <div class="weapon-damage-item"><span>A</span></div>
+            </div>
+            <div class="weapon-controls"></div> <!-- Spacer for alignment -->
+          </div>
+
+          <!-- Armor List -->
+          <div class="combat-items-list">
+            {{#each armorItems as |armor|}}
+            <div class="combat-item" data-id="{{armor.id}}">
+              <div class="weapon-name">
+                <select name="system.combat.armor.{{armor.id}}.name" class="armor-select">
+                  {{#each @root.armorData as |stats key|}}
+                  <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              <div class="weapon-stat">
+                <input type="number" name="system.combat.armor.{{armor.id}}.encumbrance" value="{{armor.encumbrance}}" data-dtype="Number" readonly />
+              </div>
+              <div class="weapon-damage-group">
+			    <div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipG" value="{{armor.ipG}}" data-dtype="Number" readonly />
+                </div>
+				<div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipF" value="{{armor.ipF}}" data-dtype="Number" readonly />
+                </div>
+				<div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipE" value="{{armor.ipE}}" data-dtype="Number" readonly />
+                </div>
+                <div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipD" value="{{armor.ipD}}" data-dtype="Number" readonly />
+                </div>
+                <div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipC" value="{{armor.ipC}}" data-dtype="Number" readonly />
+                </div>
+                <div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipB" value="{{armor.ipB}}" data-dtype="Number" readonly />
+                </div>
+                <div class="weapon-damage-item">
+                  <input type="number" name="system.combat.armor.{{armor.id}}.ipA" value="{{armor.ipA}}" data-dtype="Number" readonly />
+                </div>
+              </div>
+              <div class="weapon-controls">
+                <a class="item-delete" data-tooltip="Delete Armor" data-type="armor" data-id="{{armor.id}}"><i class="fas fa-trash"></i></a>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+
+          <!-- Armor Summary Stats -->
+          <div class="armor-summary-stats">
+            <div class="summary-stat-row">
+              <label>Total Encumbrance:</label>
+              <span>{{armorSummary.totalEncumbrance}}</span>
+            </div>
+            <div class="summary-stat-row">
+              <label>Force Attribute:</label>
+              <span>{{system.attributes.body.value}}</span>
+            </div>
+            <div class="summary-stat-row penalty">
+              <label>Move Penalty:</label>
+              <span>-{{armorSummary.quickPenalty}}</span>
+            </div>
+          </div>
+        </div> <!-- closes armor-layout-right -->
+      </div> <!-- closes armor-layout-container -->
+    </div>
+
+    <!-- Wounds / Stuff Section -->
+    <div class="combat-subsection wounds-stuff-container">
+      <!-- Wounds Column -->
+      <div class="wounds-column">
+        <h3>Wounds</h3>
+        <div class="wounds-grid">
+          <!-- Header Row -->
+          <div class="wounds-header">
+            <div>IP</div>
+            <div>Bruise/Lethal</div>
+            <div>Bleed</div>
+          </div>
+          <!-- Data Rows -->
+          {{#each woundEntries as |wound|}}
+          <div class="wounds-row">
+            <div class="attribute-spinner-viewport wound-spinner" data-attribute="wound-{{wound.key}}">
+              <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="IP Spinner">
+            </div>
+            <input type="hidden" name="system.combat.wounds.{{wound.key}}.ip" value="{{wound.ip}}">
+            <select name="system.combat.wounds.{{wound.key}}.type">
+              <option value="" {{#if (eq wound.type "")}}selected{{/if}}>---</option>
+              <option value="Bruise" {{#if (eq wound.type "Bruise")}}selected{{/if}}>Bruise</option>
+              <option value="Lethal" {{#if (eq wound.type "Lethal")}}selected{{/if}}>Lethal</option>
+            </select>
+            <input type="checkbox" name="system.combat.wounds.{{wound.key}}.bleeding" {{#if wound.bleeding}}checked{{/if}} />
+          </div>
+          {{/each}}
+        </div>
+        <!-- Summary Row -->
+        <div class="wounds-summary">
+          <div class="summary-item">
+            <label>IP Total:</label>
+            <span>{{woundsSummary.ipTotal}}</span>
+          </div>
+          <div class="summary-item">
+            <label>IP Remaining:</label>
+            <span>{{woundsSummary.ipRemaining}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- This div is the target for the combat tracker module to inject its UI. -->
+      <div class="combat-tracker-injection-point">
+        
+      </div>
+      
+    </div>
+  </div>
+</div>

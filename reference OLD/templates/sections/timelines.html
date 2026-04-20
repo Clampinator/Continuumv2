@@ -1,0 +1,62 @@
+
+<div class="section-container">
+  <input type="checkbox" id="toggle-timelines-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat 'toggle-timelines-' actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-timelines-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Timelines</h2>
+    </label>
+    <div class="timelines-controls" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="timelines-help" title="Help"><i class="fas fa-question"></i></button>
+        {{#if (or @root.isGM @root.playersCanSeeSpan)}}
+        <div class="timeline-view-toggle-container" style="margin-left: 0;">
+          <input type="checkbox" id="timeline-view-toggle-{{actor.id}}" class="sheet-hidden timeline-view-toggle-cb event-toggle-checkbox" {{#if (lookup toggles (concat 'timeline-view-toggle-' actor.id))}}checked{{/if}}>
+          <label for="timeline-view-toggle-{{actor.id}}" class="timeline-view-toggle-label"></label>
+        </div>
+        {{/if}}
+    </div>
+  </div>
+  <div class="timelines-panel-wrapper {{#if (lookup toggles (concat 'timeline-view-toggle-' actor.id))}}show-subjective{{/if}}">
+    <div class="timelines-panel objective-panel">
+      <svg class="timeline-svg" width="100%" height="100%">
+        <g class="timeline-grid-lines"></g>
+        <g class="timeline-separators"></g>
+        <g id="timeline-content">
+          <g class="timeline-ages-lane"></g>
+          <g class="timeline-experiences-lane"></g>
+          <g class="timeline-events-lane"></g>
+        </g>
+        <g class="timeline-axis-x"></g>
+      </svg>
+    </div>
+    <div class="timelines-panel subjective-panel">
+      Subjective
+    </div>
+    <!-- Popover for editing timeline items -->
+    <div class="timeline-popover" style="display: none;">
+      <div class="popover-content">
+        <input type="text" data-name="name" class="popover-title" placeholder="Title/Name" />
+        <textarea data-name="notes" class="popover-notes" placeholder="Notes/Description"></textarea>
+        <div class="popover-dates">
+          <div class="popover-date-field" data-field="from">
+            <label>From</label>
+            <div class="date-picker-container">
+                <input type="text" class="date-text-input" data-name="dateFrom" placeholder="YYYY-MM-DD" />
+                <i class="fas fa-calendar-alt date-picker-icon"></i>
+                <input type="date" class="date-picker-hidden" tabindex="-1" />
+            </div>
+            <input type="time" data-name="timeFrom" />
+          </div>
+          <div class="popover-date-field" data-field="to">
+            <label>To</label>
+            <div class="date-picker-container">
+                <input type="text" class="date-text-input" data-name="dateTo" placeholder="YYYY-MM-DD" />
+                <i class="fas fa-calendar-alt date-picker-icon"></i>
+                <input type="date" class="date-picker-hidden" tabindex="-1" />
+            </div>
+            <input type="time" data-name="timeTo" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

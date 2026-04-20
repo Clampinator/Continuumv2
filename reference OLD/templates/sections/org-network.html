@@ -1,0 +1,30 @@
+
+  <!--=================-->
+  <!-- NETWORK SECTION -->
+  <!--=================-->
+  <div class="section-container">
+  <input type="checkbox" id="toggle-org-network-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-network-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-org-network-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Network Map</h2>
+    </label>
+    <div class="network-controls" style="margin-left: auto; display: flex; gap: 8px;">
+        <button type="button" class="network-reset-zoom" title="Fit to View"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="network-help" title="Right-Drag between nodes to link. Right-click to delete."><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+    <div class="section-content" style="padding: 0;">
+      <div class="org-network-wrapper">
+          
+          <!-- Graph Container -->
+          <div id="org-network-graph-{{actor.id}}" class="org-network-container">
+              <div class="network-placeholder-text">
+                  <i class="fas fa-sitemap"></i><br>
+                  Drag Actors here to build the Org Chart.<br>
+                  <small>Right-Drag between nodes to connect.</small>
+              </div>
+          </div>
+
+      </div>
+    </div>
+  </div>

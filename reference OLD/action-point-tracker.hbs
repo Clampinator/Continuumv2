@@ -1,0 +1,64 @@
+<div class="continuum-combat-tracker">
+
+  <header class="cct-header">
+    <h1>Round {{round}} - Phase {{phase}}</h1>
+  </header>
+
+  <section class="cct-main">
+
+    <!-- Orbiting combatants -->
+    <div class="cct-combatants-container">
+      {{#each combatants as |c|}}
+      <div class="cct-combatant" data-combatant-id="{{c.id}}" style="--combatant-angle: {{c.orbitAngle}}deg;">
+        <div class="cct-token">
+          <img src="{{c.img}}" alt="{{c.name}}">
+        </div>
+        <div class="cct-name">{{c.name}}</div>
+      </div>
+      {{/each}}
+    </div>
+
+    <!-- Dial with quadrants -->
+    <div class="cct-dial">
+      <div class="cct-quadrant phase-1 {{#if (eq phase 1)}}active{{/if}} {{#if (gte totalAP 1)}}illuminated{{/if}}"></div>
+      <div class="cct-quadrant phase-2 {{#if (eq phase 2)}}active{{/if}} {{#if (gte totalAP 2)}}illuminated{{/if}}"></div>
+      <div class="cct-quadrant phase-3 {{#if (eq phase 3)}}active{{/if}} {{#if (gte totalAP 3)}}illuminated{{/if}}"></div>
+      <div class="cct-quadrant phase-4 {{#if (eq phase 4)}}active{{/if}} {{#if (gte totalAP 4)}}illuminated{{/if}}"></div>
+
+      <!-- Action rings -->
+      <div class="cct-action-rings">
+        <div class="cct-action-ring ring-attack">
+          <div class="cct-action-icon action-attack {{#if (eq chosenAction 'attack')}}selected{{/if}} {{#unless canAct}}locked{{/unless}}" data-action="attack" title="Attack">
+            <i class="fas fa-khanda"></i>
+          </div>
+        </div>
+
+        <div class="cct-action-ring ring-defense">
+          <div class="cct-action-icon action-defense {{#if (eq chosenAction 'defense')}}selected{{/if}} {{#unless canAct}}locked{{/unless}}" data-action="defense" title="Defense">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+        </div>
+
+        <div class="cct-action-ring ring-flee">
+          <div class="cct-action-icon action-flee {{#if (eq chosenAction 'flee')}}selected{{/if}} {{#unless canAct}}locked{{/unless}}" data-action="flee" title="Flee">
+            <i class="fas fa-running"></i>
+          </div>
+        </div>
+
+        <div class="cct-action-ring ring-defer">
+          <div class="cct-action-icon action-defer {{#if (eq chosenAction 'defer')}}selected{{/if}} {{#unless isDeferFree}}locked{{/unless}}" data-action="defer" title="Defer">
+            <i class="fas fa-hourglass-half"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roll AP button -->
+      {{#if needsToRollAP}}
+      <div class="cct-roll-ap-container">
+        <button type="button" class="cct-roll-ap-button">Roll Action Points</button>
+      </div>
+      {{/if}}
+
+    </div>
+  </section>
+</div>

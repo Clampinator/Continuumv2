@@ -1,0 +1,30 @@
+type,date,time,title,notes,location,isSpan,spanFromDate,spanFromTime,spanFromLocation,spanToDate,spanToTime,spanToLocation,experience,startExperience,endExperience,age
+age,,,School Dayz,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+,2023-11-30,,Hobby Shooting,"Studies weapon knowledge by reading wiki articles and watching videos of experts. Does target shooting. A lot of air gun shooting, some CO2 and gunpowder shooting. Aside from video games (mouse and VR), always shot at targets.",,,,,,,,,Hobby Shooting,,TRUE,
+,2010-01-01,,Hobby Shooting,"Studies weapon knowledge by reading wiki articles and watching videos of experts. Does target shooting. A lot of air gun shooting, some CO2 and gunpowder shooting. Aside from video games (mouse and VR), always shot at targets.",,,,,,,,,Hobby Shooting,TRUE,,
+,2013-12-31,,TV Knowledge,"Knowledge of various cartoons and live action shows, various video games, early internet videos, and the power of friendship.",,,,,,,,,TV Knowledge,,TRUE,
+,2010-01-01,,TV Knowledge,"Knowledge of various cartoons and live action shows, various video games, early internet videos, and the power of friendship.",,,,,,,,,TV Knowledge,TRUE,,
+event,04/05/2023,,Graduated undergraduate college,,,,,,,,,,Undergraduate College,,TRUE,
+event,19/09/2020,,Fell In Love With TTRPGs,,,,,,,,,,Undergraduate College,,,
+event,31/08/2018,,Re-applied to college,"Started in Computer Engineering, switched to Computer Engineering Tech and Electrical Engineering Tech double major, ended on Communications. Lasted 5 years.",,,,,,,,,Undergraduate College,,,
+event,01/10/2017,,Sick,Got sick and left college,,,,,,,,,Undergraduate College,,,
+event,31/08/2017,,Applied for college,"Tried to go for Phd in Chemical Physics, got sick 1 month in and had to leave.",,,,,,,,,Undergraduate College,TRUE,,
+event,21/06/2010,09:00,Done with Primary School,,,,,,,,,,Birth to Primary School,,TRUE,School Dayz
+event,01/09/2004,,On-Again-Off-Again Relationship With Music,"Tried violin, then piano, then violin again. Never had the time to commit for a long enough time to get good or learn enough to remember. A School, a church, and a house. Lasts ~10 years.",State University,,,,,,,,Birth to Primary School,,,School Dayz
+event,31/08/2004,,First Day of K-5 School,"Started Fall Quarter, graduated Summer Quarter. XX Central School",,,,,,,,,Birth to Primary School,,,School Dayz
+event,22/06/1999,,Preschool,The start of Henry being in school all his life. XX Pre-school.,,,,,,,,,Birth to Primary School,,,School Dayz
+event,21/06/1999,,Birth,Born in a Tallahassie hospital. Born 3 weeks earlier than expected,,,,,,,,,Birth to Primary School,true,,School Dayz

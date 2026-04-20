@@ -1,0 +1,58 @@
+<div class="chat-card-hud continuum-chat">
+    <header class="chat-header">
+        <h3>{{{flavorText}}}</h3>
+    </header>
+
+    <div class="chat-content">
+        <div class="roll-display">
+            {{{rollRender}}}
+            <div class="roll-total-display">
+                <div class="total">{{rollResult}}</div>
+                <div class="formula">{{rollFormula}}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-section">
+            <h4>Target Calculation</h4>
+            <div class="breakdown-grid">
+                {{#each breakdown as |item|}}
+                <span>{{item.label}}</span>
+                <span class="value">{{item.value}}</span>
+                {{/each}}
+            </div>
+            <div class="final-target">
+                <span>Final Target</span>
+                <span class="value">{{finalTarget}}</span>
+            </div>
+        </div>
+
+        {{#if hasDamage}}
+        <div class="damage-section">
+            {{#if damagePenetrated}}
+                <div class="damage-message damage-penetrated">Damage Penetrated! (Roll {{rollResult}} ≥ Threshold {{damageThreshold}})</div>
+            {{else}}
+                <div class="damage-message damage-no-penetrate">Damage Did Not Penetrate (Roll {{rollResult}} < Threshold {{damageThreshold}})</div>
+            {{/if}}
+            {{#if damageAmount}}
+                <div class="damage-message damage-dealt">Dealt {{damageAmount}} {{damageType}} to the target organization!</div>
+            {{/if}}
+            {{{damageMessage}}}
+        </div>
+        {{/if}}
+
+        {{#if intelList}}
+        <div class="intel-section">
+            <h4>Intel Gathered</h4>
+            <ul>
+                {{#each intelList as |intel|}}
+                <li><b>{{intel.label}}:</b> {{intel.value}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        {{/if}}
+    </div>
+
+    <footer class="chat-footer" style="background-color: {{outcomeColor}};">
+        {{outcomeText}}
+    </footer>
+</div>

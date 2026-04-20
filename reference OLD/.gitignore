@@ -1,0 +1,23 @@
+# Asset folders
+assets/
+
+# Dependencies
+node_modules/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Editor directories
+.vscode/
+.idea/
+
+# Testing tools (environment-specific)
+tools/
+
+# Insights (personal working notes)
+insights/

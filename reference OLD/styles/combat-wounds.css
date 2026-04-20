@@ -1,0 +1,113 @@
+/*==========================*/
+/* WOUNDS SECTION           */
+/*==========================*/
+.wounds-stuff-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.wounds-column {
+  flex: 0 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wounds-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.wounds-header, .wounds-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 60px;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Ensure hidden inputs do not disrupt the grid flow */
+.wounds-row input[type="hidden"] {
+  display: none !important;
+}
+
+.wounds-row > input[type="checkbox"] {
+  justify-self: center;
+}
+
+.wounds-header {
+  font-weight: bold;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #444;
+  color: #dcdcdc;
+}
+
+.wounds-header > div {
+  text-align: center;
+}
+.wounds-header > div:first-child {
+  text-align: left;
+  padding-left: 4px;
+}
+
+.wounds-row input[type="number"] {
+  text-align: center;
+}
+
+/* --- NORMALIZED WOUND SPINNER --- */
+/* High specificity used here to ensure 35px override against normalization classes */
+.continuum .wounds-row .attribute-spinner-viewport.wound-spinner {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 35px !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    margin: 0 auto !important; 
+    border-color: #555 !important; 
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    background-color: #000 !important;
+    line-height: 1 !important;
+    position: relative !important;
+}
+
+/* Adjust image strip scaling for the small box */
+.continuum .wounds-row .wound-spinner .attribute-spinner-image {
+    width: 100% !important;
+    height: 1100% !important;
+}
+
+.wounds-summary {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.summary-item label {
+  font-weight: bold;
+  white-space: nowrap;
+  color: #dcdcdc;
+}
+
+.summary-item span {
+  background: #222;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 8px;
+  min-width: 30px;
+  text-align: center;
+  color: #fff;
+}

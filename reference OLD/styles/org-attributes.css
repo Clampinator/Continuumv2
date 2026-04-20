@@ -1,0 +1,119 @@
+
+/*=============================*/
+/* ORG ATTRIBUTES SECTION CSS  */
+/*=============================*/
+
+/* Header Controls Alignment */
+.section-header-row .org-attributes-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Help button styling */
+.org-attributes-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.org-attributes-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Specific Org Attribute Colors/Styles */
+.attr-force button.roll-attribute { color: #ff9999; }
+.attr-intel button.roll-attribute { color: #99ccff; }
+.attr-influence button.roll-attribute { color: #df99ff; }
+.attr-comms button.roll-attribute { color: #99ff99; }
+
+/* Adjust dual column spacing */
+.attribute-column-dual {
+    justify-content: space-between;
+}
+
+.attribute-column-dual .attribute-block {
+    flex: 1;
+    min-height: 0; 
+}
+
+/* Rep spinners: fixed square size, no zoom (zoom corrupts drag coordinates in Chromium).
+   Both !important needed to override base 80px !important in attributes.css.
+   ↓ Change this pixel value to resize Morale/Reputation spinners. Must match REP_FRAME_PX in sheet-spinners.js. */
+.attribute-column-dual .attribute-spinner-viewport {
+    width: 40px !important;
+    height: 40px !important;
+}
+
+/* --- NEW: Fiscal Readouts and Labels --- */
+
+.ap-pool-readout {
+    font-family: 'Consolas', monospace;
+    font-size: 0.9em;
+    color: #aaa;
+    background: #111;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #444;
+}
+
+.ap-pool-readout strong {
+    color: #ffd700;
+}
+
+.ap-pool-readout.negative {
+    border-color: #ff4444;
+    color: #ff6060;
+}
+
+.attribute-block .curve-label {
+    font-size: 0.65em;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.3);
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+/* Derived-attribute label: replaces old cost-curve label */
+.attribute-block .curve-label.derived-label {
+    color: #8ecae6;
+    border: 1px solid #8ecae633;
+}
+
+/* Derived spinner viewports show a not-allowed cursor to signal read-only */
+.attribute-spinner-viewport[data-derived="true"] {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* MP / RP pool detail bar below the attribute row */
+.org-pool-detail-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8em;
+    color: #aaa;
+    padding: 4px 2px 0;
+}
+.org-pool-detail-bar strong {
+    color: #ffd700;
+}

@@ -1,0 +1,269 @@
+
+/*==========================*/
+/* ATTRIBUTES SECTION CSS   */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .attributes-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Help button styling */
+.attributes-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.attributes-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.attributes-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.character-image-wrapper {
+  position: relative;
+  flex: 0 0 135px;
+}
+
+.token-image-pick {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 25%;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.character-image-container {
+  flex: unset;
+  width: 100%;
+  height: 240px;
+  border: 2px solid #555;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.character-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.character-image:hover {
+  opacity: 0.8;
+}
+
+.organization .character-image-container {
+  flex: 0 0 180px;
+  height: 180px;
+  align-self: center;
+}
+
+.benefits-limits-container {
+  flex: 0 0 135px;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.benefits-limits-container h3 {
+  margin: 0 0 5px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #444;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.benefits-scroll-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 2px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.75em;
+  cursor: pointer;
+  line-height: 1.3;
+  padding: 1px 0;
+}
+
+.benefit-item input[type="checkbox"] {
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.attributes-single-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 10px;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.attribute-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Vertically center content */
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  max-width: 120px;
+}
+
+.ap-indicator {
+  margin-top: 2px;
+  text-align: center;
+}
+
+.ap-lights {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.ap-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background-color: #333;
+  box-shadow: inset 0 0 2px #000;
+}
+.ap-light.on {
+  background-color: #28a745;
+  box-shadow: 0 0 6px #28a745;
+}
+
+.attribute-block button {
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.attributes-single-row > .attribute-block button {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.willpower-block {
+  background-color: #3a4a6d;
+  border-color: #4a90e2;
+}
+
+.attribute-column-dual {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 120px;
+}
+
+.attribute-block button.roll-ap {
+  margin-top: 5px;
+}
+
+/* --- NORMALIZED SPINNER VIEWPORT --- */
+.attribute-spinner-viewport {
+  position: relative;
+  display: flex; /* Force internal alignment */
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px !important; /* Fixed height for normalization */
+  border: 1px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: ns-resize; 
+  user-select: none;
+  background-color: #000; 
+  box-sizing: border-box !important; /* Critical for platform parity */
+  line-height: 1;
+}
+
+.attribute-spinner-viewport.active {
+  cursor: ns-resize;
+  border-color: #777;
+}
+
+.attribute-spinner-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1100%; /* 11 values (0-10) * 100% */
+  pointer-events: none;
+}
+
+/* --- WILLPOWER SPINNER OVERRIDES --- */
+.willpower-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.willpower-block {
+  max-width: 100px;
+  padding: 6px;
+}
+
+.willpower-block button {
+  font-size: 1em;
+  padding: 6px;
+  margin-bottom: 4px;
+}
+
+.willpower-block .attribute-spinner-viewport {
+  width: 50px;
+  height: 50px !important;
+}

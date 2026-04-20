@@ -1,0 +1,166 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "Logo Animation:Master" [ref=e4] [cursor=pointer]:
+        - /url: https://www.animationmaster.com
+        - img "Logo Animation:Master" [ref=e5]
+      - link "Logo Hash Inc." [ref=e6] [cursor=pointer]:
+        - /url: https://www.animationmaster.com
+        - img "Logo Hash Inc." [ref=e7]
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - textbox [ref=e11]: Search term
+        - link [ref=e13] [cursor=pointer]:
+          - /url: "JAVASCRIPT: form_submitter('', 'form_search_default', 'search_term');"
+      - generic [ref=e16]:
+        - 'img "Hash Animation:Master: Vehicles" [ref=e18]'
+        - img "Hash Animation:Master Fairytale" [ref=e20]
+        - 'img "Hash Animation:Master: Robert & Board" [ref=e22]'
+        - 'img "Hash Animation:Master: Airplane, Helicopter" [ref=e24]'
+        - 'img "Hash Animation:Master: Dr. Who" [ref=e26]'
+        - 'img "Hash Animation:Master: Ironman, Wolverine, Spiderman" [ref=e28]'
+        - 'img "Hash Animation:master: Good to be king" [ref=e30]'
+        - 'img "Hash Animation:Master: Hard World" [ref=e32]'
+        - 'img "Hash Animation:Master: Discover new worlds" [ref=e34]'
+        - img "Hash Animation:Master Alien, Cage, PC" [ref=e36]
+        - img "Hash Animation:Master Rat & Snake Animation" [ref=e38]
+        - img "Hash Animation:Master Chicory & Coffee" [ref=e40]
+        - img "Hash Animation:Master Enterprise" [ref=e42]
+    - generic [ref=e43]:
+      - navigation [ref=e44]:
+        - list [ref=e45]:
+          - listitem [ref=e46]:
+            - link "Home" [ref=e47] [cursor=pointer]:
+              - /url: /home-1-en
+          - listitem [ref=e48]:
+            - link "Gallery" [ref=e49] [cursor=pointer]:
+              - /url: /gallery-11-en
+            - text: "# # # #"
+          - listitem [ref=e50]:
+            - link "Forum" [ref=e51] [cursor=pointer]:
+              - /url: https://forums.animationmaster.com
+          - listitem [ref=e52]:
+            - link "Training" [ref=e53] [cursor=pointer]:
+              - /url: /training-13-en
+            - text: "# # # #"
+          - listitem [ref=e54]:
+            - link "Software" [ref=e55] [cursor=pointer]:
+              - /url: /software-14-en
+            - text: "#"
+          - listitem [ref=e56]:
+            - link "Get it now!" [ref=e57] [cursor=pointer]:
+              - /url: /get-it-now-15-en
+            - text: "# # # # #"
+          - listitem [ref=e58]:
+            - link "Try it" [ref=e59] [cursor=pointer]:
+              - /url: /try-it-16-en
+          - listitem [ref=e60]:
+            - link "Road Trip" [ref=e61] [cursor=pointer]:
+              - /url: /road-trip-17-en
+          - listitem [ref=e62]:
+            - link "Social Media" [ref=e63] [cursor=pointer]:
+              - /url: /social-media-18-en
+          - listitem [ref=e64]:
+            - link "Support" [ref=e65] [cursor=pointer]:
+              - /url: /support-19-en
+      - generic [ref=e69]:
+        - heading "Welcome to animationmaster.com" [level=1] [ref=e70]
+        - generic [ref=e71]:
+          - paragraph [ref=e72]:
+            - text: Whether you’re looking to
+            - strong [ref=e73]: create
+            - text: whole
+            - strong [ref=e74]: three dimensional worlds
+            - text: or have a two dimensional project in mind,
+            - strong [ref=e75]: Hash Animation:Master
+            - text: is
+            - emphasis [ref=e76]: the
+            - strong [ref=e77]: 3D software
+            - text: you need to design and render
+            - strong [ref=e78]: amazing imagery and animation...
+            - text: from the comfort of your kitchen table!
+          - paragraph [ref=e79]:
+            - text: It has been proven to be one of the most
+            - strong [ref=e80]: easy to use, affordable
+            - text: and
+            - strong [ref=e81]: powerful
+            - text: 3D programs available.
+          - paragraph [ref=e82]:
+            - text: A:M is as advanced as it is easy to learn. Our provided
+            - link "text and video tutorials" [ref=e83] [cursor=pointer]:
+              - /url: /training-13-en
+            - text: will guide you through the steps to not only become an A:M professional, but to
+            - strong [ref=e84]: jump-start your career
+            - text: in the 3D industry
+            - strong [ref=e85]: as an animator
+            - text: .
+          - paragraph [ref=e86]:
+            - text: A:M experts from around the world are always available to help beginners with tutorials and answers on the
+            - link "A:M Forums" [ref=e87] [cursor=pointer]:
+              - /url: https://forums.animationmaster.com
+            - text: . Our
+            - strong [ref=e88]: community
+            - text: is one of the
+            - strong [ref=e89]: most helpful, knowledgeable and responsive
+            - text: anywhere. And if our users can’t help you, we surely can!
+          - paragraph [ref=e90]:
+            - strong [ref=e91]: Animation:Master
+            - text: is a versatile tool
+            - strong [ref=e92]: capable of
+            - text: bringing to life
+            - strong [ref=e93]: projects of any type
+            - text: . Be it
+            - strong [ref=e94]: 2D or 3D animation or illustration, manga or special effects
+            - text: ... the only limit is your imagination!
+        - paragraph [ref=e97]:
+          - img "Hash Animation:Master Mascot 2016/17"
+          - generic [ref=e98]:
+            - text: Hash, Inc. Mascot Contest Winner
+            - text: "Credits: Arthur Scheijde (kualrobi)"
+        - generic [ref=e99]:
+          - paragraph [ref=e100]:
+            - text: A:M’s
+            - strong [ref=e101]: resolution independent
+            - text: Hash splines and patches offer more direct control of your models than the polygons used in other 3D software. Patch-based models are
+            - strong [ref=e102]: extremely efficient and versatile
+            - text: for modeling and animation, being equally effective for
+            - strong [ref=e103]: organic and mechanical objects
+            - text: in an
+            - strong [ref=e104]: animation
+            - text: environment.
+            - link "» more" [ref=e105] [cursor=pointer]:
+              - /url: /software-14-en
+          - paragraph [ref=e106]:
+            - text: Starting at just
+            - link "$79.99" [ref=e107] [cursor=pointer]:
+              - /url: https://www.animationmaster.com/store
+            - text: ", A:M will enable you to begin to"
+            - strong [ref=e108]: animate in a few minutes
+            - text: and realize your artistic potential.
+          - paragraph [ref=e109]:
+            - emphasis [ref=e110]: “In the ensuing years, I used A:M exclusively and came to understand what usability really is. It is still one of the best examples of a truly non-linear pipeline ever. Nothing that I have tried has ever come close.“
+          - paragraph [ref=e112]:
+            - text: – Barry Zundel, Technical Director
+            - text: Pixar Animation Studios (
+            - link "link" [ref=e113] [cursor=pointer]:
+              - /url: http://barryzundel.blogspot.de/2012/07/tool-productivity-curve.html
+            - text: )
+          - paragraph [ref=e114]:
+            - emphasis [ref=e115]: “Well, actually, also we argue a lot on what software to use and such. A:M still is most versatile though. Think that won’t ever change.“
+          - paragraph [ref=e117]:
+            - text: Elmar Keweloh, Animator
+            - text: Soulcage Department (
+            - link "link" [ref=e118] [cursor=pointer]:
+              - /url: https://forums.animationmaster.com/index.php?showtopic=42805&view=findpost&p=373123
+            - text: )
+  - contentinfo [ref=e119]:
+    - generic [ref=e120]: © 2026 Hash Inc.
+    - navigation [ref=e121]:
+      - list [ref=e122]:
+        - listitem [ref=e123]:
+          - link "Image Credits" [ref=e124] [cursor=pointer]:
+            - /url: /images-credits-34-en
+        - listitem [ref=e125]:
+          - text: "|"
+          - link "Contact" [ref=e126] [cursor=pointer]:
+            - /url: /contact-29-en

@@ -1,0 +1,173 @@
+
+<form class="{{cssClass}} organization-sheet-form" autocomplete="off">
+
+  {{> "systems/continuum/templates/sections/org-structure.html"}}
+
+  {{> "systems/continuum/templates/sections/org-attributes.html"}}
+
+  <!-- Combat Tracker injection point — populated by continuum-combat-tracker module when org is in active combat -->
+  <div class="combat-tracker-injection-point"></div>
+
+  <!-- Operational Lifeline Section -->
+  <div class="section-container">
+    <input type="checkbox" id="toggle-org-map-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-map-" actor.id))}}checked{{/if}}>
+    <div class="section-header-row">
+      <label for="toggle-org-map-{{actor.id}}" class="section-heading-toggle">
+        <h2 class="section-heading">Operational Map</h2>
+      </label>
+      <div class="span-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
+        <button type="button" class="org-lifeline-toggle-map" title="Toggle Lifeline Graph (Spacebar)"><i class="fas fa-project-diagram"></i></button>
+        <button type="button" class="org-lifeline-reset-view" title="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
+      </div>
+    </div>
+
+    <div class="section-content">
+      <!-- Mandate HUD -->
+      <div class="graph-goal-hud-container">
+        <button type="button" class="goal-hud-add" title="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
+        {{#each mandates as |mandate|}}
+          {{#unless (eq mandate.importance "Achieved")}}
+          <div class="goal-hud-chip" data-id="{{mandate.id}}" data-importance="{{mandate.importance}}">
+            <span class="goal-hud-text">{{mandate.description}}</span>
+          </div>
+          {{/unless}}
+        {{/each}}
+      </div>
+
+      <!-- Unit color legend -->
+      <div class="graph-goal-hud-container">
+        <span class="org-lifeline-legend-item" style="color:#E32017;"><i class="fas fa-fist-raised"></i> Physical</span>
+        <span class="org-lifeline-legend-item" style="color:#003688;"><i class="fas fa-user-secret"></i> Espionage</span>
+        <span class="org-lifeline-legend-item" style="color:#9B0056;"><i class="fas fa-bullhorn"></i> Psyops</span>
+        <span class="org-lifeline-legend-item" style="color:#00782A;"><i class="fas fa-laptop-code"></i> Online</span>
+      </div>
+
+      <!-- Wrapper: map-mode is the default — graph is the overlay -->
+      <div class="org-lifeline-wrapper map-mode">
+        <!-- Google Map background (default/primary layer) -->
+        <div class="org-lifeline-map-background"></div>
+
+        <!-- SVG graph (overlay — visible when map-mode is removed) -->
+        <div class="org-lifeline-container">
+          <svg class="org-lifeline-svg" width="100%" height="500">
+            <defs>
+              <linearGradient id="orgExpFadeGradient-{{actor.id}}" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%"   style="stop-color:rgba(255,180,0,0.4); stop-opacity:1" />
+                <stop offset="60%"  style="stop-color:rgba(255,180,0,0.1); stop-opacity:0.5" />
+                <stop offset="100%" style="stop-color:rgba(255,180,0,0.0); stop-opacity:0" />
+              </linearGradient>
+              <!-- Alias for draw-experience-blocks.js which references #expFadeGradient -->
+              <linearGradient id="expFadeGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%"   style="stop-color:rgba(255,180,0,0.4); stop-opacity:1" />
+                <stop offset="60%"  style="stop-color:rgba(255,180,0,0.1); stop-opacity:0.5" />
+                <stop offset="100%" style="stop-color:rgba(255,180,0,0.0); stop-opacity:0" />
+              </linearGradient>
+            </defs>
+
+            <!-- Grid layer -->
+            <g class="graph-grid-layer">
+              <rect width="100%" height="100%" fill="transparent" />
+              <g class="graph-grid-lines"></g>
+            </g>
+
+            <!-- Age / experience bands -->
+            <g class="graph-ages-layer"></g>
+            <g class="graph-experiences-layer"></g>
+
+            <!-- Track paths -->
+            <g class="graph-path-layer">
+              <path class="graph-lifeline-path" fill="none"></path>
+              <path class="graph-projected-path" fill="none"></path>
+              <path class="graph-span-path" fill="none"></path>
+            </g>
+
+            <!-- Hit layer -->
+            <g class="graph-hit-layer"></g>
+
+            <!-- Nodes & labels -->
+            <g class="graph-ui-layer">
+              <g class="graph-axis-labels"></g>
+              <g class="graph-labels-group"></g>
+              <g class="graph-nodes-group"></g>
+
+              <!-- Drag preview -->
+              <line class="graph-drag-line" display="none"></line>
+              <circle class="graph-drag-head" display="none" r="7"></circle>
+
+              <!-- Drag tooltip -->
+              <g class="graph-drag-tooltip-group" display="none" style="pointer-events:none;">
+                <rect class="drag-tooltip-bg" rx="4" ry="4" fill="rgba(0,0,0,0.8)" stroke="#ff00ff" stroke-width="1"></rect>
+                <text class="drag-tooltip-text" fill="#fff" font-size="11" font-family="monospace"></text>
+              </g>
+
+              <!-- Hover tooltip -->
+              <g class="graph-tooltip-group" display="none" style="pointer-events:none;">
+                <rect class="tooltip-bg" rx="4" ry="4"></rect>
+                <text class="tooltip-text"></text>
+              </g>
+            </g>
+
+            <!-- Creation layer -->
+            <g class="graph-creation-layer">
+              <rect class="creation-drag-rect" display="none" x="0" y="0" width="0" height="0"></rect>
+              <g class="creation-ui-group">
+                <rect class="creation-bar-era" x="0" height="20"></rect>
+                <text class="creation-label-era" fill="#ff6060" font-size="10" pointer-events="none">Deploy</text>
+              </g>
+            </g>
+
+            <!-- Operation creation strip — drag horizontally within a Phase to define an Operation -->
+            <g class="org-operation-creation-group">
+              <rect class="org-operation-ghost" display="none" x="0" y="0" width="0" height="452" style="pointer-events:none;"></rect>
+              <rect class="org-operation-strip" x="0" y="452" width="100%" height="24"></rect>
+              <text class="org-operation-strip-label" x="50%" y="468" text-anchor="middle" font-size="9" pointer-events="none">+ Operation</text>
+            </g>
+
+            <!-- Phase period creation strip — drag horizontally to define a new Phase -->
+            <g class="org-age-creation-group">
+              <rect class="org-age-ghost" display="none" x="0" y="0" width="0" height="452" style="pointer-events:none;"></rect>
+              <rect class="org-age-strip" x="0" y="476" width="100%" height="24"></rect>
+              <text class="org-age-strip-label" x="50%" y="492" text-anchor="middle" font-size="9" pointer-events="none">+ Phase Period</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Connector line overlay: sits above map AND dimmed SVG container, pointer-events none -->
+        <svg class="org-lifeline-connector-svg"></svg>
+
+        <!-- Instructions footer -->
+        <div class="graph-instructions">
+          <span><i class="fas fa-arrows-alt"></i> Pan/Zoom</span>
+          <span><i class="fas fa-mouse-pointer"></i> Drag Unit Head = Deploy</span>
+          <span style="color:#ffd700;"><i class="fas fa-hand-paper"></i> <strong>Hold Space</strong> = Map</span>
+        </div>
+      </div>
+
+      <!-- Drag proxy for mandate chips -->
+      <div id="org-lifeline-drag-proxy" class="goal-hud-chip" style="display:none; position:fixed; pointer-events:none; z-index:9999;"></div>
+    </div>
+  </div>
+
+  {{!-- Mandates managed via the Mandate HUD in the Operational Map --}}
+  {{!-- {{> "systems/continuum/templates/sections/org-mandates.html"}} --}}
+
+  {{!-- Phases/Operations/Engagements managed via Operational Map drag interactions --}}
+  {{!-- {{> "systems/continuum/templates/sections/org-methods.html"}} --}}
+
+  {{> "systems/continuum/templates/sections/org-conflict.html"}}
+
+  {{> "systems/continuum/templates/sections/org-balance-sheet.html"}}
+
+  {{> "systems/continuum/templates/sections/org-network.html"}}
+
+<!-- Dialog Popup -->
+<input type="checkbox" name="dialog_flag" class="sheet-hidden" />
+<div class="dialog-overlay">
+  <div class="dialog-content">
+      <div class="dialog-footer">
+        <button type="button" class="dialog-cancel">Cancel</button>
+      </div>
+  </div>
+</div>
+
+</form>

@@ -1,0 +1,61 @@
+{
+  "message": {
+    "id": "msg_d8a5c4e84002ddTe1wgfygbZVZ",
+    "parentID": "msg_d8a5bf2ff001leTYA2yymKg253",
+    "role": "assistant",
+    "mode": "build",
+    "agent": "build",
+    "path": {
+      "cwd": "C:\\Users\\Tuck\\AppData\\Local\\FoundryVTT\\Data\\systems\\continuum",
+      "root": "C:\\Users\\Tuck\\AppData\\Local\\FoundryVTT\\Data\\systems\\continuum"
+    },
+    "cost": 0.03453392,
+    "tokens": {
+      "input": 80,
+      "output": 78,
+      "reasoning": 0,
+      "cache": {
+        "read": 131072,
+        "write": 0
+      },
+      "total": 131230
+    },
+    "modelID": "glm-5.1",
+    "providerID": "opencode-go",
+    "time": {
+      "created": 1776142798468,
+      "completed": 1776142801916
+    },
+    "sessionID": "ses_275ea45f9ffeRlKKe8gOZilZJz",
+    "finish": "tool-calls"
+  },
+  "parts": [
+    {
+      "type": "tool",
+      "tool": "bash",
+      "callID": "call_5e4f",
+      "state": {
+        "status": "completed",
+        "input": {
+          "command": "Select-String -Path \"C:\\Users\\Tuck\\AppData\\Local\\FoundryVTT\\Data\\systems\\continuum\\templates\\items\\item-gear-sheet.html\" -Pattern \"aspects|gearType|aspectLabels\" | Select-Object -First 10",
+          "description": "Check key fields exist in gear sheet"
+        },
+        "output": "\r\ntemplates\\items\\item-gear-sheet.html:19:                    <select name=\"system.gearType\" class=\"gear-type-select\">\r\ntemplates\\items\\item-gear-sheet.html:20:                        <option value=\"firearm\" {{#if (eq system.gearType \r\n\"firearm\")}}selected{{/if}}>Firearm</option>\r\ntemplates\\items\\item-gear-sheet.html:21:                        <option value=\"technology\" {{#if (eq system.gearType \r\n\"technology\")}}selected{{/if}}>Technology</option>\r\ntemplates\\items\\item-gear-sheet.html:22:                        <option value=\"tool\" {{#if (eq system.gearType \r\n\"tool\")}}selected{{/if}}>Tool</option>\r\ntemplates\\items\\item-gear-sheet.html:23:                        <option value=\"vehicle\" {{#if (eq system.gearType \r\n\"vehicle\")}}selected{{/if}}>Vehicle</option>\r\ntemplates\\items\\item-gear-sheet.html:36:    <div class=\"gear-vehicle-class-section\" style=\"display: {{#if (eq \r\nsystem.gearType \"vehicle\")}}block{{else}}none{{/if}}; margin-top: 10px;\">\r\ntemplates\\items\\item-gear-sheet.html:54:    <div class=\"gear-aspects-section\" style=\"margin-top: 10px;\">\r\ntemplates\\items\\item-gear-sheet.html:55:        <div class=\"gear-aspects-header\">\r\ntemplates\\items\\item-gear-sheet.html:56:            <h3>Aspects</h3>\r\ntemplates\\items\\item-gear-sheet.html:60:        <div class=\"gear-firearm-model-section\" style=\"display: {{#if (eq \r\nsystem.gearType \"firearm\")}}flex{{else}}none{{/if}}; align-items: center; gap: 10px; margin-bottom: 8px;\">\r\n\r\n\r\n",
+        "metadata": {
+          "output": "\r\ntemplates\\items\\item-gear-sheet.html:19:                    <select name=\"system.gearType\" class=\"gear-type-select\">\r\ntemplates\\items\\item-gear-sheet.html:20:                        <option value=\"firearm\" {{#if (eq system.gearType \r\n\"firearm\")}}selected{{/if}}>Firearm</option>\r\ntemplates\\items\\item-gear-sheet.html:21:                        <option value=\"technology\" {{#if (eq system.gearType \r\n\"technology\")}}selected{{/if}}>Technology</option>\r\ntemplates\\items\\item-gear-sheet.html:22:                        <option value=\"tool\" {{#if (eq system.gearType \r\n\"tool\")}}selected{{/if}}>Tool</option>\r\ntemplates\\items\\item-gear-sheet.html:23:                        <option value=\"vehicle\" {{#if (eq system.gearType \r\n\"vehicle\")}}selected{{/if}}>Vehicle</option>\r\ntemplates\\items\\item-gear-sheet.html:36:    <div class=\"gear-vehicle-class-section\" style=\"display: {{#if (eq \r\nsystem.gearType \"vehicle\")}}block{{else}}none{{/if}}; margin-top: 10px;\">\r\ntemplates\\items\\item-gear-sheet.html:54:    <div class=\"gear-aspects-section\" style=\"margin-top: 10px;\">\r\ntemplates\\items\\item-gear-sheet.html:55:        <div class=\"gear-aspects-header\">\r\ntemplates\\items\\item-gear-sheet.html:56:            <h3>Aspects</h3>\r\ntemplates\\items\\item-gear-sheet.html:60:        <div class=\"gear-firearm-model-section\" style=\"display: {{#if (eq \r\nsystem.gearType \"firearm\")}}flex{{else}}none{{/if}}; align-items: center; gap: 10px; margin-bottom: 8px;\">\r\n\r\n\r\n",
+          "exit": 0,
+          "description": "Check key fields exist in gear sheet",
+          "truncated": false
+        },
+        "title": "Check key fields exist in gear sheet",
+        "time": {
+          "start": 1776142801515,
+          "end": 1776142801527
+        }
+      },
+      "id": "prt_d8a5c59530014BrTc3Q2khZQja",
+      "sessionID": "ses_275ea45f9ffeRlKKe8gOZilZJz",
+      "messageID": "msg_d8a5c4e84002ddTe1wgfygbZVZ"
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+ NPC Generator Wizard - Design Spec
+
+  What Already Exists
+
+  The system has two partial NPC tools already:
+
+  - tools/npc-generator.html - A standalone HTML/Gemini app that generates a bio, secret, image prompt, and
+  downloads a JSON blob. It works but lives outside FoundryVTT entirely.
+  - templates/dialogs/npc-importer.html - A paste-JSON importer that accepts output from an external AI chat
+  session.
+
+  The new wizard replaces and supersedes both with a fully in-Foundry experience. We keep the existing importer for
+  backward compatibility but the wizard becomes the primary path.
+
+  ---
+  What's Feasible vs. Not
+
+  Scene Menu Button - FULLY FEASIBLE
+
+  FoundryVTT provides the getSceneControlButtons hook to add custom buttons to the left toolbar. We register a new
+  control group called "GM Tools" (or add to an existing Tools group). The button is GM-only via the visible flag.
+  Clicking it opens the wizard dialog.
+
+  Multi-Step Wizard Dialog - FULLY FEASIBLE
+
+  The existing codebase uses Dialog instances for simple forms. For a 5-step wizard, a custom Application class
+  (extending Foundry's Application) is the right choice - it gives full control over the HTML lifecycle without the
+  Dialog class's limitations. The pattern used elsewhere in the system (FormApplication for complex sheets) is the
+  model.
+
+  AI-Powered Generation via Gemini - FULLY FEASIBLE
+
+  The existing standalone tool already does this. We move the Gemini call into the Foundry module, use the API key
+  stored in system settings (not hardcoded), and make the call from within the dialog. The structured JSON schema
+  approach from the existing tool is kept and extended.
+
+  Direct Actor Creation - FULLY FEASIBLE
+
+  After generation, we call Actor.create() with the data and set all fields directly. The actor lands in the Actors
+  sidebar, ready to drag onto a scene. The exploration confirmed exactly which field paths to update
+  (system.personal, system.attributes, etc.).
+
+  fantasynamegenerator.com - NOT FETCHABLE, BUT USABLE
+
+  Direct HTTP fetch from FoundryVTT's browser context is blocked by CORS - the site does not allow cross-origin
+  requests. There is no public API. We cannot scrape it programmatically.
+
+  Practical solution: We maintain a static mapping of Heritage/Culture choices to their specific URLs on
+  fantasynamegenerator.com. The wizard has a "Browse Names" button that opens the correct page in a new browser tab.
+   The user picks a name there, comes back, and types it in. This is frictionless and makes good use of the resource
+   without scraping.
+
+  Additionally, Gemini can also suggest 3-5 culturally appropriate names as part of its generation if the name field
+   is left blank - both fallbacks exist.
+
+  Image Generation - CONDITIONALLY FEASIBLE
+
+  Two tiers:
+
+  Tier 1 (always available): Gemini generates a detailed Midjourney/DALL-E style image prompt as part of the
+  generation response (already in the standalone tool). We display it with a copy button. User pastes it into their
+  preferred image tool.
+
+  Tier 2 (optional, requires setup): If the user has a Stability AI API key configured in settings, a "Generate
+  Portrait" button calls the Stability AI REST endpoint directly from the browser. Stability AI's API supports CORS
+  in browser contexts. The returned image is saved to worlds/{world}/assets/npc-portraits/ via FilePicker.upload()
+  and set as the actor's portrait automatically.
+
+  OpenAI DALL-E is also an option for Tier 2 but their image endpoint does not allow direct browser calls without a
+  server proxy, so Stability AI is the better pick.
+
+  ---
+  Wizard Flow (5 Steps)
+
+  Step 1: Identity
+
+  - Name field (optional - leave blank for AI to generate)
+  - Heritage / Cultural Background (dropdown - ~20 options: Western European, East Asian, Middle Eastern,
+  Sub-Saharan African, South American Indigenous, etc.)
+  - Pronouns (free text or common presets)
+  - "Browse Names" button - opens fantasynamegenerators.com/[culture].php in a new browser tab based on the Heritage
+   selection above
+
+  Step 2: Time & Faction
+
+  - Era (Ancient / Medieval / Ariesian / Tauran / Piscean / Aquarian, matching the existing tool's options)
+  - Fraternity (all 8 from the existing tool, plus "None / Unaffiliated" and "Unknown")
+  - Spanner or Leveler toggle
+  - If Spanner: Span Rank 1-5 spinner
+  - Continuum agent or Narcissist toggle
+
+  Step 3: Capabilities
+
+  - Operant or Latent toggle
+  - If Operant: checkbox grid for the 6 metabilities (Coercion, Creativity, Farsense, PK, Redaction, plus Latent
+  base) each with a rank 0-5 spinner
+  - Attribute profile: dropdown with presets ("Balanced (all 4)", "Physical", "Intellectual", "Social") OR free
+  inputs for Body / Mind / EQ / Quick
+
+  Step 4: Concept & Hook
+
+  - Role in story: Antagonist / Ally / Contact / Neutral / Unknown
+  - Brief concept (textarea, 2-3 sentences) - this seeds the AI narrative and gives it creative direction
+  - Optional: pick an existing actor from the world to wire as a pre-existing relationship (actor picker dropdown)
+  - Optional: notes to GM (textarea) - any secrets you already have in mind; AI will weave these in
+
+  Step 5: Review & Generate
+
+  - Summary card showing all choices
+  - "Generate" button - calls Gemini with a structured schema prompt
+  - While loading: animated status log (matching the standalone tool's aesthetic)
+  - After generation:
+    - 3-paragraph bio shown in a scrollable preview
+    - GM secrets block (collapsible)
+    - Image prompt in a copy-able code box
+    - "Generate Portrait" button (Tier 2 - grayed out if no Stability AI key)
+    - "Create Actor" button - creates the actor, closes wizard, opens the new actor sheet
+
+  ---
+  Generated Actor Contents
+
+  When "Create Actor" is pressed, the system populates:
+
+  ┌──────────────────────────────────┬───────────────────────────────────────────────────────┐
+  │              Field               │                        Source                         │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ name                             │ Wizard step 1 or AI-generated                         │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.personal.heritage         │ Step 1 Heritage                                       │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.personal.pronouns         │ Step 1                                                │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.personal.era              │ Step 2                                                │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.personal.fraternity       │ Step 2                                                │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.span                      │ Step 2 Span Rank                                      │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.attributes.*              │ Step 3 or preset                                      │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.metabilities.*            │ Step 3 operant selections                             │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.background                │ AI-generated narrative                                │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.ages / system.experiences │ AI-generated lifeline events (at least 5 experiences) │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.relationships             │ AI-generated (at least 5 entries)                     │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ system.favors                    │ AI-generated (at least 3 entries)                     │
+  ├──────────────────────────────────┼───────────────────────────────────────────────────────┤
+  │ img                              │ Stability AI portrait, or default token               │
+  └──────────────────────────────────┴───────────────────────────────────────────────────────┘
+
+  The Gemini structured schema is extended from the current tool to include all of these. The existing tool's JSON
+  schema already captures ages/experiences/events - we keep and extend it to add relationships and favors which the
+  importer also supports.
+
+  ---
+  Module Structure
+
+  modules/npc-generator/
+    index.js                   - exports openNPCGeneratorWizard(), called from scene control
+    npc-wizard-app.js          - extends Application; handles step navigation, state, rendering
+    npc-ai-client.js           - Gemini API wrapper (reuses logic from npc-generator.html)
+    npc-actor-builder.js       - Actor.create() + all field mapping from AI response
+    npc-name-helper.js         - Heritage -> fantasynamegenerators.com URL map; opens tab
+    npc-image-client.js        - Optional Stability AI portrait call + FilePicker upload
+
+  templates/npc-generator/
+    npc-wizard.html            - outer shell with step progress indicator
+    step-1-identity.html
+    step-2-time-faction.html
+    step-3-capabilities.html
+    step-4-concept.html
+    step-5-review.html
+
+  styles/npc-generator.css     - wizard-specific styling
+
+  modules/scene-controls.js    - new file registering "GM Tools" control group
+                                 (or added to the existing init hook in continuum.js)
+
+  ---
+  Settings Required
+
+  Two new system settings (registered in continuum.js or a new settings.js):
+
+  - continuum.geminiApiKey - string, GM-only, used by the AI client
+  - continuum.stabilityAiKey - string, GM-only, optional, enables portrait generation
+
+  The settings UI appears in Foundry's standard Configure Settings > System Settings panel. If Gemini key is absent,
+   the Generate button shows a warning pointing to settings.
+
+  ---
+  What to Build, In Order
+
+  1. Scene control button registration + stub that opens a placeholder dialog
+  2. Wizard Application shell with step navigation (no AI yet)
+  3. All 5 step templates wired to a state object
+  4. Heritage -> URL mapping in npc-name-helper.js; wire the Browse Names button
+  5. Gemini call moved from standalone HTML into npc-ai-client.js; wire Generate button
+  6. npc-actor-builder.js maps AI response to Actor.create(); wire Create Actor button
+  7. System settings for API keys
+  8. Optional: Stability AI portrait in npc-image-client.js
+
+  Steps 1-6 are the core. Step 7 is a prerequisite for 5 and 8. Step 8 is independent bonus.
+
+  ---
+  Out of Scope
+
+  - Editing the generated character through the wizard (use the actor sheet after creation)
+  - Party composition awareness (generating NPCs that complement existing PCs)
+  - Saving wizard state between sessions (not worth the complexity for a one-shot tool)
+  - Any server-side proxy (everything runs browser-side)

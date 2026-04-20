@@ -1,0 +1,288 @@
+<style>
+.lifeline-spreadsheet .lss-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; font-size:12px; }
+.lifeline-spreadsheet .lss-toolbar { display:flex; align-items:center; gap:10px; padding:6px 8px; background:#1e1e1e; border-bottom:1px solid #444; flex-shrink:0; }
+.lifeline-spreadsheet .lss-toolbar button { background:#333; border:1px solid #555; color:#ccc; padding:3px 10px; border-radius:3px; cursor:pointer; font-size:11px; }
+.lifeline-spreadsheet .lss-toolbar button:hover { background:#444; }
+.lifeline-spreadsheet .lss-count { color:#888; margin-left:auto; font-size:11px; }
+.lifeline-spreadsheet .lss-scroll { flex:1; overflow-y:auto; }
+.lifeline-spreadsheet table { width:100%; border-collapse:collapse; table-layout:auto; min-width:1000px; }
+.lifeline-spreadsheet thead th { background:#252525; color:#aaa; font-size:11px; font-weight:bold; text-align:left; padding:4px 6px; border-bottom:1px solid #444; position:sticky; top:0; z-index:2; }
+.lifeline-spreadsheet .lss-new-row-tr { background:#1a1a2a; }
+.lifeline-spreadsheet .lss-new-row-tr td { padding:4px 3px; }
+.lifeline-spreadsheet .lss-event-row td { padding:2px 3px; border-bottom:1px solid #2a2a2a; vertical-align:middle; }
+.lifeline-spreadsheet .lss-event-row:hover td { background:#282828; }
+.lifeline-spreadsheet .lss-event-row.is-span td { border-left:2px solid #4da6ff; }
+.lifeline-spreadsheet .lss-expanded-row td { padding:8px; background:#1e1e28; border-bottom:2px solid #333; }
+.lifeline-spreadsheet .lss-expanded-row.hidden { display:none; }
+.lifeline-spreadsheet .lss-field { width:100%; background:#222; border:1px solid #444; color:#ddd; padding:2px 5px; font-size:11px; border-radius:2px; box-sizing:border-box; }
+.lifeline-spreadsheet .lss-field:focus { border-color:#4da6ff; outline:none; }
+/* Field-type minimum widths so text is always readable */
+.lifeline-spreadsheet .lss-field-date { min-width:95px; }
+.lifeline-spreadsheet .lss-field-time { min-width:65px; }
+.lifeline-spreadsheet .lss-field-title { min-width:180px; }
+.lifeline-spreadsheet .lss-field-notes { min-width:240px; }
+.lifeline-spreadsheet .lss-field-location { min-width:150px; }
+.lifeline-spreadsheet .lss-age-cell { color:#aaa; font-size:10px; white-space:nowrap; min-width:60px; }
+.lifeline-spreadsheet .lss-exp-badge { background:#3a3a1a; border:1px solid #666; color:#cc9; padding:1px 5px; border-radius:10px; font-size:10px; }
+.lifeline-spreadsheet .lss-span-badge { color:#4da6ff; font-size:10px; }
+.lifeline-spreadsheet .lss-action-btn { background:none; border:none; color:#666; cursor:pointer; padding:2px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; }
+.lifeline-spreadsheet .lss-action-btn:hover { color:#ccc; }
+.lifeline-spreadsheet .lss-add-btn { background:#1a3a1a; border:1px solid #3a6a3a; color:#7c7; padding:3px 10px; border-radius:3px; cursor:pointer; font-size:11px; }
+.lifeline-spreadsheet .lss-add-btn:hover { background:#2a4a2a; }
+.lifeline-spreadsheet .lss-exp-section { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
+.lifeline-spreadsheet .lss-span-section { margin-top:6px; border:1px solid #444; padding:6px; border-radius:3px; }
+.lifeline-spreadsheet .lss-span-row { display:flex; gap:6px; align-items:center; margin-bottom:4px; }
+.lifeline-spreadsheet .lss-span-label { color:#aaa; font-size:11px; width:30px; flex-shrink:0; }
+.lifeline-spreadsheet .lss-expand-inner { display:flex; flex-direction:column; gap:4px; }
+.lifeline-spreadsheet .lss-check-label { display:flex; align-items:center; gap:6px; color:#bbb; font-size:11px; cursor:pointer; }
+.lifeline-spreadsheet .lss-save-row-btn { background:#1a2a3a; border:1px solid #3a5a7a; color:#7af; padding:3px 12px; border-radius:3px; cursor:pointer; font-size:11px; margin-top:6px; }
+.lifeline-spreadsheet .lss-map-pin-btn { background:#2a3a1a; border:1px solid #4a6a2a; color:#7c7; padding:3px; width:22px; height:22px; border-radius:3px; cursor:pointer; font-size:11px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.lifeline-spreadsheet .lss-map-pin-btn:hover { background:#3a4a2a; }
+.lifeline-spreadsheet .lss-map-pin-btn.pinned { background:#1a3a3a; border-color:#3a6a6a; color:#7cc; }
+.lifeline-spreadsheet select.lss-field { height:22px; }
+.lifeline-spreadsheet .hidden { display:none !important; }
+.lifeline-spreadsheet .lss-section-label { color:#888; font-size:10px; font-weight:bold; letter-spacing:0.05em; text-transform:uppercase; margin-top:4px; }
+.lifeline-spreadsheet .lss-import-btn  { background:#1a2a3a; border:1px solid #3a5a7a; color:#7af; }
+.lifeline-spreadsheet .lss-import-btn:hover  { background:#243444; }
+.lifeline-spreadsheet .lss-export-btn  { background:#1a3a2a; border:1px solid #3a7a5a; color:#7fb; }
+.lifeline-spreadsheet .lss-export-btn:hover  { background:#243c30; }
+.lifeline-spreadsheet .lss-template-btn { background:#2a1a3a; border:1px solid #5a3a7a; color:#b7f; }
+.lifeline-spreadsheet .lss-template-btn:hover { background:#38284a; }
+.lifeline-spreadsheet .lss-drag-handle { color:#555; cursor:grab; padding:2px 4px; font-size:11px; user-select:none; }
+.lifeline-spreadsheet .lss-drag-handle:hover { color:#aaa; }
+.lifeline-spreadsheet .lss-event-row.sortable-ghost { opacity:0.4; background:#2a3a4a; }
+.lifeline-spreadsheet .lss-event-row.sortable-chosen { background:#1a2a3a; }
+.lifeline-spreadsheet .lss-event-row.sortable-drag { opacity:0.8; }
+</style>
+
+<div class="lss-wrap">
+
+  <!-- TOOLBAR -->
+  <div class="lss-toolbar">
+    <button class="lss-sort-toggle" title="Toggle age sort direction">
+      {{#if sortNewestFirst}}<i class="fas fa-arrow-down"></i> Age: Newest First{{else}}<i class="fas fa-arrow-up"></i> Age: Oldest First{{/if}}
+    </button>
+    <button class="lss-import-btn"   title="Import events from a CSV file"><i class="fas fa-file-import"></i> Import CSV</button>
+    <button class="lss-export-btn"   title="Export all events as a CSV file"><i class="fas fa-file-export"></i> Export CSV</button>
+    <button class="lss-template-btn" title="Download a blank CSV template to fill in"><i class="fas fa-file-download"></i> Get Template</button>
+    <span class="lss-count">{{rows.length}} event{{#unless (eq rows.length 1)}}s{{/unless}}</span>
+  </div>
+
+  <!-- SCROLLING TABLE -->
+  <div class="lss-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24px"></th>
+          <th style="width:95px">Date</th>
+          <th style="width:65px">Time</th>
+          <th style="min-width:180px">Title</th>
+          <th style="min-width:240px">Notes</th>
+          <th style="min-width:150px">Location</th>
+          <th style="width:70px">Age</th>
+          <th style="width:90px">Experience</th>
+          <th style="width:70px"></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- NEW ROW FORM -->
+        <tr class="lss-new-row-tr">
+          <td colspan="9">
+            <form class="lss-new-form" autocomplete="off">
+              <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
+                <input class="lss-field lss-n-date"     style="width:95px"  placeholder="YYYY-MM-DD" title="Date (required)"/>
+                <input class="lss-field lss-n-time"     style="width:65px"  placeholder="HH:MM"      title="Time (optional)"/>
+                <input class="lss-field lss-n-title"    style="min-width:180px; flex:1;" placeholder="Title" title="Title"/>
+                <input class="lss-field lss-n-notes"    style="min-width:240px; flex:2;" placeholder="Notes" title="Notes"/>
+                <input class="lss-field lss-n-location" style="min-width:150px; flex:1;" placeholder="Location" title="Location"/>
+                <button type="button" class="lss-map-pin-btn" title="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
+                <label class="lss-check-label" title="Expand for span and experience options">
+                  <input type="checkbox" class="lss-n-is-span"/> Span
+                </label>
+                <button type="button" class="lss-add-btn"><i class="fas fa-plus"></i> Add</button>
+              </div>
+
+              <!-- Span fields (hidden until checkbox checked) -->
+              <div class="lss-new-span-fields hidden" style="margin-top:6px; padding:6px; border:1px solid #3a4a5a; border-radius:3px; background:#16202a;">
+                <div class="lss-section-label">Span Details</div>
+                <div class="lss-span-row">
+                  <span class="lss-span-label">From:</span>
+                  <input class="lss-field lss-n-sf-date" style="width:95px" placeholder="YYYY-MM-DD"/>
+                  <input class="lss-field lss-n-sf-time" style="width:65px" placeholder="HH:MM"/>
+                  <input class="lss-field lss-n-sf-loc"  style="min-width:160px; flex:1"     placeholder="Departure location"/>
+                </div>
+                <div class="lss-span-row">
+                  <span class="lss-span-label">To:</span>
+                  <input class="lss-field lss-n-st-date" style="width:95px" placeholder="YYYY-MM-DD"/>
+                  <input class="lss-field lss-n-st-time" style="width:65px" placeholder="HH:MM"/>
+                  <input class="lss-field lss-n-st-loc"  style="min-width:160px; flex:1"     placeholder="Arrival location"/>
+                </div>
+              </div>
+
+              <!-- Experience options -->
+              <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:6px;">
+                <label class="lss-check-label"><input type="checkbox" class="lss-n-start-exp"/> Start new Experience</label>
+                <div class="lss-new-exp-name-wrap hidden">
+                  <input class="lss-field lss-n-exp-name" style="width:140px" placeholder="Experience name"/>
+                </div>
+                {{#if allExperiences}}
+                <label class="lss-check-label" style="margin-left:8px;">Within:
+                  <select class="lss-field lss-n-exp-select" style="width:140px; margin-left:4px;">
+                    <option value="">-- Era Level --</option>
+                    {{#each allExperiences}}
+                    <option value="{{eraId}}:{{expId}}">{{name}}{{#unless isOpen}} [Closed]{{/unless}}</option>
+                    {{/each}}
+                  </select>
+                </label>
+                <label class="lss-check-label"><input type="checkbox" class="lss-n-end-exp"/> End Experience</label>
+                <div class="lss-new-end-exp-wrap hidden">
+                  <select class="lss-field lss-n-end-exp-which" style="width:140px;">
+                    {{#each allExperiences}}{{#if isOpen}}
+                    <option value="{{eraId}}:{{expId}}">{{name}}</option>
+                    {{/if}}{{/each}}
+                  </select>
+                </div>
+                <label class="lss-check-label"><input type="checkbox" class="lss-n-reopen-exp"/> Re-open Experience</label>
+                <div class="lss-new-reopen-wrap hidden">
+                  <select class="lss-field lss-n-reopen-which" style="width:140px;">
+                    {{#each allExperiences}}{{#unless isOpen}}
+                    <option value="{{eraId}}:{{expId}}">{{name}}</option>
+                    {{/unless}}{{/each}}
+                  </select>
+                </div>
+                {{/if}}
+              </div>
+            </form>
+          </td>
+        </tr>
+
+        <tr style="height:4px; background:#111;"><td colspan="9"></td></tr>
+
+        <!-- EXISTING EVENT ROWS -->
+        {{#each rows}}
+<tr class="lss-event-row{{#if isSpan}} is-span{{/if}}"
+            data-event-id="{{eventId}}"
+            data-era-id="{{eraId}}"
+            data-exp-id="{{expId}}">
+           <td><i class="fas fa-grip-vertical lss-drag-handle"></i></td>
+           <td><input class="lss-field lss-field-date" value="{{date}}" placeholder="YYYY-MM-DD"/></td>
+          <td><input class="lss-field lss-field-time" value="{{time}}" placeholder="HH:MM"/></td>
+          <td><input class="lss-field lss-field-title" value="{{title}}" placeholder="Title"/></td>
+          <td><input class="lss-field lss-field-notes" value="{{notes}}" placeholder="Notes"/></td>
+           <td style="display:flex; align-items:center; gap:2px;">
+             <input class="lss-field lss-field-location" value="{{location}}" placeholder="Location" style="flex:1;"/>
+             <button type="button" class="lss-map-pin-btn lss-row-map-pin-btn" title="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
+           </td>
+          <td><input class="lss-field lss-age-cell lss-field-age" value="{{ageFormatted}}" placeholder="e.g. 5y 3d" title="Age from birth - edit to move event (e.g. 5y 3d 12h)"/></td>
+          <td>{{#if expName}}<span class="lss-exp-badge">{{expName}}</span>{{/if}}
+              {{#if isSpan}}<span class="lss-span-badge" title="Span"><i class="fas fa-route"></i></span>{{/if}}</td>
+          <td style="white-space:nowrap;">
+            <button class="lss-action-btn lss-expand-btn" title="More options">
+              <i class="fas fa-chevron-{{#if isExpanded}}up{{else}}down{{/if}}"></i>
+            </button>
+            <button class="lss-action-btn lss-delete-btn" title="Delete event"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+
+        <!-- EXPANDED SECTION for this row -->
+<tr class="lss-expanded-row{{#unless isExpanded}} hidden{{/unless}}"
+             data-event-id="{{eventId}}" data-era-id="{{eraId}}" data-exp-id="{{expId}}">
+           <td colspan="9">
+            <div class="lss-expand-inner">
+
+              <!-- Span toggle + fields -->
+              <label class="lss-check-label">
+                <input type="checkbox" class="lss-is-span" {{#if isSpan}}checked{{/if}}/>
+                This event is a Span (journey with departure and arrival)
+              </label>
+
+              <div class="lss-span-section lss-span-fields-section{{#unless isSpan}} hidden{{/unless}}">
+                <div class="lss-span-row">
+                  <span class="lss-span-label">From:</span>
+                  <input class="lss-field lss-sf-date" value="{{spanFromDate}}" style="width:95px" placeholder="YYYY-MM-DD"/>
+                  <input class="lss-field lss-sf-time" value="{{spanFromTime}}" style="width:65px" placeholder="HH:MM"/>
+                  <input class="lss-field lss-sf-loc"  value="{{spanFromLocation}}" style="min-width:160px; flex:1" placeholder="Departure location"/>
+                </div>
+                <div class="lss-span-row">
+                  <span class="lss-span-label">To:</span>
+                  <input class="lss-field lss-st-date" value="{{spanToDate}}" style="width:95px" placeholder="YYYY-MM-DD"/>
+                  <input class="lss-field lss-st-time" value="{{spanToTime}}" style="width:65px" placeholder="HH:MM"/>
+                  <input class="lss-field lss-st-loc"  value="{{spanToLocation}}" style="min-width:160px; flex:1" placeholder="Arrival location"/>
+                </div>
+              </div>
+
+              <!-- Experience controls -->
+              <div class="lss-exp-section">
+                {{#if ../allEras}}
+                <div>
+                  <div class="lss-section-label">Era placement</div>
+                  <select class="lss-field lss-age-select" style="width:200px; margin-top:3px;">
+                    {{#each ../allEras}}
+                    <option value="{{eraId}}">{{name}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+                {{/if}}
+                <div>
+                  <div class="lss-section-label">Experience placement</div>
+                  <select class="lss-field lss-exp-select" style="width:200px; margin-top:3px;">
+                    <option value="">-- Era Level (no experience) --</option>
+                    {{#each ../allExperiences}}
+                    <option value="{{eraId}}:{{expId}}">{{name}}{{#unless isOpen}} [Closed]{{/unless}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+                <div>
+                  <label class="lss-check-label" style="margin-top:4px;">
+                    <input type="checkbox" class="lss-start-exp"/> Start new Experience at this event
+                  </label>
+                  <div class="lss-exp-name-wrap hidden" style="margin-top:3px;">
+                    <input class="lss-field lss-exp-name-input" style="width:180px" placeholder="Experience name"/>
+                  </div>
+                </div>
+                {{#if ../allExperiences}}
+                <div>
+                  <label class="lss-check-label">
+                    <input type="checkbox" class="lss-end-exp"/> End an Experience at this event
+                  </label>
+                  <div class="lss-end-exp-wrap hidden" style="margin-top:3px;">
+                    <select class="lss-field lss-end-exp-which" style="width:180px;">
+                      {{#each ../allExperiences}}{{#if isOpen}}
+                      <option value="{{eraId}}:{{expId}}">{{name}}</option>
+                      {{/if}}{{/each}}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="lss-check-label">
+                    <input type="checkbox" class="lss-reopen-exp"/> Re-open a closed Experience
+                  </label>
+                  <div class="lss-reopen-wrap hidden" style="margin-top:3px;">
+                    <select class="lss-field lss-reopen-which" style="width:180px;">
+                      {{#each ../allExperiences}}{{#unless isOpen}}
+                      <option value="{{eraId}}:{{expId}}">{{name}}</option>
+                      {{/unless}}{{/each}}
+                    </select>
+                  </div>
+                </div>
+                {{/if}}
+              </div>
+
+              <button type="button" class="lss-save-row-btn"><i class="fas fa-save"></i> Save Changes</button>
+            </div>
+          </td>
+        </tr>
+
+        {{/each}}
+
+        {{#unless rows}}
+        <tr><td colspan="9" style="text-align:center; color:#666; padding:20px; font-style:italic;">
+          No events yet. Use the form above to add your first event.
+        </td></tr>
+        {{/unless}}
+
+      </tbody>
+    </table>
+  </div>
+</div>

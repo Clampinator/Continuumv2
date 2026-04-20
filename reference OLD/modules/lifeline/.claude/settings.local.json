@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(python3:*)",
+      "Bash(grep -E \"\\\\.\\(hbs|html|handlebars\\)$\")",
+      "Bash(grep -r \"span-graph-controls\\\\|section-header\" /c/Users/Tuck/AppData/Local/FoundryVTT/Data/systems/continuum/modules --include=*.js)",
+      "Bash(wc:*)",
+      "Bash(git -C \"C:/Users/Tuck/AppData/Local/FoundryVTT/Data/systems/continuum\" diff HEAD -- modules/lifeline/services/ui/event-dialog/handle-submit.js)",
+      "Bash(git -C \"C:/Users/Tuck/AppData/Local/FoundryVTT/Data/systems/continuum\" diff -- modules/lifeline/services/ui/event-dialog/handle-submit.js)",
+      "Bash(git -C \"C:/Users/Tuck/AppData/Local/FoundryVTT/Data/systems/continuum\" status)",
+      "Bash(git -C \"C:/Users/Tuck/AppData/Local/FoundryVTT/Data/systems/continuum\" diff -- modules/character/activate-listeners.js)",
+      "Bash(git -C \"C:/Users/Tuck/AppData/Local/FoundryVTT/Data/systems/continuum\" diff -- templates/sections/span_graph.html)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

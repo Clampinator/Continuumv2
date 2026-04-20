@@ -1,0 +1,408 @@
+
+/*==========================*/
+/* METABILITY SECTION       */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .metabilities-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Reset margin for Add button inside container */
+.section-header-row .metabilities-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.metabilities-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.metabilities-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.metability-block {
+  gap: 8px;
+}
+
+/*==========================*/
+/* OPERANT POTENTIAL FRAME  */
+/*==========================*/
+
+/* Container that wraps entire metability with potential background
+   Inherits same sizing as original .attribute-block */
+.metability-potential-frame {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  max-width: 120px;
+}
+
+/* Background image showing operant potential level
+   This IS the drag target for setting potential */
+.potential-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+  border-radius: 6px;
+  cursor: grab;
+  user-select: none;
+}
+
+.potential-background:active,
+.potential-background.dragging {
+  cursor: grabbing;
+}
+
+/* Locked state - background is non-interactive */
+.potentials-locked .potential-background {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.potential-bg-image {
+  position: absolute;
+  width: 100%;
+  height: 858px; /* 6 frames x 143px */
+  pointer-events: none;
+}
+
+/* Content sits on top of background - masks the drag area */
+.metability-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Visual state when current value equals potential */
+.metability-potential-frame.at-potential .metability-spinner-viewport {
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+/*==========================*/
+/* NORMALIZED METABILITY SPINNER */
+/*==========================*/
+.metability-spinner-viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 80px !important;
+  border: 1px solid #555;
+  border-radius: 0px;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  background-color: #222;
+  box-sizing: border-box !important;
+  line-height: 0;
+  margin-top: 10;
+}
+
+.metability-spinner-viewport.active {
+  cursor: grabbing;
+  border-color: #777;
+}
+
+.metability-spinner-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(600% + 10px); /* +10px compensates for 1px border top+bottom x 6 frames */
+  pointer-events: none;
+}
+
+.roll-attribute:disabled {
+  background-color: #222;
+  color: #666;
+  cursor: not-allowed;
+  border-color: #444;
+  pointer-events: none;
+}
+
+.roll-attribute:disabled:hover {
+  background-color: #222;
+  border-color: #444;
+}
+
+/*==========================*/
+/* METABILITY APPLICATIONS  */
+/*==========================*/
+
+.metability-applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.metability-application-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: #3a3a3a;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #2c2c2c;
+}
+
+.metability-application-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.metability-application-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.metability-application-running {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85em;
+  color: #ccc;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.metability-application-running input[type="checkbox"] {
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.metability-application-name {
+  font-weight: bold;
+}
+
+.metability-application-content textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 40px;
+  display: block;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px;
+  font-family: inherit;
+}
+
+.metability-application-controls {
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+/*==========================*/
+/* METABILITY PUSH SLIDER   */
+/*==========================*/
+
+.dialog-push-section {
+  display: none;
+}
+
+.push-slider-container {
+  position: relative;
+  width: 100%;
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+.push-slider-background {
+  width: 100%;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.push-slider-pointer {
+  position: absolute;
+  top: 50%; 
+  width: 25px;  
+  height: 25px; 
+  background-image: url('../assets/metability-push-pointer.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  transform: translate(-50%, -50%); 
+  transition: left 0.1s ease-out; 
+  pointer-events: none; 
+  --vibration-intensity: 0px;   
+  animation: vibrate 0.1s linear infinite;
+}
+
+@keyframes vibrate {
+  0% { transform: translate(calc(-50% + var(--vibration-intensity)), calc(-50% - var(--vibration-intensity))); }
+  10% { transform: translate(calc(-50% - var(--vibration-intensity)), calc(-50% + var(--vibration-intensity))); }
+  20% { transform: translate(calc(-50% - var(--vibration-intensity)), calc(-50% - var(--vibration-intensity))); }
+  30% { transform: translate(calc(-50% + var(--vibration-intensity)), calc(-50% + var(--vibration-intensity))); }
+  40% { transform: translate(calc(-50% - var(--vibration-intensity)), calc(-50% + var(--vibration-intensity))); }
+  50% { transform: translate(calc(-50% + var(--vibration-intensity)), calc(-50% - var(--vibration-intensity))); }
+  60% { transform: translate(calc(-50% + var(--vibration-intensity)), calc(-50% + var(--vibration-intensity))); }
+  70% { transform: translate(calc(-50% - var(--vibration-intensity)), calc(-50% - var(--vibration-intensity))); }
+  80% { transform: translate(calc(-50% - var(--vibration-intensity)), calc(-50% + var(--vibration-intensity))); }
+  90% { transform: translate(calc(-50% + var(--vibration-intensity)), calc(-50% - var(--vibration-intensity))); }
+  100% { transform: translate(calc(-50% - var(--vibration-intensity)), calc(-50% - var(--vibration-intensity))); }
+}
+
+.push-slider-container.active {
+    cursor: grabbing;
+}
+
+.push-slider-zones {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.push-zone {
+  flex: 1;
+}
+
+.push-modifier-display {
+    font-style: italic;
+    color: #aaa;
+    margin-left: 5px;
+}
+
+/*==========================*/
+/* APP INGREDIENTS ROW      */
+/*==========================*/
+
+.metability-application-header {
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.metability-application-name {
+    min-width: 80px;
+    max-width: 330px;
+    flex-shrink: 1;
+    flex-grow: 1;
+}
+
+.app-ingredients-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.app-ingredient {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.app-ingredient label {
+    font-size: 0.68em;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+/* Compact spinner override for ingredient spinners (36x30 = 6:5 matches frame aspect ratio) */
+.attribute-spinner-viewport.app-ingredient-spinner {
+    width: 36px;
+    height: 30px !important;
+}
+
+/* Level spinner uses the attribute image, keep square */
+.attribute-spinner-viewport.app-level-spinner {
+    width: 36px;
+    height: 36px !important;
+}
+
+/* Compensates for 1px border top+bottom x 11 frames (tune like the metability +10px) */
+.attribute-spinner-viewport.app-level-spinner .attribute-spinner-image {
+    height: calc(1100% + 15px);
+}
+
+.app-volume-display {
+    font-size: 0.8em;
+    color: #aaa;
+    white-space: nowrap;
+    padding-bottom: 2px;
+    align-self: flex-end;
+}
+
+.metability-application-level-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.metability-application-level-container > label {
+    font-size: 0.68em;
+    color: #aaa;
+}
+
+.metability-application-item.volume-exceeded {
+    border-color: #c0392b;
+    box-shadow: 0 0 4px rgba(192, 57, 43, 0.6);
+}
+
+.app-apply-btn {
+    font-size: 0.8em;
+    padding: 3px 8px;
+    background-color: #444;
+    border: 1px solid #666;
+    color: #eee;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.app-apply-btn:hover {
+    background-color: #555;
+    border-color: #888;
+    color: #fff;
+}

@@ -1,0 +1,92 @@
+/*==========================*/
+/* VEHICLES SECTION         */
+/*==========================*/
+
+/* --- Header Controls Alignment --- */
+.section-header-row .vehicles-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Reset margin for Add button inside container */
+.section-header-row .vehicles-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.vehicles-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vehicles-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.vehicles-list {
+    color: #aaa;
+}
+
+.vehicle-item {
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  background-color: #3a3a3a;
+  border: 1px solid #2c2c2c;
+}
+
+.vehicle-item-header,
+.vehicle-item {
+  display: grid;
+  grid-template-columns: 1fr 90px repeat(4, 90px) 40px;
+  gap: 10px;
+  align-items: center;
+}
+
+.vehicle-stat .vehicle-stat-display {
+    display: block;
+    background-color: #222;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.vehicle-item-header {
+  font-weight: bold;
+  padding: 5px;
+  border-bottom: 1px solid #444;
+  margin-bottom: 5px;
+}
+
+.vehicle-item-header > div {
+  text-align: center;
+}
+
+.vehicle-item-header > div:first-child {
+  text-align: left;
+}
+
+.vehicle-controls {
+  text-align: right;
+}

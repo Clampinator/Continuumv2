@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - list:
+    - listitem [ref=e8]:
+      - text: 
+      - paragraph [ref=e9]: Foundry Virtual Tabletop requires a screen resolution of 1366px by 768px or greater. Your display has a resolution of 1280px by 720px. You must increase your resolution or use a different display device, or else some features of the software will not work properly.
+      - text: 
+  - banner [ref=e3]:
+    - heading "Continuum" [level=1] [ref=e4]
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - heading "Join Game Session" [level=2] [ref=e12]
+      - generic [ref=e13]:
+        - generic [ref=e15]: 
+        - combobox [ref=e17] [cursor=pointer]:
+          - option
+          - option "Browser" [selected]
+          - option "Gamemaster" [disabled]
+          - option "Clyax"
+          - option "Evelyn"
+          - option "Guest"
+          - option "Hex"
+          - option "Nemo"
+          - option "Ryan"
+          - option "Sub"
+          - option "TallTower"
+      - generic [ref=e18]:
+        - generic [ref=e20]: 
+        - textbox "Password" [ref=e22]
+      - contentinfo [ref=e23]:
+        - button " Join Game Session" [ref=e24] [cursor=pointer]:
+          - generic: 
+          - generic: Join Game Session
+    - generic [ref=e25]:
+      - heading "Game Details" [level=2] [ref=e26]
+      - generic [ref=e28]:
+        - generic [ref=e29]: 
+        - text: Next Session
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: 
+          - text: Current Players
+        - generic [ref=e33]:
+          - generic [ref=e34]: "1"
+          - generic [ref=e35]: /
+          - generic [ref=e36]: "10"
+    - generic [ref=e37]:
+      - heading "Return to Setup" [level=2] [ref=e38]
+      - generic [ref=e39]:
+        - generic [ref=e41]: 
+        - textbox [ref=e42]
+      - contentinfo [ref=e43]:
+        - button " Return to Setup" [ref=e44] [cursor=pointer]:
+          - generic: 
+          - generic: Return to Setup
+    - article [ref=e45]:
+      - heading "World Description" [level=2] [ref=e46]
+  - contentinfo [ref=e6]:
+    - paragraph [ref=e7]: Version 13 Build 346

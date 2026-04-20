@@ -1,0 +1,52 @@
+
+/*================================*/
+/* ORG BALANCE SHEET SECTION CSS  */
+/*================================*/
+
+/* Header Controls Alignment */
+.section-header-row .org-balance-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Add Button in Header */
+.section-header-row .org-balance-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.org-balance-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.org-balance-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Favor Item specific styling override if needed */
+.organization .favor-item {
+    background-color: #2d3436;
+}
+
+.organization .favor-item-header {
+    background-color: #2d3436;
+    border-bottom-color: #636e72;
+}

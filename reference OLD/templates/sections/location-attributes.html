@@ -1,0 +1,57 @@
+<div class="section-container">
+    <input type="checkbox" id="toggle-location-attributes-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-location-attributes-" actor.id))}}checked{{/if}}>
+    <div class="section-header-row">
+        <label for="toggle-location-attributes-{{actor.id}}" class="section-heading-toggle">
+            <h2 class="section-heading">Core Attributes & Pools</h2>
+        </label>
+    </div>
+    
+    <div class="section-content">
+        <div class="attributes-container location-attributes">
+            <!-- Location Image (Flag Aspect Ratio) -->
+            <div class="character-image-container location-image-container">
+                <img class="character-image" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+            </div>
+
+            <!-- Core Attributes -->
+            <div class="attributes-single-row">
+                <div class="attribute-block">
+                    <button type="button" class="roll-attribute" data-attribute="scale">SCALE</button>
+                    <input type="number" name="system.attributes.scale.value" value="{{system.attributes.scale.value}}" min="0" max="10">
+                </div>
+                <div class="attribute-block">
+                    <button type="button" class="roll-attribute" data-attribute="output">OUTPUT</button>
+                    <input type="number" name="system.attributes.output.value" value="{{system.attributes.output.value}}" min="0" max="10">
+                </div>
+                <div class="attribute-block">
+                    <button type="button" class="roll-attribute" data-attribute="cohesion">COHESION</button>
+                    <input type="number" name="system.attributes.cohesion.value" value="{{system.attributes.cohesion.value}}" min="0" max="10">
+                </div>
+                <div class="attribute-block">
+                    <button type="button" class="roll-attribute" data-attribute="civics">CIVICS</button>
+                    <input type="number" name="system.attributes.civics.value" value="{{system.attributes.civics.value}}" min="0" max="10">
+                </div>
+            </div>
+
+            <!-- Spendable Pools -->
+            <div class="attribute-column-dual">
+                <div class="attribute-block capital-block">
+                    <span class="static-text">CAPITAL</span>
+                    <div class="pool-inputs">
+                        <input type="number" name="system.attributes.capital.value" value="{{system.attributes.capital.value}}" title="Current">
+                        <span>/</span>
+                        <input type="number" name="system.attributes.capital.max" value="{{system.attributes.capital.max}}" title="Max">
+                    </div>
+                </div>
+                <div class="attribute-block momentum-block">
+                    <span class="static-text">MOMENTUM</span>
+                    <div class="pool-inputs">
+                        <input type="number" name="system.attributes.momentum.value" value="{{system.attributes.momentum.value}}" title="Current">
+                        <span>/</span>
+                        <input type="number" name="system.attributes.momentum.max" value="{{system.attributes.momentum.max}}" title="Max">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+# IMPORTANT: run_commands Tool Usage Reminder
+
+The `run_commands` tool executes shell commands in the Windows PowerShell environment. It works reliably when you pass commands as **plain strings** (e.g., `"echo Hello"` or `"dir C:\path"`). Multiple commands can be chained using semicolons (e.g., `"echo First; echo Second"`). While the tool schema suggests support for arrays and structured objects with `command`/`args` fields, these formats fail in practice because PowerShell interprets the JSON brackets and braces as syntax errors. Always use simple string commands for consistent results.
+
+## Correct Usage Examples:
+- `"echo Hello"`
+- `"dir C:\path"`
+- `"echo First; echo Second"`
+- `"Get-ChildItem -Path ."`
+
+## Incorrect Usage (will fail):
+- `commands: ["echo Hello"]` (wrapping in array brackets causes errors)
+- `commands: [{command: "echo", args: ["Hello"]}]` (structured objects fail)
+- Any use of JSON brackets `[`, `{`, or braces in the command string
+
+Always pass a single plain string command for reliable PowerShell execution.

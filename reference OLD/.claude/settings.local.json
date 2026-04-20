@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(wc:*)",
+      "Bash(bc)",
+      "Bash(rm:*)",
+      "Bash(grep:*)",
+      "Bash(cd:*)",
+      "Bash(xargs grep:*)",
+      "Bash(2)"
+    ]
+  }
+}

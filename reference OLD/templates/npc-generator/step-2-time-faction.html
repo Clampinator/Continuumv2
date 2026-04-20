@@ -1,0 +1,55 @@
+<div class="step-content step-time-faction">
+  <h3>Time & Faction</h3>
+
+  <div class="form-group">
+    <label for="npc-era">Era</label>
+    <select id="npc-era" name="data.era">
+      <option value="Ancient">Ancient</option>
+      <option value="Medieval">Medieval</option>
+      <option value="Ariesian">Ariesian</option>
+      <option value="Tauran">Tauran</option>
+      <option value="Piscean" selected>Piscean</option>
+      <option value="Aquarian">Aquarian</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="npc-type">NPC Type</label>
+    <select id="npc-type" name="data.npcType">
+      <option value="Leveler" selected>Leveler (ordinary person)</option>
+      <option value="Continuum">Continuum Agent</option>
+      <option value="Narcissist">Narcissist</option>
+      <option value="Mentor">Mentor</option>
+    </select>
+    <span class="hint" id="npc-type-hint">Levelers have no knowledge of the Continuum, spanning, or fraternities.</span>
+  </div>
+
+  <div class="spanner-fields hidden">
+    <div class="form-group">
+      <label for="npc-fraternity">Fraternity</label>
+      <select id="npc-fraternity" name="data.fraternity">
+        <option value="Engineers">Engineers</option>
+        <option value="Foxhorn">Foxhorn</option>
+        <option value="Physicians">Physicians</option>
+        <option value="Scribes">Scribes</option>
+        <option value="Antequarians">Antequarians</option>
+        <option value="Moneychangers">Moneychangers</option>
+        <option value="Quicker">Quicker</option>
+        <option value="Thesbians">Thesbians</option>
+        <option value="None" selected>None / Unaffiliated</option>
+        <option value="Unknown">Unknown</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Span Rank</label>
+      <div class="span-rank-buttons">
+        <button type="button" class="span-rank-btn" data-rank="1">Span 1</button>
+        <button type="button" class="span-rank-btn" data-rank="2">Span 2</button>
+        <button type="button" class="span-rank-btn" data-rank="3">Span 3</button>
+        <button type="button" class="span-rank-btn" data-rank="4">Span 4</button>
+        <button type="button" class="span-rank-btn" data-rank="5">Span 5</button>
+      </div>
+    </div>
+  </div>
+</div>

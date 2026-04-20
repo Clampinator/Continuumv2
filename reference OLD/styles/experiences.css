@@ -1,0 +1,665 @@
+/*==========================*/
+/* REPEATING SECTIONS       */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .experiences-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Reset margin for Add button inside container */
+.section-header-row .experiences-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.experiences-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.experiences-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.eras-list,
+.experiences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #2c2c2c;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.sortable-list:empty {
+  min-height: 50px;
+  background-color: rgba(74, 144, 226, 0.05);
+  border: 1px dashed rgba(74, 144, 226, 0.3);
+}
+
+.experience-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #2c2c2c;
+  max-width: 100%;
+}
+
+.experience-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.experience-content textarea {
+  resize: vertical;
+}
+
+/*==========================*/
+/* EXPERIENCE TITLE ROW     */
+/*==========================*/
+.experience-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap; 
+}
+
+.experience-title-row .experience-title {
+  flex: 1 1 120px;
+  min-width: 80px;
+}
+
+.experience-title-row label {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.experience-title-row .experience-date {
+  flex: 0 1 120px;
+  min-width: 80px;
+}
+
+.experience-header-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/*==========================*/
+/* EVENT TITLE ROW STYLING  */
+/*==========================*/
+.event-title-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.event-title-row .event-title-input {
+  flex: 1 1 120px;
+  min-width: 80px;
+}
+
+.event-title-row .event-date-input {
+  flex: 0 1 120px;
+}
+
+.event-title-row .event-time-input {
+  flex: 0 1 90px;
+}
+
+/*==================================================*/
+/* --- MINIMIZE/MAXIMIZE TOGGLE FOR ITEMS --- */
+/*==================================================*/
+
+.minimize-maximize-toggle {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  border: 1px solid #555;
+  background-color: #3a3a3a;
+  border-radius: 3px;
+  font-size: 1.2em;
+  font-weight: bold;
+  line-height: 1;
+  flex-shrink: 0;
+  margin: 0 5px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.minimize-maximize-toggle:hover {
+  color: #fff;
+  border-color: #777;
+}
+.minimize-maximize-toggle::before {
+  content: '−';
+}
+
+input.minimize-toggle-cb:not(:checked) + label.minimize-maximize-toggle::before {
+  content: '+';
+}
+
+.era-header:has(> input.minimize-toggle-cb:not(:checked)) + .experiences-list {
+  display: none;
+}
+
+.experience-title-row:has(> input.minimize-toggle-cb:not(:checked)) ~ textarea,
+.experience-title-row:has(> input.minimize-toggle-cb:not(:checked)) ~ .events-container {
+  display: none;
+}
+
+/*==========================*/
+/* EVENT ITEM STYLING       */
+/*==========================*/
+.event-item {
+  background-color: #2a2a2a;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.event-item.error-border {
+    border: 2px solid #ff4444;
+    background-color: rgba(255, 68, 68, 0.1);
+}
+
+.event-main-content-wrapper {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.event-normal-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.event-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.event-content input,
+.event-content textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.event-controls {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+/*==========================*/
+/* FLOATING YET EVENT LIST  */
+/*==========================*/
+
+.yet-floating-list {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.yet-event-item {
+    background-color: #3a3a3a;
+    border-left: 4px solid #ff9f43; 
+    padding: 6px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px dashed #555; 
+}
+
+.yet-badge {
+    background-color: #ff9f43;
+    color: #111;
+    font-weight: bold;
+    font-size: 0.75em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-right: 5px;
+}
+
+/*==========================*/
+/* ERA ITEM STYLING         */
+/*==========================*/
+.era-item {
+  background-color: #2a2a2a;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border: 1px solid #444;
+  max-width: 100%;
+}
+
+.era-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #444;
+  flex-wrap: wrap;
+}
+
+.era-header .era-title {
+  flex: 1 1 150px;
+  font-size: 1.2em;
+  font-weight: bold;
+  min-width: 100px;
+}
+
+.era-header label {
+    white-space: nowrap;
+}
+
+.era-header .era-date {
+  flex: 0 1 120px;
+}
+
+.era-header-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/*============================================*/
+/* --- SORTABLEJS DRAG & DROP STYLING --- */
+/*============================================*/
+.drag-handle {
+  color: #aaa;
+  cursor: grab;
+  font-size: 1.2em;
+  line-height: 1;
+  text-align: center;
+  transition: color 0.2s ease;
+  padding: 5px;
+}
+.drag-handle:hover { color: #fff; }
+.drag-handle:active { cursor: grabbing; }
+
+.draggable-item {
+  transition: transform 0.2s ease-in-out;
+}
+
+.sortable-drag {
+  opacity: 0.9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.sortable-ghost-a, .sortable-ghost-b, .sortable-ghost-c {
+  opacity: 0.6;
+  background: rgba(0, 150, 255, 0.1);
+  border: 2px dashed rgba(0, 150, 255, 0.5);
+  box-sizing: border-box;
+}
+
+.sortable-ghost-a ~ .era-item,
+.sortable-ghost-b ~ .experience-item,
+.sortable-ghost-c ~ .event-item {
+  transform: translateY(var(--drag-item-height));
+}
+
+.event-item .drag-handle {
+  font-size: 0.9em;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*==========================*/
+/* EXPERIENCE COLOR PICKER  */
+/*==========================*/
+.color-swatch {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.color-swatch::-webkit-color-swatch { border-radius: 3px; border: none; }
+.color-swatch::-moz-color-swatch { border-radius: 3px; border: none; }
+
+/*==========================*/
+/* EXPERIENCE SEARCH BAR    */
+/*==========================*/
+.experience-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.experience-search-container i {
+  position: absolute;
+  left: 10px;
+  color: #777;
+}
+
+#experience-search {
+  padding-left: 30px;
+  width: 250px;
+  transition: all 0.2s ease-in-out;
+}
+
+#experience-search:focus { width: 300px; border-color: #777; }
+
+/*==========================*/
+/* EVENT KEYFRAME INDICATOR */
+/*==========================*/
+.event-keyframe-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8em;
+  color: #a0c4ff;
+  padding: 2px 5px;
+  background-color: rgba(74, 144, 226, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  width: fit-content;
+  margin-top: 4px;
+}
+
+/*==========================*/
+/* TRAUMA TOGGLE EMOJI      */
+/*==========================*/
+.trauma-toggle {
+  cursor: pointer;
+  font-size: 1.3em;
+  user-select: none;
+  line-height: 1;
+  transition: transform 0.1s ease;
+}
+.trauma-toggle:hover { transform: scale(1.2); }
+
+/*==========================*/
+/* SPAN / REST TOGGLE BTNS  */
+/*==========================*/
+.event-control-button {
+  cursor: pointer;
+  border: 1px solid #555;
+  background-color: #3a3a3a;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  user-select: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  color: #aaa;
+}
+
+.event-control-button:hover { border-color: #777; color: #fff; }
+
+/* DATA-DRIVEN ILLUMINATION - HIGH PRIORITY */
+.event-control-button[data-active="true"] {
+  background-color: #4a90e2 !important;
+  border-color: #8ecae6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.8) !important;
+}
+
+/* Specific color for REST button when active */
+.rest-toggle-wrapper label.event-control-button[data-active="true"] {
+  background-color: #28a745 !important;
+  border-color: #7DCEA0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.8) !important;
+}
+
+/*==========================*/
+/* SPAN EVENT LAYOUT        */
+/*==========================*/
+.event-span-layout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.event-span-grid {
+  display: grid;
+  grid-template-columns: auto 1.5fr 1fr auto;
+  gap: 15px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.span-grid-column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.span-grid-column .event-controls {
+  justify-content: center;
+}
+
+/*==========================*/
+/* SPAN DIRECTION SELECTOR  */
+/*==========================*/
+.direction-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+  height: 100%;
+}
+
+.direction-radio-group input[type="radio"] {
+  display: none;
+}
+
+.direction-radio-group label {
+  border: 1px solid #555;
+  background-color: #3a3a3a;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5em;
+  user-select: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  color: #888;
+}
+
+.direction-radio-group label:hover {
+  border-color: #777;
+  color: #fff;
+}
+
+/* High-priority illumination for active span arrows */
+.direction-radio-group label[data-active="true"] {
+  background-color: #4a90e2 !important;
+  border-color: #8ecae6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.6) !important;
+}
+
+/*==========================*/
+/* SPAN DATETIME PICKERS    */
+/*==========================*/
+.from-to-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  height: 100%;
+}
+
+.span-datetime-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.span-datetime-row label {
+  flex: 0 0 40px;
+  text-align: right;
+  font-weight: bold;
+}
+
+/*==========================*/
+/* SPAN CALCULATION BOXES   */
+/*==========================*/
+.span-calculation-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.span-calculation-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #3a3a3a;
+  border-radius: 4px;
+  padding: 5px;
+  border: 1px solid #555;
+}
+
+.span-calculation-box label {
+  font-size: 0.8em;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #aaa;
+  text-align: center;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #555;
+  margin-bottom: 3px;
+}
+
+.span-calc-display {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  font-family: monospace;
+  font-weight: bold;
+  background-color: #222;
+  border-radius: 4px;
+  color: #fff;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+
+/* --- EXPERIENCE HOVER TOOLTIP --- */
+.experience-hover-tooltip {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+    background: rgba(10, 10, 15, 0.95);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.7);
+    border: 1px solid #ffd700;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    min-width: 180px;
+}
+
+.experience-hover-tooltip.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.experience-hover-tooltip .tooltip-header {
+    font-weight: bold;
+    color: #ffd700;
+    font-size: 13px;
+    border-bottom: 1px solid #444;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.experience-hover-tooltip .tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.experience-hover-tooltip .tooltip-row i {
+    width: 14px;
+    color: #8ecae6;
+    text-align: center;
+}
+
+.experience-hover-tooltip .tooltip-row span {
+    color: #eee;
+}

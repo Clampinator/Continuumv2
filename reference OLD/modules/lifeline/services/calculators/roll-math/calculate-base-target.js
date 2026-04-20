@@ -1,0 +1,45 @@
+
+import { calculateMindPenalty } from './calculate-mind-penalty.js';
+
+/**
+ * Calculates base target including wound penalties based on actor type.
+ * @param {Actor} actor 
+ * @param {string} key - Attribute or system key.
+ * @returns {number} Strictly floored integer.
+ */
+export function calculateBaseTarget(actor, key) {
+    let base = 0;
+    if (!key) return 0;
+    
+    if (key.startsWith('meta-')) {
+        base = 5;
+    } else if (key === 'spanning') {
+        const quick = Number(foundry.utils.getProperty(actor.system, 'attributes.quick.value')) || 0;
+        const span = Number(foundry.utils.getProperty(actor.system, 'spanning.span')) || 0;
+        base = quick + span;
+    } else if (key === 'willpowerTemp') {
+        base = Number(foundry.utils.getProperty(actor.system, 'attributes.willpower.temp')) || 0;
+    } else if (key === 'willpowerPerm') {
+        base = Number(foundry.utils.getProperty(actor.system, 'attributes.willpower.perm')) || 0;
+    } else {
+        base = Number(foundry.utils.getProperty(actor.system, `attributes.${key}.value`)) || 0;
+    }
+
+    // Apply Mind penalty for running applications
+    if (key === 'mind') {
+        base += calculateMindPenalty(actor);
+    }
+
+    // Apply wound penalties based on actor type
+    let ipPenalty = 0;
+    if (actor.type === 'character') {
+        const wounds = actor.system.combat?.wounds ?? {};
+        ipPenalty = Object.values(wounds).reduce((total, wound) => total + (Number(wound.ip) || 0), 0);
+    } else if (actor.type === 'organization') {
+        const wounds = actor.system.conflict?.wounds ?? {};
+        // For Orgs, RIP (Real Integrity Points) penalize actions
+        ipPenalty = Object.values(wounds).reduce((total, wound) => total + (Number(wound.rip) || 0), 0);
+    }
+    
+    return Math.floor(base - ipPenalty);
+}
