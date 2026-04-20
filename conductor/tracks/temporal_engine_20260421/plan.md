@@ -13,7 +13,7 @@
 - [x] Task: Implement Atomic Insertion Service for Level Events (20ba2f8)
     - [ ] Develop `modules/temporal-engine/commands/insert-event.js` for non-destructive, bracket-stable insertion.
     - [ ] Implement Sort-Value Gapping to prevent chronological collisions.
-- [ ] Task: Implement Robust Span Insertion & Propagation
+- [x] Task: Implement Robust Span Insertion & Propagation (bab9e0c)
     - [ ] Develop `modules/temporal-engine/commands/insert-span.js` with automatic downward propagation of objective offsets.
     - [ ] Implement Diagonal Preservation logic to project manual overrides onto the rail.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Stable Insertion & Chronology Management' (Protocol in workflow.md)
