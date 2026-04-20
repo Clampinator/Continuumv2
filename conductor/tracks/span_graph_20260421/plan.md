@@ -16,7 +16,7 @@
 - [x] Task: Implement Pan and Zoom System (b64d8d4)
     - [ ] Write Tests: Define wheel-zoom and click-drag pan logic in `tests/span-graph/navigation.test.js`.
     - [ ] Implement: Add interaction handlers to `modules/span-graph/viewport.js`.
-- [ ] Task: Implement Auto-Center Logic
+- [x] Task: Implement Auto-Center Logic (51289a7)
     - [ ] Write Tests: Define "Snap to Now" expectations for various zoom levels.
     - [ ] Implement: Create `modules/span-graph/actions/auto-center.js`.
 - [ ] Task: Interactive Tooltips for Nodes
