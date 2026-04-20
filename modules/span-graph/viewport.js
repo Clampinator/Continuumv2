@@ -40,8 +40,8 @@ export class SpanGraphViewport {
         const ease = 1 - (1 - progress) * (1 - progress);
 
         const nextState = {};
-        for (const key in target) {
-          nextState[key] = startState[key] + (target[key] - startState[key]) * ease;
+        for (const [key, value] of Object.entries(target)) {
+          nextState[key] = startState[key] + (value - startState[key]) * ease;
         }
 
         this.setViewState(nextState);

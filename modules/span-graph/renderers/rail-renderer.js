@@ -48,12 +48,8 @@ export class RailRenderer {
       this.viewport.worldToScreen(event.age, event.time)
     );
 
-    let d = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 1; i < points.length; i++) {
-      d += ` L ${points[i].x} ${points[i].y}`;
-    }
-
-    return d;
+    const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`);
+    return d.join(' ');
   }
 
   /**
