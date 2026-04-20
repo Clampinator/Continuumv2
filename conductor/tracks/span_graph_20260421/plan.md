@@ -24,7 +24,7 @@
     - [ ] Implement: Create `modules/span-graph/ui/tooltips.js` using standard Foundry VTT tooltip patterns.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Navigation & Interaction' (Protocol in workflow.md)
 
-## Phase 3: Visual Polish & High-Volume Optimization
+## Phase 3: Visual Polish & High-Volume Optimization [checkpoint: 4f3cd5e]
 - [x] Task: Adaptive Grid Background (2e8329e)
     - [ ] Write Tests: Define grid interval expectations for different zoom scales.
     - [ ] Implement: Create `modules/span-graph/renderers/grid-renderer.js` for dynamic SVG grid generation.
