@@ -19,7 +19,7 @@
 - [x] Task: Implement Auto-Center Logic (51289a7)
     - [ ] Write Tests: Define "Snap to Now" expectations for various zoom levels.
     - [ ] Implement: Create `modules/span-graph/actions/auto-center.js`.
-- [ ] Task: Interactive Tooltips for Nodes
+- [x] Task: Interactive Tooltips for Nodes (30c7850)
     - [ ] Write Tests: Verify data lookup and position mapping for hover events.
     - [ ] Implement: Create `modules/span-graph/ui/tooltips.js` using standard Foundry VTT tooltip patterns.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Navigation & Interaction' (Protocol in workflow.md)
