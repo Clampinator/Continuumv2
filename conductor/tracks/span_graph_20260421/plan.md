@@ -1,6 +1,6 @@
 # Implementation Plan: Visual Span Graph Viewport
 
-## Phase 1: Infrastructure & Core Rendering
+## Phase 1: Infrastructure & Core Rendering [checkpoint: 4726dbb]
 - [x] Task: Create SVG Viewport Infrastructure (ae68b78)
     - [ ] Write Tests: Define basic SVG container and coordinate mapping tests in `tests/span-graph/viewport.test.js`.
     - [ ] Implement: Create `modules/span-graph/viewport.js` to manage the root SVG element and base view state.
