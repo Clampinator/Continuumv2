@@ -8,11 +8,12 @@ import { resolveCoordinates } from './resolve-coordinates.js';
  * @returns {Object} Unified state object.
  */
 export function getTemporalState(history) {
-  if (!history || history.length === 0) {
+  const segments = calculateSegments(history);
+  
+  if (segments.length === 0) {
     return { segments: [], events: [], spanPool: { consumed: 0, total: 0 } };
   }
 
-  const segments = calculateSegments(history);
   let totalDisplacement = 0;
 
   const eventsWithProjection = history.map(event => {

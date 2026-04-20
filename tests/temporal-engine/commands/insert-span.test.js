@@ -40,4 +40,8 @@ describe('insertSpan', () => {
     const e1 = updatedHistory.find(e => e.id === 'e1');
     expect(e1.time).toBe(11000); // 21000 - 10000
   });
+
+  it('should throw an error if isSpan is false', () => {
+    expect(() => insertSpan([], { isSpan: false })).toThrow('insertSpan requires an event with isSpan: true');
+  });
 });

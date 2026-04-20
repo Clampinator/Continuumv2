@@ -55,4 +55,18 @@ describe('insertEvent', () => {
     expect(updatedHistory[1].sort).toBe(2000);
     expect(updatedHistory[2].sort).toBe(3000);
   });
+
+  it('should handle sort collisions by regapping', () => {
+    const history = [
+      { id: 'e1', age: 10, sort: 1000 },
+      { id: 'e2', age: 10, sort: 1000 } // Collision
+    ];
+    const newEvent = { id: 'e3', age: 10 };
+    
+    const updatedHistory = insertEvent(history, newEvent);
+    
+    expect(updatedHistory[0].sort).toBe(1000);
+    expect(updatedHistory[1].sort).toBe(2000);
+    expect(updatedHistory[2].sort).toBe(3000);
+  });
 });
