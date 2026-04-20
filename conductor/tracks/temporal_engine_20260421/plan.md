@@ -4,7 +4,7 @@
 - [x] Task: Define Temporal Constants and Coordinate Utilities (1ce8278)
     - [ ] Create `modules/temporal-engine/constants.js` with 1:1 Age/Time constants.
     - [ ] Implement `modules/temporal-engine/projection.js` for base rail calculations.
-- [ ] Task: Implement Segment-Based Projection Logic
+- [x] Task: Implement Segment-Based Projection Logic (39c301c)
     - [ ] Create `modules/temporal-engine/calculate-segments.js` to divide the event stream into chronological Epochs.
     - [ ] Develop `modules/temporal-engine/resolve-coordinates.js` for projecting Age-to-Time within a segment.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundational Math & Projection' (Protocol in workflow.md)
