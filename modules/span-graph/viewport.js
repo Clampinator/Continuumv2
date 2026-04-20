@@ -22,6 +22,41 @@ export class SpanGraphViewport {
   }
 
   /**
+   * Animates the view state to a new target.
+   * @param {Object} target - Target view state properties.
+   * @param {number} [duration=300] - Animation duration in ms.
+   * @returns {Promise} Resolves when animation completes.
+   */
+  animateViewState(target, duration = 300) {
+    const startState = { ...this.viewState };
+    const startTime = performance.now();
+
+    return new Promise(resolve => {
+      const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing: Quadratic Out
+        const ease = 1 - (1 - progress) * (1 - progress);
+
+        const nextState = {};
+        for (const key in target) {
+          nextState[key] = startState[key] + (target[key] - startState[key]) * ease;
+        }
+
+        this.setViewState(nextState);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      };
+      requestAnimationFrame(animate);
+    });
+  }
+
+  /**
    * Attaches interaction listeners to the container.
    * @private
    */
