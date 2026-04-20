@@ -28,7 +28,7 @@
 - [x] Task: Adaptive Grid Background (2e8329e)
     - [ ] Write Tests: Define grid interval expectations for different zoom scales.
     - [ ] Implement: Create `modules/span-graph/renderers/grid-renderer.js` for dynamic SVG grid generation.
-- [ ] Task: High-Volume Performance Optimization
+- [x] Task: High-Volume Performance Optimization (5e1d246)
     - [ ] Write Tests: Stress-test rendering with 1000+ events.
     - [ ] Implement: Implement LOD (Level of Detail) or SVG grouping optimizations in the render loop.
 - [ ] Task: Animated Timeline Transitions
