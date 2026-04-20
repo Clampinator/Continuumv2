@@ -1,7 +1,7 @@
 # Implementation Plan: Core Temporal Projection and Robust Insertion Engine
 
 ## Phase 1: Foundational Math & Projection
-- [ ] Task: Define Temporal Constants and Coordinate Utilities
+- [x] Task: Define Temporal Constants and Coordinate Utilities (1ce8278)
     - [ ] Create `modules/temporal-engine/constants.js` with 1:1 Age/Time constants.
     - [ ] Implement `modules/temporal-engine/projection.js` for base rail calculations.
 - [ ] Task: Implement Segment-Based Projection Logic
