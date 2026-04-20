@@ -7,7 +7,7 @@
 - [x] Task: Implement Diagonal Rail Renderer (bebf73c)
     - [ ] Write Tests: Define expectations for mapping character history segments to SVG paths.
     - [ ] Implement: Create `modules/span-graph/renderers/rail-renderer.js` to draw the 1:1 diagonal rail based on the Temporal Projection Service.
-- [ ] Task: Character Sheet Tab Integration
+- [x] Task: Character Sheet Tab Integration (9f6fd6f)
     - [ ] Write Tests: Verify the tab insertion and data synchronization logic.
     - [ ] Implement: Modify the Character Sheet handler to inject the SVG viewport into the "Lifeline" section.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Infrastructure & Core Rendering' (Protocol in workflow.md)
