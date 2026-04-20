@@ -7,6 +7,7 @@
 ## Languages & Frameworks
 - **JavaScript (ES Modules)**: The primary programming language for system logic, modules, and handlers.
 - **Handlebars (.hbs, .html)**: The standard Foundry VTT template engine for rendering actor sheets, dialogs, and chat messages.
+- **SVG (Scalable Vector Graphics)**: Primary technology for interactive, scalable data visualization (Lifeline Span Graph).
 
 ## Styling
 - **Modular Vanilla CSS**: Styles are organized into functional modules (e.g., `attributes.css`, `lifeline.css`) for maintainability and clarity.
