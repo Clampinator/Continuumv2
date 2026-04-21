@@ -8,7 +8,7 @@
 - [x] Task: Build HTML/CSS Grid Layout (9a152fe)
     - [x] Write Tests: Define expectations for rendering the hierarchical structure (Eras -> Experiences -> Events).
     - [x] Implement: Create `templates/apps/lifeline-spreadsheet.hbs` and corresponding CSS for a dense, Excel-like data grid.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Application Infrastructure & UI Shell' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Application Infrastructure & UI Shell' (Protocol in workflow.md)
 
 ## Phase 2: Data Binding & Inline Editing
 - [ ] Task: Implement Data Synchronization
