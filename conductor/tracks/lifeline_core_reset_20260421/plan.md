@@ -21,7 +21,7 @@
 - [x] Task: Implement Drag Threshold (bd80836)
     - [x] Write Tests: Verify dragging state is only engaged after moving >5px.
     - [x] Implement: Track a `startPoint` in `mousedown`. Only shift to `isDragging` and calculate node movement if `Math.hypot(dx, dy) > 5`. 
-- [~] Task: Secure Log Event Trigger
-    - [ ] Write Tests: Verify Log Event dialog only opens on `mouseup` if `isDragging` is true.
-    - [ ] Implement: Ensure the final drop logic exclusively relies on the state machine established by the 5px threshold, preventing accidental clicks from firing the dialog.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Interaction Polish' (Protocol in workflow.md)
+- [x] Task: Secure Log Event Trigger (edc8ac6)
+    - [x] Write Tests: Verify Log Event dialog only opens on `mouseup` if `isDragging` is true.
+    - [x] Implement: Ensure the final drop logic exclusively relies on the state machine established by the 5px threshold, preventing accidental clicks from firing the dialog.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Interaction Polish' (Protocol in workflow.md)
