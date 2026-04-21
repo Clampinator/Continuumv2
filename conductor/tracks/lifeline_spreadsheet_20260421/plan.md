@@ -1,6 +1,6 @@
 # Implementation Plan: Lifeline Spreadsheet Integration
 
-## Phase 1: Application Infrastructure & UI Shell
+## Phase 1: Application Infrastructure & UI Shell [checkpoint: 245f76e]
 - [x] Task: Create Standalone Application Window (e69275d)
     - [x] Write Tests: Define window initialization and sheet button binding in `tests/lifeline-spreadsheet/app-window.test.js`.
     - [x] Implement: Create `modules/lifeline/spreadsheet/app-window.js` to manage the standalone Foundry VTT Application.
