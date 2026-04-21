@@ -11,7 +11,14 @@ import { MS_PER_SECOND } from './constants.js';
  * @returns {number} The calculated Objective Time in milliseconds.
  */
 export function resolveCoordinates(age, segment) {
-  const ageDelta = age - segment.startAge;
+  const startAge = Number(segment.startAge) || 0;
+  const startTime = Number(segment.startTime) || 0;
+  const currentAge = Number(age) || 0;
+
+  const ageDelta = currentAge - startAge;
   const timeDelta = ageDelta * MS_PER_SECOND;
-  return segment.startTime + timeDelta;
+  
+  const finalTime = startTime + timeDelta;
+
+  return Number.isFinite(finalTime) ? finalTime : startTime;
 }

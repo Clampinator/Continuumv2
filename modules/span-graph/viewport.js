@@ -155,12 +155,16 @@ export class SpanGraphViewport {
   _startNodeDrag(event, nodeElement) {
     const startMouseX = event.clientX;
     const startMouseY = event.clientY;
+    
+    // Capture initial visual state
     const initialCX = parseFloat(nodeElement.getAttribute('cx')) || 0;
     const initialCY = parseFloat(nodeElement.getAttribute('cy')) || 0;
     
     const isNow = nodeElement.classList.contains('graph-node-now');
-    const startRect = this.container.getBoundingClientRect();
-    const startWorld = this.screenToWorld(startMouseX - startRect.left, startMouseY - startRect.top);
+    
+    // Capture initial world state for physics calculation
+    const rect = this.container.getBoundingClientRect();
+    const startWorld = this.screenToWorld(startMouseX - rect.left, startMouseY - rect.top);
     
     let dragMode = null;
 
@@ -169,16 +173,21 @@ export class SpanGraphViewport {
       const dy = moveEvent.clientY - startMouseY;
       const dist = Math.hypot(dx, dy);
 
-      // 1. Commit to a mode after 10px of movement
-      if (!dragMode && dist > 10) {
+      // 1. Commit to a mode after slight movement
+      if (!dragMode && dist > 5) {
           dragMode = getDragMode(dx, dy);
       }
 
-      if (!dragMode) return;
+      // If we haven't committed yet, just track mouse 1:1 for a responsive feel
+      if (!dragMode) {
+          nodeElement.setAttribute('cx', initialCX + dx);
+          nodeElement.setAttribute('cy', initialCY + dy);
+          return;
+      }
 
       // 2. Calculate Constrained World Position
-      const rect = this.container.getBoundingClientRect();
-      const rawWorld = this.screenToWorld(moveEvent.clientX - rect.left, moveEvent.clientY - rect.top);
+      const currentRect = this.container.getBoundingClientRect();
+      const rawWorld = this.screenToWorld(moveEvent.clientX - currentRect.left, moveEvent.clientY - currentRect.top);
       const constrainedWorld = constrainMovement(rawWorld, startWorld, dragMode);
 
       // 3. Project back to Screen for Preview
@@ -198,8 +207,8 @@ export class SpanGraphViewport {
       }
 
       // Calculate final constrained world position
-      const rect = this.container.getBoundingClientRect();
-      const rawWorld = this.screenToWorld(upEvent.clientX - rect.left, upEvent.clientY - rect.top);
+      const finalRect = this.container.getBoundingClientRect();
+      const rawWorld = this.screenToWorld(upEvent.clientX - finalRect.left, upEvent.clientY - finalRect.top);
       const finalWorld = constrainMovement(rawWorld, startWorld, dragMode);
       
       // If it's the NOW node, trigger the log dialog
@@ -312,9 +321,16 @@ export class SpanGraphViewport {
    * @returns {Object} {x, y} screen coordinates.
    */
   worldToScreen(age, time) {
+    const zoom = Number(this.viewState.zoom) || 1;
+    const panX = Number(this.viewState.panX) || 0;
+    const panY = Number(this.viewState.panY) || 0;
+
+    const x = (Number(age) || 0) * zoom + panX;
+    const y = (Number(time) || 0) * zoom + panY;
+
     return {
-      x: (age * this.viewState.zoom) + this.viewState.panX,
-      y: (time * this.viewState.zoom) + this.viewState.panY
+      x: Number.isFinite(x) ? x : 0,
+      y: Number.isFinite(y) ? y : 0
     };
   }
 
@@ -327,9 +343,19 @@ export class SpanGraphViewport {
    * @returns {Object} {age, time} world coordinates.
    */
   screenToWorld(x, y) {
+    const zoom = Number(this.viewState.zoom) || 1;
+    const panX = Number(this.viewState.panX) || 0;
+    const panY = Number(this.viewState.panY) || 0;
+
+    // Prevent division by zero
+    const safeZoom = zoom === 0 ? 1 : zoom;
+
+    const age = (Number(x) - panX) / safeZoom;
+    const time = (Number(y) - panY) / safeZoom;
+
     return {
-      age: (x - this.viewState.panX) / this.viewState.zoom,
-      time: (y - this.viewState.panY) / this.viewState.zoom
+      age: Number.isFinite(age) ? age : 0,
+      time: Number.isFinite(time) ? time : 0
     };
   }
 

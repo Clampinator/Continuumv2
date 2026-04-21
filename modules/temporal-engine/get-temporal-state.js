@@ -48,7 +48,7 @@ export function getTemporalState(history, subjectiveNow = 0) {
   const nowNode = {
     id: 'now',
     age: subjectiveNow,
-    projectedTime: nowSegment ? resolveCoordinates(subjectiveNow, nowSegment) : 0,
+    projectedTime: nowSegment ? (resolveCoordinates(subjectiveNow, nowSegment) || 0) : 0,
     isNow: true
   };
 
