@@ -14,9 +14,9 @@
 - [x] Task: Implement Data Synchronization (3c3b08c)
     - [x] Write Tests: Verify that actor data correctly populates the grid in strict chronological order.
     - [x] Implement: Create data prep logic to feed `getTemporalState` output into the Handlebars template.
-- [~] Task: Implement Inline Edit Handlers
-    - [ ] Write Tests: Test that cell edits correctly update actor data and trigger re-calculations.
-    - [ ] Implement: Add change listeners to grid inputs (Age, Date, Description) to process updates via the Temporal Engine.
+- [x] Task: Implement Inline Edit Handlers (60f1831)
+    - [x] Write Tests: Test that cell edits correctly update actor data and trigger re-calculations.
+    - [x] Implement: Add change listeners to grid inputs (Age, Date, Description) to process updates via the Temporal Engine.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Binding & Inline Editing' (Protocol in workflow.md)
 
 ## Phase 3: Bulk Actions & Tooling
