@@ -25,7 +25,8 @@ export class SpanGraphViewport {
       zoom: 1,
       interactionMode: 'pan',
       dragStartWorld: null,
-      activeDragType: null
+      activeDragType: null,
+      initialized: false
     };
 
     this.svg = this._createSVG();
@@ -38,6 +39,13 @@ export class SpanGraphViewport {
       this.tooltipManager = new TooltipManager(this);
 
       this._activateListeners();
+      
+      // AUTHORITY: Initial render trigger
+      if (this.actor) {
+          this._render();
+          // Delay auto-focus until DOM settles
+          setTimeout(() => this.autoFocus(), 100);
+      }
     }
   }
 
@@ -48,6 +56,38 @@ export class SpanGraphViewport {
   updateActor(actor) {
     this.actor = actor;
     this._render();
+  }
+
+  /**
+   * Centers the view on the NOW node or the first event.
+   */
+  autoFocus() {
+    if (!this.actor || !this.container) return;
+    
+    const rect = this.container.getBoundingClientRect();
+    if (rect.width === 0) {
+        // If container has no size yet, try again briefly
+        setTimeout(() => this.autoFocus(), 200);
+        return;
+    }
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rawEras = this.actor.system.eras || {};
+    const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
+    const history = flattenEvents(rawEras);
+    const state = getTemporalState(history, subjectiveNow);
+
+    const targetAge = state.nowNode?.age || 0;
+    const targetTime = state.nowNode?.projectedTime || 0;
+
+    this.setViewState({
+        zoom: 1,
+        panX: centerX - (targetAge * 1),
+        panY: centerY - (targetTime * 1),
+        initialized: true
+    });
   }
 
   /**
@@ -133,10 +173,7 @@ export class SpanGraphViewport {
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
     
     const history = flattenEvents(rawEras);
-    console.log(`[SpanGraph] Rendering ${history.length} events for ${this.actor.name}`);
-    
     const temporalState = getTemporalState(history, subjectiveNow);
-    console.log(`[SpanGraph] Temporal State:`, temporalState);
 
     this.gridRenderer.render(temporalState, this.viewState);
     this.railRenderer.render(temporalState, this.viewState);
@@ -176,7 +213,6 @@ export class SpanGraphViewport {
         const nodeElement = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
         
         if (nodeElement) {
-            console.log(`[SpanGraph] Starting drag for node: ${nodeElement.dataset.eventId || 'now'}`);
             event.stopPropagation();
             this._startNodeDrag(event, nodeElement);
             return;
@@ -185,8 +221,7 @@ export class SpanGraphViewport {
         // B. Era Bar (Creation) - bottom of SVG
         const rect = this.svg.getBoundingClientRect();
         const yRel = event.clientY - rect.top;
-        if (yRel > rect.height - 60) { // Increased hit zone
-            console.log(`[SpanGraph] Starting Era creation drag`);
+        if (yRel > rect.height - 60) {
             event.stopPropagation();
             this._startEraCreationDrag(event);
             return;

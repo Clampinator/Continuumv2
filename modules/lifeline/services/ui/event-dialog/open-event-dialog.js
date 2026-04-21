@@ -203,8 +203,8 @@ export async function openEventDialog(sheet, params) {
             // Always re-render on close. The updateActor hook will fire with fresh
             // data after actor.update() resolves, providing the authoritative render.
             // This call keeps the graph visually consistent on cancel.
-            const svg = sheet.element.find('.span-graph-svg')[0];
-            if (svg) renderGraph(svg, viewState, graphData);
+            const viewport = sheet._spanGraphViewport;
+            if (viewport) viewport.updateActor(actor);
         }
     }, { classes: ["continuum-v2", "dialog"], width: 480 });
 

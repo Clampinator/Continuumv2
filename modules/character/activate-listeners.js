@@ -72,12 +72,21 @@ export function activateCharacterListeners(sheet, html) {
         event.preventDefault();
         const viewport = sheet._spanGraphViewport;
         if (viewport) {
-            viewport.setViewState({ panX: 0, panY: 0, zoom: 1 });
+            viewport.autoFocus();
             ui.notifications.info("Lifeline view reset.");
         }
     });
 
-    html.on('click', '.fix-rail-offsets', (event) => handleFixRailOffsetsClick(sheet, event));
+    html.on('click', '.fix-rail-offsets', (event) => {
+        event.preventDefault();
+        const viewport = sheet._spanGraphViewport;
+        if (viewport) {
+            viewport.updateActor(sheet.actor);
+            ui.notifications.info("Lifeline rail offsets cleared.");
+        } else {
+            handleFixRailOffsetsClick(sheet, event);
+        }
+    });
     // Vehicle select - directly update stats when name changes
     html.on('change', '.vehicle-select', async (ev) => {
         const fieldName = ev.currentTarget.name; // e.g. "system.vehicles.abc123.name"
