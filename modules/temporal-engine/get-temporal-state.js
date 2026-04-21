@@ -5,13 +5,14 @@ import { resolveCoordinates } from './resolve-coordinates.js';
  * Calculates the unified temporal state for a character's history.
  * 
  * @param {Array} history - Raw array of sorted events.
+ * @param {number} [subjectiveNow=0] - The character's current subjective age in seconds.
  * @returns {Object} Unified state object.
  */
-export function getTemporalState(history) {
+export function getTemporalState(history, subjectiveNow = 0) {
   const segments = calculateSegments(history);
   
-  if (segments.length === 0) {
-    return { segments: [], events: [], spanPool: { consumed: 0, total: 0 } };
+  if (segments.length === 0 && subjectiveNow === 0) {
+    return { segments: [], events: [], spanPool: { consumed: 0, total: 0 }, nowNode: null };
   }
 
   let totalDisplacement = 0;
@@ -27,12 +28,11 @@ export function getTemporalState(history) {
     
     // Calculate individual displacement if it's a span
     if (event.isSpan) {
-       // We need to calculate displacement against the PREVIOUS segment
-       // to see how far we jumped relative to where we were.
        const segmentIndex = segments.indexOf(activeSegment);
        const previousSegment = segments[segmentIndex - 1] || activeSegment;
-       const departureTime = resolveCoordinates(event.age, previousSegment);
-       totalDisplacement += Math.abs(event.arrivalTime - departureTime);
+       const departureTime = resolveCoordinates(event.age, previousSegment) || 0;
+       const arrivalTime = event.arrivalTime || 0;
+       totalDisplacement += Math.abs(arrivalTime - departureTime);
     }
 
     return {
@@ -41,9 +41,21 @@ export function getTemporalState(history) {
     };
   });
 
+  // Calculate the "NOW" node
+  const nowSegment = [...segments].reverse().find(s => s.startAge <= subjectiveNow) 
+                  || segments[0];
+  
+  const nowNode = {
+    id: 'now',
+    age: subjectiveNow,
+    projectedTime: nowSegment ? resolveCoordinates(subjectiveNow, nowSegment) : 0,
+    isNow: true
+  };
+
   return {
     segments,
     events: eventsWithProjection,
+    nowNode,
     spanPool: {
       consumed: totalDisplacement,
       total: 0 // Placeholder for system-calculated total Span

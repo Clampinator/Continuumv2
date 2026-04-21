@@ -1,6 +1,7 @@
 import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
 import { RailRenderer } from './renderers/rail-renderer.js';
 import { GridRenderer } from './renderers/grid-renderer.js';
+import { NodeRenderer } from './renderers/node-renderer.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
 
 /**
@@ -27,6 +28,7 @@ export class SpanGraphViewport {
       
       this.gridRenderer = new GridRenderer(this);
       this.railRenderer = new RailRenderer(this);
+      this.nodeRenderer = new NodeRenderer(this);
 
       this._activateListeners();
     }
@@ -94,16 +96,33 @@ export class SpanGraphViewport {
   _onWheel(event) {
     event.preventDefault();
     const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-    const anchor = { x: event.offsetX, y: event.offsetY };
+    
+    // AUTHORITY: Use clientX/Y and getBoundingClientRect for stable anchor points
+    const rect = this.container.getBoundingClientRect();
+    const anchor = { 
+      x: event.clientX - rect.left, 
+      y: event.clientY - rect.top 
+    };
+    
     this.handleZoom(zoomFactor, anchor);
   }
 
   /**
-   * Handles mouse down for panning.
+   * Handles mouse down for panning or dragging.
    * @private
    */
   _onMouseDown(event) {
     if (event.button !== 0) return; // Only left click
+
+    const target = event.target;
+    const isNode = target.classList.contains('graph-node-level') || 
+                   target.classList.contains('graph-node-span') ||
+                   target.classList.contains('graph-node-now');
+    
+    if (isNode) {
+        this._startNodeDrag(event, target);
+        return;
+    }
 
     const startX = event.clientX;
     const startY = event.clientY;
@@ -126,6 +145,65 @@ export class SpanGraphViewport {
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+  }
+
+  /**
+   * Initiates a drag operation for a node.
+   * @private
+   */
+  _startNodeDrag(event, nodeElement) {
+    const startMouseX = event.clientX;
+    const startMouseY = event.clientY;
+    const initialCX = parseFloat(nodeElement.getAttribute('cx')) || 0;
+    const initialCY = parseFloat(nodeElement.getAttribute('cy')) || 0;
+    
+    const isNow = nodeElement.classList.contains('graph-node-now');
+    
+    const onMouseMove = (moveEvent) => {
+      // Total delta from start of drag
+      const dx = moveEvent.clientX - startMouseX;
+      const dy = moveEvent.clientY - startMouseY;
+      
+      // Update visual preview
+      nodeElement.setAttribute('cx', initialCX + dx);
+      nodeElement.setAttribute('cy', initialCY + dy);
+    };
+
+    const onMouseUp = async (upEvent) => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      
+      // Calculate final world position
+      const rect = this.container.getBoundingClientRect();
+      const finalWorld = this.screenToWorld(
+        upEvent.clientX - rect.left,
+        upEvent.clientY - rect.top
+      );
+      
+      // If it's the NOW node, trigger the log dialog
+      if (isNow) {
+          this._handleNowNodeDrop(finalWorld);
+      } else {
+          this._render(); // Snap back
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  /**
+   * Triggers the event logging dialog.
+   * @private
+   */
+  async _handleNowNodeDrop(worldPos) {
+    // Bridges the new viewport back to the existing dialog system
+    const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
+    openEventDialog(this.actor.sheet, {
+        mode: 'log',
+        ageRaw: worldPos.age,
+        timeRaw: worldPos.time
+    });
   }
 
   /**
@@ -191,7 +269,15 @@ export class SpanGraphViewport {
    * @param {Object} state - New view state.
    */
   setViewState(state) {
-    this.viewState = { ...this.viewState, ...state };
+    // SANITY GUARD: Prevent NaN or non-finite values from corrupting the state
+    const cleanState = {};
+    for (const [key, value] of Object.entries(state)) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        cleanState[key] = value;
+      }
+    }
+    
+    this.viewState = { ...this.viewState, ...cleanState };
     this._render();
   }
 
@@ -233,9 +319,11 @@ export class SpanGraphViewport {
     if (!this.actor) return;
     
     const history = flattenEvents(this.actor.system.eras || {});
-    const state = getTemporalState(history);
+    const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
+    const state = getTemporalState(history, subjectiveNow);
 
     if (this.gridRenderer) this.gridRenderer.render();
     if (this.railRenderer) this.railRenderer.render(state.segments);
+    if (this.nodeRenderer) this.nodeRenderer.render(state.events, state.nowNode);
   }
 }
