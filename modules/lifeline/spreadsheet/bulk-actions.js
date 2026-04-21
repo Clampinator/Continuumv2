@@ -2,6 +2,7 @@ import { findEventPath } from './data-utils.js';
 import { SECONDS_IN_YEAR } from '../../temporal-engine/constants.js';
 import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
 import { flattenEvents } from '../../span-graph-data-processor.js';
+import { ReferenceResolver } from '../services/reference-resolver.js';
 
 /**
  * Applies a relative time shift to multiple events.
@@ -17,10 +18,15 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
     const secondsDelta = yearsDelta * SECONDS_IN_YEAR;
     const updates = {};
 
-    // 1. We must calculate the NEW state of the character to ensure the shift 
-    // is applied to the projected timeline, not just a dead value.
+    // 1. Calculate canonical state
     const history = flattenEvents(actor.system.eras || {});
+    const dobTimestamp = ReferenceResolver.resolveOrigin(actor);
     const state = getTemporalState(history);
+
+    if (!state.segments || state.segments.length === 0) {
+        ui.notifications.error("Cannot shift events: Timeline is empty or invalid.");
+        return;
+    }
 
     for (const eventId of eventIds) {
         const path = findEventPath(actor, eventId);
@@ -36,28 +42,46 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
         const activeSegment = [...state.segments].reverse().find(s => s.startAge <= newAge) 
                            || state.segments[0];
         
-        // RE-PROJECT: This is the fix. We don't just change age, we find the new Date.
-        const ageDelta = newAge - activeSegment.startAge;
-        const newTime = activeSegment.startTime + (ageDelta * 1000);
+        // RE-PROJECT: Calculate new Date
+        const ageDelta = newAge - (activeSegment.startAge || 0);
         
-        // Convert ms timestamp to YYYY-MM-DD
-        const dateObj = new Date(newTime);
-        const newDateStr = dateObj.toISOString().split('T')[0];
-        const newTimeStr = dateObj.toISOString().split('T')[1].substring(0, 5);
+        // AUTHORITY: Resolve the absolute startTime for this segment
+        let segmentStartTime = activeSegment.startTime;
+        
+        // If startTime is a duration string (HH:MM:SS), resolve it against DOB
+        if (typeof segmentStartTime === 'string') {
+            segmentStartTime = dobTimestamp + (activeSegment.startAge * 1000);
+        }
 
-        updates[`${path}.age`] = newAge;
+        const newTime = Number(segmentStartTime) + (ageDelta * 1000);
         
-        if (event.isSpan) {
-            updates[`${path}.spanFromDate`] = newDateStr;
-            updates[`${path}.spanFromTime`] = newTimeStr;
-        } else {
-            updates[`${path}.date`] = newDateStr;
-            updates[`${path}.time`] = newTimeStr;
+        if (isNaN(newTime) || newTime < 0) {
+            console.error(`[LSS] Calculated invalid newTime ${newTime} for event ${eventId}`);
+            continue;
+        }
+
+        // Convert ms timestamp to YYYY-MM-DD
+        try {
+            const dateObj = new Date(newTime);
+            const newDateStr = dateObj.toISOString().split('T')[0];
+            const newTimeStr = dateObj.toISOString().split('T')[1].substring(0, 5);
+
+            updates[`${path}.age`] = newAge;
+            
+            if (event.isSpan) {
+                updates[`${path}.spanFromDate`] = newDateStr;
+                updates[`${path}.spanFromTime`] = newTimeStr;
+            } else {
+                updates[`${path}.date`] = newDateStr;
+                updates[`${path}.time`] = newTimeStr;
+            }
+        } catch (e) {
+            console.error(`[LSS] Failed to format date for time ${newTime}`, e);
         }
     }
 
     if (Object.keys(updates).length > 0) {
-        console.log(`[LSS] Bulk shifting ${Object.keys(updates).length} events by ${yearsDelta} years. Recalculating projected dates.`);
+        console.log(`[LSS] Bulk shifting ${Object.keys(updates).length} events. Recalculating projected dates.`);
         return await actor.update(updates);
     }
 }
