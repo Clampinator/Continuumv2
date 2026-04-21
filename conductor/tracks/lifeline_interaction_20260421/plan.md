@@ -1,19 +1,19 @@
 # Implementation Plan: Lifeline Interaction & Creation Toolkit
 
 ## Phase 1: Test Suite Repair
-- [ ] Task: Fix SVG Prepend Errors
-    - [ ] Write Tests: Identify failing tests missing `prepend` in DOM mocks.
-    - [ ] Implement: Add `prepend` to the `document.createElementNS` SVG mock in `tests/span-graph/viewport.test.js`, `navigation.test.js`, and `transitions.test.js`.
-- [ ] Task: Fix Projection Mismatches
-    - [ ] Write Tests: Ensure `worldToScreen` and `screenToWorld` correctly factor in zoom instead of hardcoded scale constants.
-    - [ ] Implement: Update the mathematical projection logic in `modules/temporal-engine/projection.js` to match the expected arithmetic.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Test Suite Repair' (Protocol in workflow.md)
+- [x] Task: Fix SVG Prepend Errors
+    - [x] Write Tests: Identify failing tests missing `prepend` in DOM mocks.
+    - [x] Implement: Add `prepend` to the `document.createElementNS` SVG mock in `tests/span-graph/viewport.test.js`, `navigation.test.js`, and `transitions.test.js`.
+- [x] Task: Fix Projection Mismatches
+    - [x] Write Tests: Ensure `worldToScreen` and `screenToWorld` correctly factor in zoom instead of hardcoded scale constants.
+    - [x] Implement: Update the mathematical projection logic in `modules/temporal-engine/projection.js` to match the expected arithmetic.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Test Suite Repair' (Protocol in workflow.md)
 
 ## Phase 2: Functional NOW Node
-- [ ] Task: Implement Dynamic Tooltips
-    - [ ] Write Tests: Verify that dragging updates the view state with the projected date and age.
-    - [ ] Implement: Update the `span-graph-interactions` to calculate and render a dynamic tooltip on the NOW node during drag.
-- [ ] Task: Implement NOW Node Drop Interactions (Create/Update)
+- [x] Task: Implement Dynamic Tooltips (ae03fbd)
+    - [x] Write Tests: Verify that dragging updates the view state with the projected date and age.
+    - [x] Implement: Update the `span-graph-interactions` to calculate and render a dynamic tooltip on the NOW node during drag.
+- [~] Task: Implement NOW Node Drop Interactions (Create/Update)
     - [ ] Write Tests: Verify dropping on an empty rail opens the Log Event dialog. Verify dropping on an existing event triggers an age update.
     - [ ] Implement: Wire `process-hover-state.js` and the `NodeRenderer` drag end handlers to fire the appropriate callbacks for event creation and age updating.
 - [ ] Task: Implement Create Span
