@@ -109,15 +109,15 @@
             data-era-id="{{eraId}}"
             data-exp-id="{{expId}}">
            <td><i class="fas fa-grip-vertical lss-drag-handle"></i></td>
-           <td><input class="lss-field lss-field-date" value="{{date}}" placeholder="YYYY-MM-DD"/></td>
-          <td><input class="lss-field lss-field-time" value="{{time}}" placeholder="HH:MM"/></td>
-          <td><input class="lss-field lss-field-title" value="{{title}}" placeholder="Title"/></td>
-          <td><input class="lss-field lss-field-notes" value="{{notes}}" placeholder="Notes"/></td>
+           <td><input class="lss-field lss-field-date" data-field="date" value="{{date}}" placeholder="YYYY-MM-DD"/></td>
+          <td><input class="lss-field lss-field-time" data-field="time" value="{{time}}" placeholder="HH:MM"/></td>
+          <td><input class="lss-field lss-field-title" data-field="title" value="{{title}}" placeholder="Title"/></td>
+          <td><input class="lss-field lss-field-notes" data-field="notes" value="{{notes}}" placeholder="Notes"/></td>
            <td style="display:flex; align-items:center; gap:2px;">
-             <input class="lss-field lss-field-location" value="{{location}}" placeholder="Location" style="flex:1;"/>
+             <input class="lss-field lss-field-location" data-field="location" value="{{location}}" placeholder="Location" style="flex:1;"/>
              <button type="button" class="lss-map-pin-btn lss-row-map-pin-btn" title="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
            </td>
-          <td><input class="lss-field lss-age-cell lss-field-age" value="{{ageFormatted}}" placeholder="e.g. 5y 3d" title="Age from birth - edit to move event (e.g. 5y 3d 12h)"/></td>
+          <td><input class="lss-field lss-age-cell lss-field-age" data-field="age" value="{{ageFormatted}}" placeholder="e.g. 5y 3d" title="Age from birth - edit to move event (e.g. 5y 3d 12h)"/></td>
           <td>{{#if expName}}<span class="lss-exp-badge">{{expName}}</span>{{/if}}
               {{#if isSpan}}<span class="lss-span-badge" title="Span"><i class="fas fa-route"></i></span>{{/if}}</td>
           <td style="white-space:nowrap;">
