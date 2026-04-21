@@ -15,7 +15,7 @@
 - [x] Task: Rebuild Sequential Rails (17c7ced)
     - [x] Write Tests: Verify standard path data strictly connects consecutive events from Birth to NOW.
     - [x] Implement: Strip hardcoded inline styles. Rely on CSS classes. Ensure the engine correctly links Segments (solid blue) and Spans (animated pink dots) end-to-end without horizontal drift.
-- [x] Task: Conductor - User Manual Verification 'Phase 2: Coordinate & Visual Reset' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Coordinate & Visual Reset' (Protocol in workflow.md)
 
 ## Phase 3: Interaction Polish
 - [~] Task: Implement Drag Threshold
