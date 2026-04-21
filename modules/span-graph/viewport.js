@@ -5,6 +5,7 @@ import { NodeRenderer } from './renderers/node-renderer.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
 import { getDragMode, constrainMovement } from './actions/drag-physics.js';
 import { TooltipManager } from './ui/tooltips.js';
+import { formatSubjectiveAge } from '../span-graph-utils/provide-span-graph-utils.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
@@ -132,7 +133,10 @@ export class SpanGraphViewport {
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
     
     const history = flattenEvents(rawEras);
+    console.log(`[SpanGraph] Rendering ${history.length} events for ${this.actor.name}`);
+    
     const temporalState = getTemporalState(history, subjectiveNow);
+    console.log(`[SpanGraph] Temporal State:`, temporalState);
 
     this.gridRenderer.render(temporalState, this.viewState);
     this.railRenderer.render(temporalState, this.viewState);
@@ -165,10 +169,31 @@ export class SpanGraphViewport {
   _activateListeners() {
     if (!this.svg) return;
 
-    // Handle background panning
+    // Handle SVG Interactions
     this.svg.addEventListener('mousedown', (event) => {
-        // Only if clicking the background, not a node
-        if (event.target === this.svg) {
+        // A. Node Dragging (NOW, Event, Span)
+        const target = event.target;
+        const nodeElement = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
+        
+        if (nodeElement) {
+            console.log(`[SpanGraph] Starting drag for node: ${nodeElement.dataset.eventId || 'now'}`);
+            event.stopPropagation();
+            this._startNodeDrag(event, nodeElement);
+            return;
+        }
+
+        // B. Era Bar (Creation) - bottom of SVG
+        const rect = this.svg.getBoundingClientRect();
+        const yRel = event.clientY - rect.top;
+        if (yRel > rect.height - 60) { // Increased hit zone
+            console.log(`[SpanGraph] Starting Era creation drag`);
+            event.stopPropagation();
+            this._startEraCreationDrag(event);
+            return;
+        }
+
+        // C. Background Panning
+        if (target === this.svg || target.closest('.span-graph-grid') || target.closest('.span-graph-rails')) {
             this._startPan(event);
         }
     });
@@ -224,13 +249,11 @@ export class SpanGraphViewport {
     const startMouseX = event.clientX;
     const startMouseY = event.clientY;
     
-    // Capture initial visual state
     const initialCX = parseFloat(nodeElement.getAttribute('cx')) || 0;
     const initialCY = parseFloat(nodeElement.getAttribute('cy')) || 0;
     
     const isNow = nodeElement.classList.contains('graph-node-now');
     
-    // Capture initial world state for physics calculation
     const rect = this.container.getBoundingClientRect();
     const startWorld = this.screenToWorld(startMouseX - rect.left, startMouseY - rect.top);
     
@@ -243,32 +266,26 @@ export class SpanGraphViewport {
       const dy = moveEvent.clientY - startMouseY;
       const dist = Math.hypot(dx, dy);
 
-      // 1. Commit to a mode after slight movement
       if (!this.viewState.activeDragType && dist > 5) {
           this.viewState.activeDragType = getDragMode(dx, dy);
       }
 
-      // If we haven't committed yet, just track mouse 1:1 for a responsive feel
       if (!this.viewState.activeDragType) {
           nodeElement.setAttribute('cx', initialCX + dx);
           nodeElement.setAttribute('cy', initialCY + dy);
           return;
       }
 
-      // 2. Calculate Constrained World Position
       const currentRect = this.container.getBoundingClientRect();
       const rawWorld = this.screenToWorld(moveEvent.clientX - currentRect.left, moveEvent.clientY - currentRect.top);
       const constrainedWorld = constrainMovement(rawWorld, this.viewState.dragStartWorld, this.viewState.activeDragType);
 
-      // 3. Project back to Screen for Preview
       const screenPos = this.worldToScreen(constrainedWorld.age, constrainedWorld.time);
       
       nodeElement.setAttribute('cx', screenPos.x);
       nodeElement.setAttribute('cy', screenPos.y);
 
-      // 4. Update Tooltip for NOW node
       if (isNow && this.tooltipManager) {
-          const { formatSubjectiveAge } = require('../span-graph-utils/provide-span-graph-utils.js');
           const dateObj = new Date(constrainedWorld.time);
           const dateStr = dateObj.toISOString().split('T')[0];
           const ageStr = constrainedWorld.age > 0 ? formatSubjectiveAge(constrainedWorld.age) : 'Birth';
@@ -288,30 +305,77 @@ export class SpanGraphViewport {
       if (!this.viewState.activeDragType) {
           this.viewState.interactionMode = 'pan';
           this.viewState.dragStartWorld = null;
-          this._render(); // Snap back if no movement
+          this._render();
           return;
       }
 
-      // 1. Check for collision with an existing event node
-      nodeElement.style.pointerEvents = 'none'; // Temporarily ignore self for elementFromPoint
+      nodeElement.style.pointerEvents = 'none';
       const hitElement = document.elementFromPoint(upEvent.clientX, upEvent.clientY);
       nodeElement.style.pointerEvents = 'auto';
 
       const targetEventId = hitElement?.closest?.('circle')?.dataset?.eventId;
 
-      // 2. Calculate final constrained world position
       const finalRect = this.container.getBoundingClientRect();
       const rawWorld = this.screenToWorld(upEvent.clientX - finalRect.left, upEvent.clientY - finalRect.top);
       const finalWorld = constrainMovement(rawWorld, this.viewState.dragStartWorld, this.viewState.activeDragType);
       
-      // 3. Handle NOW node logic
       if (isNow) {
           await this._handleNowNodeDrop(finalWorld, targetEventId);
       } else {
           this.viewState.interactionMode = 'pan';
           this.viewState.dragStartWorld = null;
           this.viewState.activeDragType = null;
-          this._render(); // Snap back
+          this._render();
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  /**
+   * Initiates an Era creation drag on the bottom axis.
+   * @private
+   */
+  _startEraCreationDrag(event) {
+    const startX = event.clientX;
+    const rect = this.svg.getBoundingClientRect();
+    const startWorld = this.screenToWorld(startX - rect.left, event.clientY - rect.top);
+    
+    this.viewState.interactionMode = 'create-era';
+
+    const previewRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    previewRect.setAttribute('class', 'era-creation-preview');
+    previewRect.style.fill = 'rgba(100, 255, 100, 0.2)';
+    previewRect.style.stroke = '#00ff00';
+    previewRect.style.strokeDasharray = '4,2';
+    previewRect.setAttribute('y', rect.height - 35);
+    previewRect.setAttribute('height', '30');
+    this.svg.appendChild(previewRect);
+
+    const onMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const width = Math.abs(dx);
+      const x = dx > 0 ? (startX - rect.left) : (moveEvent.clientX - rect.left);
+      
+      previewRect.setAttribute('x', x);
+      previewRect.setAttribute('width', width);
+    };
+
+    const onMouseUp = async (upEvent) => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      if (previewRect.parentNode) this.svg.removeChild(previewRect);
+      this.viewState.interactionMode = 'pan';
+
+      const endWorld = this.screenToWorld(upEvent.clientX - rect.left, upEvent.clientY - rect.top);
+      
+      const startAge = Math.min(startWorld.age, endWorld.age);
+      const endAge = Math.max(startWorld.age, endWorld.age);
+
+      if (endAge - startAge > 1) {
+          const { openEraDialog } = await import('../lifeline/services/ui/era-dialog/open-era-dialog.js');
+          openEraDialog(this.actor.sheet, { startAge, endAge });
       }
     };
 
@@ -324,9 +388,7 @@ export class SpanGraphViewport {
    * @private
    */
   async _handleNowNodeDrop(worldPos, targetEventId = null) {
-    // A. Update Age if dropped on an existing event
     if (targetEventId && this.viewState.activeDragType === 'level') {
-        console.log(`[SpanGraph] Dropped NOW node on event: ${targetEventId}`);
         const rawEras = this.actor.system.eras || {};
         const events = flattenEvents(rawEras);
         const targetEvent = events.find(e => e.id === targetEventId);
@@ -335,7 +397,6 @@ export class SpanGraphViewport {
             await this.actor.update({ "system.personal.subjectiveNow": targetEvent.age });
             ui.notifications.info(`Updated Subjective Now to match event: ${targetEvent.description || targetEventId}`);
             
-            // Reset state
             this.viewState.interactionMode = 'pan';
             this.viewState.dragStartWorld = null;
             this.viewState.activeDragType = null;
@@ -343,7 +404,6 @@ export class SpanGraphViewport {
         }
     }
 
-    // B. Log Event or Create Span
     const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
     await openEventDialog(this.actor.sheet, {
         mode: 'log',
@@ -373,7 +433,6 @@ export class SpanGraphViewport {
     const oldZoom = this.viewState.zoom;
     const newZoom = oldZoom * factor;
     
-    // Clamp zoom
     const clampedZoom = Math.max(0.1, Math.min(newZoom, 10));
     
     if (!anchor) {
@@ -381,7 +440,6 @@ export class SpanGraphViewport {
       return;
     }
 
-    // Zoom relative to anchor point
     const { panX, panY } = this.viewState;
     const actualFactor = clampedZoom / oldZoom;
     
