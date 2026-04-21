@@ -5,6 +5,7 @@
     <button class="lss-sort-toggle" title="Toggle age sort direction">
       {{#if sortNewestFirst}}<i class="fas fa-arrow-down"></i> Age: Newest First{{else}}<i class="fas fa-arrow-up"></i> Age: Oldest First{{/if}}
     </button>
+    <button class="lss-bulk-shift-btn" title="Shift objective time for selected events"><i class="fas fa-clock"></i> Bulk Shift</button>
     <button class="lss-import-btn"   title="Import events from a CSV file"><i class="fas fa-file-import"></i> Import CSV</button>
     <button class="lss-export-btn"   title="Export all events as a CSV file"><i class="fas fa-file-export"></i> Export CSV</button>
     <button class="lss-template-btn" title="Download a blank CSV template to fill in"><i class="fas fa-file-download"></i> Get Template</button>
@@ -16,6 +17,7 @@
     <table>
       <thead>
         <tr>
+          <th style="width:24px"><input type="checkbox" class="lss-select-all" title="Select all events"/></th>
           <th style="width:24px"></th>
           <th style="width:95px">Date</th>
           <th style="width:65px">Time</th>
@@ -31,7 +33,7 @@
 
         <!-- NEW ROW FORM -->
         <tr class="lss-new-row-tr">
-          <td colspan="9">
+          <td colspan="10">
             <form class="lss-new-form" autocomplete="off">
               <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
                 <input class="lss-field lss-n-date"     style="width:95px"  placeholder="YYYY-MM-DD" title="Date (required)"/>
@@ -100,7 +102,7 @@
           </td>
         </tr>
 
-        <tr style="height:4px; background:#111;"><td colspan="9"></td></tr>
+        <tr style="height:4px; background:#111;"><td colspan="10"></td></tr>
 
         <!-- EXISTING EVENT ROWS -->
         {{#each rows}}
@@ -108,6 +110,7 @@
             data-event-id="{{eventId}}"
             data-era-id="{{eraId}}"
             data-exp-id="{{expId}}">
+           <td><input type="checkbox" class="lss-row-select" data-event-id="{{eventId}}"/></td>
            <td><i class="fas fa-grip-vertical lss-drag-handle"></i></td>
            <td><input class="lss-field lss-field-date" data-field="date" value="{{date}}" placeholder="YYYY-MM-DD"/></td>
           <td><input class="lss-field lss-field-time" data-field="time" value="{{time}}" placeholder="HH:MM"/></td>
@@ -131,7 +134,7 @@
         <!-- EXPANDED SECTION for this row -->
 <tr class="lss-expanded-row{{#unless isExpanded}} hidden{{/unless}}"
              data-event-id="{{eventId}}" data-era-id="{{eraId}}" data-exp-id="{{expId}}">
-           <td colspan="9">
+           <td colspan="10">
             <div class="lss-expand-inner">
 
               <!-- Span toggle + fields -->
@@ -220,7 +223,7 @@
         {{/each}}
 
         {{#unless rows}}
-        <tr><td colspan="9" style="text-align:center; color:#666; padding:20px; font-style:italic;">
+        <tr><td colspan="10" style="text-align:center; color:#666; padding:20px; font-style:italic;">
           No events yet. Use the form above to add your first event.
         </td></tr>
         {{/unless}}

@@ -1,3 +1,5 @@
+import { findEventPath } from './data-utils.js';
+
 /**
  * Processes a single row update from the spreadsheet.
  * 
@@ -7,35 +9,15 @@
  * @param {any} value - The new value.
  */
 export async function submitSpreadsheetRow(actor, eventId, field, value) {
-    const system = actor.system;
-    let targetPath = null;
+    const path = findEventPath(actor, eventId);
 
-    // 1. Locate the event by searching through Eras and Experiences
-    // (This is robust even if we don't pass the IDs directly)
-    for (const [eraId, era] of Object.entries(system.eras || {})) {
-        // Check Era Level
-        if (era.events?.[eventId]) {
-            targetPath = `system.eras.${eraId}.events.${eventId}.${field}`;
-            break;
-        }
-
-        // Check Experiences
-        for (const [expId, exp] of Object.entries(era.experiences || {})) {
-            if (exp.events?.[eventId]) {
-                targetPath = `system.eras.${eraId}.experiences.${expId}.events.${eventId}.${field}`;
-                break;
-            }
-        }
-        if (targetPath) break;
-    }
-
-    if (!targetPath) {
+    if (!path) {
         console.warn(`[LSS] Could not find event ${eventId} in actor data.`);
         return;
     }
 
+    const targetPath = `${path}.${field}`;
     console.log(`[LSS] Updating ${actor.name} path: ${targetPath} = ${value}`);
     
-    // 2. Perform the update
     return await actor.update({ [targetPath]: value });
 }
