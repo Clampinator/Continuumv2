@@ -7,7 +7,10 @@ if (typeof global.document === 'undefined') {
     createElementNS: vi.fn(() => ({
       setAttribute: vi.fn(),
       style: {},
-      appendChild: vi.fn()
+      appendChild: vi.fn(),
+      prepend: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn()
     }))
   };
 }

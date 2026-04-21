@@ -11,6 +11,7 @@ describe('Animated Transitions', () => {
             setAttribute: vi.fn(),
             style: {},
             appendChild: vi.fn(),
+            prepend: vi.fn(),
             addEventListener: vi.fn()
         }))
     };
