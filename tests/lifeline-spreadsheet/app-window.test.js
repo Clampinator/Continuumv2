@@ -6,10 +6,10 @@ vi.hoisted(() => {
       api: {
         ApplicationV2: class {
           constructor(options = {}) {
-            this.options = {
-                window: {},
-                ...options
-            };
+            this.options = this._initializeApplicationOptions(options);
+          }
+          _initializeApplicationOptions(options) {
+            return { window: {}, ...options };
           }
           render() {}
         }
@@ -40,17 +40,17 @@ describe('LifelineSpreadsheetApp', () => {
   });
 
   it('should initialize with the correct actor', () => {
-    const app = new LifelineSpreadsheetApp(sheet);
+    const app = new LifelineSpreadsheetApp({ actor, sheet });
     expect(app.actor).toBe(actor);
   });
 
   it('should have a unique ID based on the actor', () => {
-    const app = new LifelineSpreadsheetApp(sheet);
-    expect(app.options.id).toBe(`lifeline-spreadsheet-${actor.id}`);
+    const app = new LifelineSpreadsheetApp({ actor, sheet });
+    expect(app.options.uniqueId).toBe(`lifeline-spreadsheet-${actor.id}`);
   });
 
   it('should define a default title containing the actor name', () => {
-    const app = new LifelineSpreadsheetApp(sheet);
+    const app = new LifelineSpreadsheetApp({ actor, sheet });
     expect(app.options.window.title).toContain(actor.name);
   });
 });

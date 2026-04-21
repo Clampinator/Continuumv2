@@ -10,7 +10,7 @@ export function openLifelineSpreadsheet(sheet) {
         existing.bringToTop();
         return existing;
     }
-    const app = new LifelineSpreadsheetApp(sheet);
+    const app = new LifelineSpreadsheetApp({ sheet, actor: sheet.actor });
     _instances[actorId] = app;
     app.render(true);
     return app;
