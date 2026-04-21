@@ -22,36 +22,47 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
         if (!path) continue;
 
         const rawEvent = foundry.utils.getProperty(actor, path);
-        
+        if (!rawEvent) continue;
+
         // 1. SHIFT SUBJECTIVE AXIS (Age)
         const currentAge = Number(rawEvent.age) || 0;
         const newAge = currentAge + secondsDelta;
 
         // 2. SHIFT OBJECTIVE AXIS (Date/Time)
-        // We use the existing date/time as the anchor to prevent rail-jumping
         const dateStr = rawEvent.isSpan ? rawEvent.spanFromDate : rawEvent.date;
         const timeStr = (rawEvent.isSpan ? rawEvent.spanFromTime : rawEvent.time) || "12:00:00";
         
         if (!dateStr) {
-            console.warn(`[LSS] Event ${eventId} has no date anchor. Skipping objective shift.`);
             updates[`${path}.age`] = newAge;
             updates[`${path}.sort`] = newAge;
             continue;
         }
 
         try {
-            // Parse current time, add delta, format back
-            const currentTs = new Date(`${dateStr}T${timeStr}`).getTime();
+            // ROBUST PARSING: Parse manually to avoid browser timezone/ISO weirdness
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const [hh, mm] = timeStr.split(':').map(Number);
+            
+            // Create date using UTC specifically to avoid local timezone shifts
+            const currentTs = Date.UTC(y, m - 1, d, hh, mm || 0);
             if (isNaN(currentTs)) throw new Error("Invalid Date");
 
             const newTs = currentTs + msDelta;
             const dateObj = new Date(newTs);
-            const newDateStr = dateObj.toISOString().split('T')[0];
-            const newTimeStr = dateObj.toISOString().split('T')[1].substring(0, 5);
+            
+            // MANUAL FORMATTING: Avoid toISOString() which fails on historical years
+            const newY = dateObj.getUTCFullYear();
+            const newM = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+            const newD = String(dateObj.getUTCDate()).padStart(2, '0');
+            const newHH = String(dateObj.getUTCHours()).padStart(2, '0');
+            const newMM = String(dateObj.getUTCMinutes()).padStart(2, '0');
+
+            const newDateStr = `${newY}-${newM}-${newD}`;
+            const newTimeStr = `${newHH}:${newMM}`;
 
             // 3. APPLY SYNCED UPDATE
             updates[`${path}.age`] = newAge;
-            updates[`${path}.sort`] = newAge; // Keep engine sort in sync
+            updates[`${path}.sort`] = newAge;
 
             if (rawEvent.isSpan) {
                 updates[`${path}.spanFromDate`] = newDateStr;
@@ -62,7 +73,6 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
             }
         } catch (e) {
             console.error(`[LSS] Failed to shift date for event ${eventId} (${dateStr})`, e);
-            // Fallback: update age only so at least something moves
             updates[`${path}.age`] = newAge;
             updates[`${path}.sort`] = newAge;
         }

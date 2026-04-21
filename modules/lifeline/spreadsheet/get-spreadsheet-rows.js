@@ -19,7 +19,7 @@ export function getSpreadsheetRows(actor) {
     // 2. Process through the new Temporal Engine (Brain)
     const state = getTemporalState(history, subjectiveNow);
 
-    // 3. Prep Metadata lookups for Names
+    // 3. Prep Metadata lookups
     const eraLookup = {};
     const expLookup = {};
     const allExperiences = [];
@@ -28,9 +28,7 @@ export function getSpreadsheetRows(actor) {
         eraLookup[eraId] = era.name || `Era ${eraId}`;
         
         Object.entries(era.experiences || {}).forEach(([expId, exp]) => {
-            // Store by ID for fast lookup
             expLookup[expId] = exp.name || 'Unnamed Experience';
-            
             if (exp.name) {
                 allExperiences.push({
                     eraId, expId,
@@ -44,7 +42,7 @@ export function getSpreadsheetRows(actor) {
 
     // 4. Map to Spreadsheet Rows with explicit names
     const rows = state.events.map(event => {
-        // Fallback: If expId is missing but experienceName exists on the raw event, use it.
+        // Robust Lookup: check ID lookup first, fallback to the raw property on the event
         const expName = expLookup[event.expId] || event.experienceName || '';
         
         return {
