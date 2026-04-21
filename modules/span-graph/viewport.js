@@ -84,6 +84,33 @@ export class SpanGraphViewport {
     });
   }
 
+  async animateViewState(target, duration = 300) {
+    const startState = { ...this.viewState };
+    const startTime = performance.now();
+
+    return new Promise(resolve => {
+      const animate = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const t = 1 - Math.pow(1 - progress, 2);
+
+        const nextState = {};
+        for (const key in target) {
+          nextState[key] = startState[key] + (target[key] - startState[key]) * t;
+        }
+
+        this.setViewState(nextState);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      };
+      requestAnimationFrame(animate);
+    });
+  }
+
   setViewState(newState) {
     this.viewState = { ...this.viewState, ...newState };
     this._render();
@@ -91,6 +118,29 @@ export class SpanGraphViewport {
 
   getViewState() {
     return { ...this.viewState };
+  }
+
+  handlePan(dx, dy) {
+    this.setViewState({
+      panX: this.viewState.panX + dx,
+      panY: this.viewState.panY + dy
+    });
+  }
+
+  handleZoom(factor, anchor = null) {
+    const oldZoom = this.viewState.zoom;
+    const newZoom = Math.max(0.000000001, Math.min(oldZoom * factor, 100)); 
+    if (!anchor) {
+      this.setViewState({ zoom: newZoom });
+      return;
+    }
+    const { panX, panY } = this.viewState;
+    const actualFactor = newZoom / oldZoom;
+    this.setViewState({
+      zoom: newZoom,
+      panX: anchor.x - (anchor.x - panX) * actualFactor,
+      panY: anchor.y - (anchor.y - panY) * actualFactor
+    });
   }
 
   worldToScreen(age, time) {
@@ -151,7 +201,7 @@ export class SpanGraphViewport {
         }
 
         // Node Dragging
-        const nodeElement = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
+        const nodeElement = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');        
         if (nodeElement) {
             event.stopPropagation();
             this._startNodeDrag(event, nodeElement);
@@ -173,13 +223,9 @@ export class SpanGraphViewport {
 
     this.svg.addEventListener('mousemove', (event) => {
         if (this.viewState.interactionMode !== 'pan') return;
-        
-        // Detect hover over rails for ghost nodes
         const rect = this.svg.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
-        
-        // Find if we are near a rail segment
         this._updateGhostNodeHover(mouseX, mouseY);
     });
 
@@ -221,7 +267,6 @@ export class SpanGraphViewport {
     const initialCX = parseFloat(nodeElement.getAttribute('cx')) || 0;
     const initialCY = parseFloat(nodeElement.getAttribute('cy')) || 0;
     const isNow = nodeElement.classList.contains('graph-node-now');
-    
     const rect = this.container.getBoundingClientRect();
     const startWorld = this.screenToWorld(startMouseX - rect.left, startMouseY - rect.top);
     
@@ -247,7 +292,7 @@ export class SpanGraphViewport {
           const rawWorld = this.screenToWorld(moveEvent.clientX - currentRect.left, moveEvent.clientY - currentRect.top);
           const constrainedWorld = constrainMovement(rawWorld, this.viewState.dragStartWorld, this.viewState.activeDragType);
           screenPos = this.worldToScreen(constrainedWorld.age, constrainedWorld.time);
-          
+
           if (isNow && this.tooltipManager) {
               const dateObj = new Date(constrainedWorld.time);
               const dateStr = dateObj.toISOString().split('T')[0];
@@ -255,7 +300,6 @@ export class SpanGraphViewport {
               this.tooltipManager.show({ description: `${dateStr} (${ageStr})${this.viewState.activeDragType === 'span' ? ' [SPAN]' : ''}` }, screenPos);
           }
       }
-      
       nodeElement.setAttribute('cx', screenPos.x);
       nodeElement.setAttribute('cy', screenPos.y);
     };
@@ -264,20 +308,17 @@ export class SpanGraphViewport {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       if (this.tooltipManager) this.tooltipManager.hide();
-
       if (!this.viewState.activeDragType) {
           this.viewState.interactionMode = 'pan';
           this._render();
           return;
       }
-
       const finalRect = this.container.getBoundingClientRect();
       const rawWorld = this.screenToWorld(upEvent.clientX - finalRect.left, upEvent.clientY - finalRect.top);
       const finalWorld = constrainMovement(rawWorld, this.viewState.dragStartWorld, this.viewState.activeDragType);
       
-      if (isNow) {
-          await this._handleNowNodeDrop(finalWorld);
-      } else {
+      if (isNow) await this._handleNowNodeDrop(finalWorld);
+      else {
           this.viewState.interactionMode = 'pan';
           this._render();
       }
@@ -290,7 +331,6 @@ export class SpanGraphViewport {
     const startX = event.clientX;
     const rect = this.svg.getBoundingClientRect();
     const startWorld = this.screenToWorld(startX - rect.left, event.clientY - rect.top);
-    
     this.viewState.interactionMode = 'create-era';
     this.viewState.creationStartAgeSeconds = startWorld.age;
 
@@ -303,40 +343,27 @@ export class SpanGraphViewport {
 
     const onMouseMove = (moveEvent) => {
       const dx = moveEvent.clientX - startX;
-      previewRect.setAttribute('x', dx > 0 ? (startX - rect.left) : (moveEvent.clientX - rect.left));
+      previewRect.setAttribute('x', dx > 0 ? (startX - rect.left) : (moveEvent.clientX - rect.left));      
       previewRect.setAttribute('width', Math.abs(dx));
-      
       const currentWorld = this.screenToWorld(moveEvent.clientX - rect.left, moveEvent.clientY - rect.top);
       this.viewState.creationCurrentAgeSeconds = currentWorld.age;
     };
-
     const onMouseUp = async (upEvent) => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       if (previewRect.parentNode) this.svg.removeChild(previewRect);
       this.viewState.interactionMode = 'pan';
-
-      const endWorld = this.screenToWorld(upEvent.clientX - rect.left, upEvent.clientY - rect.top);
+      const endWorld = this.screenToWorld(upEvent.clientX - rect.left, upEvent.clientY - rect.top);        
       this.viewState.creationCurrentAgeSeconds = endWorld.age;
-      
       const startAge = Math.min(this.viewState.creationStartAgeSeconds, this.viewState.creationCurrentAgeSeconds);
       const endAge = Math.max(this.viewState.creationStartAgeSeconds, this.viewState.creationCurrentAgeSeconds);
-
       if (endAge - startAge > 1) {
           const rawEras = this.actor.system.eras || {};
           const sortedEras = Object.values(rawEras).sort((a,b) => (a.sort || 0) - (b.sort || 0));
           const history = flattenEvents(rawEras);
           const temporalState = getTemporalState(history, Number(this.actor.system.personal?.subjectiveNow) || 0);
-
           const { showCreateEraDialog } = await import('../span-graph-dialog-create-age.js');
-          showCreateEraDialog(
-              this.viewState, 
-              temporalState, 
-              this.actor.sheet, 
-              this.svg, 
-              (endAge - startAge), 
-              sortedEras
-          );
+          showCreateEraDialog(this.viewState, temporalState, this.actor.sheet, this.svg, (endAge - startAge), sortedEras);
       }
     };
     window.addEventListener('mousemove', onMouseMove);
@@ -344,34 +371,23 @@ export class SpanGraphViewport {
   }
 
   _updateGhostNodeHover(mouseX, mouseY) {
-      // Robust rail proximity detection
       const rawEras = this.actor.system.eras || {};
       const history = flattenEvents(rawEras);
       const temporalState = getTemporalState(history, Number(this.actor.system.personal?.subjectiveNow) || 0);
-      
       let nearest = null;
-      let minDist = 20; // 20px threshold
-
+      let minDist = 20;
       for (let i = 0; i < temporalState.events.length - 1; i++) {
           const e1 = temporalState.events[i];
           const e2 = temporalState.events[i+1];
-          if (e2.isSpan) continue; // Don't insert into spans
-
+          if (e2.isSpan) continue;
           const p1 = this.worldToScreen(e1.age, e1.projectedTime);
           const p2 = this.worldToScreen(e2.age, e2.projectedTime);
-          
-          // Distance from point to line segment
           const d = this._distToSegment({x: mouseX, y: mouseY}, p1, p2);
           if (d < minDist) {
               minDist = d;
-              // Midpoint in world space
-              nearest = {
-                  age: (e1.age + e2.age) / 2,
-                  time: (e1.projectedTime + e2.projectedTime) / 2
-              };
+              nearest = { age: (e1.age + e2.age) / 2, time: (e1.projectedTime + e2.projectedTime) / 2 };
           }
       }
-
       this.viewState.hoverWorldPos = nearest;
       this.nodeRenderer.renderGhostNode(nearest);
   }
@@ -387,35 +403,11 @@ export class SpanGraphViewport {
   async _handleGhostNodeClick() {
       if (!this.viewState.hoverWorldPos) return;
       const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
-      await openEventDialog(this.actor.sheet, {
-          mode: 'log',
-          ageRaw: this.viewState.hoverWorldPos.age,
-          timeRaw: this.viewState.hoverWorldPos.time
-      });
+      await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: this.viewState.hoverWorldPos.age, timeRaw: this.viewState.hoverWorldPos.time });
   }
 
   async _handleNowNodeDrop(worldPos) {
-    const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
-    await openEventDialog(this.actor.sheet, {
-        mode: 'log',
-        ageRaw: worldPos.age,
-        timeRaw: worldPos.time
-    });
-  }
-
-  handleZoom(factor, anchor = null) {
-    const oldZoom = this.viewState.zoom;
-    const newZoom = Math.max(0.000000001, Math.min(oldZoom * factor, 100)); 
-    if (!anchor) {
-      this.setViewState({ zoom: newZoom });
-      return;
-    }
-    const { panX, panY } = this.viewState;
-    const actualFactor = newZoom / oldZoom;
-    this.setViewState({
-      zoom: newZoom,
-      panX: anchor.x - (anchor.x - panX) * actualFactor,
-      panY: anchor.y - (anchor.y - panY) * actualFactor
-    });
+    const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js'); 
+    await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: worldPos.age, timeRaw: worldPos.time });
   }
 }

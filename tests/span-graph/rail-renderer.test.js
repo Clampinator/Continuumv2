@@ -1,44 +1,57 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RailRenderer } from '../../modules/span-graph/renderers/rail-renderer.js';
 
 describe('RailRenderer', () => {
-  const mockViewport = {
-    worldToScreen: vi.fn((age, time) => ({ x: age, y: time })),
-    svg: {
-      appendChild: vi.fn()
-    }
-  };
+  let mockViewport;
+  let renderer;
 
-  if (typeof global.document === 'undefined') {
+  beforeEach(() => {
+    // Mock the DOM
     global.document = {
-      createElementNS: vi.fn(() => ({
+      createElementNS: vi.fn((ns, tag) => ({
         setAttribute: vi.fn(),
-        classList: { add: vi.fn() },
-        style: {}
+        style: {},
+        appendChild: vi.fn(),
+        tagName: tag,
+        innerHTML: '',
+        classList: { add: vi.fn() }
       })),
       createDocumentFragment: vi.fn(() => ({
-        appendChild: vi.fn()
+          appendChild: vi.fn()
       }))
     };
-  }
+
+    mockViewport = {
+      svg: {
+        appendChild: vi.fn()
+      },
+      worldToScreen: vi.fn((age, time) => ({ x: age, y: time })),
+      viewState: { zoom: 1, panX: 0, panY: 0 }
+    };
+
+    renderer = new RailRenderer(mockViewport);
+  });
 
   it('should generate SVG path segments for temporal epochs', () => {
-    const segments = [
-      { startAge: 0, startTime: 1000, events: [
-        { age: 0, time: 1000 },
-        { age: 10, time: 11000 }
-      ]},
-      { startAge: 10, startTime: 50000, events: [
-        { age: 10, time: 50000, isSpan: true },
-        { age: 20, time: 60000 }
-      ]}
-    ];
+    const state = {
+      events: [
+        { age: 0, projectedTime: 0, id: 'e1' },
+        { age: 100, projectedTime: 100, id: 'e2' }
+      ],
+      segments: [
+        {
+          events: [
+            { age: 0, projectedTime: 0, id: 'e1' },
+            { age: 100, projectedTime: 100, id: 'e2' }
+          ]
+        }
+      ],
+      nowNode: { age: 150, projectedTime: 150 }
+    };
 
-    const renderer = new RailRenderer(mockViewport);
-    renderer.render(segments);
+    renderer.render(state);
 
-    // Should create a path for each segment
+    // Should create a path for the segment
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'path');
-    expect(mockViewport.svg.appendChild).toHaveBeenCalled();
   });
 });

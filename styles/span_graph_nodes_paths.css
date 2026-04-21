@@ -14,16 +14,35 @@
     stroke-width: 3;
     fill: none;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px #00e5ff);
+    filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.4));
 }
 
+/* Pink Dots Animation for Spans */
 .span-graph-span-line {
     stroke: #ff00ff;
-    stroke-width: 2;
+    stroke-width: 4;
     fill: none;
-    stroke-dasharray: 4, 4;
-    animation: span-flow 1s linear infinite;
-    filter: drop-shadow(0 0 2px #ff00ff);
+    stroke-dasharray: 0, 12; /* Dots: 0 length, 12px gap */
+    stroke-linecap: round;    /* Makes the dots round */
+    filter: drop-shadow(0 0 4px #ff00ff);
+}
+
+.span-graph-span-line.up {
+    animation: span-flow-up 0.8s linear infinite;
+}
+
+.span-graph-span-line.down {
+    animation: span-flow-down 0.8s linear infinite;
+}
+
+@keyframes span-flow-up {
+    from { stroke-dashoffset: 24; }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes span-flow-down {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: 24; }
 }
 
 .span-graph-log-line {
@@ -32,24 +51,6 @@
     fill: none;
     stroke-dasharray: 4, 2;
     opacity: 0.6;
-}
-
-.span-graph-span-line.up {
-    animation: span-flow-up 1s linear infinite;
-}
-
-.span-graph-span-line.down {
-    animation: span-flow-down 1s linear infinite;
-}
-
-@keyframes span-flow-up {
-    from { stroke-dashoffset: 20; }
-    to { stroke-dashoffset: 0; }
-}
-
-@keyframes span-flow-down {
-    from { stroke-dashoffset: 0; }
-    to { stroke-dashoffset: 20; }
 }
 
 .graph-node-level {
@@ -71,27 +72,4 @@
     stroke: #ffffff;
     stroke-width: 2px;
     filter: drop-shadow(0 0 8px #ffcc00);
-}
-
-/* Axis Labels */
-.graph-axis-label-bg {
-    fill: rgba(0, 0, 0, 0.8);
-}
-.graph-axis-text {
-    fill: #ddd;
-    font-size: 10px;
-    font-family: monospace;
-    pointer-events: none;
-}
-.graph-axis-text-bold {
-    fill: #fff;
-    font-weight: bold;
-}
-.graph-axis-title {
-    fill: #666;
-    font-size: 12px;
-    font-family: monospace;
-    font-weight: bold;
-    letter-spacing: 2px;
-    pointer-events: none;
 }

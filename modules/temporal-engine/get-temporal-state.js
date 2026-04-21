@@ -17,16 +17,13 @@ export function getTemporalState(history, subjectiveNow = 0) {
 
   let totalDisplacement = 0;
 
+  // 1. PROJECT EVENTS
   const eventsWithProjection = history.map(event => {
-    // We need to find the segment that contains this age. 
-    // Segments are sorted by startAge. 
-    // The active segment is the one where startAge <= event.age, closest to the event.
     const activeSegment = [...segments].reverse().find(s => s.startAge <= event.age) 
                        || segments[0];
     
     const projectedTime = resolveCoordinates(event.age, activeSegment);
     
-    // Calculate individual displacement if it's a span
     if (event.isSpan) {
        const segmentIndex = segments.indexOf(activeSegment);
        const previousSegment = segments[segmentIndex - 1] || activeSegment;
@@ -41,7 +38,16 @@ export function getTemporalState(history, subjectiveNow = 0) {
     };
   });
 
-  // Calculate the "NOW" node
+  // 2. PROJECT SEGMENT EVENTS (Crucial for RailRenderer)
+  // We must ensure the objects inside segment.events are the ones WITH projections.
+  const projectedSegments = segments.map(seg => {
+      return {
+          ...seg,
+          events: seg.events.map(e => eventsWithProjection.find(ep => ep.id === e.id))
+      };
+  });
+
+  // 3. PROJECT NOW NODE
   const nowSegment = [...segments].reverse().find(s => s.startAge <= subjectiveNow) 
                   || segments[0];
   
@@ -53,12 +59,12 @@ export function getTemporalState(history, subjectiveNow = 0) {
   };
 
   return {
-    segments,
+    segments: projectedSegments,
     events: eventsWithProjection,
     nowNode,
     spanPool: {
       consumed: totalDisplacement,
-      total: 0 // Placeholder for system-calculated total Span
+      total: 0 
     }
   };
 }

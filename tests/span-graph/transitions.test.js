@@ -5,37 +5,41 @@ describe('Animated Transitions', () => {
   let viewport;
   let container;
 
-  if (typeof global.document === 'undefined') {
-    global.document = {
-        createElementNS: vi.fn(() => ({
-            setAttribute: vi.fn(),
-            style: {},
-            appendChild: vi.fn(),
-            prepend: vi.fn(),
-            addEventListener: vi.fn()
-        }))
-    };
-  }
-
   beforeEach(() => {
-    container = { appendChild: vi.fn(), addEventListener: vi.fn() };
-    viewport = new SpanGraphViewport(container);
+    // Basic DOM setup
+    global.document = {
+      createElementNS: vi.fn(() => ({
+        setAttribute: vi.fn(),
+        style: {},
+        appendChild: vi.fn(),
+        prepend: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        getBoundingClientRect: vi.fn(() => ({ width: 1000, height: 500 })),
+        classList: { add: vi.fn(), remove: vi.fn(), contains: vi.fn() },
+        dataset: {}
+      }))
+    };
 
-    // Mock requestAnimationFrame to execute immediately
-    global.requestAnimationFrame = vi.fn(callback => {
-        callback(performance.now() + 100); // Simulate some time passed
-    });
+    container = {
+      appendChild: vi.fn(),
+      addEventListener: vi.fn(),
+      getBoundingClientRect: vi.fn(() => ({ left: 0, top: 0, width: 1000, height: 500 }))
+    };
+
+    viewport = new SpanGraphViewport(container);
+    // Ensure ALL viewState values are numbers to prevent NaN during interpolation
+    viewport.viewState.panX = 0;
+    viewport.viewState.panY = 0;
+    viewport.viewState.zoom = 1;
+    
+    // Mock requestAnimationFrame
+    global.requestAnimationFrame = vi.fn(callback => setTimeout(() => callback(performance.now()), 0));
   });
 
   it('should support animated view state updates', async () => {
-    // This requires a mock for requestAnimationFrame if testing timing
-    // For now, we verify the presence of the API
-    expect(viewport.animateViewState).toBeDefined();
-    
-    viewport.setViewState({ panX: 0, panY: 0 });
-    
     // Animate to a new position
-    const animation = viewport.animateViewState({ panX: 100 }, 100);
+    const animation = viewport.animateViewState({ panX: 100 }, 10); 
     
     expect(animation).toBeInstanceOf(Promise);
     await animation;
