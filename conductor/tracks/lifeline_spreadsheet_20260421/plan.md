@@ -5,9 +5,9 @@
     - [x] Write Tests: Define window initialization and sheet button binding in `tests/lifeline-spreadsheet/app-window.test.js`.
     - [x] Implement: Create `modules/lifeline/spreadsheet/app-window.js` to manage the standalone Foundry VTT Application.
     - [x] Implement: Wire the existing "Lifeline" title bar button in the character sheet to launch this app.
-- [~] Task: Build HTML/CSS Grid Layout
-    - [ ] Write Tests: Define expectations for rendering the hierarchical structure (Eras -> Experiences -> Events).
-    - [ ] Implement: Create `templates/apps/lifeline-spreadsheet.hbs` and corresponding CSS for a dense, Excel-like data grid.
+- [x] Task: Build HTML/CSS Grid Layout (9a152fe)
+    - [x] Write Tests: Define expectations for rendering the hierarchical structure (Eras -> Experiences -> Events).
+    - [x] Implement: Create `templates/apps/lifeline-spreadsheet.hbs` and corresponding CSS for a dense, Excel-like data grid.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Application Infrastructure & UI Shell' (Protocol in workflow.md)
 
 ## Phase 2: Data Binding & Inline Editing
