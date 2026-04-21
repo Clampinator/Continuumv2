@@ -1,16 +1,12 @@
 # Implementation Plan: Lifeline Core Architecture Reset
 
 ## Phase 1: Critical Stability & DOM Fixes
-- [ ] Task: Fix Dialog 'Zombie' ReferenceError
-    - [ ] Write Tests: N/A - Manual UI interaction verification required.
-    - [ ] Implement: Audit `modules/lifeline/services/ui/event-dialog/open-event-dialog.js` and remove any references to `sheet.actor` or local scope variables inside the close/cancel handlers that might trigger a `ReferenceError` upon dismissal.
-- [ ] Task: Rip out Interaction Shield
-    - [ ] Write Tests: Ensure node dragging state machine is triggered on mouse events without bubbling interference.
-    - [ ] Implement: Remove `stopPropagation` and `preventDefault` from the initial `mousedown` handlers in `modules/span-graph/viewport.js`. Rely on standard event bubbling and target checking.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Critical Stability & DOM Fixes' (Protocol in workflow.md)
+- [x] Task: Fix Dialog 'Zombie' ReferenceError (ca6be79)
+- [x] Task: Rip out Interaction Shield (ca6be79)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Critical Stability & DOM Fixes' (Protocol in workflow.md)
 
 ## Phase 2: Coordinate & Visual Reset
-- [ ] Task: Enforce Diagonal Authority
+- [~] Task: Enforce Diagonal Authority
     - [ ] Write Tests: Verify `worldToScreen` projects events accurately upwards and to the right from a bottom-left origin.
     - [ ] Implement: Correct the math and `TARGET_RATIO` application in the projection logic so that higher Age and Time values map to smaller Y coordinates on the SVG canvas.
 - [ ] Task: Implement Responsive Axis Gutters
