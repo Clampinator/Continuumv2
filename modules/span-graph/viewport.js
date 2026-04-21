@@ -282,14 +282,21 @@ export class SpanGraphViewport {
           return;
       }
 
-      // Calculate final constrained world position
+      // 1. Check for collision with an existing event node
+      nodeElement.style.pointerEvents = 'none'; // Temporarily ignore self for elementFromPoint
+      const hitElement = document.elementFromPoint(upEvent.clientX, upEvent.clientY);
+      nodeElement.style.pointerEvents = 'auto';
+
+      const targetEventId = hitElement?.closest?.('circle')?.dataset?.eventId;
+
+      // 2. Calculate final constrained world position
       const finalRect = this.container.getBoundingClientRect();
       const rawWorld = this.screenToWorld(upEvent.clientX - finalRect.left, upEvent.clientY - finalRect.top);
       const finalWorld = constrainMovement(rawWorld, startWorld, dragMode);
       
-      // If it's the NOW node, trigger the log dialog
+      // 3. Handle NOW node logic
       if (isNow) {
-          this._handleNowNodeDrop(finalWorld);
+          this._handleNowNodeDrop(finalWorld, targetEventId);
       } else {
           this._render(); // Snap back
       }
@@ -300,11 +307,26 @@ export class SpanGraphViewport {
   }
 
   /**
-   * Triggers the event logging dialog.
+   * Handles dropping the NOW node.
    * @private
    */
-  async _handleNowNodeDrop(worldPos) {
-    // Bridges the new viewport back to the existing dialog system
+  async _handleNowNodeDrop(worldPos, targetEventId = null) {
+    // A. Update Age if dropped on an existing event
+    if (targetEventId) {
+        console.log(`[SpanGraph] Dropped NOW node on event: ${targetEventId}`);
+        // Find the event to get its age
+        const rawEras = this.actor.system.eras || {};
+        const events = flattenEvents(rawEras);
+        const targetEvent = events.find(e => e.id === targetEventId);
+        
+        if (targetEvent) {
+            await this.actor.update({ "system.personal.subjectiveNow": targetEvent.age });
+            ui.notifications.info(`Updated Subjective Now to match event: ${targetEvent.description || targetEventId}`);
+            return;
+        }
+    }
+
+    // B. Log Event if dropped on empty rail
     const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
     openEventDialog(this.actor.sheet, {
         mode: 'log',
