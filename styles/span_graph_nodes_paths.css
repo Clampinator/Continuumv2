@@ -6,59 +6,92 @@
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 0 2px black);
 }
 
-.subway-path.active { stroke-width: 4px; opacity: 1.0; }
-.subway-path.dimmed { stroke-width: 2px; opacity: 0.3; }
-
-.span-graph-wrapper .graph-segment-level {
-    stroke: #00ccff;
-    stroke-width: 2px;
+.span-graph-rail {
+    stroke: #00e5ff;
+    stroke-width: 3;
     fill: none;
-    opacity: 0.9;
-    filter: drop-shadow(0 0 2px rgba(0, 204, 255, 0.8));
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px #00e5ff);
 }
 
-.span-graph-wrapper .graph-segment-span {
+.span-graph-span-line {
     stroke: #ff00ff;
-    stroke-width: 2px;
+    stroke-width: 2;
     fill: none;
     stroke-dasharray: 4, 4;
-    opacity: 1.0;
-    filter: drop-shadow(0 0 3px rgba(255, 0, 255, 0.8));
+    animation: span-flow 1s linear infinite;
+    filter: drop-shadow(0 0 2px #ff00ff);
 }
 
-@keyframes graph-node-pulse {
-  0% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.5)); }
-  50% { transform: scale(1.4); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 1)); }
-  100% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.5)); }
+.span-graph-log-line {
+    stroke: #00ffff;
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 4, 2;
+    opacity: 0.6;
 }
 
-.span-graph-wrapper .graph-node-now {
-    fill: #ffd700;
-    stroke: #fff;
-    stroke-width: 2px;
-    animation: graph-node-pulse 3s infinite ease-in-out;
+.span-graph-span-line.up {
+    animation: span-flow-up 1s linear infinite;
 }
 
-.span-graph-wrapper .graph-node-yet {
-    fill: #ff9f43;
-    stroke: #fff;
-    stroke-width: 1px;
-    cursor: grab;
+.span-graph-span-line.down {
+    animation: span-flow-down 1s linear infinite;
 }
 
-.span-graph-wrapper .graph-node-level {
+@keyframes span-flow-up {
+    from { stroke-dashoffset: 20; }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes span-flow-down {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: 20; }
+}
+
+.graph-node-level {
     fill: #ff00ff;
-    stroke: #fff;
-    stroke-width: 1px;
+    stroke: #ffffff;
+    stroke-width: 1.5px;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
 }
 
-.span-graph-wrapper .goal-connector-line {
-    stroke: #ffd93d;
+.graph-node-span {
+    fill: #ff00ff;
+    stroke: #ffffff;
     stroke-width: 1.5px;
-    stroke-dasharray: 2, 2;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+
+.graph-node-now {
+    fill: #ffcc00;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 8px #ffcc00);
+}
+
+/* Axis Labels */
+.graph-axis-label-bg {
+    fill: rgba(0, 0, 0, 0.8);
+}
+.graph-axis-text {
+    fill: #ddd;
+    font-size: 10px;
+    font-family: monospace;
     pointer-events: none;
-    filter: drop-shadow(0 0 2px black);
+}
+.graph-axis-text-bold {
+    fill: #fff;
+    font-weight: bold;
+}
+.graph-axis-title {
+    fill: #666;
+    font-size: 12px;
+    font-family: monospace;
+    font-weight: bold;
+    letter-spacing: 2px;
+    pointer-events: none;
 }
