@@ -24,7 +24,8 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.Application
       window: {
         icon: 'fas fa-file-excel',
         resizable: true,
-        title: 'Lifeline Spreadsheet'
+        title: 'Lifeline Spreadsheet',
+        template: 'systems/continuum-v2/templates/apps/lifeline-spreadsheet.hbs'
       },
       position: {
         width: 1000,

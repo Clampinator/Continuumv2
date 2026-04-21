@@ -40,6 +40,7 @@
     "styles/span_graph_layout.css",
     "styles/span_graph_elements.css",
     "styles/span_graph_nodes_paths.css",
+    "styles/spreadsheet.css",
     "styles/gear.css",
     "styles/organization.css",
     "styles/org-structure.css",
