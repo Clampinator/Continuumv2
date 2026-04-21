@@ -1,4 +1,4 @@
-import { LifelineSpreadsheetApp } from './lifeline-spreadsheet-app.js';
+import { LifelineSpreadsheetApp } from './app-window.js';
 
 // One instance per actor - reuse/focus rather than opening duplicates.
 const _instances = {};
