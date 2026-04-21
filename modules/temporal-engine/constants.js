@@ -9,6 +9,7 @@ export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = 3600;
 export const SECONDS_IN_DAY = 86400;
 export const SECONDS_IN_YEAR = 31536000; // 365 days
+export const SECONDS_IN_YEAR_STRICT = 31557600; // 365.25 days (precision)
 
 /**
  * The target visual ratio for the Lifeline graph.

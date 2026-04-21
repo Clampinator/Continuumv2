@@ -4,7 +4,8 @@ vi.hoisted(() => {
     global.foundry = {
         utils: {
             getProperty: vi.fn((obj, path) => {
-                if (path.includes('age')) return 31536000; // 1 year
+                // Return a mock event object when an event path is requested
+                if (path.includes('ev1')) return { age: 31536000, date: '2026-04-21', time: '12:00:00' };
                 return undefined;
             })
         }
@@ -19,29 +20,19 @@ vi.mock('../../modules/span-graph-data-processor.js', () => ({
   flattenEvents: vi.fn(() => [{ id: 'ev1', age: 31536000 }])
 }));
 
-vi.mock('../../modules/temporal-engine/get-temporal-state.js', () => ({
-  getTemporalState: vi.fn(() => ({
-    events: [{ id: 'ev1', age: 31536000, time: 31536000000, projectedTime: 31536000000 }],
-    segments: [{ startAge: 0, startTime: 0 }],
-    spanPool: { consumed: 0 }
-  }))
-}));
-
-vi.mock('../../modules/lifeline/services/reference-resolver.js', () => ({
-  ReferenceResolver: {
-      resolveOrigin: vi.fn(() => 0)
-  }
+vi.mock('../../modules/lifeline/spreadsheet/data-utils.js', () => ({
+  findEventPath: vi.fn(() => 'system.eras.e1.events.ev1')
 }));
 
 import { applyBulkTimeShift } from '../../modules/lifeline/spreadsheet/bulk-actions.js';
 
 describe('Bulk Time Shift', () => {
-  it('should trigger updates for each selected event', async () => {
+  it('should trigger updates for each selected event with date re-projection', async () => {
     const actor = {
         update: vi.fn(),
         system: {
             eras: {
-                e1: { events: { ev1: { age: 31536000 } } }
+                e1: { events: { ev1: { age: 31536000, date: '2026-04-21', time: '12:00:00' } } }
             }
         },
         name: 'Test Actor'
@@ -52,5 +43,10 @@ describe('Bulk Time Shift', () => {
     await applyBulkTimeShift(actor, eventIds, yearsDelta);
 
     expect(actor.update).toHaveBeenCalled();
+    const updateArg = actor.update.mock.calls[0][0];
+    
+    // Check that we updated age AND date
+    expect(updateArg['system.eras.e1.events.ev1.age']).toBeDefined();
+    expect(updateArg['system.eras.e1.events.ev1.date']).toBeDefined();
   });
 });
