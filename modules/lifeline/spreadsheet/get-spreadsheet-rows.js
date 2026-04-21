@@ -14,15 +14,20 @@ export function getSpreadsheetRows(actor) {
     const subjectiveNow = Number(actor.system.personal?.subjectiveNow) || 0;
 
     // 1. Get Flattened canonical history
+    // flattenEvents preserves eraId and expId on each event object
     const history = flattenEvents(rawEras);
 
     // 2. Process through the new Temporal Engine (Brain)
     const state = getTemporalState(history, subjectiveNow);
 
-    // 3. Prep Hierarchical metadata lookup (for naming)
+    // 3. Prep Metadata lookups
     const expNames = {};
+    const eraNames = {};
     const allExperiences = [];
+
     Object.entries(rawEras).forEach(([eraId, era]) => {
+        eraNames[eraId] = era.name || `Era ${eraId}`;
+        
         Object.entries(era.experiences || {}).forEach(([expId, exp]) => {
             expNames[expId] = exp.name || 'Unnamed Experience';
             if (exp.name) {
@@ -41,16 +46,14 @@ export function getSpreadsheetRows(actor) {
         return {
             ...event,
             eventId: event.id,
+            // ATTACH NAMES: Ensure the UI can see the labels
+            eraName: event.eraId ? eraNames[event.eraId] : '',
             expName: event.expId ? expNames[event.expId] : '',
             ageFormatted: event.age > 0 ? formatSubjectiveAge(event.age) : 'Birth',
-            // Display date/time from the event record
             date: event.isSpan ? (event.spanFromDate || '') : (event.date || ''),
             time: event.isSpan ? (event.spanFromTime || '') : (event.time || ''),
-            // Notes fallback
             notes: event.notes || event.description || '',
-            // Location fallback
             location: event.isSpan ? (event.spanFromLocation || '') : (event.location || ''),
-            // Engine projection (The Authority)
             projectedTime: event.projectedTime
         };
     });
