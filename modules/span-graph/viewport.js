@@ -4,6 +4,7 @@ import { GridRenderer } from './renderers/grid-renderer.js';
 import { NodeRenderer } from './renderers/node-renderer.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
 import { getDragMode, constrainMovement } from './actions/drag-physics.js';
+import { TooltipManager } from './ui/tooltips.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
@@ -30,6 +31,7 @@ export class SpanGraphViewport {
       this.gridRenderer = new GridRenderer(this);
       this.railRenderer = new RailRenderer(this);
       this.nodeRenderer = new NodeRenderer(this);
+      this.tooltipManager = new TooltipManager(this);
 
       this._activateListeners();
     }
@@ -48,23 +50,22 @@ export class SpanGraphViewport {
    * Animates the view state to a new target.
    * @param {Object} target - Target view state properties.
    * @param {number} [duration=300] - Animation duration in ms.
-   * @returns {Promise} Resolves when animation completes.
    */
-  animateViewState(target, duration = 300) {
+  async animateViewState(target, duration = 300) {
     const startState = { ...this.viewState };
     const startTime = performance.now();
 
     return new Promise(resolve => {
-      const animate = (currentTime) => {
-        const elapsed = currentTime - startTime;
+      const animate = (now) => {
+        const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Easing: Quadratic Out
-        const ease = 1 - (1 - progress) * (1 - progress);
+        // Simple ease-out
+        const t = 1 - Math.pow(1 - progress, 2);
 
         const nextState = {};
-        for (const [key, value] of Object.entries(target)) {
-          nextState[key] = startState[key] + (value - startState[key]) * ease;
+        for (const key in target) {
+          nextState[key] = startState[key] + (target[key] - startState[key]) * t;
         }
 
         this.setViewState(nextState);
@@ -80,62 +81,123 @@ export class SpanGraphViewport {
   }
 
   /**
-   * Attaches interaction listeners to the container.
+   * Updates the viewport's view state.
+   * @param {Object} newState - Partial view state.
+   */
+  setViewState(newState) {
+    this.viewState = { ...this.viewState, ...newState };
+    this._render();
+  }
+
+  /**
+   * Returns a copy of the current view state.
+   */
+  getViewState() {
+    return { ...this.viewState };
+  }
+
+  /**
+   * Projects world coordinates to screen space.
+   */
+  worldToScreen(age, time) {
+    const { panX, panY, zoom } = this.viewState;
+    return {
+      x: (age * zoom) + panX,
+      y: (time * zoom) + panY
+    };
+  }
+
+  /**
+   * Projects screen coordinates back to world space.
+   */
+  screenToWorld(x, y) {
+    const { panX, panY, zoom } = this.viewState;
+    return {
+      age: (x - panX) / zoom,
+      time: (y - panY) / zoom
+    };
+  }
+
+  /**
+   * Renders all layers of the graph.
+   * @private
+   */
+  _render() {
+    if (!this.actor) return;
+
+    const rawEras = this.actor.system.eras || {};
+    const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
+    
+    const history = flattenEvents(rawEras);
+    const temporalState = getTemporalState(history, subjectiveNow);
+
+    this.gridRenderer.render(temporalState, this.viewState);
+    this.railRenderer.render(temporalState, this.viewState);
+    this.nodeRenderer.render(temporalState, this.viewState);
+  }
+
+  /**
+   * Creates the root SVG element.
+   * @private
+   */
+  _createSVG() {
+    if (typeof document === 'undefined') return null;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'span-graph-svg');
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+    svg.style.display = 'block';
+    svg.style.backgroundColor = 'transparent';
+    svg.style.overflow = 'hidden';
+    svg.style.cursor = 'crosshair';
+
+    return svg;
+  }
+
+  /**
+   * Sets up interaction listeners.
    * @private
    */
   _activateListeners() {
-    if (!this.container || typeof window === 'undefined') return;
+    if (!this.svg) return;
 
-    this.container.addEventListener('wheel', this._onWheel.bind(this), { passive: false });
-    this.container.addEventListener('mousedown', this._onMouseDown.bind(this));
+    // Handle background panning
+    this.svg.addEventListener('mousedown', (event) => {
+        // Only if clicking the background, not a node
+        if (event.target === this.svg) {
+            this._startPan(event);
+        }
+    });
+
+    // Handle zooming
+    this.svg.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const delta = event.deltaY > 0 ? 0.9 : 1.1;
+        const rect = this.container.getBoundingClientRect();
+        this.handleZoom(delta, { 
+            x: event.clientX - rect.left, 
+            y: event.clientY - rect.top 
+        });
+    }, { passive: false });
   }
 
   /**
-   * Handles wheel zoom event.
+   * Initiates a pan operation.
    * @private
    */
-  _onWheel(event) {
-    event.preventDefault();
-    const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-    
-    // AUTHORITY: Use clientX/Y and getBoundingClientRect for stable anchor points
-    const rect = this.container.getBoundingClientRect();
-    const anchor = { 
-      x: event.clientX - rect.left, 
-      y: event.clientY - rect.top 
-    };
-    
-    this.handleZoom(zoomFactor, anchor);
-  }
-
-  /**
-   * Handles mouse down for panning or dragging.
-   * @private
-   */
-  _onMouseDown(event) {
-    if (event.button !== 0) return; // Only left click
-
-    const target = event.target;
-    const isNode = target.classList.contains('graph-node-level') || 
-                   target.classList.contains('graph-node-span') ||
-                   target.classList.contains('graph-node-now');
-    
-    if (isNode) {
-        this._startNodeDrag(event, target);
-        return;
-    }
-
+  _startPan(event) {
     const startX = event.clientX;
     const startY = event.clientY;
-    const initialPanX = this.viewState.panX;
-    const initialPanY = this.viewState.panY;
+    const startPanX = this.viewState.panX;
+    const startPanY = this.viewState.panY;
 
     const onMouseMove = (moveEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
       this.setViewState({
-        panX: initialPanX + dx,
-        panY: initialPanY + dy
+        panX: startPanX + dx,
+        panY: startPanY + dy
       });
     };
 
@@ -195,12 +257,26 @@ export class SpanGraphViewport {
       
       nodeElement.setAttribute('cx', screenPos.x);
       nodeElement.setAttribute('cy', screenPos.y);
+
+      // 4. Update Tooltip for NOW node
+      if (isNow && this.tooltipManager) {
+          const { formatSubjectiveAge } = require('../span-graph-utils/provide-span-graph-utils.js');
+          const dateObj = new Date(constrainedWorld.time);
+          const dateStr = dateObj.toISOString().split('T')[0];
+          const ageStr = constrainedWorld.age > 0 ? formatSubjectiveAge(constrainedWorld.age) : 'Birth';
+          
+          this.tooltipManager.show({
+              description: `${dateStr} (${ageStr})`
+          }, screenPos);
+      }
     };
 
     const onMouseUp = async (upEvent) => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       
+      if (this.tooltipManager) this.tooltipManager.hide();
+
       if (!dragMode) {
           this._render(); // Snap back if no movement
           return;
@@ -250,128 +326,30 @@ export class SpanGraphViewport {
   }
 
   /**
-   * Manually updates the zoom state relative to an anchor point.
-   * @param {number} factor - Zoom multiplier.
-   * @param {Object} [anchor] - Optional anchor point {x, y}.
+   * Handles zooming.
+   * @param {number} factor - Zoom factor.
+   * @param {Object} [anchor] - Screen coordinates to zoom relative to.
    */
-  handleZoom(factor, anchor) {
+  handleZoom(factor, anchor = null) {
     const oldZoom = this.viewState.zoom;
     const newZoom = oldZoom * factor;
-
+    
+    // Clamp zoom
+    const clampedZoom = Math.max(0.1, Math.min(newZoom, 10));
+    
     if (!anchor) {
-      this.setViewState({ zoom: newZoom });
+      this.setViewState({ zoom: clampedZoom });
       return;
     }
 
-    // New Pan = Anchor - (Anchor - OldPan) * (NewZoom / OldZoom)
-    const newPanX = anchor.x - (anchor.x - this.viewState.panX) * (newZoom / oldZoom);
-    const newPanY = anchor.y - (anchor.y - this.viewState.panY) * (newZoom / oldZoom);
-
+    // Zoom relative to anchor point
+    const { panX, panY } = this.viewState;
+    const actualFactor = clampedZoom / oldZoom;
+    
     this.setViewState({
-      panX: newPanX,
-      panY: newPanY,
-      zoom: newZoom
+      zoom: clampedZoom,
+      panX: anchor.x - (anchor.x - panX) * actualFactor,
+      panY: anchor.y - (anchor.y - panY) * actualFactor
     });
-  }
-
-  /**
-   * Creates the root SVG element.
-   * @private
-   */
-  _createSVG() {
-    if (typeof document === 'undefined') return null;
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'span-graph-svg');
-    svg.style.width = '100%';
-    svg.style.height = '100%';
-    svg.style.overflow = 'hidden';
-    return svg;
-  }
-
-  /**
-   * @returns {Object} Current view state {panX, panY, zoom}.
-   */
-  getViewState() {
-    return { ...this.viewState };
-  }
-
-  /**
-   * @param {Object} state - New view state.
-   */
-  setViewState(state) {
-    // SANITY GUARD: Prevent NaN or non-finite values from corrupting the state
-    const cleanState = {};
-    for (const [key, value] of Object.entries(state)) {
-      if (typeof value === 'number' && Number.isFinite(value)) {
-        cleanState[key] = value;
-      }
-    }
-    
-    this.viewState = { ...this.viewState, ...cleanState };
-    this._render();
-  }
-
-  /**
-   * Projects world coordinates (Age, Time) to SVG screen space.
-   * Screen = (World * Zoom) + Pan
-   * 
-   * @param {number} age - Subjective Age.
-   * @param {number} time - Objective Time.
-   * @returns {Object} {x, y} screen coordinates.
-   */
-  worldToScreen(age, time) {
-    const zoom = Number(this.viewState.zoom) || 1;
-    const panX = Number(this.viewState.panX) || 0;
-    const panY = Number(this.viewState.panY) || 0;
-
-    const x = (Number(age) || 0) * zoom + panX;
-    const y = (Number(time) || 0) * zoom + panY;
-
-    return {
-      x: Number.isFinite(x) ? x : 0,
-      y: Number.isFinite(y) ? y : 0
-    };
-  }
-
-  /**
-   * Projects screen coordinates (X, Y) back to world space.
-   * World = (Screen - Pan) / Zoom
-   * 
-   * @param {number} x - Screen X.
-   * @param {number} y - Screen Y.
-   * @returns {Object} {age, time} world coordinates.
-   */
-  screenToWorld(x, y) {
-    const zoom = Number(this.viewState.zoom) || 1;
-    const panX = Number(this.viewState.panX) || 0;
-    const panY = Number(this.viewState.panY) || 0;
-
-    // Prevent division by zero
-    const safeZoom = zoom === 0 ? 1 : zoom;
-
-    const age = (Number(x) - panX) / safeZoom;
-    const time = (Number(y) - panY) / safeZoom;
-
-    return {
-      age: Number.isFinite(age) ? age : 0,
-      time: Number.isFinite(time) ? time : 0
-    };
-  }
-
-  /**
-   * Updates the visual representation based on current state.
-   * @private
-   */
-  _render() {
-    if (!this.actor) return;
-    
-    const history = flattenEvents(this.actor.system.eras || {});
-    const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
-    const state = getTemporalState(history, subjectiveNow);
-
-    if (this.gridRenderer) this.gridRenderer.render();
-    if (this.railRenderer) this.railRenderer.render(state.segments);
-    if (this.nodeRenderer) this.nodeRenderer.render(state.events, state.nowNode);
   }
 }
