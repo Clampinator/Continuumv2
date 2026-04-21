@@ -17,10 +17,10 @@
 - [x] Task: Implement Inline Edit Handlers (60f1831)
     - [x] Write Tests: Test that cell edits correctly update actor data and trigger re-calculations.
     - [x] Implement: Add change listeners to grid inputs (Age, Date, Description) to process updates via the Temporal Engine.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Binding & Inline Editing' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Data Binding & Inline Editing' (Protocol in workflow.md)
 
 ## Phase 3: Bulk Actions & Tooling
-- [ ] Task: Implement CSV Export and Import
+- [~] Task: Implement CSV Export and Import
     - [ ] Write Tests: Verify data serialization to CSV and deserialization/validation from CSV.
     - [ ] Implement: Create `modules/lifeline/spreadsheet/csv-tools.js` with export/import handlers.
 - [ ] Task: Implement Bulk Time Shift
