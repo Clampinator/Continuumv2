@@ -3,6 +3,7 @@ import { RailRenderer } from './renderers/rail-renderer.js';
 import { GridRenderer } from './renderers/grid-renderer.js';
 import { NodeRenderer } from './renderers/node-renderer.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
+import { getDragMode, constrainMovement } from './actions/drag-physics.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
@@ -158,27 +159,48 @@ export class SpanGraphViewport {
     const initialCY = parseFloat(nodeElement.getAttribute('cy')) || 0;
     
     const isNow = nodeElement.classList.contains('graph-node-now');
+    const startRect = this.container.getBoundingClientRect();
+    const startWorld = this.screenToWorld(startMouseX - startRect.left, startMouseY - startRect.top);
     
+    let dragMode = null;
+
     const onMouseMove = (moveEvent) => {
-      // Total delta from start of drag
       const dx = moveEvent.clientX - startMouseX;
       const dy = moveEvent.clientY - startMouseY;
+      const dist = Math.hypot(dx, dy);
+
+      // 1. Commit to a mode after 10px of movement
+      if (!dragMode && dist > 10) {
+          dragMode = getDragMode(dx, dy);
+      }
+
+      if (!dragMode) return;
+
+      // 2. Calculate Constrained World Position
+      const rect = this.container.getBoundingClientRect();
+      const rawWorld = this.screenToWorld(moveEvent.clientX - rect.left, moveEvent.clientY - rect.top);
+      const constrainedWorld = constrainMovement(rawWorld, startWorld, dragMode);
+
+      // 3. Project back to Screen for Preview
+      const screenPos = this.worldToScreen(constrainedWorld.age, constrainedWorld.time);
       
-      // Update visual preview
-      nodeElement.setAttribute('cx', initialCX + dx);
-      nodeElement.setAttribute('cy', initialCY + dy);
+      nodeElement.setAttribute('cx', screenPos.x);
+      nodeElement.setAttribute('cy', screenPos.y);
     };
 
     const onMouseUp = async (upEvent) => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       
-      // Calculate final world position
+      if (!dragMode) {
+          this._render(); // Snap back if no movement
+          return;
+      }
+
+      // Calculate final constrained world position
       const rect = this.container.getBoundingClientRect();
-      const finalWorld = this.screenToWorld(
-        upEvent.clientX - rect.left,
-        upEvent.clientY - rect.top
-      );
+      const rawWorld = this.screenToWorld(upEvent.clientX - rect.left, upEvent.clientY - rect.top);
+      const finalWorld = constrainMovement(rawWorld, startWorld, dragMode);
       
       // If it's the NOW node, trigger the log dialog
       if (isNow) {
