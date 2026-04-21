@@ -1,10 +1,12 @@
+import { TARGET_RATIO } from './constants.js';
+
 /**
  * Coordinate utilities for projecting between World Space and Screen Space.
- * Provides strict mathematical guards for stable rendering.
+ * USES 1:1 DIAGONAL AUTHORITY: Sweeps Up (smaller Y) and Right (larger X).
  */
 
 /**
- * Projects world coordinates (Age, Time) to screen space (X, Y).
+ * Projects world coordinates (Age s, Time ms) to screen space (X, Y).
  * 
  * @param {number} age - Subjective Age in seconds.
  * @param {number} time - Objective Time in milliseconds.
@@ -16,8 +18,13 @@ export function worldToScreen(age, time, viewState) {
   const panX = Number(viewState.panX) || 0;
   const panY = Number(viewState.panY) || 0;
 
+  // X moves right with Age
   const x = (Number(age) || 0) * zoom + panX;
-  const y = (Number(time) || 0) * zoom + panY;
+  
+  // Y moves UP (smaller values) with Time
+  // Formula: Y = (Time * TARGET_RATIO * Zoom) + PanY
+  // TARGET_RATIO is negative, so larger Time = smaller Y
+  const y = (Number(time) || 0) * TARGET_RATIO * zoom + panY;
 
   return {
     x: Number.isFinite(x) ? x : 0,
@@ -41,8 +48,11 @@ export function screenToWorld(x, y, viewState) {
   // Prevent division by zero
   const safeZoom = zoom === 0 ? 1 : zoom;
 
+  // Inverse: Age = (X - PanX) / Zoom
   const age = (Number(x) - panX) / safeZoom;
-  const time = (Number(y) - panY) / safeZoom;
+  
+  // Inverse: Time = (Y - PanY) / (TARGET_RATIO * Zoom)
+  const time = (Number(y) - panY) / (TARGET_RATIO * safeZoom);
 
   return {
     age: Number.isFinite(age) ? age : 0,
