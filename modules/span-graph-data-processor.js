@@ -114,20 +114,30 @@ export function flattenEvents(eras) {
   const allEvents = [];
 
   // Iterate through Eras
-  Object.values(eras).forEach(era => {
+  Object.entries(eras).forEach(([eraId, era]) => {
     // Collect direct Era events
     if (era.events) {
       Object.entries(era.events).forEach(([id, event]) => {
-        allEvents.push({ ...event, id, eraId: era.id });
+        allEvents.push({ 
+            ...event, 
+            id: id, 
+            eraId: eraId,
+            expId: null // Explicitly era-level
+        });
       });
     }
 
     // Collect Experience events
     if (era.experiences) {
-      Object.values(era.experiences).forEach(exp => {
+      Object.entries(era.experiences).forEach(([expId, exp]) => {
         if (exp.events) {
           Object.entries(exp.events).forEach(([id, event]) => {
-            allEvents.push({ ...event, id, eraId: era.id, expId: exp.id });
+            allEvents.push({ 
+                ...event, 
+                id: id, 
+                eraId: eraId, 
+                expId: expId // Captured from hierarchy
+            });
           });
         }
       });

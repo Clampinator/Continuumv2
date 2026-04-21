@@ -14,22 +14,23 @@ export function getSpreadsheetRows(actor) {
     const subjectiveNow = Number(actor.system.personal?.subjectiveNow) || 0;
 
     // 1. Get Flattened canonical history
-    // flattenEvents preserves eraId and expId on each event object
     const history = flattenEvents(rawEras);
 
     // 2. Process through the new Temporal Engine (Brain)
     const state = getTemporalState(history, subjectiveNow);
 
-    // 3. Prep Metadata lookups
-    const expNames = {};
-    const eraNames = {};
+    // 3. Prep Metadata lookups for Names
+    const eraLookup = {};
+    const expLookup = {};
     const allExperiences = [];
 
     Object.entries(rawEras).forEach(([eraId, era]) => {
-        eraNames[eraId] = era.name || `Era ${eraId}`;
+        eraLookup[eraId] = era.name || `Era ${eraId}`;
         
         Object.entries(era.experiences || {}).forEach(([expId, exp]) => {
-            expNames[expId] = exp.name || 'Unnamed Experience';
+            // Store by ID for fast lookup
+            expLookup[expId] = exp.name || 'Unnamed Experience';
+            
             if (exp.name) {
                 allExperiences.push({
                     eraId, expId,
@@ -41,14 +42,17 @@ export function getSpreadsheetRows(actor) {
         });
     });
 
-    // 4. Map to Spreadsheet Rows
+    // 4. Map to Spreadsheet Rows with explicit names
     const rows = state.events.map(event => {
+        // Fallback: If expId is missing but experienceName exists on the raw event, use it.
+        const expName = expLookup[event.expId] || event.experienceName || '';
+        
         return {
             ...event,
             eventId: event.id,
-            // ATTACH NAMES: Ensure the UI can see the labels
-            eraName: event.eraId ? eraNames[event.eraId] : '',
-            expName: event.expId ? expNames[event.expId] : '',
+            eraName: eraLookup[event.eraId] || 'Unknown Era',
+            expName: expName, 
+            typeLabel: event.isSpan ? 'Span' : 'Event',
             ageFormatted: event.age > 0 ? formatSubjectiveAge(event.age) : 'Birth',
             date: event.isSpan ? (event.spanFromDate || '') : (event.date || ''),
             time: event.isSpan ? (event.spanFromTime || '') : (event.time || ''),
