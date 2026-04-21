@@ -1,0 +1,79 @@
+
+/*==========================*/
+/* ORG METHODS SECTION CSS  */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .org-methods-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Add Button in Header */
+.section-header-row .org-methods-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.org-methods-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.org-methods-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Method Items (Experience-like) */
+.methods-section .era-item {
+    border: 1px solid #444;
+    background-color: #252525;
+}
+
+.methods-section .experience-item {
+    background-color: #2f2f2f;
+    border-left: 3px solid #0984e3;
+}
+
+/* Task Items (Event-like) */
+.methods-section .event-item {
+    background-color: #353535;
+    padding: 4px 8px;
+}
+
+.methods-section .collapsible-controls {
+    margin-top: 5px;
+    text-align: right;
+}
+
+.methods-section .task-add {
+    background-color: #2d3436;
+    border: 1px solid #636e72;
+    color: #dfe6e9;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+.methods-section .task-add:hover {
+    background-color: #0984e3;
+    color: #fff;
+}

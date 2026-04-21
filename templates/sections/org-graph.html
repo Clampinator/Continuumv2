@@ -1,0 +1,117 @@
+
+<!-- ================== -->
+<!-- ORG GRAPH SECTION  -->
+<!-- ================== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-org-graph-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-graph-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-org-graph-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Organizational Lifeline</h2>
+    </label>
+    <!-- Controls for the graph -->
+    <div class="org-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
+        <button type="button" class="toggle-map-mode" title="Toggle Map Interaction (Spacebar)"><i class="fas fa-map-marked-alt"></i></button>
+        <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div>
+        <button type="button" class="export-lifeline" title="Export Lifeline (JSON)"><i class="fas fa-file-export"></i></button>
+        <button type="button" class="import-lifeline" title="Import Lifeline (JSON)"><i class="fas fa-file-import"></i></button>
+        <button type="button" class="debug-graph-data" title="Copy Debug Data"><i class="fas fa-bug"></i></button>
+        <button type="button" class="reset-graph-view" title="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="org-graph-help" title="Help"><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+  
+  <div class="section-content">
+    
+    {{#unless system.structure.inceptionDate}}
+    <div class="org-graph-dob-warning-overlay">
+        <div class="warning-message-box">
+            <h3><i class="fas fa-exclamation-triangle"></i> Inception Date Required</h3>
+            <p>The Organizational Lifeline cannot be initialized without a reference point.</p>
+            <p>Please enter a <strong>Date of Inception</strong> in the <em>Structure</em> section above.</p>
+        </div>
+    </div>
+    {{/unless}}
+
+    <!-- HTML MANDATE HUD (The Bank) -->
+    <div class="graph-goal-hud-container {{#unless system.structure.inceptionDate}}blurred-content{{/unless}}">
+      <button type="button" class="goal-hud-add" title="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
+      {{#each mandates as |mandate|}}
+        {{#unless (eq mandate.importance "Achieved")}}
+        <div class="goal-hud-chip" data-id="{{mandate.id}}" data-importance="{{mandate.importance}}">
+            <span class="goal-hud-text">{{mandate.description}}</span>
+        </div>
+        {{/unless}}
+      {{/each}}
+    </div>
+
+    <div class="org-graph-wrapper {{#unless system.structure.inceptionDate}}blurred-content{{/unless}}">
+        
+        <!-- Map Background Container -->
+        <div id="org-lifeline-map-background" class="lifeline-map-background"></div>
+
+        <div class="org-graph-container">
+        <svg class="org-graph-svg" width="100%" height="500">
+            <defs>
+                <!-- Open Experience Fade Gradient -->
+                <linearGradient id="orgExpFadeGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(74, 255, 180, 0.4); stop-opacity:1" />
+                    <stop offset="60%" style="stop-color:rgba(74, 255, 180, 0.1); stop-opacity:0.5" />
+                    <stop offset="100%" style="stop-color:rgba(74, 255, 180, 0.0); stop-opacity:0" />
+                </linearGradient>
+            </defs>
+            
+            <!-- LAYER 1: Background & Grid -->
+            <g class="graph-grid-layer">
+                <rect width="100%" height="100%" fill="transparent" /> 
+                <g class="graph-grid-lines"></g>
+            </g>
+
+            <!-- LAYER 1.5: Visualization Blocks (Ages/Operations) -->
+            <g class="graph-ages-layer"></g>
+            <g class="graph-experiences-layer"></g>
+
+            <!-- LAYER 2: Paths -->
+            <g class="graph-path-layer">
+                <path class="graph-lifeline-path" fill="none"></path>
+            </g>
+
+            <!-- LAYER 3: UI Elements (Nodes, Labels, Tooltips) -->
+            <g class="graph-ui-layer">
+                <g class="graph-axis-labels"></g>
+                <g class="graph-labels-group"></g> 
+                <g class="graph-nodes-group"></g>
+                
+                <!-- Dragging Indicators -->
+                <line class="graph-drag-line" display="none"></line>
+                
+                <!-- Hover Tooltip Group -->
+                <g class="graph-tooltip-group" display="none" style="pointer-events: none;">
+                    <rect class="tooltip-bg" rx="4" ry="4"></rect>
+                    <text class="tooltip-text"></text>
+                </g>
+            </g>
+
+            <!-- LAYER 4: Creation Interface (Dynamic) -->
+            <g class="graph-creation-layer">
+                <!-- Bottom Creation Bars -->
+                <g class="creation-ui-group">
+                    <rect class="creation-bar-era" x="0" height="20"></rect>
+                    <text class="creation-label-era" fill="#4da6ff" font-size="10" pointer-events="none">Create Operation</text>
+                </g>
+            </g>
+
+        </svg>
+        </div>
+        <!-- Instructions Footer -->
+        <div class="graph-instructions">
+        <span><i class="fas fa-arrows-alt"></i> Pan/Zoom</span>
+        <span><i class="fas fa-mouse-pointer"></i> Drag Bar = Operation</span>
+        <span><i class="fas fa-building"></i> Head = Current State</span>
+        <span style="color: #ffd700;"><i class="fas fa-hand-paper"></i> <strong>Hold Space</strong> = Map</span>
+        </div>
+    </div>
+  </div>
+  
+  <!-- Global Drag Proxy for Mandates -->
+  <div id="org-graph-drag-proxy" class="goal-hud-chip" style="display: none; position: fixed; pointer-events: none; z-index: 9999;"></div>
+</div>

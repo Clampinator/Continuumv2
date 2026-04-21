@@ -1,6 +1,6 @@
 
 import { initializeDragAndDrop } from '../../continuum-drag-drop.js';
-import { initializeSpanGraph } from '../span-graph-container.js';
+// import { initializeSpanGraph } from '../span-graph-container.js';
 import { initializeCharRelationshipGraph } from '../relationships/index.js';
 import { initializeSearch } from '../../sheet-search.js';
 import { initializeDiceRoller } from '../../sheet-dice-roller.js';

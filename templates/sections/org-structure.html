@@ -1,0 +1,138 @@
+
+<!--=========================-->
+<!-- ORG STRUCTURE SECTION -->
+<!--=========================-->
+<div class="section-container {{#if fiscal.overextension.isOverextended}}logistical-warning{{/if}}">
+  <input type="checkbox" id="toggle-org-structure-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-structure-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-org-structure-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Organization Structure</h2>
+    </label>
+    <div class="org-structure-controls">
+      {{#if fiscal.overextension.isOverextended}}
+      <span class="overextension-chip" data-tooltip="Overextended! {{#if fiscal.overextension.severe}}Severe: –2 to rolls, no new units.{{else}}–1 or –2 to rolls.{{/if}}"><i class="fas fa-exclamation-triangle"></i> OVEREXTENDED</span>
+      {{/if}}
+      <button type="button" class="org-structure-help" title="Help"><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+  <div class="section-content">
+    <div class="columns columns-3">
+
+        <!-- Description Column -->
+        <div class="column">
+          <h3>Description</h3>
+          <div class="form-row">
+            <label for="org-name-input">Name:</label>
+            <input type="text" id="org-name-input" name="system.structure.orgname" value="{{system.structure.orgname}}" placeholder="{{actor.name}}" />
+          </div>
+          <div class="form-row">
+            <label for="org-type">Type:</label>
+            <select id="org-type" name="system.structure.type">
+              {{#select system.structure.type}}
+              <option value="" disabled>Select...</option>
+              <option value="Political">Political</option>
+              <option value="Religious">Religious</option>
+              <option value="Military">Military</option>
+              <option value="Charitable">Charitable</option>
+              <option value="Social">Social</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Educational">Educational</option>
+              {{/select}}
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="org-race">Race:</label>
+            <input type="text" id="org-race" name="system.structure.race" value="{{system.structure.race}}" />
+          </div>
+        </div>
+
+        <!-- Locality Column -->
+        <div class="column">
+          <h3>Locality</h3>
+          <div class="form-row">
+            <label for="org-inception">Date of Inception:</label>
+            <div class="date-picker-container">
+              <input type="text" class="date-text-input" id="org-inception" name="system.structure.inceptionDate" value="{{system.structure.inceptionDate}}" placeholder="YYYY-MM-DD" />
+              <i class="fas fa-calendar-alt date-picker-icon"></i>
+              <input type="date" class="date-picker-hidden" tabindex="-1" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="org-headquarters">Headquarters:</label>
+            <div style="display: flex; gap: 5px; align-items: center; flex: 1;">
+                <input type="text" id="org-headquarters" name="system.structure.headquarters" value="{{system.structure.headquarters}}" placeholder="City, Country" />
+                <input type="hidden" name="system.structure.headquartersLat" value="{{system.structure.headquartersLat}}"/>
+                <input type="hidden" name="system.structure.headquartersLng" value="{{system.structure.headquartersLng}}"/>
+                <button type="button" class="personal-geo-btn personal-locate-btn" title="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
+                <button type="button" class="personal-geo-btn personal-grab-btn" title="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="org-locality">Locality:</label>
+            <input type="text" id="org-locality" name="system.structure.locality" value="{{system.structure.locality}}" />
+          </div>
+          <div class="form-row">
+            <label for="org-society">Society:</label>
+            <input type="text" id="org-society" name="system.structure.society" value="{{system.structure.society}}" />
+          </div>
+          <div class="form-row">
+            <label for="org-grace">Grace:</label>
+            <input type="number" id="org-grace" name="system.structure.grace" value="{{system.structure.grace}}" />
+          </div>
+        </div>
+
+        <!-- Scope Column -->
+        <div class="column">
+          <h3>Fiscal Health</h3>
+          <div class="form-row">
+            <label for="org-size">Size (Tier):</label>
+            <select id="org-size" name="system.structure.size">
+              {{#select system.structure.size}}
+              <option value="0" disabled>Select...</option>
+              <option value="1">Dyad (1-2)</option>
+              <option value="2">Cluster (3-10)</option>
+              <option value="3">Pack (11-100)</option>
+              <option value="4">Crowd (101-1k)</option>
+              <option value="5">Assembly (1k-10k)</option>
+              <option value="6">Swarm (10k-100k)</option>
+              <option value="7">Metropolis (100k-1M)</option>
+              <option value="8">Supercolony (1M-10M)</option>
+              <option value="9">Megapolis (10M-100M)</option>
+              <option value="10">Gigacosm (100M+)</option>
+              {{/select}}
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="org-budget">Budget (Tier):</label>
+            <select id="org-budget" name="system.structure.budget">
+              {{#select system.structure.budget}}
+              <option value="0" disabled>Select...</option>
+              <option value="1">$10</option>
+              <option value="2">$1k</option>
+              <option value="3">$100k</option>
+              <option value="4">$1M</option>
+              <option value="5">$10M</option>
+              <option value="6">$100M</option>
+              <option value="7">$1B</option>
+              <option value="8">$10B</option>
+              <option value="9">$100B</option>
+              <option value="10">$1T</option>
+              {{/select}}
+            </select>
+          </div>
+          <div class="fiscal-readout-row" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 10px;">
+              <div class="readout-item">
+                  <label>Manpower (MP)</label>
+                  <span class="readout-value {{#if (lt fiscal.mp.remaining 0)}}negative{{/if}}">{{fiscal.mp.spent}} / {{fiscal.mp.total}}</span>
+                  <p class="readout-sub">Size × 10</p>
+              </div>
+              <div class="readout-item">
+                  <label>Resources (RP)</label>
+                  <span class="readout-value {{#if (lt fiscal.rp.remaining 0)}}negative{{/if}}">{{fiscal.rp.spent}} / {{fiscal.rp.total}}</span>
+                  <p class="readout-sub">Budget × 10</p>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

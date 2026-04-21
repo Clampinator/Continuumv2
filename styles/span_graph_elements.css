@@ -1,0 +1,57 @@
+/*==================================*/
+/* SPAN GRAPH: STATIC ELEMENTS      */
+/*==================================*/
+
+.span-graph-wrapper .graph-grid-lines line {
+    stroke: rgba(255, 255, 255, 0.1); 
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+.span-graph-wrapper .graph-axis-labels text {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    fill: #ddd;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 4px #000;
+}
+
+.span-graph-wrapper .graph-era-column {
+    fill: rgba(0, 100, 255, 0.1);
+    stroke: rgba(0, 100, 255, 0.4);
+    stroke-width: 1px;
+    pointer-events: none;
+}
+
+.span-graph-wrapper .graph-era-label {
+    text-anchor: middle;
+    fill: #4da6ff;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 0 0 3px #000;
+}
+
+.span-graph-wrapper .creation-drag-rect {
+    fill: #00f2ff;
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.span-graph-wrapper .creation-bar-era {
+    fill: #00f2ff;
+    cursor: col-resize;
+    opacity: 0.6;
+}
+
+.span-graph-wrapper .creation-label-era {
+    fill: #ff4444;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    stroke: #000;
+    stroke-width: 1px;
+    paint-order: stroke;
+}

@@ -1,0 +1,43 @@
+<div class="npc-wizard">
+  <header class="npc-wizard-header">
+    <h2>NPC Generator</h2>
+    <div class="step-indicators">
+      {{#each steps}}
+      <div class="step-indicator {{#if active}}active{{else if completed}}completed{{/if}}" data-step="{{num}}">
+        <span class="step-num">{{num}}</span>
+        <span class="step-label">{{label}}</span>
+      </div>
+      {{/each}}
+    </div>
+  </header>
+
+  <div class="npc-wizard-content">
+    {{#if (eq step 1)}}
+      {{> "systems/continuum-v2/templates/npc-generator/step-1-identity.html"}}
+    {{else if (eq step 2)}}
+      {{> "systems/continuum-v2/templates/npc-generator/step-2-time-faction.html"}}
+    {{else if (eq step 3)}}
+      {{> "systems/continuum-v2/templates/npc-generator/step-3-capabilities.html"}}
+    {{else if (eq step 4)}}
+      {{> "systems/continuum-v2/templates/npc-generator/step-4-concept.html"}}
+    {{else if (eq step 5)}}
+      {{> "systems/continuum-v2/templates/npc-generator/step-5-review.html"}}
+    {{else if (eq step 6)}}
+      {{> "systems/continuum-v2/templates/npc-generator/step-6-complete.html"}}
+    {{/if}}
+  </div>
+
+  <footer class="npc-wizard-footer">
+    <button type="button" class="npc-wizard-btn-cancel">Cancel</button>
+    <div class="nav-buttons">
+      {{#if (gt step 1)}}
+      {{#if (lt step 6)}}
+      <button type="button" class="npc-wizard-btn-back">Back</button>
+      {{/if}}
+      {{/if}}
+      {{#if (lt step 5)}}
+      <button type="button" class="npc-wizard-btn-next">Next</button>
+      {{/if}}
+    </div>
+  </footer>
+</div>

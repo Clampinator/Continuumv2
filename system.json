@@ -1,0 +1,73 @@
+{
+  "id": "continuum-v2",
+  "title": "Continuum v2",
+  "type": "system",
+  "version": "1.0.0",
+  "description": "Refactored character system for Continuum RPG (v2).",
+  "author": "Mechanical Architect & Gemini",
+  "socket": true,
+  "esmodules": [
+    "continuum.js",
+    "organization-sheet.js",
+    "location-sheet.js",
+    "item-sheet.js",
+    "modules/sheet-hooks.js",
+    "system-api.js",
+    "continuum-drag-drop.js",
+    "modules/network/handle-actor-drop.js",
+    "modules/spacetime-bridge/index.js",
+    "modules/npc-generator/index.js"
+  ],
+  "styles": [
+    "styles/variables.css",
+    "styles/base.css",
+    "styles/backgrounds.css",
+    "styles/personal.css",
+    "styles/attributes.css",
+    "styles/dialogs.css",
+    "styles/metabilities.css",
+    "styles/spanning.css",
+    "styles/goals.css",
+    "styles/experiences.css",
+    "styles/combat-ranged-weapons.css",
+    "styles/combat-melee-weapons.css",
+    "styles/combat-armor.css",
+    "styles/combat-wounds.css",
+    "styles/npc-combat-card.css",
+    "styles/lists.css",
+    "styles/vehicles.css",
+    "styles/span_graph.css",
+    "styles/span_graph_layout.css",
+    "styles/span_graph_elements.css",
+    "styles/span_graph_nodes_paths.css",
+    "styles/gear.css",
+    "styles/organization.css",
+    "styles/org-structure.css",
+    "styles/org-attributes.css",
+    "styles/org-mandates.css",
+    "styles/org-methods.css",
+    "styles/org-conflict.css",
+    "styles/org-balance-sheet.css",
+    "styles/location.css",
+    "styles/chat-roll.css",
+    "styles/npc-wizard.css"
+  ],
+  "actorTypes": [
+    "character",
+    "organization",
+    "location"
+  ],
+  "itemTypes": [
+    "artifact",
+    "ability",
+    "gear"
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "templateVersion": 3,
+  "packs": [],
+  "languages": [],
+  "license": "MIT"
+}

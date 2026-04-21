@@ -1,0 +1,101 @@
+
+<!--========================================-->
+<!-- PHASES, OPERATIONS & ENGAGEMENTS SECTION -->
+<!--========================================-->
+<div class="section-container methods-section">
+  <input type="checkbox" id="toggle-org-methods-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-methods-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-org-methods-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Phases, Operations & Engagements</h2>
+    </label>
+    <div class="org-methods-controls">
+      <button type="button" class="org-methods-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="phase" data-tooltip="Add a new Phase"><i class="fas fa-plus"></i> Add Phase</button>
+    </div>
+  </div>
+  <div class="section-content">
+    <div class="eras-list"> <!-- Re-using .eras-list for Phase container styling -->
+      {{#each phases as |phase|}}
+      <div class="era-item" data-id="{{phase.id}}"> <!-- Phase Item -->
+        <div class="era-header">
+          <input type="text" class="era-title" name="system.phases.{{phase.id}}.name" value="{{phase.name}}" placeholder="Phase Name (e.g. Cold War Expansion)">
+          <label>From:</label>
+          <div class="date-picker-container era-date">
+            <input type="text" class="date-text-input" name="system.phases.{{phase.id}}.dateFrom" value="{{phase.dateFrom}}" placeholder="YYYY-MM-DD" />
+            <i class="fas fa-calendar-alt date-picker-icon"></i>
+            <input type="date" class="date-picker-hidden" tabindex="-1" />
+          </div>
+          <label>To:</label>
+          <div class="date-picker-container era-date">
+            <input type="text" class="date-text-input" name="system.phases.{{phase.id}}.dateTo" value="{{phase.dateTo}}" placeholder="YYYY-MM-DD" />
+            <i class="fas fa-calendar-alt date-picker-icon"></i>
+            <input type="date" class="date-picker-hidden" tabindex="-1" />
+          </div>
+          <div class="era-header-controls">
+             <button type="button" class="item-add" data-type="orgOperation" data-phase-id="{{phase.id}}"><i class="fas fa-plus"></i> Add Operation</button>
+             <a class="item-delete" data-type="phase" data-id="{{phase.id}}" data-tooltip="Delete Phase"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+
+        <div class="experiences-list"> <!-- Re-using .experiences-list for Operations -->
+          {{#each phase.operations as |operation|}}
+          <div class="experience-item" data-id="{{operation.id}}">
+            <input type="checkbox" id="toggle-engagements-{{operation.id}}" class="sheet-hidden minimize-toggle-cb" checked />
+            
+            <div class="experience-content">
+              <div class="experience-title-row">
+                <label for="toggle-engagements-{{operation.id}}" class="minimize-maximize-toggle"></label>
+                <input type="text" class="experience-title" name="system.phases.{{../id}}.operations.{{operation.id}}.name" value="{{operation.name}}" placeholder="Operation Name" />
+                
+                <label>From:</label>
+                <div class="date-picker-container experience-date">
+                    <input type="text" class="date-text-input" name="system.phases.{{../id}}.operations.{{operation.id}}.dateFrom" value="{{operation.dateFrom}}" placeholder="YYYY-MM-DD" />
+                    <i class="fas fa-calendar-alt date-picker-icon"></i>
+                    <input type="date" class="date-picker-hidden" tabindex="-1" />
+                </div>
+                <label>To:</label>
+                <div class="date-picker-container experience-date">
+                    <input type="text" class="date-text-input" name="system.phases.{{../id}}.operations.{{operation.id}}.dateTo" value="{{operation.dateTo}}" placeholder="YYYY-MM-DD" />
+                    <i class="fas fa-calendar-alt date-picker-icon"></i>
+                    <input type="date" class="date-picker-hidden" tabindex="-1" />
+                </div>
+
+                <div class="experience-header-controls">
+                    <a class="item-delete" data-type="orgOperation" data-id="{{operation.id}}" data-phase-id="{{../id}}" data-tooltip="Delete Operation"><i class="fas fa-trash"></i></a>
+                    <button type="button" class="item-add" data-type="engagement" data-phase-id="{{../id}}" data-op-id="{{operation.id}}"><i class="fas fa-plus"></i> Engagement</button>
+                </div>
+              </div>
+              <textarea name="system.phases.{{../id}}.operations.{{operation.id}}.description" placeholder="Operation Goals & Resources..." class="js-auto-expand">{{operation.description}}</textarea>
+
+              <div class="events-container"> <!-- Re-using .events-container for Engagements -->
+                {{#each operation.engagements as |engagement|}}
+                <div class="event-item" data-phase-id="{{../../id}}" data-op-id="{{../id}}" data-eng-id="{{engagement.id}}">
+                  <div class="event-content">
+                    <div class="event-title-row">
+                      <input type="text" class="event-title-input" name="system.phases.{{../../id}}.operations.{{../id}}.engagements.{{engagement.id}}.name" value="{{engagement.name}}" placeholder="Engagement Name" />
+                      
+                      <div class="date-picker-container event-date-input">
+                        <input type="text" class="date-text-input" name="system.phases.{{../../id}}.operations.{{../id}}.engagements.{{engagement.id}}.date" value="{{engagement.date}}" placeholder="YYYY-MM-DD" />
+                        <i class="fas fa-calendar-alt date-picker-icon"></i>
+                        <input type="date" class="date-picker-hidden" tabindex="-1" />
+                      </div>
+
+                      <input type="time" class="event-time-input" name="system.phases.{{../../id}}.operations.{{../id}}.engagements.{{engagement.id}}.time" value="{{engagement.time}}" />
+                    </div>
+                    <textarea name="system.phases.{{../../id}}.operations.{{../id}}.engagements.{{engagement.id}}.description" placeholder="Engagement Outcome..." class="js-auto-expand">{{engagement.description}}</textarea>
+                  </div>
+                  <div class="event-controls">
+                    <a class="item-delete" data-type="engagement" data-id="{{engagement.id}}" data-phase-id="{{../../id}}" data-op-id="{{../id}}" data-tooltip="Delete Engagement"><i class="fas fa-trash"></i></a>
+                  </div>
+                </div>
+                {{/each}}
+              </div>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

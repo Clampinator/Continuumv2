@@ -1,6 +1,4 @@
 import { SpanGraphViewport } from '../viewport.js';
-import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
-import { RailRenderer } from '../renderers/rail-renderer.js';
 
 const viewports = new Map();
 
@@ -14,22 +12,16 @@ export function initializeSpanGraph(actor, html) {
   const container = html.find('.span-graph-container').get(0);
   if (!container) return;
 
-  // 1. Cleanup old viewport for this actor if it exists
-  if (viewports.has(actor.id)) {
-     // Perform any necessary cleanup (e.g., removing listeners)
+  let viewport = viewports.get(actor.id);
+
+  if (!viewport || viewport.container !== container) {
+    // Instantiate new Viewport if none exists or container changed
+    viewport = new SpanGraphViewport(container, actor);
+    viewports.set(actor.id, viewport);
+  } else {
+    // Update existing viewport
+    viewport.updateActor(actor);
   }
-
-  // 2. Instantiate new Viewport
-  const viewport = new SpanGraphViewport(container);
-  viewports.set(actor.id, viewport);
-
-  // 3. Fetch Temporal State
-  const history = actor.system.eras || []; // Simplified for now
-  const state = getTemporalState(history);
-
-  // 4. Render
-  const railRenderer = new RailRenderer(viewport);
-  railRenderer.render(state.segments);
 
   return viewport;
 }

@@ -1,0 +1,195 @@
+<!-- ===================== -->
+<!-- METABILIITES SECTION  -->
+<!-- ===================== -->
+{{#if (or @root.isGM @root.playersCanSeeMetabilities)}}
+<div class="section-container {{#if system.metabilities.potentialsLocked}}potentials-locked{{/if}}">
+        <input type="checkbox" id="toggle-metabilities-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-metabilities-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-metabilities-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Metabilites</h2>
+    </label>
+    <div class="metabilities-controls">
+      <button type="button" class="metabilities-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="metabilityApplication" data-tooltip="Add Application"><i class="fas fa-plus"></i> Application</button>
+    </div>
+  </div>
+  
+  <div class="section-content">
+    <div class="attributes-container">
+      <div class="attributes-single-row">
+        
+        <!-- Coercion Block with Operant Potential -->
+        <div class="metability-potential-frame {{#if (eq system.metabilities.coercion.value system.metabilities.coercion.potential)}}at-potential{{/if}}" 
+             data-metability="coercion"
+             data-potential="{{system.metabilities.coercion.potential}}">
+          <!-- Draggable background showing operant potential level -->
+          <div class="potential-background" data-potential-for="coercion" title="Drag to set Operant Potential">
+            <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
+                 class="potential-bg-image" 
+                 alt="Coercion Operant Potential"
+                 style="top: {{multiply system.metabilities.coercion.potential -143}}px;">
+          </div>
+          <!-- Content on top -->
+          <div class="metability-content">
+            <button type="button" class="roll-attribute" data-attribute="meta-coercion" data-tooltip="Roll Coercion" {{#unless (gt system.metabilities.coercion.value 0)}}disabled{{/unless}}>Coerce</button>
+            <div class="metability-spinner-viewport" data-metability="coercion">
+              <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Coercion Rank Spinner">
+            </div>
+          </div>
+          <input type="hidden" name="system.metabilities.coercion.value" value="{{system.metabilities.coercion.value}}" />
+          <input type="hidden" name="system.metabilities.coercion.potential" value="{{system.metabilities.coercion.potential}}" class="potential-input" />
+        </div>
+        
+        <!-- Creativity Block with Operant Potential -->
+        <div class="metability-potential-frame {{#if (eq system.metabilities.creativity.value system.metabilities.creativity.potential)}}at-potential{{/if}}" 
+             data-metability="creativity"
+             data-potential="{{system.metabilities.creativity.potential}}">
+          <div class="potential-background" data-potential-for="creativity" title="Drag to set Operant Potential">
+            <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
+                 class="potential-bg-image" 
+                 alt="Creativity Operant Potential"
+                 style="top: {{multiply system.metabilities.creativity.potential -143}}px;">
+          </div>
+          <div class="metability-content">
+            <button type="button" class="roll-attribute" data-attribute="meta-creativity" data-tooltip="Roll Creativity" {{#unless (gt system.metabilities.creativity.value 0)}}disabled{{/unless}}>Create</button>
+            <div class="metability-spinner-viewport" data-metability="creativity">
+              <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Creativity Rank Spinner">
+            </div>
+          </div>
+          <input type="hidden" name="system.metabilities.creativity.value" value="{{system.metabilities.creativity.value}}" />
+          <input type="hidden" name="system.metabilities.creativity.potential" value="{{system.metabilities.creativity.potential}}" class="potential-input" />
+        </div>
+        
+        <!-- Farsense Block with Operant Potential -->
+        <div class="metability-potential-frame {{#if (eq system.metabilities.farsense.value system.metabilities.farsense.potential)}}at-potential{{/if}}" 
+             data-metability="farsense"
+             data-potential="{{system.metabilities.farsense.potential}}">
+          <div class="potential-background" data-potential-for="farsense" title="Drag to set Operant Potential">
+            <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
+                 class="potential-bg-image" 
+                 alt="Farsense Operant Potential"
+                 style="top: {{multiply system.metabilities.farsense.potential -143}}px;">
+          </div>
+          <div class="metability-content">
+            <button type="button" class="roll-attribute" data-attribute="meta-farsense" data-tooltip="Roll Farsense" {{#unless (gt system.metabilities.farsense.value 0)}}disabled{{/unless}}>Farsense</button>
+            <div class="metability-spinner-viewport" data-metability="farsense">
+              <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Farsense Rank Spinner">
+            </div>
+          </div>
+          <input type="hidden" name="system.metabilities.farsense.value" value="{{system.metabilities.farsense.value}}" />
+          <input type="hidden" name="system.metabilities.farsense.potential" value="{{system.metabilities.farsense.potential}}" class="potential-input" />
+        </div>
+        
+        <!-- PK Block with Operant Potential -->
+        <div class="metability-potential-frame {{#if (eq system.metabilities.pk.value system.metabilities.pk.potential)}}at-potential{{/if}}" 
+             data-metability="pk"
+             data-potential="{{system.metabilities.pk.potential}}">
+          <div class="potential-background" data-potential-for="pk" title="Drag to set Operant Potential">
+            <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
+                 class="potential-bg-image" 
+                 alt="PK Operant Potential"
+                 style="top: {{multiply system.metabilities.pk.potential -143}}px;">
+          </div>
+          <div class="metability-content">
+            <button type="button" class="roll-attribute" data-attribute="meta-pk" data-tooltip="Roll PK" {{#unless (gt system.metabilities.pk.value 0)}}disabled{{/unless}}>Shift</button>
+            <div class="metability-spinner-viewport" data-metability="pk">
+              <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="PK Rank Spinner">
+            </div>
+          </div>
+          <input type="hidden" name="system.metabilities.pk.value" value="{{system.metabilities.pk.value}}" />
+          <input type="hidden" name="system.metabilities.pk.potential" value="{{system.metabilities.pk.potential}}" class="potential-input" />
+        </div>
+        
+        <!-- Redaction Block with Operant Potential -->
+        <div class="metability-potential-frame {{#if (eq system.metabilities.redaction.value system.metabilities.redaction.potential)}}at-potential{{/if}}" 
+             data-metability="redaction"
+             data-potential="{{system.metabilities.redaction.potential}}">
+          <div class="potential-background" data-potential-for="redaction" title="Drag to set Operant Potential">
+            <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
+                 class="potential-bg-image" 
+                 alt="Redaction Operant Potential"
+                 style="top: {{multiply system.metabilities.redaction.potential -143}}px;">
+          </div>
+          <div class="metability-content">
+            <button type="button" class="roll-attribute" data-attribute="meta-redaction" data-tooltip="Roll Redaction" {{#unless (gt system.metabilities.redaction.value 0)}}disabled{{/unless}}>Redact</button>
+            <div class="metability-spinner-viewport" data-metability="redaction">
+              <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Redaction Rank Spinner">
+            </div>
+          </div>
+          <input type="hidden" name="system.metabilities.redaction.value" value="{{system.metabilities.redaction.value}}" />
+          <input type="hidden" name="system.metabilities.redaction.potential" value="{{system.metabilities.redaction.potential}}" class="potential-input" />
+        </div>
+        
+      </div>
+    </div>
+
+    <div class="metability-applications-list">
+      {{#each metabilityApplications as |app|}}
+      <div class="metability-application-item" data-id="{{app.id}}">
+        <div class="metability-application-content">
+            <div class="metability-application-header">
+                <input type="text" class="metability-application-name" name="system.metabilities.applications.{{app.id}}.name" value="{{app.name}}" placeholder="Name" />
+                <div class="app-ingredients-row">
+                  <div class="app-ingredient">
+                    <label>Coerce</label>
+                    <div class="attribute-spinner-viewport app-ingredient-spinner" data-appingredient="coercion" data-appid="{{app.id}}">
+                      <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Coerce">
+                    </div>
+                    <input type="hidden" class="app-ingredient-input" data-ingredient="coercion" name="system.metabilities.applications.{{app.id}}.coercion" value="{{app.coercion}}" />
+                  </div>
+                  <div class="app-ingredient">
+                    <label>Create</label>
+                    <div class="attribute-spinner-viewport app-ingredient-spinner" data-appingredient="creativity" data-appid="{{app.id}}">
+                      <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Create">
+                    </div>
+                    <input type="hidden" class="app-ingredient-input" data-ingredient="creativity" name="system.metabilities.applications.{{app.id}}.creativity" value="{{app.creativity}}" />
+                  </div>
+                  <div class="app-ingredient">
+                    <label>Farsense</label>
+                    <div class="attribute-spinner-viewport app-ingredient-spinner" data-appingredient="farsense" data-appid="{{app.id}}">
+                      <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Farsense">
+                    </div>
+                    <input type="hidden" class="app-ingredient-input" data-ingredient="farsense" name="system.metabilities.applications.{{app.id}}.farsense" value="{{app.farsense}}" />
+                  </div>
+                  <div class="app-ingredient">
+                    <label>Shift</label>
+                    <div class="attribute-spinner-viewport app-ingredient-spinner" data-appingredient="pk" data-appid="{{app.id}}">
+                      <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Shift">
+                    </div>
+                    <input type="hidden" class="app-ingredient-input" data-ingredient="pk" name="system.metabilities.applications.{{app.id}}.pk" value="{{app.pk}}" />
+                  </div>
+                  <div class="app-ingredient">
+                    <label>Redact</label>
+                    <div class="attribute-spinner-viewport app-ingredient-spinner" data-appingredient="redaction" data-appid="{{app.id}}">
+                      <img src="systems/continuum-v2/assets/metability-spinner.png" class="metability-spinner-image" alt="Redact">
+                    </div>
+                    <input type="hidden" class="app-ingredient-input" data-ingredient="redaction" name="system.metabilities.applications.{{app.id}}.redaction" value="{{app.redaction}}" />
+                  </div>
+                  <div class="app-volume-display" data-tooltip="Volume used / max">
+                    <span class="app-volume-used">0</span>/<span class="app-volume-max">0</span>
+                  </div>
+                </div>
+                <div class="metability-application-level-container" title="Application Level (1-3)">
+                    <label>Lvl</label>
+                    <div class="attribute-spinner-viewport app-level-spinner" data-applevel="{{app.id}}">
+                        <img src="assets/Continuum%20UI/AttributesCounter.png" class="attribute-spinner-image" alt="Level">
+                    </div>
+                    <input type="hidden" name="system.metabilities.applications.{{app.id}}.level" value="{{#if app.level}}{{app.level}}{{else}}1{{/if}}" />
+                </div>
+                <label class="metability-application-running" title="Running in background (-1 to Mind rolls)">
+                    <input type="checkbox" name="system.metabilities.applications.{{app.id}}.running" {{#if app.running}}checked{{/if}} />
+                    <span>Running</span>
+                </label>
+            </div>
+            <textarea name="system.metabilities.applications.{{app.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe application...">{{app.description}}</textarea>
+        </div>
+        <div class="metability-application-controls">
+            <button type="button" class="app-apply-btn" data-id="{{app.id}}" data-tooltip="Roll this Application">Apply</button>
+            <a class="item-delete {{#unless (isDeletable app 'metabilityApplication')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable app 'metabilityApplication')}}Cannot delete an element with content{{else}}Delete Application{{/unless}}" data-type="metabilityApplication" data-id="{{app.id}}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>
+{{/if}}

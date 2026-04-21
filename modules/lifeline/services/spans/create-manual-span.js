@@ -1,0 +1,51 @@
+import { normalizeDateInput, parseAgeString, parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+
+/**
+ * Handles the creation of a single, monodirectional span.
+ * This is the manual, real-time drag creation method.
+ */
+export function createManualSpan(actor, formData, params) {
+    const { mode, existingData } = params;
+
+    // Start from the raw drop/click/existing position.
+    let finalAge = Number(params.ageRaw);
+    let finalTime = Number(params.timeRaw);
+
+    const newId = (mode === 'edit') ? existingData.id : foundry.utils.randomID();
+
+    if (mode === 'edit') {
+        // DIAGONAL AUTHORITY (edit): project spanFromDate onto the current rail to derive
+        // the correct departure age. Do NOT use formData.eventAge here — formatDuration writes
+        // 'm' for minutes, but parseAgeString reads 'm' as months, corrupting the age.
+        // params.timeRaw = old span's arrival time; params.ageRaw = old span's age.
+        // For a span whose destination sits on the original rail: railOffset = dobTs exactly.
+        if (formData.spanFromDate) {
+            const fromDateObj = parseDate(`${normalizeDateInput(formData.spanFromDate)}T${formData.spanFromTime || '12:00:00'}`);
+            if (fromDateObj) {
+                const resolvedFromTime = fromDateObj.getTime();
+                const railOffset = finalTime - (finalAge * 1000);
+                const projectedAge = (resolvedFromTime - railOffset) / 1000;
+                if (projectedAge > 0) {
+                    finalAge = projectedAge;
+                    finalTime = resolvedFromTime;
+                }
+            }
+        }
+    } else {
+        // Log mode: the user may supply a subjective age override; otherwise use the drag position.
+        // AUTHORITY: For Spans, we honor BOTH the Subjective Age and the Objective Date,
+        // which allows the user to create "Fractures" (Time Dilation/Contraction).
+        if (formData.eventAge && formData.eventAge.trim() !== "") {
+            finalAge = parseAgeString(formData.eventAge);
+        }
+        // For log/insert, finalTime is the arrival (the drag end / spanToDate).
+        const inputDate = normalizeDateInput(formData.spanToDate);
+        const inputTime = formData.spanToTime || "12:00:00";
+        const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
+        if (inputDateObj) {
+            finalTime = inputDateObj.getTime();
+        }
+    }
+
+    return { finalAge, finalTime, newId, isSpan: true };
+}

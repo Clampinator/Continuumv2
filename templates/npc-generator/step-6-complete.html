@@ -1,0 +1,40 @@
+<div class="step-content step-complete">
+  <h3>Actor Created!</h3>
+  <p class="complete-actor-name"></p>
+
+  <div class="complete-link-section">
+    <h4>Link to Player Character</h4>
+    <p class="complete-link-hint">Optionally link this NPC to a player character.</p>
+
+    <div class="form-group">
+      <label for="npc-pc-select">Player Character</label>
+      <select id="npc-pc-select">
+        <option value="">-- Select a PC --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="npc-relationship-type">Relationship</label>
+      <select id="npc-relationship-type">
+        <option value="Mentor">Mentor</option>
+        <option value="Student">Student</option>
+        <option value="Friend">Friend</option>
+        <option value="Colleague">Colleague</option>
+        <option value="Rival">Rival</option>
+        <option value="Superior">Superior</option>
+        <option value="Subordinate">Subordinate</option>
+        <option value="Sibling">Sibling</option>
+        <option value="Parent">Parent</option>
+        <option value="Spouse">Spouse</option>
+        <option value="Acquaintance" selected>Acquaintance</option>
+      </select>
+    </div>
+
+    <button type="button" class="complete-link-btn">Link to PC</button>
+  </div>
+
+  <div class="complete-actions">
+    <button type="button" class="complete-open-sheet-btn">Open Character Sheet</button>
+    <button type="button" class="complete-close-btn">Close</button>
+  </div>
+</div>

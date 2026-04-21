@@ -44,9 +44,12 @@ export class RailRenderer {
    * @private
    */
   _generatePathData(segment) {
-    const points = segment.events.map(event => 
-      this.viewport.worldToScreen(event.age, event.time)
-    );
+    const points = segment.events.map(event => {
+      // Use the engine-calculated projectedTime, falling back to raw time if necessary.
+      const time = event.projectedTime ?? event.time ?? 0;
+      const age = event.age ?? 0;
+      return this.viewport.worldToScreen(age, time);
+    });
 
     const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`);
     return d.join(' ');

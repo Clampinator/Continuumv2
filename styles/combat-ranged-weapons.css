@@ -1,0 +1,197 @@
+/*==========================*/
+/* COMBAT SECTION - RANGED  */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .combat-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Help button styling */
+/* Added .continuum parent selector and !important to override generic button styles */
+.continuum .combat-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px !important; /* Changed from 50% to 4px to match other buttons */
+    font-size: 0.8em;
+    background-color: #444 !important; 
+    border: 1px solid #666 !important;
+    color: #eee !important;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none !important;
+}
+
+.continuum .combat-help:hover {
+    color: #fff !important;
+    border-color: #888 !important;
+    background-color: #555 !important;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.combat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.combat-subsection {
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.combat-subsection h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #444;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.weapon-stat-display {
+  display: block;
+  background-color: #222;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #fff;
+  text-align: center;
+  box-sizing: border-box;
+  width: 100%;
+  line-height: 1.5;
+}
+
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.subsection-header h3 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.subsection-header .item-add {
+  flex-shrink: 0;
+  padding: 5px 12px;
+}
+
+.combat-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.combat-item-header, .combat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.combat-item-header {
+  font-weight: bold;
+  color: #ccc;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #444;
+  margin-bottom: 4px;
+}
+
+.combat-item-header > div, .combat-item > div {
+  text-align: center;
+}
+
+.combat-item-header .weapon-name,
+.combat-item .weapon-name {
+  text-align: left;
+}
+
+.combat-item-header > .weapon-name,
+.combat-item > .weapon-name {
+  flex: 1 1 150px;
+}
+
+.combat-item-header > .weapon-carried,
+.combat-item > .weapon-carried {
+    flex: 0 0 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ensure checkbox is centered and sized correctly if generic styles interfere */
+.combat-item > .weapon-carried input[type="checkbox"] {
+    margin: 0;
+}
+
+.combat-item-header > .weapon-rating,
+.combat-item > .weapon-rating {
+    flex: 0 0 80px;
+}
+
+.combat-item .weapon-name select {
+  width: 100%;
+}
+
+/* Reduced width for stat columns (Ammo, RoF, Conceal, Weight) */
+.combat-item-header > .weapon-stat,
+.combat-item > .weapon-stat {
+  flex: 0 0 40px;
+}
+
+/* Fixed width for controls to ensure header and items align even when empty */
+.combat-item-header > .weapon-controls,
+.combat-item > .weapon-controls {
+  flex: 0 0 30px;
+}
+
+/* Reduced width for damage group container */
+.combat-item-header > .weapon-damage-group,
+.combat-item > .weapon-damage-group {
+  flex: 0 0 235px;
+}
+
+.combat-item-header > .weapon-damage-group {
+    display: flex;
+    justify-content: space-between; /* Changed from space-around */
+    gap: 5px; /* Added matching gap */
+}
+
+/* Ensure header labels align with the flex boxes below */
+.combat-item-header > .weapon-damage-group > span {
+    flex: 1 1 0;
+    text-anchor: middle;
+}
+
+.combat-item .roll-weapon {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.combat-item .weapon-damage-group {
+  display: flex;
+  gap: 5px;
+  justify-content: space-between;
+}
+
+.weapon-damage-item {
+  display: flex;
+  align-items: center;
+  gap: 2px; /* Reduced gap */
+  flex: 1 1 0;
+  min-width: 25px; /* Reduced min-width */
+}
+
+.combat-item input[type="number"] {
+  text-align: center;
+}

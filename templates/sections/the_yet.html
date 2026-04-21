@@ -1,0 +1,49 @@
+
+<!-- ================= -->
+<!-- THE YET SECTION   -->
+<!-- ================= -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-yet-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-yet-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-yet-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">The Yet</h2>
+    </label>
+    <div class="the-yet-controls">
+      <button type="button" class="the-yet-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="yetItem" data-tooltip="Add Yet Item"><i class="fas fa-plus"></i> Add</button>
+    </div>
+  </div>
+
+  <div class="yet-list">
+    <!-- Header Row -->
+    <div class="yet-item-header">
+      <div class="yet-description">In the Yet</div>
+      <div class="yet-done">Done</div>
+      <div class="yet-frag">Frag</div>
+      <div class="yet-when">When</div>
+      <div class="yet-controls"></div> <!-- Spacer for delete button -->
+    </div>
+
+    <!-- Repeating Items List -->
+    {{#each yetItems as |yet|}}
+    <div class="yet-item" data-id="{{yet.id}}">
+      <div class="yet-description">
+        <input type="text" name="system.theYet.{{yet.id}}.description" value="{{yet.description}}" placeholder="An event that has yet to happen..."/>
+      </div>
+      <div class="yet-done">
+        <input type="checkbox" name="system.theYet.{{yet.id}}.done" {{#if yet.done}}checked{{/if}}/>
+      </div>
+      <div class="yet-frag">
+        <input type="number" name="system.theYet.{{yet.id}}.frag" value="{{yet.frag}}" max="99" min="0"/>
+      </div>
+      <div class="yet-when">
+        <input type="date" name="system.theYet.{{yet.id}}.date" value="{{yet.date}}"/>
+        <input type="time" name="system.theYet.{{yet.id}}.time" value="{{yet.time}}"/>
+      </div>
+      <div class="yet-controls">
+        <a class="item-delete {{#unless (isDeletable yet 'yetItem')}}disabled{{/unless}}" title="{{#unless (isDeletable yet 'yetItem')}}Cannot delete an element with content{{else}}Delete Yet Item{{/unless}}" data-type="yetItem" data-id="{{yet.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="continuum-roll-card">
+
+  <div class="attacker-section">
+    <div class="roll-banner-header">
+      <i class="fas fa-crosshairs"></i>
+      <span class="header-text">ORG CONFLICT READOUT</span>
+    </div>
+
+    <div class="tactical-grid">
+      <div class="grid-cell">
+        <span class="cell-label">Unit</span>
+        <span class="cell-value">{{unitName}}</span>
+      </div>
+      <div class="grid-cell">
+        <span class="cell-label">Target</span>
+        <span class="cell-value">{{locationName}}</span>
+      </div>
+      <div class="grid-cell target">
+        <span class="cell-label">{{locAttr}} (TN)</span>
+        <span class="cell-value" style="color: {{locAttrColor}};">{{tn}}</span>
+      </div>
+    </div>
+
+    <div class="dice-data-row">
+      <div class="dice-tray">
+        {{#each diceResults}}
+          <div class="die {{#if this.discarded}}discarded{{/if}}">{{this.value}}</div>
+        {{/each}}
+      </div>
+      <div class="total-hexagon-container">
+        <span class="cell-label">Delta</span>
+        <div class="total-hexagon">
+          <span class="total-val">{{delta}}</span>
+        </div>
+      </div>
+    </div>
+
+    {{#if isSuccess}}
+    <div class="combat-hud-overlay">
+      <div class="hud-item damage">
+        <span class="hud-label"><i class="fas fa-burst"></i> {{locAttr}} Reduced</span>
+        <span class="hud-value">{{prevVal}} → {{newVal}} (−{{damageApplied}})</span>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+
+  <div class="status-indicator {{resultClass}}">
+    <div class="status-msg">
+      {{#if (eq resultClass "critical")}}<i class="fas fa-certificate"></i>{{/if}}
+      {{#if (eq resultClass "success")}}<i class="fas fa-check-circle"></i>{{/if}}
+      {{#if (eq resultClass "failure")}}<i class="fas fa-times-circle"></i>{{/if}}
+      {{#if (eq resultClass "critical-failure")}}<i class="fas fa-skull"></i>{{/if}}
+      <span>{{resultText}}</span>
+    </div>
+  </div>
+
+</div>

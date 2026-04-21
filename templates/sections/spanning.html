@@ -1,0 +1,84 @@
+<!-- ================= -->
+<!-- SPANNING SECTION  -->
+<!-- ================= -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-spanning-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-spanning-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-spanning-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Spanning</h2>
+    </label>
+    <div class="spanning-controls">
+      <button type="button" class="spanning-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="spanningAbility" data-tooltip="Add Ability"><i class="fas fa-plus"></i> Ability</button>
+    </div>
+  </div>
+
+  <div class="spanning-content">
+    <!-- Static Row -->
+    <div class="spanning-static-row">
+      <!-- Span Block -->
+      <div class="attribute-block">
+        <button type="button" class="roll-attribute" data-attribute="spanning" 
+                data-tooltip="{{#if isLeveller}}Cannot Span: Leveller (Span 0){{else}}{{#if isSpanOverburdened}}Cannot Span: Overburdened{{else}}Roll Span{{/if}}{{/if}}" 
+                {{#if (or isSpanOverburdened isLeveller)}}disabled{{/if}}>Span</button>
+        <div class="attribute-spinner-viewport" data-attribute="span">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Span Value Spinner">
+        </div>
+        <input type="hidden" name="system.spanning.span" value="{{system.spanning.span}}">
+      </div>
+
+      <!-- Natural Span Block -->
+      {{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
+      <div class="attribute-block">
+        <div class="spanning-label">Nat Span</div>
+        <div class="attribute-spinner-viewport" data-attribute="naturalSpan">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Natural Span Spinner">
+        </div>
+        <input type="hidden" name="system.spanning.naturalSpan" value="{{system.spanning.naturalSpan}}">
+      </div>
+      {{/if}}
+
+      <!-- Deliberate Frag Block -->
+      <div class="attribute-block">
+        <div class="spanning-label">Delib Frag</div>
+        <div class="attribute-spinner-viewport" data-attribute="deliberateFrag">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Deliberate Frag Spinner">
+        </div>
+        <input type="hidden" name="system.spanning.deliberateFrag" value="{{system.spanning.deliberateFrag}}">
+      </div>
+
+      <!-- Natural Frag Block -->
+      <div class="attribute-block">
+        <div class="spanning-label">Nat Frag</div>
+        <div class="attribute-spinner-viewport" data-attribute="naturalFrag">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Natural Frag Spinner">
+        </div>
+        <input type="hidden" name="system.spanning.naturalFrag" value="{{system.spanning.naturalFrag}}">
+      </div>
+    </div>
+
+    <!-- New Summary Row -->
+    <div class="spanning-summary-row">
+        <button type="button" class="recalculate-span" data-tooltip="Recalculate Span"><i class="fas fa-calculator"></i> Calculate</button>
+        <div class="span-remaining-display {{#if isOverSpan}}over-span{{/if}}">
+            <label>Available Span:</label>
+            <span>{{spanTimeRemaining}}</span>
+        </div>
+    </div>
+
+    <!-- Repeating Abilities List -->
+    <div class="spanning-abilities-list">
+      {{#each spanningAbilities as |ability|}}
+      <div class="spanning-ability-item" data-id="{{ability.id}}">
+        <div class="spanning-ability-content">
+            <input type="text" class="spanning-ability-name" name="system.spanning.abilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Ability Name" />
+            <textarea name="system.spanning.abilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe ability...">{{ability.description}}</textarea>
+        </div>
+        <div class="spanning-ability-controls">
+            <a class="item-delete {{#unless (isDeletable ability 'spanningAbility')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable ability 'spanningAbility')}}Cannot delete an element with content{{else}}Delete Ability{{/unless}}" data-type="spanningAbility" data-id="{{ability.id}}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

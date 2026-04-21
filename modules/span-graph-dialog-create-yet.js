@@ -1,0 +1,211 @@
+import { normalizeDateInput, SECONDS_IN_YEAR, formatSubjectiveAge, parseAgeString } from './span-graph-utils/provide-span-graph-utils.js';
+import { renderGraph } from './span-graph-render.js';
+import { activateDatePickers } from './date-picker.js';
+import { Sound } from './sound-manager.js';
+import { panToLocation, getMapCenterLocation } from './span-graph-map.js';
+
+/**
+ * Dialog to create or edit a "Yet" event.
+ */
+export function showYetDialog(viewState, graphData, sheet, svg, existingData = null) {
+    const isEdit = !!existingData;
+    let description = isEdit ? existingData.description : "";
+    
+    // Calculate defaults from pointer position
+    const rect = svg.getBoundingClientRect();
+    const pX = viewState.pointerDownX - rect.left;
+    const pY = viewState.pointerDownY - rect.top;
+    
+    const worldAge = (pX - viewState.x) / viewState.scaleX;
+    const worldTime = (pY - viewState.y) / viewState.scaleY;
+    
+    let ageStr = "";
+    let dateStr = "";
+    let timeStr = "";
+    let locationStr = isEdit ? existingData.location : "";
+    let lat = isEdit ? existingData.lat : null;
+    let lng = isEdit ? existingData.lng : null;
+    let isFragSuppressed = isEdit ? !!existingData.isFragSuppressed : false;
+
+    const dateObj = new Date(worldTime);
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    const hh = String(dateObj.getHours()).padStart(2, '0');
+    const min = String(dateObj.getMinutes()).padStart(2, '0');
+    const ss = String(dateObj.getSeconds()).padStart(2, '0');
+    
+    const calculatedDate = `${yyyy}-${mm}-${dd}`;
+    const calculatedTime = `${hh}:${min}:${ss}`;
+
+    if (isEdit) {
+        if (existingData.age) ageStr = formatSubjectiveAge(parseFloat(existingData.age) * SECONDS_IN_YEAR);
+        if (existingData.date) {
+            dateStr = existingData.date;
+            timeStr = existingData.time || "";
+        }
+    } else {
+        ageStr = formatSubjectiveAge(worldAge);
+        dateStr = calculatedDate;
+        timeStr = calculatedTime;
+    }
+
+    const content = `
+        <form>
+            <div class="form-group">
+                <label>The Yet (Description)</label>
+                <input type="text" name="description" value="${description}" autofocus placeholder="What must come to pass?"/>
+            </div>
+            <div class="form-group" style="margin-top:10px; border-top:1px solid #444; padding-top:5px;">
+                <label style="color:#aaa;">Constraints (Optional)</label>
+                <p class="notes" style="font-size:0.8em; margin-bottom:5px;">Leave blank to let the event float freely.</p>
+            </div>
+            <div class="form-group">
+                <label>Locked Age</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" name="age" value="${isEdit && existingData.age ? ageStr : ""}" placeholder="${ageStr}" style="flex: 1;"/>
+                    <button type="button" class="use-cursor-age" title="Use Cursor Position" style="flex: 0 0 32px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-crosshairs"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Locked Date</label>
+                <div class="date-picker-container">
+                    <input type="text" class="date-text-input" name="date" value="${isEdit ? dateStr : ""}" placeholder="${dateStr}" />
+                    <i class="fas fa-calendar-alt date-picker-icon"></i>
+                    <input type="date" class="date-picker-hidden" tabindex="-1" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Locked Time</label>
+                <input type="time" name="time" step="1" value="${isEdit ? timeStr : ""}"/>
+            </div>
+            <div class="form-group">
+                <label>Locked Location</label>
+                <div style="display: flex; gap: 5px; align-items: center; width: 100%;">
+                    <input type="text" name="location" value="${locationStr || ''}" placeholder="Enter location..." style="flex: 1;">
+                    <input type="hidden" name="lat" value="${lat || ''}"/>
+                    <input type="hidden" name="lng" value="${lng || ''}"/>
+                    <button type="button" class="locate-btn" title="Locate on Map" style="flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; border-radius: 4px; color: #8ecae6; cursor: pointer;"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="grab-btn" title="Grab Map Center" style="flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; border-radius: 4px; color: #8ecae6; cursor: pointer;"><i class="fas fa-crosshairs"></i></button>
+                </div>
+            </div>
+            ${isEdit ? `
+            <div class="form-group" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; display: flex; align-items: center;">
+                <input type="checkbox" name="isFragSuppressed" id="fragSupCheck" ${isFragSuppressed ? 'checked' : ''} style="width: auto; margin-right: 8px;">
+                <label for="fragSupCheck" style="margin-bottom:0; color: #ff9f43; cursor: pointer;">Suppress Frag (GM Workaround)</label>
+            </div>
+            ` : ''}
+        </form>
+    `;
+
+    new Dialog({
+        title: isEdit ? "Edit Yet" : "Define Yet",
+        content: content,
+        render: (html) => {
+            activateDatePickers(html);
+            html.find("input[type='text']").on("focus", event => event.currentTarget.select());
+            
+            html.find('.use-cursor-age').on('click', () => {
+                html.find('input[name="age"]').val(ageStr);
+            });
+
+            html.find('.locate-btn').on('click', async (event) => {
+                const button = $(event.currentTarget);
+                const input = button.siblings('input[name="location"]');
+                const latInput = button.siblings('input[name="lat"]');
+                const lngInput = button.siblings('input[name="lng"]');
+                if (input.val()) {
+                    const result = await panToLocation(input.val());
+                    if (result) {
+                        latInput.val(result.lat);
+                        lngInput.val(result.lng);
+                        if(result.formattedAddress) input.val(result.formattedAddress);
+                    }
+                }
+            });
+
+            html.find('.grab-btn').on('click', async (event) => {
+                const button = $(event.currentTarget);
+                const input = button.siblings('input[name="location"]');
+                const latInput = button.siblings('input[name="lat"]');
+                const lngInput = button.siblings('input[name="lng"]');
+                const result = await getMapCenterLocation();
+                if (result) {
+                    latInput.val(result.lat);
+                    lngInput.val(result.lng);
+                    input.val(result.formattedAddress);
+                }
+            });
+        },
+        buttons: {
+            save: {
+                label: "Save",
+                icon: '<i class="fas fa-save"></i>',
+                callback: async (html) => {
+                    const formData = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
+                    const id = isEdit ? existingData.id : foundry.utils.randomID();
+                    
+                    const updates = {
+                        [`system.theYet.${id}.description`]: formData.description,
+                        [`system.theYet.${id}.isFragSuppressed`]: formData.isFragSuppressed || false,
+                        [`system.theYet.${id}.location`]: formData.location,
+                        [`system.theYet.${id}.lat`]: formData.lat,
+                        [`system.theYet.${id}.lng`]: formData.lng
+                    };
+                    
+                    if (formData.age && formData.age.trim() !== "") {
+                        const seconds = parseAgeString(formData.age);
+                        updates[`system.theYet.${id}.age`] = (seconds / SECONDS_IN_YEAR).toFixed(4);
+                    } else {
+                        updates[`system.theYet.${id}.age`] = null;
+                    }
+
+                    if (formData.date && formData.date.trim() !== "") {
+                        updates[`system.theYet.${id}.date`] = normalizeDateInput(formData.date);
+                        updates[`system.theYet.${id}.time`] = formData.time;
+                    } else {
+                        updates[`system.theYet.${id}.date`] = null;
+                        updates[`system.theYet.${id}.time`] = null;
+                    }
+                    
+                    if (!isEdit) {
+                        updates[`system.theYet.${id}.done`] = false;
+                        updates[`system.theYet.${id}.frag`] = 0;
+                    }
+
+                    await sheet.actor.update(updates);
+                    Sound.confirm();
+                    viewState.interactionMode = 'pan';
+                    renderGraph(svg, viewState, graphData);
+                }
+            },
+            ...(isEdit ? {
+                delete: {
+                    label: "Delete",
+                    icon: '<i class="fas fa-trash"></i>',
+                    callback: async () => {
+                        await sheet.actor.update({ [`system.theYet.-=${existingData.id}`]: null });
+                        Sound.delete();
+                        viewState.interactionMode = 'pan';
+                        renderGraph(svg, viewState, graphData);
+                    }
+                }
+            } : {
+            }),
+            cancel: {
+                label: "Cancel",
+                callback: () => {
+                    viewState.interactionMode = 'pan';
+                    renderGraph(svg, viewState, graphData);
+                }
+            }
+        },
+        default: "save",
+        close: () => {
+            if (viewState.interactionMode === 'create-yet') {
+                viewState.interactionMode = 'pan';
+                renderGraph(svg, viewState, graphData);
+            }
+        }
+    }, { classes: ["continuum-v2", "dialog"], width: "auto", height: "auto" }).render(true);
+}
