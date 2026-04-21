@@ -20,10 +20,10 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Data Binding & Inline Editing' (Protocol in workflow.md)
 
 ## Phase 3: Bulk Actions & Tooling
-- [~] Task: Implement CSV Export and Import
-    - [ ] Write Tests: Verify data serialization to CSV and deserialization/validation from CSV.
-    - [ ] Implement: Create `modules/lifeline/spreadsheet/csv-tools.js` with export/import handlers.
-- [ ] Task: Implement Bulk Time Shift
+- [x] Task: Implement CSV Export and Import (0b9caf1)
+    - [x] Write Tests: Verify data serialization to CSV and deserialization/validation from CSV.
+    - [x] Implement: Create `modules/lifeline/spreadsheet/csv-tools.js` with export/import handlers.
+- [~] Task: Implement Bulk Time Shift
     - [ ] Write Tests: Test applying a relative time delta to a subset of events.
     - [ ] Implement: Add multi-select UI to the grid and a utility to shift objective time for selected rows.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Bulk Actions & Tooling' (Protocol in workflow.md)
