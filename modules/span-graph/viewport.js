@@ -21,7 +21,10 @@ export class SpanGraphViewport {
     this.viewState = {
       panX: 0,
       panY: 0,
-      zoom: 1
+      zoom: 1,
+      interactionMode: 'pan',
+      dragStartWorld: null,
+      activeDragType: null
     };
 
     this.svg = this._createSVG();
@@ -192,6 +195,8 @@ export class SpanGraphViewport {
     const startPanX = this.viewState.panX;
     const startPanY = this.viewState.panY;
 
+    this.viewState.interactionMode = 'panning';
+
     const onMouseMove = (moveEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
@@ -202,6 +207,7 @@ export class SpanGraphViewport {
     };
 
     const onMouseUp = () => {
+      this.viewState.interactionMode = 'pan';
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
@@ -228,7 +234,9 @@ export class SpanGraphViewport {
     const rect = this.container.getBoundingClientRect();
     const startWorld = this.screenToWorld(startMouseX - rect.left, startMouseY - rect.top);
     
-    let dragMode = null;
+    this.viewState.interactionMode = 'drag-node';
+    this.viewState.dragStartWorld = startWorld;
+    this.viewState.activeDragType = null;
 
     const onMouseMove = (moveEvent) => {
       const dx = moveEvent.clientX - startMouseX;
@@ -236,12 +244,12 @@ export class SpanGraphViewport {
       const dist = Math.hypot(dx, dy);
 
       // 1. Commit to a mode after slight movement
-      if (!dragMode && dist > 5) {
-          dragMode = getDragMode(dx, dy);
+      if (!this.viewState.activeDragType && dist > 5) {
+          this.viewState.activeDragType = getDragMode(dx, dy);
       }
 
       // If we haven't committed yet, just track mouse 1:1 for a responsive feel
-      if (!dragMode) {
+      if (!this.viewState.activeDragType) {
           nodeElement.setAttribute('cx', initialCX + dx);
           nodeElement.setAttribute('cy', initialCY + dy);
           return;
@@ -250,7 +258,7 @@ export class SpanGraphViewport {
       // 2. Calculate Constrained World Position
       const currentRect = this.container.getBoundingClientRect();
       const rawWorld = this.screenToWorld(moveEvent.clientX - currentRect.left, moveEvent.clientY - currentRect.top);
-      const constrainedWorld = constrainMovement(rawWorld, startWorld, dragMode);
+      const constrainedWorld = constrainMovement(rawWorld, this.viewState.dragStartWorld, this.viewState.activeDragType);
 
       // 3. Project back to Screen for Preview
       const screenPos = this.worldToScreen(constrainedWorld.age, constrainedWorld.time);
@@ -266,7 +274,7 @@ export class SpanGraphViewport {
           const ageStr = constrainedWorld.age > 0 ? formatSubjectiveAge(constrainedWorld.age) : 'Birth';
           
           this.tooltipManager.show({
-              description: `${dateStr} (${ageStr})`
+              description: `${dateStr} (${ageStr})${this.viewState.activeDragType === 'span' ? ' [SPAN]' : ''}`
           }, screenPos);
       }
     };
@@ -277,7 +285,9 @@ export class SpanGraphViewport {
       
       if (this.tooltipManager) this.tooltipManager.hide();
 
-      if (!dragMode) {
+      if (!this.viewState.activeDragType) {
+          this.viewState.interactionMode = 'pan';
+          this.viewState.dragStartWorld = null;
           this._render(); // Snap back if no movement
           return;
       }
@@ -292,12 +302,15 @@ export class SpanGraphViewport {
       // 2. Calculate final constrained world position
       const finalRect = this.container.getBoundingClientRect();
       const rawWorld = this.screenToWorld(upEvent.clientX - finalRect.left, upEvent.clientY - finalRect.top);
-      const finalWorld = constrainMovement(rawWorld, startWorld, dragMode);
+      const finalWorld = constrainMovement(rawWorld, this.viewState.dragStartWorld, this.viewState.activeDragType);
       
       // 3. Handle NOW node logic
       if (isNow) {
-          this._handleNowNodeDrop(finalWorld, targetEventId);
+          await this._handleNowNodeDrop(finalWorld, targetEventId);
       } else {
+          this.viewState.interactionMode = 'pan';
+          this.viewState.dragStartWorld = null;
+          this.viewState.activeDragType = null;
           this._render(); // Snap back
       }
     };
@@ -312,9 +325,8 @@ export class SpanGraphViewport {
    */
   async _handleNowNodeDrop(worldPos, targetEventId = null) {
     // A. Update Age if dropped on an existing event
-    if (targetEventId) {
+    if (targetEventId && this.viewState.activeDragType === 'level') {
         console.log(`[SpanGraph] Dropped NOW node on event: ${targetEventId}`);
-        // Find the event to get its age
         const rawEras = this.actor.system.eras || {};
         const events = flattenEvents(rawEras);
         const targetEvent = events.find(e => e.id === targetEventId);
@@ -322,13 +334,18 @@ export class SpanGraphViewport {
         if (targetEvent) {
             await this.actor.update({ "system.personal.subjectiveNow": targetEvent.age });
             ui.notifications.info(`Updated Subjective Now to match event: ${targetEvent.description || targetEventId}`);
+            
+            // Reset state
+            this.viewState.interactionMode = 'pan';
+            this.viewState.dragStartWorld = null;
+            this.viewState.activeDragType = null;
             return;
         }
     }
 
-    // B. Log Event if dropped on empty rail
+    // B. Log Event or Create Span
     const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
-    openEventDialog(this.actor.sheet, {
+    await openEventDialog(this.actor.sheet, {
         mode: 'log',
         ageRaw: worldPos.age,
         timeRaw: worldPos.time
