@@ -6,12 +6,13 @@
  * @returns {Array} Array of segments.
  */
 export function calculateSegments(events) {
-  if (!events || events.length === 0) return [];
+  if (!events || !Array.isArray(events) || events.length === 0) return [];
 
   const segments = [];
   let currentSegment = null;
 
   for (const event of events) {
+    if (!event) continue;
     if (!currentSegment || event.isSpan) {
       // Create new segment
       currentSegment = {

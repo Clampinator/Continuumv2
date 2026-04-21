@@ -1,3 +1,8 @@
+import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
+import { RailRenderer } from './renderers/rail-renderer.js';
+import { GridRenderer } from './renderers/grid-renderer.js';
+import { flattenEvents } from '../span-graph-data-processor.js';
+
 /**
  * Manages the SVG viewport for the Span Graph.
  * Handles pan, zoom, and coordinate projection.
@@ -5,9 +10,11 @@
 export class SpanGraphViewport {
   /**
    * @param {HTMLElement} container - The DOM element to host the SVG.
+   * @param {Actor} [actor] - Optional actor to bind to.
    */
-  constructor(container) {
+  constructor(container, actor = null) {
     this.container = container;
+    this.actor = actor;
     this.viewState = {
       panX: 0,
       panY: 0,
@@ -17,8 +24,21 @@ export class SpanGraphViewport {
     this.svg = this._createSVG();
     if (this.container && this.svg) {
       this.container.appendChild(this.svg);
+      
+      this.gridRenderer = new GridRenderer(this);
+      this.railRenderer = new RailRenderer(this);
+
       this._activateListeners();
     }
+  }
+
+  /**
+   * Updates the actor and triggers a re-render.
+   * @param {Actor} actor - The new actor.
+   */
+  updateActor(actor) {
+    this.actor = actor;
+    this._render();
   }
 
   /**
@@ -210,6 +230,12 @@ export class SpanGraphViewport {
    * @private
    */
   _render() {
-    // To be implemented in subsequent tasks
+    if (!this.actor) return;
+    
+    const history = flattenEvents(this.actor.system.eras || {});
+    const state = getTemporalState(history);
+
+    if (this.gridRenderer) this.gridRenderer.render();
+    if (this.railRenderer) this.railRenderer.render(state.segments);
   }
 }
