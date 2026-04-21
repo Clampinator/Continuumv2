@@ -27,3 +27,6 @@
     - [ ] Write Tests: Test applying a relative time delta to a subset of events.
     - [ ] Implement: Add multi-select UI to the grid and a utility to shift objective time for selected rows.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Bulk Actions & Tooling' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions (50e8d4c)
