@@ -27,7 +27,8 @@ export class SpanGraphViewport {
       activeDragType: null,
       initialized: false,
       creationStartAgeSeconds: 0,
-      creationCurrentAgeSeconds: 0
+      creationCurrentAgeSeconds: 0,
+      hoverWorldPos: null
     };
 
     this.svg = this._createSVG();
@@ -38,7 +39,7 @@ export class SpanGraphViewport {
       this.railRenderer = new RailRenderer(this);
       this.nodeRenderer = new NodeRenderer(this);
       this.creationRenderer = new CreationRenderer(this);
-      this.axisRenderer = new AxisRenderer(this); // Added last to draw on top
+      this.axisRenderer = new AxisRenderer(this);
       this.tooltipManager = new TooltipManager(this);
       this._activateListeners();
       if (this.actor) {
@@ -69,11 +70,9 @@ export class SpanGraphViewport {
     const targetAge = state.nowNode?.age || 0;
     const targetTime = state.nowNode?.projectedTime || 0;
 
-    // Smart Scaling: Show at least 50 years of subjective history by default
     const targetZoom = rect.width / (50 * 31536000); 
     const finalZoom = Math.max(0.00000001, Math.min(targetZoom, 1));
 
-    // Position NOW node at top right (80% X, 20% Y)
     const centerX = rect.width * 0.8;
     const centerY = rect.height * 0.2;
 
@@ -82,33 +81,6 @@ export class SpanGraphViewport {
         panX: centerX - (targetAge * finalZoom),
         panY: centerY - (targetTime * TARGET_RATIO * finalZoom),
         initialized: true
-    });
-  }
-
-  async animateViewState(target, duration = 300) {
-    const startState = { ...this.viewState };
-    const startTime = performance.now();
-
-    return new Promise(resolve => {
-      const animate = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const t = 1 - Math.pow(1 - progress, 2);
-
-        const nextState = {};
-        for (const key in target) {
-          nextState[key] = startState[key] + (target[key] - startState[key]) * t;
-        }
-
-        this.setViewState(nextState);
-
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          resolve();
-        }
-      };
-      requestAnimationFrame(animate);
     });
   }
 
@@ -149,7 +121,7 @@ export class SpanGraphViewport {
     this.railRenderer.render(temporalState, this.viewState);
     this.nodeRenderer.render(temporalState, this.viewState);
     this.creationRenderer.render(temporalState, this.viewState);
-    this.axisRenderer.render(); // Draw axes on top
+    this.axisRenderer.render();
   }
 
   _createSVG() {
@@ -167,10 +139,18 @@ export class SpanGraphViewport {
 
   _activateListeners() {
     if (!this.svg) return;
+
     this.svg.addEventListener('mousedown', (event) => {
         const target = event.target;
         
-        // A. Node Dragging (NOW, Event, Span)
+        // Ghost Node Click
+        if (target.classList.contains('graph-node-ghost')) {
+            event.stopPropagation();
+            this._handleGhostNodeClick();
+            return;
+        }
+
+        // Node Dragging
         const nodeElement = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
         if (nodeElement) {
             event.stopPropagation();
@@ -178,22 +158,33 @@ export class SpanGraphViewport {
             return;
         }
 
-        // B. Era Bar (Creation)
+        // Era Bar
         if (target.classList.contains('graph-creation-bar-era')) {
             event.stopPropagation();
             this._startEraCreationDrag(event);
             return;
         }
 
-        // C. Background Panning
+        // Background Panning
         if (target === this.svg || target.closest('.span-graph-grid') || target.closest('.span-graph-rails') || target.closest('.span-graph-eras')) {
             this._startPan(event);
         }
     });
 
+    this.svg.addEventListener('mousemove', (event) => {
+        if (this.viewState.interactionMode !== 'pan') return;
+        
+        // Detect hover over rails for ghost nodes
+        const rect = this.svg.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        
+        // Find if we are near a rail segment
+        this._updateGhostNodeHover(mouseX, mouseY);
+    });
+
     this.svg.addEventListener('wheel', (event) => {
         event.preventDefault();
-        // Exponential zoom for smooth feel
         const factor = event.deltaY > 0 ? 0.8 : 1.25;
         const rect = this.container.getBoundingClientRect();
         this.handleZoom(factor, { 
@@ -306,7 +297,7 @@ export class SpanGraphViewport {
     const previewRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     previewRect.style.fill = 'rgba(255, 100, 100, 0.3)';
     previewRect.style.stroke = '#ff0000';
-    previewRect.setAttribute('y', rect.height - 20); // Align with creation bar
+    previewRect.setAttribute('y', rect.height - 20); 
     previewRect.setAttribute('height', '20');
     this.svg.appendChild(previewRect);
 
@@ -352,6 +343,57 @@ export class SpanGraphViewport {
     window.addEventListener('mouseup', onMouseUp);
   }
 
+  _updateGhostNodeHover(mouseX, mouseY) {
+      // Robust rail proximity detection
+      const rawEras = this.actor.system.eras || {};
+      const history = flattenEvents(rawEras);
+      const temporalState = getTemporalState(history, Number(this.actor.system.personal?.subjectiveNow) || 0);
+      
+      let nearest = null;
+      let minDist = 20; // 20px threshold
+
+      for (let i = 0; i < temporalState.events.length - 1; i++) {
+          const e1 = temporalState.events[i];
+          const e2 = temporalState.events[i+1];
+          if (e2.isSpan) continue; // Don't insert into spans
+
+          const p1 = this.worldToScreen(e1.age, e1.projectedTime);
+          const p2 = this.worldToScreen(e2.age, e2.projectedTime);
+          
+          // Distance from point to line segment
+          const d = this._distToSegment({x: mouseX, y: mouseY}, p1, p2);
+          if (d < minDist) {
+              minDist = d;
+              // Midpoint in world space
+              nearest = {
+                  age: (e1.age + e2.age) / 2,
+                  time: (e1.projectedTime + e2.projectedTime) / 2
+              };
+          }
+      }
+
+      this.viewState.hoverWorldPos = nearest;
+      this.nodeRenderer.renderGhostNode(nearest);
+  }
+
+  _distToSegment(p, v, w) {
+    const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
+    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+  }
+
+  async _handleGhostNodeClick() {
+      if (!this.viewState.hoverWorldPos) return;
+      const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
+      await openEventDialog(this.actor.sheet, {
+          mode: 'log',
+          ageRaw: this.viewState.hoverWorldPos.age,
+          timeRaw: this.viewState.hoverWorldPos.time
+      });
+  }
+
   async _handleNowNodeDrop(worldPos) {
     const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
     await openEventDialog(this.actor.sheet, {
@@ -363,7 +405,7 @@ export class SpanGraphViewport {
 
   handleZoom(factor, anchor = null) {
     const oldZoom = this.viewState.zoom;
-    const newZoom = Math.max(0.000000001, Math.min(oldZoom * factor, 100)); // Expanded limits
+    const newZoom = Math.max(0.000000001, Math.min(oldZoom * factor, 100)); 
     if (!anchor) {
       this.setViewState({ zoom: newZoom });
       return;

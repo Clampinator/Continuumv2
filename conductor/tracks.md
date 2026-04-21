@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Lifeline Interaction & Creation Toolkit**
+- [~] **Track: Lifeline Interaction & Creation Toolkit**
   *Link: [./tracks/lifeline_interaction_20260421/](./tracks/lifeline_interaction_20260421/)*

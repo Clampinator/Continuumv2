@@ -115,8 +115,8 @@ export function flattenEvents(eras) {
   const allEvents = [];
 
   const _parse = (event) => {
-    const d = event.isSpan ? event.spanFromDate : event.date;
-    const t = (event.isSpan ? event.spanFromTime : event.time) || '12:00:00';
+    const d = event.isSpan ? event.spanFromDate : (event.date || event.dateTime?.split('T')[0]);
+    const t = (event.isSpan ? event.spanFromTime : (event.time || event.dateTime?.split('T')[1]?.substring(0, 5))) || '12:00:00';
     if (!d) return 0;
     const dt = parseDate(`${d}T${t}`);
     return dt ? dt.getTime() : 0;
@@ -133,7 +133,7 @@ export function flattenEvents(eras) {
 
   // Iterate through Eras
   Object.entries(eras).forEach(([eraId, era]) => {
-    // Collect direct Era events
+    // A. Direct Era events
     if (era.events) {
       Object.entries(era.events).forEach(([id, event]) => {
         allEvents.push({ 
@@ -147,7 +147,7 @@ export function flattenEvents(eras) {
       });
     }
 
-    // Collect Experience events
+    // B. Experience events
     if (era.experiences) {
       Object.entries(era.experiences).forEach(([expId, exp]) => {
         if (exp.events) {
@@ -157,6 +157,7 @@ export function flattenEvents(eras) {
                 id: id, 
                 eraId: eraId, 
                 expId: expId,
+                experienceName: exp.name || 'Unnamed Experience',
                 time: _parse(event),
                 arrivalTime: _parseArrival(event)
             });

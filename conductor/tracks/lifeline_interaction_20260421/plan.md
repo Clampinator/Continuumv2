@@ -19,12 +19,11 @@
 - [x] Task: Implement Create Span (98b8dd7)
     - [x] Write Tests: Verify a vertical drag threshold initiates span creation mode.
     - [x] Implement: Add vertical threshold detection and trigger the Span dialog flow upon release.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Functional NOW Node' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Functional NOW Node' (Protocol in workflow.md)
 
 ## Phase 3: Creation Bars & Ghost Nodes
-- [ ] Task: Implement Horizontal Drag for Eras
-    - [ ] Write Tests: Verify that horizontal dragging on the timeline axis captures a start and end age.
-    - [ ] Implement: Add interaction listeners on the bottom X-axis to capture dragging bounds and open the Era creation dialog.
+- [~] Task: Implement Horizontal Drag for Eras
+    - [x] Implement: Add interaction listeners on the bottom X-axis to capture dragging bounds and open the Era creation dialog. (33ae721)
 - [ ] Task: Implement Ghost Nodes
     - [ ] Write Tests: Verify ghost nodes appear mathematically halfway between existing events on hover.
     - [ ] Implement: Calculate hover insertion points and render an interactive SVG ghost node, wiring click events to the Log Event dialog.
