@@ -8,45 +8,51 @@ export class RailRenderer {
    */
   constructor(viewport) {
     this.viewport = viewport;
+    this.group = this._createRailGroup();
+    
+    if (this.viewport.svg && this.group) {
+      this.viewport.svg.appendChild(this.group);
+    }
   }
 
   /**
    * Renders the rail paths based on the provided segments.
    * @param {Array} segments - Array of temporal segments.
    */
-  render(segments) {
-    if (!segments || segments.length === 0) return;
+  render(state) {
+    if (!this.group || !state.segments) return;
 
-    // Use a document fragment for batching if many segments exist
+    // AUTHORITY: Clear existing rails before re-rendering
+    this.group.innerHTML = '';
+
     const fragment = typeof document !== 'undefined' ? document.createDocumentFragment() : null;
 
-    for (const segment of segments) {
-      if (segment.events.length < 2) continue;
+    for (const segment of state.segments) {
+      if (!segment.events || segment.events.length < 2) continue;
 
       const pathData = this._generatePathData(segment);
       const pathElement = this._createPathElement(pathData);
       
       if (fragment && pathElement) {
         fragment.appendChild(pathElement);
-      } else if (pathElement && this.viewport.svg) {
-        this.viewport.svg.appendChild(pathElement);
+      } else if (pathElement) {
+        this.group.appendChild(pathElement);
       }
     }
 
-    if (fragment && this.viewport.svg) {
-      this.viewport.svg.appendChild(fragment);
+    if (fragment) {
+      this.group.appendChild(fragment);
     }
   }
 
   /**
    * Generates SVG path 'd' attribute for a segment.
-   * Optimized to reduce string concatenations.
    * @private
    */
   _generatePathData(segment) {
     const points = segment.events.map(event => {
-      // Use the engine-calculated projectedTime, falling back to raw time if necessary.
-      const time = event.projectedTime ?? event.time ?? 0;
+      // Use the engine-calculated projectedTime
+      const time = event.projectedTime ?? 0;
       const age = event.age ?? 0;
       return this.viewport.worldToScreen(age, time);
     });
@@ -68,7 +74,19 @@ export class RailRenderer {
     path.style.fill = 'none';
     path.style.stroke = 'var(--continuum-rail-color, #888)';
     path.style.strokeWidth = '2';
+    path.style.pointerEvents = 'none'; // Rails don't block clicks
 
     return path;
+  }
+
+  /**
+   * Creates the SVG group for rails.
+   * @private
+   */
+  _createRailGroup() {
+    if (typeof document === 'undefined') return null;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'span-graph-rails');
+    return g;
   }
 }

@@ -27,15 +27,18 @@ export class GridRenderer {
 
     const interval = this.getInterval(this.viewport.viewState.zoom);
     const container = this.viewport.container;
-    const width = container.clientWidth || 0;
+    const width = container.clientWidth || 800; // Fallback
     
     // Determine the visible range in world units (Age)
     const leftWorld = this.viewport.screenToWorld(0, 0).age;
     const rightWorld = this.viewport.screenToWorld(width, 0).age;
     
+    console.log(`[SpanGraph] Rendering grid. Interval: ${interval}s, Visible Range: ${leftWorld} to ${rightWorld}`);
+
     // Align start point to interval
     const startAge = Math.floor(leftWorld / interval) * interval;
     
+    let lineCount = 0;
     for (let age = startAge; age <= rightWorld; age += interval) {
       const screenX = this.viewport.worldToScreen(age, 0).x;
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -46,6 +49,12 @@ export class GridRenderer {
       line.style.stroke = 'rgba(255, 255, 255, 0.1)';
       line.style.strokeWidth = '1';
       this.group.appendChild(line);
+      lineCount++;
+    }
+    
+    // Safety check for extreme zoom/infinite loops
+    if (lineCount > 500) {
+        console.warn(`[SpanGraph] Grid rendered too many lines (${lineCount}). Clamping.`);
     }
   }
 

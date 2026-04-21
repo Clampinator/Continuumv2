@@ -15,36 +15,44 @@ export class NodeRenderer {
   }
 
   /**
-   * Renders nodes for the provided events and optional Now node.
-   * @param {Array} events - Array of events with projected coordinates.
-   * @param {Object} [nowNode] - The current NOW node.
+   * Renders nodes for the provided state.
+   * @param {Object} state - The temporal state object.
    */
-  render(events, nowNode = null) {
+  render(state) {
     if (!this.group) return;
 
     // Clear existing nodes
     this.group.innerHTML = '';
 
-    if (events) {
-      for (const event of events) {
+    let nodeCount = 0;
+
+    // Render Events
+    if (state.events) {
+      for (const event of state.events) {
         const screenPos = this.viewport.worldToScreen(event.age || 0, event.projectedTime || 0);
         const node = this._createNodeElement(event, screenPos);
-        if (node) this.group.appendChild(node);
+        if (node) {
+            this.group.appendChild(node);
+            nodeCount++;
+        }
       }
     }
 
     // Render NOW node
-    if (nowNode) {
-        const screenPos = this.viewport.worldToScreen(nowNode.age || 0, nowNode.projectedTime || 0);
-        const node = this._createNodeElement(nowNode, screenPos);
+    if (state.nowNode) {
+        const screenPos = this.viewport.worldToScreen(state.nowNode.age || 0, state.nowNode.projectedTime || 0);
+        const node = this._createNodeElement(state.nowNode, screenPos);
         if (node) {
             node.classList.add('graph-node-now');
             node.style.fill = 'var(--continuum-now-color, #00ffff)';
             node.style.strokeWidth = '2';
             node.setAttribute('r', '8');
             this.group.appendChild(node);
+            nodeCount++;
         }
     }
+
+    console.log(`[SpanGraph] Rendered ${nodeCount} nodes`);
   }
 
   /**
@@ -58,8 +66,11 @@ export class NodeRenderer {
     circle.setAttribute('cx', pos.x);
     circle.setAttribute('cy', pos.y);
     circle.setAttribute('r', event.isSpan ? '6' : '4');
-    circle.setAttribute('class', event.isSpan ? 'graph-node-span' : 'graph-node-level');
     
+    // Use classList for stable multi-class support
+    circle.classList.add(event.isSpan ? 'graph-node-span' : 'graph-node-level');
+    if (event.isNow) circle.classList.add('graph-node-now');
+
     circle.style.fill = event.isSpan ? 'var(--continuum-span-color, #ff00ff)' : 'var(--continuum-node-color, #fff)';
     circle.style.stroke = '#000';
     circle.style.strokeWidth = '1';

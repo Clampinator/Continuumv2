@@ -1,4 +1,4 @@
-import { SECONDS_IN_YEAR } from './span-graph-utils/provide-span-graph-utils.js';
+import { SECONDS_IN_YEAR, parseDate } from './span-graph-utils/provide-span-graph-utils.js';
 import { SubwayGenerator } from './lifeline/factory/subway-generator.js';
 import { ReferenceResolver } from './lifeline/services/reference-resolver.js';
 import { ChronologyAssembler } from './lifeline/services/chronology-assembler.js';
@@ -104,6 +104,7 @@ export function processGraphData(sheet, graphData) {
 
 /**
  * Flattens the nested eras -> experiences -> events structure into a single sorted array.
+ * Parses dates into timestamps for the Temporal Engine.
  * 
  * @param {Object} eras - The actor.system.eras object.
  * @returns {Array} A sorted array of event objects.
@@ -112,6 +113,23 @@ export function flattenEvents(eras) {
   if (!eras) return [];
 
   const allEvents = [];
+
+  const _parse = (event) => {
+    const d = event.isSpan ? event.spanFromDate : event.date;
+    const t = (event.isSpan ? event.spanFromTime : event.time) || '12:00:00';
+    if (!d) return 0;
+    const dt = parseDate(`${d}T${t}`);
+    return dt ? dt.getTime() : 0;
+  };
+
+  const _parseArrival = (event) => {
+    if (!event.isSpan) return 0;
+    const d = event.spanToDate;
+    const t = event.spanToTime || '12:00:00';
+    if (!d) return 0;
+    const dt = parseDate(`${d}T${t}`);
+    return dt ? dt.getTime() : 0;
+  };
 
   // Iterate through Eras
   Object.entries(eras).forEach(([eraId, era]) => {
@@ -122,7 +140,9 @@ export function flattenEvents(eras) {
             ...event, 
             id: id, 
             eraId: eraId,
-            expId: null // Explicitly era-level
+            expId: null,
+            time: _parse(event),
+            arrivalTime: _parseArrival(event)
         });
       });
     }
@@ -136,7 +156,9 @@ export function flattenEvents(eras) {
                 ...event, 
                 id: id, 
                 eraId: eraId, 
-                expId: expId // Captured from hierarchy
+                expId: expId,
+                time: _parse(event),
+                arrivalTime: _parseArrival(event)
             });
           });
         }
