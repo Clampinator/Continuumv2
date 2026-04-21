@@ -1,18 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.hoisted(() => {
+  const ApplicationV2 = class {
+    constructor(options = {}) {
+      this.options = this._initializeApplicationOptions(options);
+    }
+    _initializeApplicationOptions(options) {
+      return { window: {}, ...options };
+    }
+    render() {}
+  };
+
   global.foundry = {
     applications: {
       api: {
-        ApplicationV2: class {
-          constructor(options = {}) {
-            this.options = this._initializeApplicationOptions(options);
-          }
-          _initializeApplicationOptions(options) {
-            return { window: {}, ...options };
-          }
-          render() {}
-        }
+        ApplicationV2: ApplicationV2,
+        HandlebarsApplicationMixin: (Base) => class extends Base {}
       }
     },
     utils: {

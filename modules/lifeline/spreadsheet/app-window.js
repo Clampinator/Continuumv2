@@ -1,7 +1,10 @@
 /**
  * Standalone application for the Lifeline Spreadsheet (V2).
+ * Uses the modern HandlebarsApplicationMixin for rendering.
  */
-export class LifelineSpreadsheetApp extends foundry.applications.api.ApplicationV2 {
+export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsApplicationMixin(
+    foundry.applications.api.ApplicationV2
+) {
   /**
    * @param {Object} options - Application options.
    * @param {Actor} options.actor - The actor whose lifeline is being edited.
@@ -31,10 +34,16 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.Application
   }
 
   /** @override */
+  static PARTS = {
+    form: {
+      template: 'systems/continuum-v2/templates/apps/lifeline-spreadsheet.hbs'
+    }
+  };
+
+  /** @override */
   _initializeApplicationOptions(options) {
     options = super._initializeApplicationOptions(options);
     
-    // In ApplicationV2, we should use the options passed to the constructor
     const actor = options.actor;
     if (actor) {
         options.uniqueId = `lifeline-spreadsheet-${actor.id}`;
@@ -48,7 +57,10 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.Application
   async _prepareContext(options) {
       return {
           actor: this.actor,
-          rows: [] // To be implemented in Phase 2
+          rows: [], // To be implemented in Phase 2
+          allExperiences: [],
+          allEras: [],
+          sortNewestFirst: false
       };
   }
 }
