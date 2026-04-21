@@ -22,9 +22,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Functional NOW Node' (Protocol in workflow.md)
 
 ## Phase 3: Creation Bars & Ghost Nodes
-- [~] Task: Implement Horizontal Drag for Eras
-    - [x] Implement: Add interaction listeners on the bottom X-axis to capture dragging bounds and open the Era creation dialog. (33ae721)
-- [ ] Task: Implement Ghost Nodes
-    - [ ] Write Tests: Verify ghost nodes appear mathematically halfway between existing events on hover.
-    - [ ] Implement: Calculate hover insertion points and render an interactive SVG ghost node, wiring click events to the Log Event dialog.
+- [x] Task: Implement Horizontal Drag for Eras (33ae721)
+    - [x] Implement: Add interaction listeners on the bottom X-axis to capture dragging bounds and open the Era creation dialog.
+- [x] Task: Implement Ghost Nodes (601ce7d)
+    - [x] Write Tests: Verify ghost nodes appear mathematically halfway between existing events on hover.
+    - [x] Implement: Calculate hover insertion points and render an interactive SVG ghost node, wiring click events to the Log Event dialog.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Creation Bars & Ghost Nodes' (Protocol in workflow.md)
