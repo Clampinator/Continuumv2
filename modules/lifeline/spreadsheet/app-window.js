@@ -1,4 +1,5 @@
 import { getSpreadsheetRows } from './get-spreadsheet-rows.js';
+import { bindSpreadsheetListeners } from './bind-spreadsheet-listeners.js';
 
 /**
  * Standalone application for the Lifeline Spreadsheet (V2).
@@ -66,5 +67,13 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
           allEras,
           sortNewestFirst: false
       };
+  }
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    // AUTHORITY: Attach the refactored listeners to the rendered HTML
+    const html = $(this.element);
+    bindSpreadsheetListeners(this, html);
   }
 }

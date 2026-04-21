@@ -19,11 +19,29 @@ export function getSpreadsheetRows(actor) {
     // 2. Process through the new Temporal Engine (Brain)
     const state = getTemporalState(history, subjectiveNow);
 
-    // 3. Map to Spreadsheet Rows
+    // 3. Prep Hierarchical metadata lookup (for naming)
+    const expNames = {};
+    const allExperiences = [];
+    Object.entries(rawEras).forEach(([eraId, era]) => {
+        Object.entries(era.experiences || {}).forEach(([expId, exp]) => {
+            expNames[expId] = exp.name || 'Unnamed Experience';
+            if (exp.name) {
+                allExperiences.push({
+                    eraId, expId,
+                    name: exp.name,
+                    isOpen: !exp.dateTo || !exp.dateTo.trim(),
+                    sort: Number(era.sort || 0) * 10000 + Number(exp.sort || 0)
+                });
+            }
+        });
+    });
+
+    // 4. Map to Spreadsheet Rows
     const rows = state.events.map(event => {
         return {
             ...event,
             eventId: event.id,
+            expName: event.expId ? expNames[event.expId] : '',
             ageFormatted: event.age > 0 ? formatSubjectiveAge(event.age) : 'Birth',
             // Display date/time from the event record
             date: event.isSpan ? (event.spanFromDate || '') : (event.date || ''),
@@ -35,21 +53,6 @@ export function getSpreadsheetRows(actor) {
             // Engine projection (The Authority)
             projectedTime: event.projectedTime
         };
-    });
-
-    // 4. Prep Hierarchical metadata (for dropdowns/grouping)
-    const allExperiences = [];
-    Object.entries(rawEras).forEach(([eraId, era]) => {
-        Object.entries(era.experiences || {}).forEach(([expId, exp]) => {
-            if (exp.name) {
-                allExperiences.push({
-                    eraId, expId,
-                    name: exp.name,
-                    isOpen: !exp.dateTo || !exp.dateTo.trim(),
-                    sort: Number(era.sort || 0) * 10000 + Number(exp.sort || 0)
-                });
-            }
-        });
     });
 
     const allEras = Object.entries(rawEras)
