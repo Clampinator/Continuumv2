@@ -49,21 +49,26 @@ export function bindSpreadsheetListeners(app, html) {
             return;
         }
 
-        // Prompt for years delta
-        const yearsStr = await Dialog.prompt({
-            title: "Bulk Time Shift",
-            content: `
-                <p>Shift ${selectedIds.length} selected events by how many years?</p>
-                <input type="number" id="years-delta" value="0" step="1"/>
-            `,
-            callback: (html) => html.find('#years-delta').val(),
-            label: "Apply Shift"
-        });
+        try {
+            // Prompt for years delta
+            const yearsStr = await Dialog.prompt({
+                title: "Bulk Time Shift",
+                content: `
+                    <p>Shift ${selectedIds.length} selected events by how many years?</p>
+                    <input type="number" id="years-delta" value="0" step="1" style="width: 100%; margin-bottom: 10px;"/>
+                `,
+                callback: (html) => html.find('#years-delta').val(),
+                label: "Apply Shift",
+                rejectClose: false // V13: prevent error on cancel
+            });
 
-        const yearsDelta = Number(yearsStr);
-        if (!isNaN(yearsDelta) && yearsDelta !== 0) {
-            await applyBulkTimeShift(actor, selectedIds, yearsDelta);
-            app.render();
+            const yearsDelta = Number(yearsStr);
+            if (!isNaN(yearsDelta) && yearsDelta !== 0) {
+                await applyBulkTimeShift(actor, selectedIds, yearsDelta);
+                app.render();
+            }
+        } catch (err) {
+            // User closed the dialog without clicking 'Apply' - ignore the promise rejection
         }
     });
 
