@@ -67,7 +67,16 @@ export function activateCharacterListeners(sheet, html) {
     html.on('click', '.debug-graph-data', (event) => handleDebugGraphDataClick(sheet, event));
     html.on('click', '.export-lifeline', (event) => handleExportLifelineClick(sheet, event));
     html.on('click', '.import-lifeline', (event) => handleImportLifelineClick(sheet, event));
-    html.on('click', '.reset-graph-view', (event) => handleResetGraphViewClick(sheet, event));
+    
+    html.on('click', '.reset-graph-view', (event) => {
+        event.preventDefault();
+        const viewport = sheet._spanGraphViewport;
+        if (viewport) {
+            viewport.setViewState({ panX: 0, panY: 0, zoom: 1 });
+            ui.notifications.info("Lifeline view reset.");
+        }
+    });
+
     html.on('click', '.fix-rail-offsets', (event) => handleFixRailOffsetsClick(sheet, event));
     // Vehicle select - directly update stats when name changes
     html.on('change', '.vehicle-select', async (ev) => {

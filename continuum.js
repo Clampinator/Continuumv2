@@ -62,7 +62,7 @@ export class ContinuumActorSheet extends BaseActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
     activateCharacterListeners(this, html);
-    initializeSpanGraph(this.actor, html);
+    initializeSpanGraph(this.actor, html, this);
   }
 
   /** @override */

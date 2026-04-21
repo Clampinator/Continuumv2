@@ -7,8 +7,9 @@ const viewports = new Map();
  * 
  * @param {Actor} actor - The actor whose lifeline is being rendered.
  * @param {jQuery|HTMLElement} html - The sheet's HTML fragment.
+ * @param {ActorSheet} sheet - The sheet instance.
  */
-export function initializeSpanGraph(actor, html) {
+export function initializeSpanGraph(actor, html, sheet) {
   const container = html.find('.span-graph-container').get(0);
   if (!container) return;
 
@@ -22,6 +23,9 @@ export function initializeSpanGraph(actor, html) {
     // Update existing viewport
     viewport.updateActor(actor);
   }
+
+  // AUTHORITY: Store the viewport on the sheet so listeners can access it
+  sheet._spanGraphViewport = viewport;
 
   return viewport;
 }
