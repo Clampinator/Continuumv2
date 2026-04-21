@@ -16,9 +16,9 @@
 - [x] Task: Implement NOW Node Drop Interactions (Create/Update) (6c4eab4)
     - [x] Write Tests: Verify dropping on an empty rail opens the Log Event dialog. Verify dropping on an existing event triggers an age update.
     - [x] Implement: Wire `process-hover-state.js` and the `NodeRenderer` drag end handlers to fire the appropriate callbacks for event creation and age updating.
-- [~] Task: Implement Create Span
-    - [ ] Write Tests: Verify a vertical drag threshold initiates span creation mode.
-    - [ ] Implement: Add vertical threshold detection and trigger the Span dialog flow upon release.
+- [x] Task: Implement Create Span (98b8dd7)
+    - [x] Write Tests: Verify a vertical drag threshold initiates span creation mode.
+    - [x] Implement: Add vertical threshold detection and trigger the Span dialog flow upon release.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Functional NOW Node' (Protocol in workflow.md)
 
 ## Phase 3: Creation Bars & Ghost Nodes
