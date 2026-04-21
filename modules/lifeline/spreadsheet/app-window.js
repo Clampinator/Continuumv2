@@ -1,3 +1,5 @@
+import { getSpreadsheetRows } from './get-spreadsheet-rows.js';
+
 /**
  * Standalone application for the Lifeline Spreadsheet (V2).
  * Uses the modern HandlebarsApplicationMixin for rendering.
@@ -55,11 +57,13 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
 
   /** @override */
   async _prepareContext(options) {
+      const { rows, allExperiences, allEras } = getSpreadsheetRows(this.actor);
+
       return {
           actor: this.actor,
-          rows: [], // To be implemented in Phase 2
-          allExperiences: [],
-          allEras: [],
+          rows,
+          allExperiences,
+          allEras,
           sortNewestFirst: false
       };
   }
