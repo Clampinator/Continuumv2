@@ -45,15 +45,11 @@ export function getTemporalState(history, subjectiveNow = 0) {
     if (isFirstOfSegment) {
         isSpanDest = true;
         // Determine arrival direction by looking at the previous span event
-        const prevEvent = history[index - 1];
-        if (prevEvent && prevEvent.isSpan) {
-            spanType = (event.projectedTime > (prevEvent.arrivalTime || 0) ? 'up' : 'down');
-            // Wait, the arrival time IS the projected time of the first node of the segment.
-            // Let's use the Span event's arrivalTime to determine direction.
-            const arrivalTime = prevEvent.arrivalTime || 0;
+        const prevEvent = history.find((e, i) => i < index && e.isSpan && segments.find(s => s.events.includes(e)) !== activeSegment);
+        if (prevEvent) {
             const departureSegment = segments.find(s => s.events.includes(prevEvent));
             const departureTime = resolveCoordinates(prevEvent.age, departureSegment);
-            spanType = arrivalTime > departureTime ? 'up' : 'down';
+            spanType = prevEvent.arrivalTime > departureTime ? 'up' : 'down';
         }
     }
 
@@ -68,8 +64,17 @@ export function getTemporalState(history, subjectiveNow = 0) {
 
   // 2. PROJECT SEGMENT EVENTS (Crucial for RailRenderer)
   const projectedSegments = segments.map(seg => {
+      // Create a virtual arrival node at the start of the segment if it's following a span
+      const firstEvent = eventsWithProjection.find(ep => ep.id === seg.events[0]?.id);
+      
       return {
           ...seg,
+          // We add a virtual arrival point for the RailRenderer to connect to if this is a new segment
+          arrivalPoint: {
+              age: seg.startAge,
+              projectedTime: seg.startTime,
+              isVirtual: true
+          },
           events: seg.events.map(e => eventsWithProjection.find(ep => ep.id === e.id))
       };
   });

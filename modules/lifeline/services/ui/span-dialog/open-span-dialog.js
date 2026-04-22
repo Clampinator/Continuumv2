@@ -19,8 +19,17 @@ export async function openSpanDialog(sheet, params) {
 
     let confirmed = false;
     const actor = sheet.actor;
-    // Force isSpan: true for this specialized service
-    const templateData = getTemplateData(actor, { ...params, viewState, graphData, isSpan: true });
+    // AUTHORITY: Explicitly map arrival coordinates to ageRaw/timeRaw for getTemplateData
+    const templateData = getTemplateData(actor, { 
+        ...params, 
+        mode: 'log',
+        ageRaw: params.arrival.age,
+        timeRaw: params.arrival.time,
+        departure: params.departure,
+        viewState, 
+        graphData, 
+        isSpan: true 
+    });
 
     // Exact legacy title logic
     const dialogTitle = "Log Span Result";

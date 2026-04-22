@@ -24,27 +24,31 @@ export class RailRenderer {
         const segment = state.segments[i];
         if (!segment.events || segment.events.length === 0) continue;
 
-        // A. LEVELING SEGMENT (Solid Blue)
-        if (segment.events.length >= 2) {
-            const pathData = this._generatePathData(segment.events);
+        // A. SPAN JUMP (Pink Dots) - Draw from previous segment end to this segment's arrival point
+        if (i > 0) {
+            const prevSegment = state.segments[i - 1];
+            const lastEventOfPrev = prevSegment.events[prevSegment.events.length - 1];
+            const arrivalPoint = segment.arrivalPoint;
+
+            if (lastEventOfPrev && arrivalPoint) {
+                const pathData = this._generatePathData([lastEventOfPrev, arrivalPoint]);
+                const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
+                if (fragment) fragment.appendChild(spanLine);
+                else this.group.appendChild(spanLine);
+            }
+        }
+
+        // B. LEVELING SEGMENT (Solid Blue)
+        // If there's an arrival point (virtual node), we must connect it to the first actual event
+        const segmentPathEvents = [];
+        if (segment.arrivalPoint) segmentPathEvents.push(segment.arrivalPoint);
+        segmentPathEvents.push(...segment.events);
+
+        if (segmentPathEvents.length >= 2) {
+            const pathData = this._generatePathData(segmentPathEvents);
             const pathElement = this._createPathElement(pathData, 'span-graph-rail');
             if (fragment) fragment.appendChild(pathElement);
             else this.group.appendChild(pathElement);
-        }
-
-        // B. SPAN JUMP (Pink Dots)
-        const nextSegment = state.segments[i + 1];
-        if (nextSegment && nextSegment.events.length > 0) {
-            const lastEvent = segment.events[segment.events.length - 1];
-            const firstEvent = nextSegment.events[0];
-
-            const pathData = this._generatePathData([lastEvent, firstEvent]);
-            const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
-
-            // Directional Animation is naturally handled by the SVG path vector
-            // (M lastEvent L firstEvent) and the single CSS animation.
-            if (fragment) fragment.appendChild(spanLine);
-            else this.group.appendChild(spanLine);
         }
     }
 
@@ -56,8 +60,6 @@ export class RailRenderer {
         const dragMode = this.viewport._interaction?.mode;
         
         if (dragMode === 'span') {
-            // DYNAMIC SPAN PREVIEW (Flowing Pink Dots)
-            // Path vector naturally points from lastEvent to NOW, driving the animation forward.
             const logLine = this._createPathElement(pathData, 'span-graph-span-line');
             if (fragment) fragment.appendChild(logLine);
             else this.group.appendChild(logLine);
