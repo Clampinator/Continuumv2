@@ -1,9 +1,9 @@
 # Implementation Plan: Lifeline NOW Node Interaction & Span Physics Rebuild
 
 ## Phase 1: Node Typography (Shapes & Colors)
-- [ ] Task: Rebuild `createNodeShape` Logic
-    - [ ] Write Tests: Ensure `nodeData.isSpanOrigin` and `isSpanDest` return correct SVG polygon (triangle) and path (semi-circle) elements with proper directionality.
-    - [ ] Implement: Refactor `modules/span-graph/renderers/node-renderer.js` to match the exact shape-generation logic from the legacy codebase (using SVG triangles for origin, semi-circles for dest, circles for level).
+- [x] Task: Rebuild `createNodeShape` Logic (994ed87)
+    - [x] Write Tests: Ensure `nodeData.isSpanOrigin` and `isSpanDest` return correct SVG polygon (triangle) and path (semi-circle) elements with proper directionality.
+    - [x] Implement: Refactor `modules/span-graph/renderers/node-renderer.js` to match the exact shape-generation logic from the legacy codebase (using SVG triangles for origin, semi-circles for dest, circles for level).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Node Typography (Shapes & Colors)' (Protocol in workflow.md)
 
 ## Phase 2: Drag Constraint Physics
