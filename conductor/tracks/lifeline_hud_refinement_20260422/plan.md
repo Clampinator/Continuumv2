@@ -16,7 +16,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Experience Boxes Engine' (Protocol in workflow.md)
 
 ## Phase 3: Visual Fade & Polish
-- [~] Task: Implement "The Forgetting" Fade
-    - [ ] Write Tests: Verify opacity calculations correctly scale down to 10% over 15 subjective years of distance from the NOW node.
-    - [ ] Implement: Enhance the `CreationRenderer` logic to calculate the distance between the Experience's bounding box and the NOW node, dynamically applying the CSS/SVG opacity fade.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Visual Fade & Polish' (Protocol in workflow.md)
+- [x] Task: Implement "The Forgetting" Fade (c9d4d5f)
+    - [x] Write Tests: Verify opacity calculations correctly scale down to 10% over 15 subjective years of distance from the NOW node.
+    - [x] Implement: Enhance the `CreationRenderer` logic to calculate the distance between the Experience's bounding box and the NOW node, dynamically applying the CSS/SVG opacity fade.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Visual Fade & Polish' (Protocol in workflow.md)
