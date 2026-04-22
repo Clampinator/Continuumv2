@@ -7,20 +7,23 @@ import { generateExperiences } from '../lifeline/services/segment-generator/gene
  * Enforces the character's journey as a linked sequence of segments and jumps.
  */
 export function getTemporalState(history, subjectiveNow = 0, originTime = 0, actor = null) {
-  // 1. Generate Physical Segments
   const segments = calculateSegments(history, originTime);
   
   if (segments.length === 0) {
-    const defaultArrival = { age: 0, projectedTime: originTime, isBirth: true };
-    return _finalizeState([{ startAge: 0, startTime: originTime, events: [], arrivalPoint: defaultArrival }], [], subjectiveNow, 0, actor);
+    const birthNode = { 
+        id: 'birth',
+        age: 0, 
+        projectedTime: originTime, 
+        time: originTime, 
+        isBirth: true 
+    };
+    return _finalizeState([{ startAge: 0, startTime: originTime, events: [], arrivalPoint: birthNode }], [], subjectiveNow, 0, actor);
   }
 
   let totalDisplacement = 0;
 
-  // 2. Project Events into their segments
+  // 1. Project Events
   const eventsWithProjection = history.map(event => {
-    // Find the segment where this event is the EXIT point (Span departure)
-    // or where it definitely resides as a normal event.
     let activeSegment = segments.find(s => s.exitPoint?.id === event.id);
     if (!activeSegment) {
         activeSegment = segments.find(s => s.events.some(e => e.id === event.id)) || segments[0];
@@ -33,19 +36,20 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
         totalDisplacement += Math.abs(arrivalTime - projectedTime);
     }
 
+    const spanDirection = event.isSpan ? (arrivalTime > projectedTime ? 'up' : 'down') : null;
+
     return {
       ...event,
       projectedTime,
+      time: event.time || projectedTime,
       arrivalTime,
-      // Visual Flags
       isSpanOrigin: !!event.isSpan,
-      spanDirection: event.isSpan ? (arrivalTime > projectedTime ? 'up' : 'down') : null
+      spanDirection: spanDirection
     };
   });
 
-  // 3. Project Segment Anchors (The Wormhole Links)
+  // 2. Project Segment Anchors
   const projectedSegments = segments.map((seg, index) => {
-      // EXIT (Departure): The end of this rail segment
       let exitPoint = null;
       if (seg.exitPoint) {
           const rawExit = eventsWithProjection.find(e => e.id === seg.exitPoint.id);
@@ -58,8 +62,6 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
           };
       }
 
-      // ARRIVAL: The start of this rail segment
-      // Direction is determined by looking at the Span event that created this segment
       let arrivalDirection = null;
       if (index > 0) {
           const prevSeg = segments[index - 1];
@@ -71,6 +73,7 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
           id: `arrival-${seg.startTime}-${index}`,
           age: Number(seg.startAge),
           projectedTime: Number(seg.startTime),
+          time: Number(seg.startTime),
           isVirtual: true,
           isSpanDest: seg.startAge > 0,
           isBirth: seg.startAge === 0,
@@ -86,9 +89,9 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
   });
 
   return _finalizeState(projectedSegments, eventsWithProjection, subjectiveNow, totalDisplacement, actor);
-  }
+}
 
-  function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0, actor = null) {
+function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0, actor = null) {
   const nowSegment = [...segments].reverse().find(s => s.startAge <= subjectiveNow) 
                   || segments[0];
 
@@ -99,19 +102,21 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
     isNow: true
   };
 
-  // Ensure Birth node exists at Age 0
   if (!events.some(e => Number(e.age) === 0)) {
       const birth = segments[0].arrivalPoint;
       events.unshift({ ...birth, title: "Birth", isBirth: true });
   }
 
-  // 4. Generate Experience Boxes if actor is provided
   let experiences = [];
   if (actor) {
-      const rawEras = actor.system.eras || {};
-      const sortedEras = Object.values(rawEras).sort((a,b) => (a.sort || 0) - (b.sort || 0));
-      experiences = generateExperiences(sortedEras, events, nowNode);
+      // AUTHORITY: Maintain Era IDs when passing to generator
+      const erasWithIds = Object.entries(actor.system.eras || {}).map(([id, era]) => ({
+          ...era,
+          id: id
+      })).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
+
+      experiences = generateExperiences(erasWithIds, events, nowNode);
   }
 
   return { segments, events, nowNode, experiences, spanPool: { consumed: totalDisplacement, total: 0 } };
-  }
+}

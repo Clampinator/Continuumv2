@@ -1,6 +1,6 @@
 /**
  * Renders the Experience Bounding Boxes and Labels.
- * Implements "The Forgetting" fade and basic label collision avoidance.
+ * REBUILT: Strict 4-corner authoritative geometry (Left/Right Age, Top/Bottom Time).
  */
 export class ExperienceRenderer {
   constructor(viewport) {
@@ -15,28 +15,25 @@ export class ExperienceRenderer {
     if (!this.group || !state.experiences) return;
     this.group.innerHTML = '';
 
-    const rect = this.viewport.container.getBoundingClientRect();
-    const height = rect.height || 500;
-    const gutterHeight = 40;
-
-    // Track label vertical offsets to avoid collision
-    const labelSlots = {}; // slotIndex -> boolean occupied in current X range
+    const labelSlots = {};
 
     state.experiences.forEach((exp) => {
-        const startX = this.viewport.worldToScreen(exp.startAge, 0).x;
-        const endX = this.viewport.worldToScreen(exp.endAge, 0).x;
-        const width = Math.max(0, endX - startX);
+        // COORDINATE AUTHORITY: Project all 4 corners into screen space
+        const pStart = this.viewport.worldToScreen(exp.startAge, exp.startTime);
+        const pEnd = this.viewport.worldToScreen(exp.endAge, exp.endTime);
 
-        if (width <= 0 && !exp.isOngoing) return;
+        const x = pStart.x;
+        const y = Math.min(pStart.y, pEnd.y); // SVG coordinates: smaller Y is higher on screen
+        const width = Math.max(1, pEnd.x - pStart.x);
+        const height = Math.max(1, Math.abs(pEnd.y - pStart.y));
 
-        // 1. Draw Experience Box
+        // 1. Draw Experience Box (The Quadrilateral)
         const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        box.setAttribute('x', startX);
-        box.setAttribute('y', 0);
-        box.setAttribute('width', exp.isOngoing ? (rect.width - startX) : width);
-        box.setAttribute('height', height - gutterHeight);
+        box.setAttribute('x', x);
+        box.setAttribute('y', y);
+        box.setAttribute('width', width);
+        box.setAttribute('height', height);
         
-        // Styling based on state
         if (exp.isOngoing) {
             // Gradient Fade for Open Experiences
             const gradId = `grad-${exp.id}`;
@@ -44,25 +41,26 @@ export class ExperienceRenderer {
             box.style.fill = `url(#${gradId})`;
         } else {
             // Solid Yellow for Closed Experiences
-            box.style.fill = 'rgba(255, 255, 0, 0.15)';
+            box.style.fill = 'rgba(255, 255, 0, 0.2)';
         }
 
         box.style.opacity = exp.opacity;
         box.style.pointerEvents = 'none';
+        box.style.stroke = 'rgba(255, 255, 0, 0.4)';
+        box.style.strokeWidth = '1px';
         this.group.appendChild(box);
 
-        // 2. Draw Label with Collision Avoidance
+        // 2. Draw Label (Anchored to top-left of box)
         if (width > 20 || exp.isOngoing) {
-            // Find a vertical slot
             let slot = 0;
-            while (this._isSlotOccupied(slot, startX, endX, labelSlots)) {
+            while (this._isSlotOccupied(slot, x, x + width, labelSlots)) {
                 slot++;
             }
-            this._occupySlot(slot, startX, endX, labelSlots);
+            this._occupySlot(slot, x, x + width, labelSlots);
 
             const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            label.setAttribute('x', startX + 5);
-            label.setAttribute('y', 40 + (slot * 15)); // Stack labels vertically
+            label.setAttribute('x', x + 5);
+            label.setAttribute('y', y + 12 + (slot * 12));
             label.style.fill = '#ffff00';
             label.style.fontSize = '10px';
             label.style.fontFamily = 'monospace';
@@ -87,7 +85,7 @@ export class ExperienceRenderer {
 
       const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
       stop1.setAttribute('offset', '0%');
-      stop1.setAttribute('stop-color', 'rgba(255, 255, 0, 0.2)');
+      stop1.setAttribute('stop-color', 'rgba(255, 255, 0, 0.3)');
 
       const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
       stop2.setAttribute('offset', '100%');
@@ -105,8 +103,6 @@ export class ExperienceRenderer {
   }
 
   _isSlotOccupied(slot, startX, endX, slots) {
-      // Simplistic collision: just check if slot is used.
-      // High-fidelity would check X-range overlap.
       return !!slots[slot]; 
   }
 

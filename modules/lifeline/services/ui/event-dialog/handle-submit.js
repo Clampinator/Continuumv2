@@ -10,10 +10,8 @@ import { ContextFinder } from '../../context-finder.js';
 
 /*
 Calculates the current objectiveOffset for the rail an event sits on.
-Required for solving the Age/Time diagonal.
 */
 function _calculateRailOffset(actor, targetAge, targetTime) {
-    // Offset = Time - (Age * 1000)
     return targetTime - (targetAge * 1000);
 }
 
@@ -32,7 +30,7 @@ export async function handleSubmit(actor, formData, params) {
   let newId = (mode === 'edit') ? existingData.id : foundry.utils.randomID();
   let spanResult = null;
 
-  // ---- 2. Solve Coordinates (Dispatcher) ----
+  // ---- 2. Solve Coordinates ----
   if (!isSpan) {
       const inputAge = (formData.eventAge && formData.eventAge.trim() !== "") ? parseAgeString(formData.eventAge) : Number(params.ageRaw);
       const inputDate = normalizeDateInput(formData.eventDate);
@@ -60,7 +58,6 @@ export async function handleSubmit(actor, formData, params) {
           finalTime = Number(params.timeRaw);
       }
   } else {
-      // BRANCHING: Identify the specific span creation method
       if (mode === 'log' || mode === 'edit') {
           spanResult = createManualSpan(actor, formData, params);
       } else if (mode === 'insert') {
@@ -91,8 +88,6 @@ export async function handleSubmit(actor, formData, params) {
   let authoritativeAge, authoritativeTime, authoritativeSort;
 
   if (positionChanged) {
-      // AUTHORITY: Spans must be chronologically sequenced by their DEPARTURE time, 
-      // not their arrival time, because the character experiences the departure first.
       let sortTime = finalTime;
       if (isSpan) {
           const depDate = normalizeDateInput(formData.spanFromDate);
@@ -130,8 +125,6 @@ export async function handleSubmit(actor, formData, params) {
     sort: authoritativeSort,
     createdAt: existingData?.createdAt || Date.now(),
     startsExpId: existingData?.startsExpId || null,
-    
-    // Mechanics
     spanRank: parseInt(formData.spanRank) || null,
     downTime: parseInt(formData.downTime) || 0,
     frag: parseInt(formData.frag) || 0
@@ -157,7 +150,38 @@ export async function handleSubmit(actor, formData, params) {
       eventData.time = resolvedDT.time;
   }
 
-  // Context Selection Logic
+  // ---- 4. EXPERIENCE LIFECYCLE AUTHORITY ----
+  const anchorDate = isSpan ? eventData.spanToDate : eventData.date;
+  const anchorTime = isSpan ? (eventData.spanToTime || '12:00:00') : (eventData.time || '12:00:00');
+  const anchorFull = `${anchorDate}T${anchorTime}`;
+
+  // A. HANDLE CLOSURES (The "Zombie Experience" fix)
+  let closeExps = formData.closeExperiences || [];
+  if (typeof closeExps === 'string') closeExps = [closeExps];
+  
+  // Filter out any null/undefined values before processing
+  closeExps = closeExps.filter(v => typeof v === 'string' && v.includes(':'));
+
+  closeExps.forEach(val => {
+      const [eraId, expId] = val.split(':');
+      updates[`system.eras.${eraId}.experiences.${expId}.dateTo`] = anchorFull;
+      updates[`system.eras.${eraId}.experiences.${expId}.isOngoing`] = false;
+  });
+
+  // B. HANDLE RE-OPENING
+  let reopenExps = formData.reopenExperiences || [];
+  if (typeof reopenExps === 'string') reopenExps = [reopenExps];
+  
+  // Filter out any null/undefined values before processing
+  reopenExps = reopenExps.filter(v => typeof v === 'string' && v.includes(':'));
+
+  reopenExps.forEach(val => {
+      const [eraId, expId] = val.split(':');
+      updates[`system.eras.${eraId}.experiences.${expId}.dateTo`] = "";
+      updates[`system.eras.${eraId}.experiences.${expId}.isOngoing`] = true;
+  });
+
+  // C. START NEW EXPERIENCE
   const contextAction = formData.experienceAction;
   let targetEraId = params.eraId || existingData?.eraId || Object.keys(actor.system.eras || {})[0];
   let targetExpId = params.expId || existingData?.expId || null;
@@ -169,10 +193,6 @@ export async function handleSubmit(actor, formData, params) {
       targetExpId = (parts[2] === "null" || !parts[2]) ? null : parts[2];
     }
   }
-
-  const anchorDate = isSpan ? eventData.spanToDate : eventData.date;
-  const anchorTime = isSpan ? (eventData.spanToTime || '12:00:00') : (eventData.time || '12:00:00');
-  const anchorFull = `${anchorDate}T${anchorTime}`;
 
   if (formData.startNewExp) {
       const newExpId = foundry.utils.randomID();
@@ -199,7 +219,6 @@ export async function handleSubmit(actor, formData, params) {
       eventData.startsExpId = newExpId;
   }
 
-  // Location and Zoom (Standard Event fields)
   if (!isSpan) {
       eventData.location = formData.location || "";
       eventData.lat = parseFloat(formData.lat) || null;
@@ -221,7 +240,6 @@ export async function handleSubmit(actor, formData, params) {
       parentPath = `system.eras.${targetEraId}`;
   }
 
-  // CLEANUP: If context changed, delete old
   if (mode === 'edit') {
       const oldEraId = existingData.eraId;
       const oldExpId = existingData.expId;

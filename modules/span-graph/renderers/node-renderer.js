@@ -1,6 +1,6 @@
 /**
  * Renders interactive nodes (Events, Spans, and NOW) for the Span Graph.
- * REBUILT: Renders active drag origin shapes and ghost nodes dynamically.
+ * REBUILT: Atomic, stateless rendering for absolute visual consistency.
  */
 export class NodeRenderer {
   constructor(viewport) {
@@ -11,48 +11,35 @@ export class NodeRenderer {
     }
   }
 
-  render(state, viewState, activeNode = null, interaction = null) {
+  /**
+   * Renders all nodes for the current state.
+   * GUARANTEE: Historical events are ALWAYS rendered end-to-end.
+   */
+  render(state, viewState) {
     if (!this.group) return;
     
+    // Clear the group but keep the ghost node if it exists
+    const ghostNode = this.group.querySelector('.graph-node-ghost');
     this.group.innerHTML = '';
-    if (activeNode) this.group.appendChild(activeNode);
+    if (ghostNode) this.group.appendChild(ghostNode);
 
     // 1. Render History Events
     if (state.events) {
-      for (const event of state.events) {
-        if (activeNode && activeNode.dataset.eventId === event.id) continue;
-        
+      state.events.forEach(event => {
         const screenPos = this.viewport.worldToScreen(event.age || 0, event.projectedTime || 0);
         const node = this._createNodeElement(event, screenPos);
         if (node) this.group.appendChild(node);
-      }
+      });
     }
 
-    // 2. Render Active Drag Origin (if spanning)
-    if (interaction && interaction.isDragging && interaction.mode === 'span' && interaction.startWorld) {
-        const startW = interaction.startWorld;
-        const currentW = interaction.currentWorld;
-        const isFuture = currentW.time > startW.time;
-
-        const screenPos = this.viewport.worldToScreen(startW.age, startW.time);
-        
-        const dragOriginEvent = {
-            id: 'drag-origin',
-            isSpanOrigin: true,
-            spanDirection: isFuture ? 'up' : 'down'
-        };
-        const node = this._createNodeElement(dragOriginEvent, screenPos);
-        if (node) this.group.appendChild(node);
-    }
-
-    // 3. Render NOW node (unless it is being dragged)
+    // 2. Render NOW node (The big yellow indicator)
     if (state.nowNode) {
-        if (activeNode && activeNode.classList.contains('graph-node-now')) {
-            // Already appended above
-        } else {
-            const screenPos = this.viewport.worldToScreen(state.nowNode.age || 0, state.nowNode.projectedTime || 0);
-            const node = this._createNodeElement(state.nowNode, screenPos);
-            if (node) this.group.appendChild(node);
+        const screenPos = this.viewport.worldToScreen(state.nowNode.age || 0, state.nowNode.projectedTime || 0);
+        const node = this._createNodeElement(state.nowNode, screenPos);
+        if (node) {
+            node.classList.add('graph-node-now');
+            node.setAttribute('r', '8'); 
+            this.group.appendChild(node);
         }
     }
   }
@@ -86,6 +73,10 @@ export class NodeRenderer {
       return ghost;
   }
 
+  /**
+   * Creates an individual node element with correct typography.
+   * @private
+   */
   _createNodeElement(event, pos) {
     if (typeof document === 'undefined') return null;
 

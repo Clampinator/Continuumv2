@@ -14,6 +14,7 @@ import { TARGET_RATIO } from '../temporal-engine/constants.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
+ * REBUILT: Strict Layer Authority (Experience -> Rail -> Node).
  */
 export class SpanGraphViewport {
   constructor(container, actor = null) {
@@ -51,15 +52,22 @@ export class SpanGraphViewport {
     this.svg = this._createSVG();
     if (this.container && this.svg) {
       this.container.appendChild(this.svg);
+      
+      // AUTHORITY: Strictly order group creation to define base layering
       this.gridRenderer = new GridRenderer(this);
       this.eraRenderer = new EraRenderer(this);
-      this.experienceRenderer = new ExperienceRenderer(this);
-      this.railRenderer = new RailRenderer(this);
-      this.nodeRenderer = new NodeRenderer(this);
-      this.creationRenderer = new CreationRenderer(this);
-      this.axisRenderer = new AxisRenderer(this);
+      this.experienceRenderer = new ExperienceRenderer(this); // Bottom
+      this.railRenderer = new RailRenderer(this);           // Middle
+      this.nodeRenderer = new NodeRenderer(this);           // Top
+      this.creationRenderer = new CreationRenderer(this);   // UI
+      this.axisRenderer = new AxisRenderer(this);           // HUD
       this.tooltipManager = new TooltipManager(this);
+
+      this.interactionGroup = this._createInteractionGroup();
+      this.svg.appendChild(this.interactionGroup);
+
       this._activateListeners();
+      
       if (this.actor) {
           this._render();
           setTimeout(() => this.autoFocus(), 150);
@@ -116,12 +124,12 @@ export class SpanGraphViewport {
     
     const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
     
+    // AUTHORITY: Sequential draw to preserve visual stack integrity
     this.gridRenderer.render(state, this.viewState);
     this.eraRenderer.render(state);
     this.experienceRenderer.render(state);
     this.railRenderer.render(state, this._interaction);
-    this.nodeRenderer.render(state, this.viewState, this._interaction.isDragging ? this._interaction.nodeElement : null, this._interaction);
-    
+    this.nodeRenderer.render(state, this.viewState);
     this.creationRenderer.render(state, this.viewState);
     this.axisRenderer.render();
   }
@@ -140,12 +148,19 @@ export class SpanGraphViewport {
     return svg;
   }
 
+  _createInteractionGroup() {
+      if (typeof document === 'undefined') return null;
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'span-graph-interaction-overlay');
+      return g;
+  }
+
   _activateListeners() {
     if (!this.svg) return;
-    this.svg.addEventListener('pointerdown', this._onPointerDown.bind(this));
+    this.svg.addEventListener('pointerdown', (e) => this._onPointerDown(e));
     if (typeof window !== 'undefined') {
-        window.addEventListener('pointermove', this._onPointerMove.bind(this));
-        window.addEventListener('pointerup', this._onPointerUp.bind(this));
+        window.addEventListener('pointermove', (e) => this._onPointerMove(e));
+        window.addEventListener('pointerup', (e) => this._onPointerUp(e));
     }
     this.svg.addEventListener('wheel', (event) => {
         event.preventDefault();
@@ -161,14 +176,12 @@ export class SpanGraphViewport {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
 
-      // AUTHORITY: Handle Ghost Node Click
       if (target.classList.contains('graph-node-ghost')) {
           this._handleGhostNodeClick();
           return;
       }
 
       const node = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
-      
       const history = flattenEvents(this.actor.system.eras || {});
       const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
       const originTime = this._getOriginTime();
@@ -203,6 +216,8 @@ export class SpanGraphViewport {
           cachedNow: subjectiveNow,
           cachedOrigin: originTime
       };
+
+      if (node) this.interactionGroup.appendChild(node);
       if (this.svg.setPointerCapture) this.svg.setPointerCapture(event.pointerId);
   }
 
@@ -212,7 +227,6 @@ export class SpanGraphViewport {
       const y = event.clientY - rect.top;
 
       if (!this._interaction.isDragging) {
-          // AUTHORITY: Active hover detection for Ghost Nodes when not dragging
           this._updateGhostNodeHover(x, y);
           return;
       }
@@ -244,8 +258,8 @@ export class SpanGraphViewport {
           }
 
           const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin, this.actor);
+          this.experienceRenderer.render(state);
           this.railRenderer.render(state, this._interaction);
-          this.nodeRenderer.render(state, this.viewState, this._interaction.nodeElement, this._interaction);
           
       } else if (this._interaction.type === 'pan') {
           this.viewState.panX = this._interaction.startPanX + dx;
@@ -259,10 +273,13 @@ export class SpanGraphViewport {
       const state = this._interaction;
       if (this.tooltipManager) this.tooltipManager.hide();
       this.viewState.interactionMode = 'pan';
+      
       if (state.hasSignificantMovement && state.type === 'node') {
           const world = constrainMovement(this.screenToWorld(event.clientX - this.svg.getBoundingClientRect().left, event.clientY - this.svg.getBoundingClientRect().top), state.startWorld, state.mode);
           this._handleNodeDrop(world, state.mode, state.nodeElement.classList.contains('graph-node-now'));
       }
+
+      this.interactionGroup.innerHTML = ''; 
       this._interaction.isDragging = false;
       this._render();
   }
@@ -293,13 +310,9 @@ export class SpanGraphViewport {
       for (let i = 0; i < state.events.length - 1; i++) {
           const e1 = state.events[i];
           const e2 = state.events[i+1];
-          
-          // Don't insert into spans (they are vertical, age is the same)
           if (Number(e1.age) === Number(e2.age)) continue;
-
           const p1 = this.worldToScreen(e1.age, e1.projectedTime);
           const p2 = this.worldToScreen(e2.age, e2.projectedTime);
-          
           const d = this._distToSegment({x: mouseX, y: mouseY}, p1, p2);
           if (d < minDist) {
               minDist = d;
@@ -309,7 +322,6 @@ export class SpanGraphViewport {
               };
           }
       }
-
       this._interaction.hoverWorldPos = nearest;
       this.nodeRenderer.renderGhostNode(nearest);
   }
@@ -326,16 +338,10 @@ export class SpanGraphViewport {
       if (!this._interaction.hoverWorldPos) return;
       const pos = this._interaction.hoverWorldPos;
       const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
-      await openEventDialog(this.actor.sheet, {
-          mode: 'log',
-          ageRaw: pos.age,
-          timeRaw: pos.time
-      });
+      await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: pos.age, timeRaw: pos.time });
   }
 
-  handlePan(dx, dy) {
-    this.setViewState({ panX: this.viewState.panX + dx, panY: this.viewState.panY + dy });
-  }
+  handlePan(dx, dy) { this.setViewState({ panX: this.viewState.panX + dx, panY: this.viewState.panY + dy }); }
 
   async animateViewState(target, duration = 300) {
     const startState = { ...this.viewState };
