@@ -213,16 +213,69 @@ export class SpanGraphViewport {
           const world = constrainMovement(rawWorld, this._interaction.startWorld, this._interaction.mode);
           const screen = this.worldToScreen(world.age, world.time);
 
-          this._interaction.nodeElement.setAttribute('cx', screen.x);
-          this._interaction.nodeElement.setAttribute('cy', screen.y);
           if (this.tooltipManager) {
               const dateStr = new Date(world.time).toISOString().split('T')[0];
               this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, screen);
           }
 
           const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin);
-          state.nowNode.age = world.age;
-          state.nowNode.projectedTime = world.time;
+          
+          // AUTHORITY: Inject the physical reality of the active drag into the temporal state.
+          // This ensures all renderers (Rails and Nodes) draw the exact sequence of events
+          // without needing dirty UI patches.
+          if (this._interaction.mode === 'span') {
+              const startW = this._interaction.startWorld;
+              const isFuture = world.time > startW.time;
+              
+              // 1. The point where the drag started becomes a definitive Span Origin
+              const dragOriginEvent = {
+                  id: 'drag-origin',
+                  age: startW.age,
+                  projectedTime: startW.time,
+                  time: startW.time,
+                  isSpan: true,
+                  isSpanOrigin: true,
+                  spanDirection: isFuture ? 'up' : 'down'
+              };
+              
+              // 2. Insert it into the timeline to ensure the blue rail stops exactly here
+              state.events.push(dragOriginEvent);
+              
+              // 3. Close the current segment at the drag origin to force a clean break
+              const lastSegment = state.segments[state.segments.length - 1];
+              if (lastSegment) lastSegment.exitPoint = dragOriginEvent;
+              
+              // 4. Create the new segment for the Span Arrival (the NOW node)
+              state.segments.push({
+                  startAge: world.age,
+                  startTime: world.time,
+                  events: [],
+                  arrivalPoint: {
+                      id: 'drag-arrival',
+                      age: world.age,
+                      projectedTime: world.time,
+                      isVirtual: true,
+                      isSpanDest: true,
+                      spanDirection: isFuture ? 'up' : 'down'
+                  }
+              });
+              
+              // 5. Update the NOW node to act as a Span Destination
+              state.nowNode = {
+                  ...state.nowNode,
+                  age: world.age,
+                  projectedTime: world.time,
+                  isSpanDest: true,
+                  spanDirection: isFuture ? 'up' : 'down'
+              };
+          } else {
+              state.nowNode.age = world.age;
+              state.nowNode.projectedTime = world.time;
+          }
+
+          // We must clear the active node from interaction so the NodeRenderer can redraw it 
+          // as the correct shape (semi-circle for span dest, etc).
+          this.nodeRenderer.render(state, this.viewState, null);
           this.railRenderer.render(state);
       } else if (this._interaction.type === 'pan') {
           this.viewState.panX = this._interaction.startPanX + dx;
