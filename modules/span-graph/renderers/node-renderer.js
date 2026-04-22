@@ -1,6 +1,6 @@
 /**
  * Renders interactive nodes (Events, Spans, and NOW) for the Span Graph.
- * REBUILT: Renders active drag origin shapes dynamically.
+ * REBUILT: Renders active drag origin shapes and ghost nodes dynamically.
  */
 export class NodeRenderer {
   constructor(viewport) {
@@ -36,8 +36,6 @@ export class NodeRenderer {
 
         const screenPos = this.viewport.worldToScreen(startW.age, startW.time);
         
-        // Ensure we don't draw it twice if they grabbed the NOW node
-        // Actually, replacing the existing node shape visually is exactly what we want!
         const dragOriginEvent = {
             id: 'drag-origin',
             isSpanOrigin: true,
@@ -45,10 +43,6 @@ export class NodeRenderer {
         };
         const node = this._createNodeElement(dragOriginEvent, screenPos);
         if (node) this.group.appendChild(node);
-        
-        // If we are dragging an established node, we need to temporarily turn it into a destination shape?
-        // No, the node being dragged IS the activeNode, which is manipulated directly by viewport.
-        // BUT wait, we could update the activeNode's SVG dynamically. For now, let the user drop it.
     }
 
     // 3. Render NOW node (unless it is being dragged)
@@ -61,6 +55,35 @@ export class NodeRenderer {
             if (node) this.group.appendChild(node);
         }
     }
+  }
+
+  /**
+   * Renders a temporary "ghost" node at a potential insertion point.
+   */
+  renderGhostNode(worldPos) {
+      if (!this.group) return;
+      
+      const existing = this.group.querySelector('.graph-node-ghost');
+      if (existing) existing.remove();
+
+      if (!worldPos) return;
+
+      const screenPos = this.viewport.worldToScreen(worldPos.age, worldPos.time);
+      const ghost = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      ghost.setAttribute('cx', screenPos.x);
+      ghost.setAttribute('cy', screenPos.y);
+      ghost.setAttribute('r', '6');
+      ghost.setAttribute('class', 'graph-node-ghost');
+      
+      ghost.style.fill = 'rgba(255, 255, 255, 0.3)';
+      ghost.style.stroke = '#fff';
+      ghost.style.strokeWidth = '1';
+      ghost.style.strokeDasharray = '2, 1';
+      ghost.style.cursor = 'pointer';
+      ghost.style.pointerEvents = 'auto';
+
+      this.group.appendChild(ghost);
+      return ghost;
   }
 
   _createNodeElement(event, pos) {

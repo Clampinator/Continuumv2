@@ -32,6 +32,7 @@ export class SpanGraphViewport {
         initialCY: 0,
         startWorld: null,
         currentWorld: null,
+        hoverWorldPos: null,
         mode: null,
         cachedHistory: null,
         cachedNow: 0,
@@ -115,11 +116,8 @@ export class SpanGraphViewport {
     
     this.gridRenderer.render(state, this.viewState);
     this.eraRenderer.render(state);
-    
-    // Pass interaction state for clean overlay rendering
     this.railRenderer.render(state, this._interaction);
     this.nodeRenderer.render(state, this.viewState, this._interaction.isDragging ? this._interaction.nodeElement : null, this._interaction);
-    
     this.creationRenderer.render(state, this.viewState);
     this.axisRenderer.render();
   }
@@ -158,6 +156,13 @@ export class SpanGraphViewport {
       const rect = this.svg.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+
+      // AUTHORITY: Handle Ghost Node Click
+      if (target.classList.contains('graph-node-ghost')) {
+          this._handleGhostNodeClick();
+          return;
+      }
+
       const node = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
       
       const history = flattenEvents(this.actor.system.eras || {});
@@ -188,6 +193,7 @@ export class SpanGraphViewport {
           initialCY: node ? parseFloat(node.getAttribute('cy')) : 0,
           startWorld: nodeWorld || this.screenToWorld(x, y),
           currentWorld: nodeWorld || this.screenToWorld(x, y),
+          hoverWorldPos: null,
           hasSignificantMovement: false, mode: null,
           cachedHistory: history,
           cachedNow: subjectiveNow,
@@ -197,10 +203,16 @@ export class SpanGraphViewport {
   }
 
   _onPointerMove(event) {
-      if (!this._interaction.isDragging) return;
       const rect = this.svg.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+
+      if (!this._interaction.isDragging) {
+          // AUTHORITY: Active hover detection for Ghost Nodes when not dragging
+          this._updateGhostNodeHover(x, y);
+          return;
+      }
+
       const dx = x - this._interaction.startX;
       const dy = y - this._interaction.startY;
 
@@ -216,7 +228,7 @@ export class SpanGraphViewport {
       if (this._interaction.type === 'node') {
           const rawWorld = this.screenToWorld(x, y);
           const world = constrainMovement(rawWorld, this._interaction.startWorld, this._interaction.mode);
-          this._interaction.currentWorld = world; // Expose to renderers
+          this._interaction.currentWorld = world;
           
           const screen = this.worldToScreen(world.age, world.time);
 
@@ -227,7 +239,6 @@ export class SpanGraphViewport {
               this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, screen);
           }
 
-          // Clean overlay render instead of temporal state injection
           const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin);
           this.railRenderer.render(state, this._interaction);
           this.nodeRenderer.render(state, this.viewState, this._interaction.nodeElement, this._interaction);
@@ -260,10 +271,62 @@ export class SpanGraphViewport {
             arrival: worldPos
         });
     } else {
-        if (!isNow) return; // Only NOW node can drag to level
+        if (!isNow) return; 
         const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js'); 
         await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: worldPos.age, timeRaw: worldPos.time });
     }
+  }
+
+  _updateGhostNodeHover(mouseX, mouseY) {
+      const history = flattenEvents(this.actor.system.eras || {});
+      const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
+      const originTime = this._getOriginTime();
+      const state = getTemporalState(history, subjectiveNow, originTime);
+      
+      let nearest = null;
+      let minDist = 20;
+
+      for (let i = 0; i < state.events.length - 1; i++) {
+          const e1 = state.events[i];
+          const e2 = state.events[i+1];
+          
+          // Don't insert into spans (they are vertical, age is the same)
+          if (Number(e1.age) === Number(e2.age)) continue;
+
+          const p1 = this.worldToScreen(e1.age, e1.projectedTime);
+          const p2 = this.worldToScreen(e2.age, e2.projectedTime);
+          
+          const d = this._distToSegment({x: mouseX, y: mouseY}, p1, p2);
+          if (d < minDist) {
+              minDist = d;
+              nearest = {
+                  age: (Number(e1.age) + Number(e2.age)) / 2,
+                  time: (Number(e1.projectedTime) + Number(e2.projectedTime)) / 2
+              };
+          }
+      }
+
+      this._interaction.hoverWorldPos = nearest;
+      this.nodeRenderer.renderGhostNode(nearest);
+  }
+
+  _distToSegment(p, v, w) {
+    const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
+    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+  }
+
+  async _handleGhostNodeClick() {
+      if (!this._interaction.hoverWorldPos) return;
+      const pos = this._interaction.hoverWorldPos;
+      const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
+      await openEventDialog(this.actor.sheet, {
+          mode: 'log',
+          ageRaw: pos.age,
+          timeRaw: pos.time
+      });
   }
 
   handlePan(dx, dy) {
