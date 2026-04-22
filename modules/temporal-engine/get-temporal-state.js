@@ -5,6 +5,7 @@ import { generateExperiences } from '../lifeline/services/segment-generator/gene
 /**
  * AUTHORITATIVE TEMPORAL STATE ENGINE
  * Enforces the character's journey as a linked sequence of segments and jumps.
+ * REBUILT: Immutable Physical Authority Pass.
  */
 export function getTemporalState(history, subjectiveNow = 0, originTime = 0, actor = null) {
   const segments = calculateSegments(history, originTime);
@@ -29,7 +30,10 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
         activeSegment = segments.find(s => s.events.some(e => e.id === event.id)) || segments[0];
     }
     
-    const projectedTime = resolveCoordinates(event.age, activeSegment);
+    // AUTHORITY: Absolute high-precision age/time from ground-truth storage
+    const authoritativeAge = Number(event.age);
+    const projectedTime = resolveCoordinates(authoritativeAge, activeSegment);
+    
     const arrivalTime = event.isSpan ? Number(event.arrivalTime || event.time) : 0;
 
     if (event.isSpan) {
@@ -40,6 +44,7 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
 
     return {
       ...event,
+      age: authoritativeAge,
       projectedTime,
       time: event.time || projectedTime,
       arrivalTime,
@@ -109,7 +114,6 @@ function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0, 
 
   let experiences = [];
   if (actor) {
-      // AUTHORITY: Maintain Era IDs when passing to generator
       const erasWithIds = Object.entries(actor.system.eras || {}).map(([id, era]) => ({
           ...era,
           id: id

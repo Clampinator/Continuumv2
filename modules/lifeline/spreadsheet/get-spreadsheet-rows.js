@@ -14,7 +14,7 @@ export function getSpreadsheetRows(actor) {
     const subjectiveNow = Number(actor.system.personal?.subjectiveNow) || 0;
 
     // 1. Get Flattened canonical history
-    const history = flattenEvents(rawEras);
+    const history = flattenEvents(rawEras, actor);
 
     // 2. Process through the new Temporal Engine (Brain)
     const state = getTemporalState(history, subjectiveNow);

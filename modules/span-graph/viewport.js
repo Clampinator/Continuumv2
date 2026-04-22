@@ -14,7 +14,7 @@ import { TARGET_RATIO } from '../temporal-engine/constants.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
- * REBUILT: Strict Layer Authority (Experience -> Rail -> Node).
+ * STABILIZED: Authoritative single-renderer Pointer Machine.
  */
 export class SpanGraphViewport {
   constructor(container, actor = null) {
@@ -53,18 +53,15 @@ export class SpanGraphViewport {
     if (this.container && this.svg) {
       this.container.appendChild(this.svg);
       
-      // AUTHORITY: Strictly order group creation to define base layering
+      // AUTHORITY: Established base layering
       this.gridRenderer = new GridRenderer(this);
       this.eraRenderer = new EraRenderer(this);
-      this.experienceRenderer = new ExperienceRenderer(this); // Bottom
-      this.railRenderer = new RailRenderer(this);           // Middle
-      this.nodeRenderer = new NodeRenderer(this);           // Top
-      this.creationRenderer = new CreationRenderer(this);   // UI
-      this.axisRenderer = new AxisRenderer(this);           // HUD
+      this.experienceRenderer = new ExperienceRenderer(this); 
+      this.railRenderer = new RailRenderer(this);           
+      this.nodeRenderer = new NodeRenderer(this);           
+      this.creationRenderer = new CreationRenderer(this);   
+      this.axisRenderer = new AxisRenderer(this);           
       this.tooltipManager = new TooltipManager(this);
-
-      this.interactionGroup = this._createInteractionGroup();
-      this.svg.appendChild(this.interactionGroup);
 
       this._activateListeners();
       
@@ -89,7 +86,7 @@ export class SpanGraphViewport {
     const rect = this.container.getBoundingClientRect();
     if (rect.width === 0) { setTimeout(() => this.autoFocus(), 200); return; }
     
-    const history = flattenEvents(this.actor.system.eras || {});
+    const history = flattenEvents(this.actor.system.eras || {}, this.actor);
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
     const originTime = this._getOriginTime();
     
@@ -118,18 +115,18 @@ export class SpanGraphViewport {
 
   _render() {
     if (!this.actor || !this.container) return;
-    const history = flattenEvents(this.actor.system.eras || {});
+    const history = flattenEvents(this.actor.system.eras || {}, this.actor);
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
     const originTime = this._getOriginTime();
     
     const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
     
-    // AUTHORITY: Sequential draw to preserve visual stack integrity
+    // AUTHORITY: Single-source-of-truth render pass
     this.gridRenderer.render(state, this.viewState);
     this.eraRenderer.render(state);
     this.experienceRenderer.render(state);
     this.railRenderer.render(state, this._interaction);
-    this.nodeRenderer.render(state, this.viewState);
+    this.nodeRenderer.render(state, this.viewState, null, this._interaction);
     this.creationRenderer.render(state, this.viewState);
     this.axisRenderer.render();
   }
@@ -148,13 +145,6 @@ export class SpanGraphViewport {
     return svg;
   }
 
-  _createInteractionGroup() {
-      if (typeof document === 'undefined') return null;
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('class', 'span-graph-interaction-overlay');
-      return g;
-  }
-
   _activateListeners() {
     if (!this.svg) return;
     this.svg.addEventListener('pointerdown', (e) => this._onPointerDown(e));
@@ -168,6 +158,8 @@ export class SpanGraphViewport {
         const rect = this.container.getBoundingClientRect();
         this.handleZoom(factor, { x: event.clientX - rect.left, y: event.clientY - rect.top });
     }, { passive: false });
+
+    this.svg.addEventListener('contextmenu', (e) => this._onContextMenu(e));
   }
 
   _onPointerDown(event) {
@@ -182,7 +174,7 @@ export class SpanGraphViewport {
       }
 
       const node = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
-      const history = flattenEvents(this.actor.system.eras || {});
+      const history = flattenEvents(this.actor.system.eras || {}, this.actor);
       const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
       const originTime = this._getOriginTime();
       const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
@@ -206,8 +198,8 @@ export class SpanGraphViewport {
           nodeElement: node,
           startX: x, startY: y,
           startPanX: this.viewState.panX, startPanY: this.viewState.panY,
-          initialCX: node ? parseFloat(node.getAttribute('cx')) : 0,
-          initialCY: node ? parseFloat(node.getAttribute('cy')) : 0,
+          initialCX: node ? (parseFloat(node.getAttribute('cx')) || 0) : 0,
+          initialCY: node ? (parseFloat(node.getAttribute('cy')) || 0) : 0,
           startWorld: nodeWorld || this.screenToWorld(x, y),
           currentWorld: nodeWorld || this.screenToWorld(x, y),
           hoverWorldPos: null,
@@ -217,7 +209,6 @@ export class SpanGraphViewport {
           cachedOrigin: originTime
       };
 
-      if (node) this.interactionGroup.appendChild(node);
       if (this.svg.setPointerCapture) this.svg.setPointerCapture(event.pointerId);
   }
 
@@ -244,22 +235,26 @@ export class SpanGraphViewport {
       }
 
       if (this._interaction.type === 'node') {
-          const rawWorld = this.screenToWorld(x, y);
+          const { zoom } = this.viewState;
+          const deltaAge = dx / zoom;
+          const deltaTime = dy / (TARGET_RATIO * zoom);
+          
+          const rawWorld = {
+              age: this._interaction.startWorld.age + deltaAge,
+              time: this._interaction.startWorld.time + deltaTime
+          };
+
+          // AUTHORITY: Constraint physical solver
           const world = constrainMovement(rawWorld, this._interaction.startWorld, this._interaction.mode);
           this._interaction.currentWorld = world;
           
-          const screen = this.worldToScreen(world.age, world.time);
-
-          this._interaction.nodeElement.setAttribute('cx', screen.x);
-          this._interaction.nodeElement.setAttribute('cy', screen.y);
           if (this.tooltipManager) {
               const dateStr = new Date(world.time).toISOString().split('T')[0];
-              this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, screen);
+              this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, { x, y });
           }
 
-          const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin, this.actor);
-          this.experienceRenderer.render(state);
-          this.railRenderer.render(state, this._interaction);
+          // Full re-render pass ensures Rails and Experiences track the moving node
+          requestAnimationFrame(() => this._render());
           
       } else if (this._interaction.type === 'pan') {
           this.viewState.panX = this._interaction.startPanX + dx;
@@ -275,11 +270,10 @@ export class SpanGraphViewport {
       this.viewState.interactionMode = 'pan';
       
       if (state.hasSignificantMovement && state.type === 'node') {
-          const world = constrainMovement(this.screenToWorld(event.clientX - this.svg.getBoundingClientRect().left, event.clientY - this.svg.getBoundingClientRect().top), state.startWorld, state.mode);
+          const world = state.currentWorld;
           this._handleNodeDrop(world, state.mode, state.nodeElement.classList.contains('graph-node-now'));
       }
 
-      this.interactionGroup.innerHTML = ''; 
       this._interaction.isDragging = false;
       this._render();
   }
@@ -298,8 +292,33 @@ export class SpanGraphViewport {
     }
   }
 
+  _onContextMenu(event) {
+      event.preventDefault();
+      const target = event.target;
+      const node = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
+      if (!node || node.classList.contains('graph-node-now')) return;
+
+      const eventId = node.dataset.eventId;
+      const history = flattenEvents(this.actor.system.eras || {}, this.actor);
+      const targetEvent = history.find(e => e.id === eventId);
+      
+      if (targetEvent) {
+          this._handleNodeEdit(targetEvent);
+      }
+  }
+
+  async _handleNodeEdit(eventData) {
+      const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
+      await openEventDialog(this.actor.sheet, { 
+          mode: 'edit', 
+          existingData: eventData,
+          ageRaw: eventData.age,
+          timeRaw: eventData.ts || eventData.projectedTime || eventData.time
+      });
+  }
+
   _updateGhostNodeHover(mouseX, mouseY) {
-      const history = flattenEvents(this.actor.system.eras || {});
+      const history = flattenEvents(this.actor.system.eras || {}, this.actor);
       const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
       const originTime = this._getOriginTime();
       const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
@@ -307,38 +326,46 @@ export class SpanGraphViewport {
       let nearest = null;
       let minDist = 20;
 
-      for (let i = 0; i < state.events.length - 1; i++) {
-          const e1 = state.events[i];
-          const e2 = state.events[i+1];
-          if (Number(e1.age) === Number(e2.age)) continue;
-          const p1 = this.worldToScreen(e1.age, e1.projectedTime);
-          const p2 = this.worldToScreen(e2.age, e2.projectedTime);
-          const d = this._distToSegment({x: mouseX, y: mouseY}, p1, p2);
-          if (d < minDist) {
-              minDist = d;
+      for (const segment of state.segments) {
+          const w1 = { age: segment.startAge, time: segment.startTime };
+          let w2;
+          if (segment.exitPoint) {
+              w2 = { age: segment.exitPoint.age, time: segment.exitPoint.projectedTime };
+          } else {
+              w2 = { age: state.nowNode.age, time: state.nowNode.projectedTime };
+          }
+
+          const p1 = this.worldToScreen(w1.age, w1.time);
+          const p2 = this.worldToScreen(w2.age, w2.time);
+          
+          const proj = this._getProjectionOnSegment({x: mouseX, y: mouseY}, p1, p2);
+          if (proj.dist < minDist) {
+              minDist = proj.dist;
               nearest = {
-                  age: (Number(e1.age) + Number(e2.age)) / 2,
-                  time: (Number(e1.projectedTime) + Number(e2.projectedTime)) / 2
+                  age: w1.age + proj.t * (w2.age - w1.age),
+                  time: w1.time + proj.t * (w2.time - w1.time)
               };
           }
       }
+
       this._interaction.hoverWorldPos = nearest;
       this.nodeRenderer.renderGhostNode(nearest);
   }
 
-  _distToSegment(p, v, w) {
+  _getProjectionOnSegment(p, v, w) {
     const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
-    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+    if (l2 === 0) return { dist: Math.hypot(p.x - v.x, p.y - v.y), t: 0 };
     let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
     t = Math.max(0, Math.min(1, t));
-    return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+    const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
+    return { dist: Math.hypot(p.x - proj.x, p.y - proj.y), t: t };
   }
 
   async _handleGhostNodeClick() {
       if (!this._interaction.hoverWorldPos) return;
       const pos = this._interaction.hoverWorldPos;
       const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js');
-      await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: pos.age, timeRaw: pos.time });
+      await openEventDialog(this.actor.sheet, { mode: 'insert', ageRaw: pos.age, timeRaw: pos.time });
   }
 
   handlePan(dx, dy) { this.setViewState({ panX: this.viewState.panX + dx, panY: this.viewState.panY + dy }); }
