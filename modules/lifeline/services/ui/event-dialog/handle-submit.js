@@ -91,7 +91,17 @@ export async function handleSubmit(actor, formData, params) {
   let authoritativeAge, authoritativeTime, authoritativeSort;
 
   if (positionChanged) {
-      const reindexUpdates = reindexLifelineNodes(actor, newId, -1, { age: finalAge, time: finalTime }, {
+      // AUTHORITY: Spans must be chronologically sequenced by their DEPARTURE time, 
+      // not their arrival time, because the character experiences the departure first.
+      let sortTime = finalTime;
+      if (isSpan) {
+          const depDate = normalizeDateInput(formData.spanFromDate);
+          const depTimeStr = formData.spanFromTime || "12:00:00";
+          const depDateObj = parseDate(`${depDate}T${depTimeStr}`);
+          sortTime = depDateObj ? depDateObj.getTime() : (params.departure?.time || finalTime);
+      }
+
+      const reindexUpdates = reindexLifelineNodes(actor, newId, -1, { age: finalAge, time: sortTime }, {
           graphData,
           isLog: mode === 'log'
       });
