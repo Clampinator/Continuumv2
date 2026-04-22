@@ -4,10 +4,10 @@
 - [x] Task: Implement `openSpanDialog` Service (9ec8057)
     - [x] Write Tests: Ensure the service correctly captures `startWorld` (departure) and `currentWorld` (arrival) data without throwing ReferenceErrors on close.
     - [x] Implement: Create a clean V13 `openSpanDialog` function that handles dialog rendering and state cleanup, modeled after the stabilized `openEventDialog`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Interaction Architecture' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Interaction Architecture' (Protocol in workflow.md)
 
 ## Phase 2: High-Fidelity Span Form & Engine
-- [ ] Task: Develop Span Result Handlebars Template
+- [~] Task: Develop Span Result Handlebars Template
     - [ ] Write Tests: N/A - Visual template validation required.
     - [ ] Implement: Construct `span-result-dialog.html`. Include fields for: **Span Rank, Down-Time, Frag, Arrival Date, Span Cost, 24-Hour Rest Toggle, and SpaceTime Map Hooks**.
 - [ ] Task: Implement Span Math & Submission Logic
