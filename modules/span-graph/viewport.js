@@ -5,6 +5,7 @@ import { NodeRenderer } from './renderers/node-renderer.js';
 import { CreationRenderer } from './renderers/creation-renderer.js';
 import { EraRenderer } from './renderers/era-renderer.js';
 import { AxisRenderer } from './renderers/axis-renderer.js';
+import { ExperienceRenderer } from './renderers/experience-renderer.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
 import { getDragMode, constrainMovement } from './actions/drag-physics.js';
 import { TooltipManager } from './ui/tooltips.js';
@@ -52,6 +53,7 @@ export class SpanGraphViewport {
       this.container.appendChild(this.svg);
       this.gridRenderer = new GridRenderer(this);
       this.eraRenderer = new EraRenderer(this);
+      this.experienceRenderer = new ExperienceRenderer(this);
       this.railRenderer = new RailRenderer(this);
       this.nodeRenderer = new NodeRenderer(this);
       this.creationRenderer = new CreationRenderer(this);
@@ -83,7 +85,7 @@ export class SpanGraphViewport {
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
     const originTime = this._getOriginTime();
     
-    const state = getTemporalState(history, subjectiveNow, originTime);
+    const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
     const targetAge = state.nowNode?.age || 0;
     const targetTime = state.nowNode?.projectedTime || 0;
 
@@ -112,12 +114,14 @@ export class SpanGraphViewport {
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
     const originTime = this._getOriginTime();
     
-    const state = getTemporalState(history, subjectiveNow, originTime);
+    const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
     
     this.gridRenderer.render(state, this.viewState);
     this.eraRenderer.render(state);
+    this.experienceRenderer.render(state);
     this.railRenderer.render(state, this._interaction);
     this.nodeRenderer.render(state, this.viewState, this._interaction.isDragging ? this._interaction.nodeElement : null, this._interaction);
+    
     this.creationRenderer.render(state, this.viewState);
     this.axisRenderer.render();
   }
@@ -168,7 +172,7 @@ export class SpanGraphViewport {
       const history = flattenEvents(this.actor.system.eras || {});
       const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
       const originTime = this._getOriginTime();
-      const state = getTemporalState(history, subjectiveNow, originTime);
+      const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
 
       let nodeWorld = null;
       if (node) {
@@ -239,7 +243,7 @@ export class SpanGraphViewport {
               this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, screen);
           }
 
-          const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin);
+          const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin, this.actor);
           this.railRenderer.render(state, this._interaction);
           this.nodeRenderer.render(state, this.viewState, this._interaction.nodeElement, this._interaction);
           
@@ -281,7 +285,7 @@ export class SpanGraphViewport {
       const history = flattenEvents(this.actor.system.eras || {});
       const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
       const originTime = this._getOriginTime();
-      const state = getTemporalState(history, subjectiveNow, originTime);
+      const state = getTemporalState(history, subjectiveNow, originTime, this.actor);
       
       let nearest = null;
       let minDist = 20;

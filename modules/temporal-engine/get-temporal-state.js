@@ -1,17 +1,18 @@
 import { calculateSegments } from './calculate-segments.js';
 import { resolveCoordinates } from './resolve-coordinates.js';
+import { generateExperiences } from '../lifeline/services/segment-generator/generate-experiences.js';
 
 /**
  * AUTHORITATIVE TEMPORAL STATE ENGINE
  * Enforces the character's journey as a linked sequence of segments and jumps.
  */
-export function getTemporalState(history, subjectiveNow = 0, originTime = 0) {
+export function getTemporalState(history, subjectiveNow = 0, originTime = 0, actor = null) {
   // 1. Generate Physical Segments
   const segments = calculateSegments(history, originTime);
   
   if (segments.length === 0) {
     const defaultArrival = { age: 0, projectedTime: originTime, isBirth: true };
-    return _finalizeState([{ startAge: 0, startTime: originTime, events: [], arrivalPoint: defaultArrival }], [], subjectiveNow, 0);
+    return _finalizeState([{ startAge: 0, startTime: originTime, events: [], arrivalPoint: defaultArrival }], [], subjectiveNow, 0, actor);
   }
 
   let totalDisplacement = 0;
@@ -84,10 +85,10 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0) {
       };
   });
 
-  return _finalizeState(projectedSegments, eventsWithProjection, subjectiveNow, totalDisplacement);
+  return _finalizeState(projectedSegments, eventsWithProjection, subjectiveNow, totalDisplacement, actor);
   }
 
-  function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0) {
+  function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0, actor = null) {
   const nowSegment = [...segments].reverse().find(s => s.startAge <= subjectiveNow) 
                   || segments[0];
 
@@ -104,5 +105,13 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0) {
       events.unshift({ ...birth, title: "Birth", isBirth: true });
   }
 
-  return { segments, events, nowNode, spanPool: { consumed: totalDisplacement, total: 0 } };
+  // 4. Generate Experience Boxes if actor is provided
+  let experiences = [];
+  if (actor) {
+      const rawEras = actor.system.eras || {};
+      const sortedEras = Object.values(rawEras).sort((a,b) => (a.sort || 0) - (b.sort || 0));
+      experiences = generateExperiences(sortedEras, events, nowNode);
+  }
+
+  return { segments, events, nowNode, experiences, spanPool: { consumed: totalDisplacement, total: 0 } };
   }
