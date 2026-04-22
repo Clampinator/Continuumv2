@@ -13,7 +13,7 @@ import { TARGET_RATIO } from '../temporal-engine/constants.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
- * REBUILT: Robust Pointer Machine with strict axial locking.
+ * REBUILT: Robust Pointer Machine with strict axial locking and dynamic dialog routing.
  */
 export class SpanGraphViewport {
   constructor(container, actor = null) {
@@ -214,15 +214,23 @@ export class SpanGraphViewport {
       this.viewState.interactionMode = 'pan';
       if (state.hasSignificantMovement && state.type === 'node' && state.nodeElement.classList.contains('graph-node-now')) {
           const world = constrainMovement(this.screenToWorld(event.clientX - this.svg.getBoundingClientRect().left, event.clientY - this.svg.getBoundingClientRect().top), state.startWorld, state.mode);
-          this._handleNowNodeDrop(world);
+          this._handleNowNodeDrop(world, state.mode);
       }
       this._interaction.isDragging = false;
       this._render();
   }
 
-  async _handleNowNodeDrop(worldPos) {
-    const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js'); 
-    await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: worldPos.age, timeRaw: worldPos.time });
+  async _handleNowNodeDrop(worldPos, mode = 'level') {
+    if (mode === 'span') {
+        const { openSpanDialog } = await import('../lifeline/services/ui/span-dialog/open-span-dialog.js');
+        await openSpanDialog(this.actor.sheet, {
+            departure: this._interaction.startWorld,
+            arrival: worldPos
+        });
+    } else {
+        const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js'); 
+        await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: worldPos.age, timeRaw: worldPos.time });
+    }
   }
 
   handlePan(dx, dy) {
