@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Lifeline Span Logic & Dialog Implementation**
-  *Link: [./tracks/lifeline_span_logic_20260422/](./tracks/lifeline_span_logic_20260422/)*
+- [ ] **Track: Lifeline HUD Refinement (Ghost Nodes & Experience Bars)**
+  *Link: [./tracks/lifeline_hud_refinement_20260422/](./tracks/lifeline_hud_refinement_20260422/)*
