@@ -19,10 +19,10 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0) {
   // 2. Project Events into their segments
   const eventsWithProjection = history.map(event => {
     // Find the segment where this event is the EXIT point (Span departure)
-    // or where it resides as a normal event.
+    // or where it definitely resides as a normal event.
     let activeSegment = segments.find(s => s.exitPoint?.id === event.id);
     if (!activeSegment) {
-        activeSegment = [...segments].reverse().find(s => s.startAge <= event.age) || segments[0];
+        activeSegment = segments.find(s => s.events.some(e => e.id === event.id)) || segments[0];
     }
     
     const projectedTime = resolveCoordinates(event.age, activeSegment);
