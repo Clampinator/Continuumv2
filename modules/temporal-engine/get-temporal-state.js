@@ -18,28 +18,55 @@ export function getTemporalState(history, subjectiveNow = 0) {
   let totalDisplacement = 0;
 
   // 1. PROJECT EVENTS
-  const eventsWithProjection = history.map(event => {
+  const eventsWithProjection = history.map((event, index) => {
     const activeSegment = [...segments].reverse().find(s => s.startAge <= event.age) 
                        || segments[0];
     
     const projectedTime = resolveCoordinates(event.age, activeSegment);
     
+    // AUTHORITY: Tag Span Origins and Destinations
+    let isSpanOrigin = false;
+    let isSpanDest = false;
+    let spanType = null;
+
     if (event.isSpan) {
+       isSpanOrigin = true;
        const segmentIndex = segments.indexOf(activeSegment);
        const previousSegment = segments[segmentIndex - 1] || activeSegment;
        const departureTime = resolveCoordinates(event.age, previousSegment) || 0;
        const arrivalTime = event.arrivalTime || 0;
        totalDisplacement += Math.abs(arrivalTime - departureTime);
+       
+       spanType = arrivalTime > departureTime ? 'up' : 'down';
+    }
+
+    // A destination is any node that starts a segment (except the very first segment)
+    const isFirstOfSegment = segments.some(s => s.events[0]?.id === event.id && s !== segments[0]);
+    if (isFirstOfSegment) {
+        isSpanDest = true;
+        // Determine arrival direction by looking at the previous span event
+        const prevEvent = history[index - 1];
+        if (prevEvent && prevEvent.isSpan) {
+            spanType = (event.projectedTime > (prevEvent.arrivalTime || 0) ? 'up' : 'down');
+            // Wait, the arrival time IS the projected time of the first node of the segment.
+            // Let's use the Span event's arrivalTime to determine direction.
+            const arrivalTime = prevEvent.arrivalTime || 0;
+            const departureSegment = segments.find(s => s.events.includes(prevEvent));
+            const departureTime = resolveCoordinates(prevEvent.age, departureSegment);
+            spanType = arrivalTime > departureTime ? 'up' : 'down';
+        }
     }
 
     return {
       ...event,
-      projectedTime
+      projectedTime,
+      isSpanOrigin,
+      isSpanDest,
+      spanDirection: spanType
     };
   });
 
   // 2. PROJECT SEGMENT EVENTS (Crucial for RailRenderer)
-  // We must ensure the objects inside segment.events are the ones WITH projections.
   const projectedSegments = segments.map(seg => {
       return {
           ...seg,
