@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Codebase Stabilization & Architectural Integrity**
+- [~] **Track: Codebase Stabilization & Architectural Integrity**
   *Link: [./tracks/codebase_stabilization_20260422/](./tracks/codebase_stabilization_20260422/)*
