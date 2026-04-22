@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Lifeline HUD Refinement (Ghost Nodes & Experience Boxes)**
-  *Link: [./tracks/lifeline_hud_refinement_20260422/](./tracks/lifeline_hud_refinement_20260422/)*
+- [ ] **Track: Lifeline Interaction & Span Physics Refinement**
+  *Link: [./tracks/lifeline_interaction_physics_refinement_20260422/](./tracks/lifeline_interaction_physics_refinement_20260422/)*
