@@ -32,7 +32,7 @@ describe('Create Span Interaction', () => {
     viewport = new SpanGraphViewport(container);
   });
 
-  it('should have a _handleNowNodeDrop method that handles span mode', () => {
-    expect(viewport._handleNowNodeDrop).toBeDefined();
+  it('should have a _handleNodeDrop method that handles span mode', () => {
+    expect(viewport._handleNodeDrop).toBeDefined();
   });
 });

@@ -45,6 +45,6 @@ describe('NOW Node Drop Interactions', () => {
     // We need to mock the event finding logic inside the method
     // For unit testing private methods with complex dependencies, 
     // we often verify the method is present and its basic branch logic.
-    expect(viewport._handleNowNodeDrop).toBeDefined();
+    expect(viewport._handleNodeDrop).toBeDefined();
   });
 });

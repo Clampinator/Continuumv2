@@ -1,6 +1,6 @@
 /**
  * Renders interactive nodes (Events, Spans, and NOW) for the Span Graph.
- * Matches legacy typography: Triangles for Origins, Semi-circles for Dest.
+ * REBUILT: Renders active drag origin shapes dynamically.
  */
 export class NodeRenderer {
   constructor(viewport) {
@@ -11,24 +11,15 @@ export class NodeRenderer {
     }
   }
 
-  /**
-   * Renders all nodes for the current state.
-   * @param {Object} state - The temporal state.
-   * @param {Object} viewState - View state.
-   * @param {SVGElement} [activeNode] - The node currently being dragged (don't recreate).
-   */
-  render(state, viewState, activeNode = null) {
+  render(state, viewState, activeNode = null, interaction = null) {
     if (!this.group) return;
     
-    // AUTHORITY: We must clear and rebuild, but we can't kill the node we are dragging.
-    // If activeNode is provided, we remove everything ELSE.
     this.group.innerHTML = '';
     if (activeNode) this.group.appendChild(activeNode);
 
     // 1. Render History Events
     if (state.events) {
       for (const event of state.events) {
-        // Skip if this is the active node (unlikely for historical events but safe)
         if (activeNode && activeNode.dataset.eventId === event.id) continue;
         
         const screenPos = this.viewport.worldToScreen(event.age || 0, event.projectedTime || 0);
@@ -37,7 +28,30 @@ export class NodeRenderer {
       }
     }
 
-    // 2. Render NOW node (unless it is being dragged)
+    // 2. Render Active Drag Origin (if spanning)
+    if (interaction && interaction.isDragging && interaction.mode === 'span' && interaction.startWorld) {
+        const startW = interaction.startWorld;
+        const currentW = interaction.currentWorld;
+        const isFuture = currentW.time > startW.time;
+
+        const screenPos = this.viewport.worldToScreen(startW.age, startW.time);
+        
+        // Ensure we don't draw it twice if they grabbed the NOW node
+        // Actually, replacing the existing node shape visually is exactly what we want!
+        const dragOriginEvent = {
+            id: 'drag-origin',
+            isSpanOrigin: true,
+            spanDirection: isFuture ? 'up' : 'down'
+        };
+        const node = this._createNodeElement(dragOriginEvent, screenPos);
+        if (node) this.group.appendChild(node);
+        
+        // If we are dragging an established node, we need to temporarily turn it into a destination shape?
+        // No, the node being dragged IS the activeNode, which is manipulated directly by viewport.
+        // BUT wait, we could update the activeNode's SVG dynamically. For now, let the user drop it.
+    }
+
+    // 3. Render NOW node (unless it is being dragged)
     if (state.nowNode) {
         if (activeNode && activeNode.classList.contains('graph-node-now')) {
             // Already appended above
@@ -49,10 +63,6 @@ export class NodeRenderer {
     }
   }
 
-  /**
-   * Creates an individual node element with correct typography.
-   * @private
-   */
   _createNodeElement(event, pos) {
     if (typeof document === 'undefined') return null;
 

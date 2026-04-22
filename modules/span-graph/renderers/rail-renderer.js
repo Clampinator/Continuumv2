@@ -12,9 +12,9 @@ export class RailRenderer {
   }
 
   /**
-   * Renders a strictly continuous path from Birth to NOW.
+   * Renders the strictly controlled path from Birth to NOW, plus any active drag preview.
    */
-  render(state) {
+  render(state, interaction = null) {
     if (!this.group || !state.segments) return;
     this.group.innerHTML = '';
 
@@ -25,7 +25,6 @@ export class RailRenderer {
         const segment = state.segments[i];
 
         // A. VERTICAL SPAN (Pink Dots) - PRE-SEGMENT
-        // Every segment (except the first) starts with an arrival from the previous exit.
         if (i > 0) {
             const prevSegment = state.segments[i - 1];
             const departureNode = prevSegment.exitPoint;
@@ -39,21 +38,36 @@ export class RailRenderer {
                 const pathData = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
                 const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
                 
+                // Animation Direction
+                const isFuture = arrivalNode.projectedTime > departureNode.projectedTime;
+                spanLine.classList.add(isFuture ? 'up' : 'down');
+
                 if (fragment) fragment.appendChild(spanLine);
                 else this.group.appendChild(spanLine);
             }
         }
 
         // B. LEVELING RAIL (Solid Blue)
-        // A rail flows from segment.arrivalPoint -> all events -> segment.exitPoint
         const railNodes = [];
         if (segment.arrivalPoint) railNodes.push(segment.arrivalPoint);
         if (segment.events) railNodes.push(...segment.events);
         if (segment.exitPoint) railNodes.push(segment.exitPoint);
 
+        // If this is the last segment and we are not dragging an established node, add the NOW node
+        if (i === state.segments.length - 1 && state.nowNode) {
+            // Only add NOW node to the rail if it's not being dragged as a span
+            // If dragging, the interaction overlay will handle the tether.
+            if (!interaction || !interaction.isDragging) {
+                railNodes.push(state.nowNode);
+            } else if (interaction.type !== 'node' || !interaction.nodeElement?.classList.contains('graph-node-now')) {
+                // If dragging something else (pan, era, or established event), NOW node is static
+                railNodes.push(state.nowNode);
+            }
+        }
+
         if (railNodes.length >= 2) {
             const points = railNodes.map(node => this.viewport.worldToScreen(node.age, node.projectedTime));
-            const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+            const pathData = points.map((p, j) => `${j === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
             
             const railLine = this._createPathElement(pathData, 'span-graph-rail');
             if (fragment) fragment.appendChild(railLine);
@@ -61,37 +75,47 @@ export class RailRenderer {
         }
     }
 
-    // 2. ACTIVE LOG TETHER (Trail to NOW node)
-    if (state.nowNode) {
-        const lastSegment = state.segments[state.segments.length - 1];
-        const allLastNodes = [];
-        if (lastSegment.arrivalPoint) allLastNodes.push(lastSegment.arrivalPoint);
-        if (lastSegment.events) allLastNodes.push(...lastSegment.events);
-        if (lastSegment.exitPoint) allLastNodes.push(lastSegment.exitPoint);
-        
-        const lastNode = allLastNodes[allLastNodes.length - 1];
+    // 2. ACTIVE DRAG PREVIEW OVERLAY
+    if (interaction && interaction.isDragging && interaction.type === 'node' && interaction.startWorld && interaction.currentWorld) {
+        const startW = interaction.startWorld;
+        const currentW = interaction.currentWorld;
+        const mode = interaction.mode;
 
-        if (lastNode) {
-            const p1 = this.viewport.worldToScreen(lastNode.age, lastNode.projectedTime);
-            const p2 = this.viewport.worldToScreen(state.nowNode.age, state.nowNode.projectedTime);
-            const pathData = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+        const p1 = this.viewport.worldToScreen(startW.age, startW.time);
+        const p2 = this.viewport.worldToScreen(currentW.age, currentW.time);
+        const pathData = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
 
-            const dragMode = this.viewport._interaction?.mode;
-            if (dragMode === 'span') {
-                const logLine = this._createPathElement(pathData, 'span-graph-span-line');
-                if (fragment) fragment.appendChild(logLine);
-                else this.group.appendChild(logLine);
-            } else if (dragMode === 'level') {
-                const logLine = this._createPathElement(pathData, 'span-graph-rail');
-                if (fragment) fragment.appendChild(logLine);
-                else this.group.appendChild(logLine);
-            }
+        if (mode === 'span') {
+            const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
+            const isFuture = currentW.time > startW.time;
+            spanLine.classList.add(isFuture ? 'up' : 'down');
+            if (fragment) fragment.appendChild(spanLine);
+            else this.group.appendChild(spanLine);
+        } else if (mode === 'level') {
+            const railLine = this._createPathElement(pathData, 'span-graph-rail');
+            if (fragment) fragment.appendChild(railLine);
+            else this.group.appendChild(railLine);
+        } else {
+            const logLine = this._createPathElement(pathData, 'span-graph-log-line');
+            if (fragment) fragment.appendChild(logLine);
+            else this.group.appendChild(logLine);
         }
     }
 
     if (fragment) {
       this.group.appendChild(fragment);
     }
+  }
+
+  _generatePathData(nodes) {
+    const points = nodes.map(node => {
+        const time = node.projectedTime ?? node.time ?? 0;
+        const age = node.age ?? 0;
+        return this.viewport.worldToScreen(age, time);
+    });
+
+    const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`);
+    return d.join(' ');
   }
 
   _createPathElement(d, className) {

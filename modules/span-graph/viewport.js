@@ -31,6 +31,7 @@ export class SpanGraphViewport {
         initialCX: 0,
         initialCY: 0,
         startWorld: null,
+        currentWorld: null,
         mode: null,
         cachedHistory: null,
         cachedNow: 0,
@@ -114,8 +115,11 @@ export class SpanGraphViewport {
     
     this.gridRenderer.render(state, this.viewState);
     this.eraRenderer.render(state);
-    this.railRenderer.render(state);
-    this.nodeRenderer.render(state, this.viewState, this._interaction.isDragging ? this._interaction.nodeElement : null);
+    
+    // Pass interaction state for clean overlay rendering
+    this.railRenderer.render(state, this._interaction);
+    this.nodeRenderer.render(state, this.viewState, this._interaction.isDragging ? this._interaction.nodeElement : null, this._interaction);
+    
     this.creationRenderer.render(state, this.viewState);
     this.axisRenderer.render();
   }
@@ -183,6 +187,7 @@ export class SpanGraphViewport {
           initialCX: node ? parseFloat(node.getAttribute('cx')) : 0,
           initialCY: node ? parseFloat(node.getAttribute('cy')) : 0,
           startWorld: nodeWorld || this.screenToWorld(x, y),
+          currentWorld: nodeWorld || this.screenToWorld(x, y),
           hasSignificantMovement: false, mode: null,
           cachedHistory: history,
           cachedNow: subjectiveNow,
@@ -211,72 +216,22 @@ export class SpanGraphViewport {
       if (this._interaction.type === 'node') {
           const rawWorld = this.screenToWorld(x, y);
           const world = constrainMovement(rawWorld, this._interaction.startWorld, this._interaction.mode);
+          this._interaction.currentWorld = world; // Expose to renderers
+          
           const screen = this.worldToScreen(world.age, world.time);
 
+          this._interaction.nodeElement.setAttribute('cx', screen.x);
+          this._interaction.nodeElement.setAttribute('cy', screen.y);
           if (this.tooltipManager) {
               const dateStr = new Date(world.time).toISOString().split('T')[0];
               this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, screen);
           }
 
+          // Clean overlay render instead of temporal state injection
           const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin);
+          this.railRenderer.render(state, this._interaction);
+          this.nodeRenderer.render(state, this.viewState, this._interaction.nodeElement, this._interaction);
           
-          // AUTHORITY: Inject the physical reality of the active drag into the temporal state.
-          // This ensures all renderers (Rails and Nodes) draw the exact sequence of events
-          // without needing dirty UI patches.
-          if (this._interaction.mode === 'span') {
-              const startW = this._interaction.startWorld;
-              const isFuture = world.time > startW.time;
-              
-              // 1. The point where the drag started becomes a definitive Span Origin
-              const dragOriginEvent = {
-                  id: 'drag-origin',
-                  age: startW.age,
-                  projectedTime: startW.time,
-                  time: startW.time,
-                  isSpan: true,
-                  isSpanOrigin: true,
-                  spanDirection: isFuture ? 'up' : 'down'
-              };
-              
-              // 2. Insert it into the timeline to ensure the blue rail stops exactly here
-              state.events.push(dragOriginEvent);
-              
-              // 3. Close the current segment at the drag origin to force a clean break
-              const lastSegment = state.segments[state.segments.length - 1];
-              if (lastSegment) lastSegment.exitPoint = dragOriginEvent;
-              
-              // 4. Create the new segment for the Span Arrival (the NOW node)
-              state.segments.push({
-                  startAge: world.age,
-                  startTime: world.time,
-                  events: [],
-                  arrivalPoint: {
-                      id: 'drag-arrival',
-                      age: world.age,
-                      projectedTime: world.time,
-                      isVirtual: true,
-                      isSpanDest: true,
-                      spanDirection: isFuture ? 'up' : 'down'
-                  }
-              });
-              
-              // 5. Update the NOW node to act as a Span Destination
-              state.nowNode = {
-                  ...state.nowNode,
-                  age: world.age,
-                  projectedTime: world.time,
-                  isSpanDest: true,
-                  spanDirection: isFuture ? 'up' : 'down'
-              };
-          } else {
-              state.nowNode.age = world.age;
-              state.nowNode.projectedTime = world.time;
-          }
-
-          // We must clear the active node from interaction so the NodeRenderer can redraw it 
-          // as the correct shape (semi-circle for span dest, etc).
-          this.nodeRenderer.render(state, this.viewState, null);
-          this.railRenderer.render(state);
       } else if (this._interaction.type === 'pan') {
           this.viewState.panX = this._interaction.startPanX + dx;
           this.viewState.panY = this._interaction.startPanY + dy;
@@ -289,15 +244,15 @@ export class SpanGraphViewport {
       const state = this._interaction;
       if (this.tooltipManager) this.tooltipManager.hide();
       this.viewState.interactionMode = 'pan';
-      if (state.hasSignificantMovement && state.type === 'node' && state.nodeElement.classList.contains('graph-node-now')) {
+      if (state.hasSignificantMovement && state.type === 'node') {
           const world = constrainMovement(this.screenToWorld(event.clientX - this.svg.getBoundingClientRect().left, event.clientY - this.svg.getBoundingClientRect().top), state.startWorld, state.mode);
-          this._handleNowNodeDrop(world, state.mode);
+          this._handleNodeDrop(world, state.mode, state.nodeElement.classList.contains('graph-node-now'));
       }
       this._interaction.isDragging = false;
       this._render();
   }
 
-  async _handleNowNodeDrop(worldPos, mode = 'level') {
+  async _handleNodeDrop(worldPos, mode, isNow) {
     if (mode === 'span') {
         const { openSpanDialog } = await import('../lifeline/services/ui/span-dialog/open-span-dialog.js');
         await openSpanDialog(this.actor.sheet, {
@@ -305,40 +260,28 @@ export class SpanGraphViewport {
             arrival: worldPos
         });
     } else {
+        if (!isNow) return; // Only NOW node can drag to level
         const { openEventDialog } = await import('../lifeline/services/ui/event-dialog/open-event-dialog.js'); 
         await openEventDialog(this.actor.sheet, { mode: 'log', ageRaw: worldPos.age, timeRaw: worldPos.time });
     }
   }
 
   handlePan(dx, dy) {
-    this.setViewState({
-      panX: this.viewState.panX + dx,
-      panY: this.viewState.panY + dy
-    });
+    this.setViewState({ panX: this.viewState.panX + dx, panY: this.viewState.panY + dy });
   }
 
   async animateViewState(target, duration = 300) {
     const startState = { ...this.viewState };
     const startTime = performance.now();
-
     return new Promise(resolve => {
       const animate = (now) => {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const t = 1 - Math.pow(1 - progress, 2);
-
         const nextState = {};
-        for (const key in target) {
-          nextState[key] = startState[key] + (target[key] - startState[key]) * t;
-        }
-
+        for (const key in target) { nextState[key] = startState[key] + (target[key] - startState[key]) * t; }
         this.setViewState(nextState);
-
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          resolve();
-        }
+        if (progress < 1) requestAnimationFrame(animate); else resolve();
       };
       requestAnimationFrame(animate);
     });
