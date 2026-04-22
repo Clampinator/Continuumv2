@@ -12,18 +12,20 @@ export function getDragMode(dx, dy) {
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    // 1. Rightward movement is almost always a LEVEL.
-    if (dx > 2 && absX > (absY * 0.5)) {
-        return 'level';
-    }
-
-    // 2. Strong vertical movement is a SPAN.
+    // AUTHORITY: If vertical movement is greater than horizontal, it is ALWAYS a Span.
+    // This prevents right-handed upward arcs (positive dx) from being falsely caught
+    // by the leveling cone.
     if (absY > absX) {
         return 'span';
     }
 
-    // 3. Fallback to Level for ambiguous rightward
-    return dx > 0 ? 'level' : 'span';
+    // If horizontal movement is dominant and rightward, it's a Level.
+    if (dx > 0) {
+        return 'level';
+    }
+
+    // Default to span for backward horizontal (illegal leveling) or perfectly ambiguous.
+    return 'span';
 }
 
 /**
