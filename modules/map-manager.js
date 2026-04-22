@@ -4,10 +4,10 @@ Lifeline section maps use MapLibre GL JS + OpenHistoricalMap (OHM) tiles.
 loadGoogleMaps() is kept for org-map.js backward compatibility only.
 */
 
-if (!window.googleMapsPromise) {
+if (typeof window !== 'undefined' && !window.googleMapsPromise) {
     let resolveApi;
     window.googleMapsPromise = new Promise(resolve => { resolveApi = resolve; });
-    window._resolveGoogleMapsApi = resolveApi;
+    window.resolveGoogleMapsApi = resolveApi;
 }
 
 import { loadApi }         from './lifeline/services/map/load-api.js';

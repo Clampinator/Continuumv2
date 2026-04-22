@@ -3,17 +3,19 @@
  * A new segment is created whenever a Span event occurs.
  * 
  * @param {Array} events - Sorted array of events.
+ * @param {number} originTime - Actor's DoB timestamp (ms).
  * @returns {Array} Array of segments.
  */
-export function calculateSegments(events) {
-  if (!events || events.length === 0) return [];
-
+export function calculateSegments(events, originTime = 0) {
   const segments = [];
   
-  // AUTHORITY: Force startTime to a Number to prevent NaN/Horizontal projection
+  // AUTHORITY: Always initialize the first segment at Birth (Age 0).
+  // Use originTime if no events exist or if the first event is after Birth.
+  const firstEventTime = events.length > 0 ? Number(events[0].time) : originTime;
+  
   let currentSegment = {
     startAge: 0,
-    startTime: Number(events[0]?.time) || 0,
+    startTime: originTime || firstEventTime,
     events: []
   };
 
@@ -21,17 +23,17 @@ export function calculateSegments(events) {
 
   for (const event of events) {
     if (event.isSpan) {
-      // Start a new segment after the jump
-      const newSegment = {
+      // 1. END THE CURRENT SEGMENT (at Departure)
+      currentSegment.exitPoint = event;
+
+      // 2. START THE NEXT SEGMENT (at Arrival)
+      currentSegment = {
         startAge: Number(event.age) || 0,
         startTime: Number(event.arrivalTime) || 0,
-        events: []
+        events: [],
+        arrivalPoint: event 
       };
       
-      // The Span event exists as the departure point. 
-      currentSegment.events.push(event);
-      
-      currentSegment = newSegment;
       segments.push(currentSegment);
       continue;
     }

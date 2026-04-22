@@ -36,13 +36,16 @@ describe('Sequential Rail Rendering', () => {
       ],
       segments: [
         {
-          events: [{ age: 0, projectedTime: 0, id: 'e1' }, { age: 100, projectedTime: 100, id: 'e2' }]
+          arrivalPoint: { age: 0, projectedTime: 0, id: 'arrival-0' },
+          events: [{ age: 50, projectedTime: 50, id: 'e1' }],
+          exitPoint: { age: 100, projectedTime: 100, id: 'span1' }
         },
         {
-          events: [{ age: 100, projectedTime: 500, id: 'e2' }] // A span jump
+          arrivalPoint: { age: 100, projectedTime: 500, id: 'arrival-1' },
+          events: [{ age: 150, projectedTime: 550, id: 'e2' }]
         }
       ],
-      nowNode: { age: 150, projectedTime: 550 }
+      nowNode: { age: 200, projectedTime: 600 }
     };
 
     renderer.render(state);

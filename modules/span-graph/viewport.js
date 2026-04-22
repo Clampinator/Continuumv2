@@ -8,12 +8,11 @@ import { AxisRenderer } from './renderers/axis-renderer.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
 import { getDragMode, constrainMovement } from './actions/drag-physics.js';
 import { TooltipManager } from './ui/tooltips.js';
-import { formatSubjectiveAge } from '../span-graph-utils/provide-span-graph-utils.js';
+import { formatSubjectiveAge, parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
- * REBUILT: Robust Pointer Machine with strict axial locking and dynamic dialog routing.
  */
 export class SpanGraphViewport {
   constructor(container, actor = null) {
@@ -34,7 +33,8 @@ export class SpanGraphViewport {
         startWorld: null,
         mode: null,
         cachedHistory: null,
-        cachedNow: 0
+        cachedNow: 0,
+        cachedOrigin: 0
     };
 
     this.viewState = {
@@ -65,15 +65,26 @@ export class SpanGraphViewport {
 
   updateActor(actor) { this.actor = actor; this._render(); }
 
+  _getOriginTime() {
+      if (!this.actor) return 0;
+      const dobStr = this.actor.system.personal?.dob || "";
+      const dobDate = parseDate(normalizeDateInput(dobStr) + "T12:00:00");
+      return dobDate ? dobDate.getTime() : 0;
+  }
+
   autoFocus() {
     if (!this.actor || !this.container) return;
     const rect = this.container.getBoundingClientRect();
     if (rect.width === 0) { setTimeout(() => this.autoFocus(), 200); return; }
+    
     const history = flattenEvents(this.actor.system.eras || {});
     const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
-    const state = getTemporalState(history, subjectiveNow);
+    const originTime = this._getOriginTime();
+    
+    const state = getTemporalState(history, subjectiveNow, originTime);
     const targetAge = state.nowNode?.age || 0;
     const targetTime = state.nowNode?.projectedTime || 0;
+
     const finalZoom = Math.max(0.00000001, Math.min(rect.width / (50 * 31536000), 1));
     const centerX = rect.width * 0.8;
     const centerY = rect.height * 0.2;
@@ -96,7 +107,11 @@ export class SpanGraphViewport {
   _render() {
     if (!this.actor || !this.container) return;
     const history = flattenEvents(this.actor.system.eras || {});
-    const state = getTemporalState(history, Number(this.actor.system.personal?.subjectiveNow) || 0);
+    const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
+    const originTime = this._getOriginTime();
+    
+    const state = getTemporalState(history, subjectiveNow, originTime);
+    
     this.gridRenderer.render(state, this.viewState);
     this.eraRenderer.render(state);
     this.railRenderer.render(state);
@@ -128,8 +143,9 @@ export class SpanGraphViewport {
     }
     this.svg.addEventListener('wheel', (event) => {
         event.preventDefault();
+        const factor = event.deltaY > 0 ? 0.8 : 1.25;
         const rect = this.container.getBoundingClientRect();
-        this.handleZoom(event.deltaY > 0 ? 0.8 : 1.25, { x: event.clientX - rect.left, y: event.clientY - rect.top });
+        this.handleZoom(factor, { x: event.clientX - rect.left, y: event.clientY - rect.top });
     }, { passive: false });
   }
 
@@ -139,13 +155,23 @@ export class SpanGraphViewport {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const node = target.closest('.graph-node-level, .graph-node-span, .graph-node-now');
+      
       const history = flattenEvents(this.actor.system.eras || {});
       const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
-      
+      const originTime = this._getOriginTime();
+      const state = getTemporalState(history, subjectiveNow, originTime);
+
       let nodeWorld = null;
-      if (node && node.classList.contains('graph-node-now')) {
-          const tempState = getTemporalState(history, subjectiveNow);
-          nodeWorld = { age: tempState.nowNode.age, time: tempState.nowNode.projectedTime };
+      if (node) {
+          if (node.classList.contains('graph-node-now')) {
+              nodeWorld = { age: state.nowNode.age, time: state.nowNode.projectedTime };
+          } else {
+              const eventId = node.dataset.eventId;
+              const targetEvent = state.events.find(e => e.id === eventId);
+              if (targetEvent) {
+                  nodeWorld = { age: targetEvent.age, time: targetEvent.projectedTime };
+              }
+          }
       }
 
       this._interaction = {
@@ -159,7 +185,8 @@ export class SpanGraphViewport {
           startWorld: nodeWorld || this.screenToWorld(x, y),
           hasSignificantMovement: false, mode: null,
           cachedHistory: history,
-          cachedNow: subjectiveNow
+          cachedNow: subjectiveNow,
+          cachedOrigin: originTime
       };
       if (this.svg.setPointerCapture) this.svg.setPointerCapture(event.pointerId);
   }
@@ -182,12 +209,10 @@ export class SpanGraphViewport {
       }
 
       if (this._interaction.type === 'node') {
-          // AUTHORITY: Unified constrained world coordinates
           const rawWorld = this.screenToWorld(x, y);
           const world = constrainMovement(rawWorld, this._interaction.startWorld, this._interaction.mode);
           const screen = this.worldToScreen(world.age, world.time);
 
-          // Fast update node and tooltip
           this._interaction.nodeElement.setAttribute('cx', screen.x);
           this._interaction.nodeElement.setAttribute('cy', screen.y);
           if (this.tooltipManager) {
@@ -195,8 +220,7 @@ export class SpanGraphViewport {
               this.tooltipManager.show({ description: `${dateStr} (${formatSubjectiveAge(world.age)})${this._interaction.mode === 'span' ? ' [SPAN]' : ''}` }, screen);
           }
 
-          // Fast update rails
-          const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow);
+          const state = getTemporalState(this._interaction.cachedHistory, this._interaction.cachedNow, this._interaction.cachedOrigin);
           state.nowNode.age = world.age;
           state.nowNode.projectedTime = world.time;
           this.railRenderer.render(state);

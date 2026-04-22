@@ -2,101 +2,107 @@ import { calculateSegments } from './calculate-segments.js';
 import { resolveCoordinates } from './resolve-coordinates.js';
 
 /**
- * Calculates the unified temporal state for a character's history.
- * 
- * @param {Array} history - Raw array of sorted events.
- * @param {number} [subjectiveNow=0] - The character's current subjective age in seconds.
- * @returns {Object} Unified state object.
+ * AUTHORITATIVE TEMPORAL STATE ENGINE
+ * Enforces the character's journey as a linked sequence of segments and jumps.
  */
-export function getTemporalState(history, subjectiveNow = 0) {
-  const segments = calculateSegments(history);
+export function getTemporalState(history, subjectiveNow = 0, originTime = 0) {
+  // 1. Generate Physical Segments
+  const segments = calculateSegments(history, originTime);
   
-  if (segments.length === 0 && subjectiveNow === 0) {
-    return { segments: [], events: [], spanPool: { consumed: 0, total: 0 }, nowNode: null };
+  if (segments.length === 0) {
+    const defaultArrival = { age: 0, projectedTime: originTime, isBirth: true };
+    return _finalizeState([{ startAge: 0, startTime: originTime, events: [], arrivalPoint: defaultArrival }], [], subjectiveNow, 0);
   }
 
   let totalDisplacement = 0;
 
-  // 1. PROJECT EVENTS
-  const eventsWithProjection = history.map((event, index) => {
-    const activeSegment = [...segments].reverse().find(s => s.startAge <= event.age) 
-                       || segments[0];
+  // 2. Project Events into their segments
+  const eventsWithProjection = history.map(event => {
+    // Find the segment where this event is the EXIT point (Span departure)
+    // or where it resides as a normal event.
+    let activeSegment = segments.find(s => s.exitPoint?.id === event.id);
+    if (!activeSegment) {
+        activeSegment = [...segments].reverse().find(s => s.startAge <= event.age) || segments[0];
+    }
     
     const projectedTime = resolveCoordinates(event.age, activeSegment);
-    
-    // AUTHORITY: Tag Span Origins and Destinations
-    let isSpanOrigin = false;
-    let isSpanDest = false;
-    let spanType = null;
+    const arrivalTime = event.isSpan ? Number(event.arrivalTime || event.time) : 0;
 
     if (event.isSpan) {
-       isSpanOrigin = true;
-       const segmentIndex = segments.indexOf(activeSegment);
-       const previousSegment = segments[segmentIndex - 1] || activeSegment;
-       const departureTime = resolveCoordinates(event.age, previousSegment) || 0;
-       const arrivalTime = event.arrivalTime || 0;
-       totalDisplacement += Math.abs(arrivalTime - departureTime);
-       
-       spanType = arrivalTime > departureTime ? 'up' : 'down';
-    }
-
-    // A destination is any node that starts a segment (except the very first segment)
-    const isFirstOfSegment = segments.some(s => s.events[0]?.id === event.id && s !== segments[0]);
-    if (isFirstOfSegment) {
-        isSpanDest = true;
-        // Determine arrival direction by looking at the previous span event
-        const prevEvent = history.find((e, i) => i < index && e.isSpan && segments.find(s => s.events.includes(e)) !== activeSegment);
-        if (prevEvent) {
-            const departureSegment = segments.find(s => s.events.includes(prevEvent));
-            const departureTime = resolveCoordinates(prevEvent.age, departureSegment);
-            spanType = prevEvent.arrivalTime > departureTime ? 'up' : 'down';
-        }
+        totalDisplacement += Math.abs(arrivalTime - projectedTime);
     }
 
     return {
       ...event,
       projectedTime,
-      isSpanOrigin,
-      isSpanDest,
-      spanDirection: spanType
+      arrivalTime,
+      // Visual Flags
+      isSpanOrigin: !!event.isSpan,
+      spanDirection: event.isSpan ? (arrivalTime > projectedTime ? 'up' : 'down') : null
     };
   });
 
-  // 2. PROJECT SEGMENT EVENTS (Crucial for RailRenderer)
-  const projectedSegments = segments.map(seg => {
-      // Create a virtual arrival node at the start of the segment if it's following a span
-      const firstEvent = eventsWithProjection.find(ep => ep.id === seg.events[0]?.id);
-      
+  // 3. Project Segment Anchors (The Wormhole Links)
+  const projectedSegments = segments.map((seg, index) => {
+      // EXIT (Departure): The end of this rail segment
+      let exitPoint = null;
+      if (seg.exitPoint) {
+          const rawExit = eventsWithProjection.find(e => e.id === seg.exitPoint.id);
+          exitPoint = {
+              id: rawExit.id,
+              age: Number(rawExit.age),
+              projectedTime: Number(rawExit.projectedTime),
+              isSpanOrigin: true,
+              spanDirection: rawExit.spanDirection
+          };
+      }
+
+      // ARRIVAL: The start of this rail segment
+      // Direction is determined by looking at the Span event that created this segment
+      let arrivalDirection = null;
+      if (index > 0) {
+          const prevSeg = segments[index - 1];
+          const spanEvent = eventsWithProjection.find(e => e.id === prevSeg.exitPoint?.id);
+          arrivalDirection = spanEvent?.spanDirection || 'up';
+      }
+
+      const arrivalPoint = {
+          id: `arrival-${seg.startTime}-${index}`,
+          age: Number(seg.startAge),
+          projectedTime: Number(seg.startTime),
+          isVirtual: true,
+          isSpanDest: seg.startAge > 0,
+          isBirth: seg.startAge === 0,
+          spanDirection: arrivalDirection
+      };
+
       return {
           ...seg,
-          // We add a virtual arrival point for the RailRenderer to connect to if this is a new segment
-          arrivalPoint: {
-              age: seg.startAge,
-              projectedTime: seg.startTime,
-              isVirtual: true
-          },
+          arrivalPoint,
+          exitPoint,
           events: seg.events.map(e => eventsWithProjection.find(ep => ep.id === e.id))
       };
   });
 
-  // 3. PROJECT NOW NODE
+  return _finalizeState(projectedSegments, eventsWithProjection, subjectiveNow, totalDisplacement);
+  }
+
+  function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0) {
   const nowSegment = [...segments].reverse().find(s => s.startAge <= subjectiveNow) 
                   || segments[0];
-  
+
   const nowNode = {
     id: 'now',
     age: subjectiveNow,
-    projectedTime: nowSegment ? (resolveCoordinates(subjectiveNow, nowSegment) || 0) : 0,
+    projectedTime: resolveCoordinates(subjectiveNow, nowSegment) || 0,
     isNow: true
   };
 
-  return {
-    segments: projectedSegments,
-    events: eventsWithProjection,
-    nowNode,
-    spanPool: {
-      consumed: totalDisplacement,
-      total: 0 
-    }
-  };
-}
+  // Ensure Birth node exists at Age 0
+  if (!events.some(e => Number(e.age) === 0)) {
+      const birth = segments[0].arrivalPoint;
+      events.unshift({ ...birth, title: "Birth", isBirth: true });
+  }
+
+  return { segments, events, nowNode, spanPool: { consumed: totalDisplacement, total: 0 } };
+  }
