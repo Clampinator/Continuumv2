@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Lifeline NOW Node Interaction & Span Physics Rebuild**
+- [x] **Track: Lifeline NOW Node Interaction & Span Physics Rebuild**
   *Link: [./tracks/lifeline_interaction_physics_20260422/](./tracks/lifeline_interaction_physics_20260422/)*
