@@ -2,21 +2,19 @@
 
 ## Phase 1: Ghost Nodes
 - [x] Task: Implement Mathematical Hover-Insertion (a7cd483)
-    - [x] Write Tests: Ensure hover detection correctly identifies the nearest mathematical coordinate on the active rails.
-    - [x] Implement: Refactor `SpanGraphViewport._updateGhostNodeHover` to project a faint "Ghost Node" onto the nearest rail point. Wire clicking this node to `openEventDialog` with the interpolated coordinates.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Ghost Nodes' (Protocol in workflow.md)
 
 ## Phase 2: Experience Boxes Engine
 - [x] Task: Develop Experience Data Model & Geometry (06313d5)
-    - [x] Write Tests: Verify the engine correctly identifies Open, Closed, and Re-Opened states for Experiences and calculates their start/end dates/ages correctly.
-    - [x] Implement: Refactor `SegmentGenerator` (or similar) to output an array of structured Experience bounding boxes, including their name, state, and timeline constraints.
 - [x] Task: Implement `CreationRenderer` Updates (06313d5)
-    - [x] Write Tests: Ensure the renderer draws boxes according to state (transparent yellow fade for open, solid yellow for closed).
-    - [x] Implement: Update the `CreationRenderer` to draw these Experience boxes over the timeline. Implement basic label collision avoidance to ensure names remain legible when zoomed out.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Experience Boxes Engine' (Protocol in workflow.md)
 
 ## Phase 3: Visual Fade & Polish
 - [x] Task: Implement "The Forgetting" Fade (c9d4d5f)
-    - [x] Write Tests: Verify opacity calculations correctly scale down to 10% over 15 subjective years of distance from the NOW node.
-    - [x] Implement: Enhance the `CreationRenderer` logic to calculate the distance between the Experience's bounding box and the NOW node, dynamically applying the CSS/SVG opacity fade.
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Visual Fade & Polish' (Protocol in workflow.md)
+
+## Phase 4: Final Refinements & Bug Fixes
+- [x] Task: Implement Authoritative 4-Corner Experience Geometry (c87f0d9)
+- [x] Task: Resolve Node Rendering Inconsistency & Layer Authority (c87f0d9)
+- [x] Task: Implement Recursive Chain-Link Discovery for Closed Experiences (c87f0d9)
+- [x] Task: Fix Zombie Experience Closure & Defensive Array Hardening (c87f0d9)
