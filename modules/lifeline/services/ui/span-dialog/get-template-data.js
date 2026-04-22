@@ -112,6 +112,13 @@ export function getTemplateData(actor, params) {
     if (!spanToDate) spanToDate = dt.date;
     if (!spanToTime) spanToTime = dt.time;
 
+    let canSeeSpan = true;
+    try {
+        canSeeSpan = actor.getFlag('continuum-v2', 'playersCanSeeSpan') ?? actor.getFlag('continuum', 'playersCanSeeSpan') ?? true;
+    } catch (e) {
+        console.warn("SpanGraph | getFlag failed:", e);
+    }
+
     return {
         mode,
         isLogMode: mode === 'log',
@@ -146,6 +153,6 @@ export function getTemplateData(actor, params) {
         expId,
         ageRaw: age,
         timeRaw: ts,
-        canSeeSpan: actor.getFlag('continuum', 'playersCanSeeSpan') ?? true
+        canSeeSpan
     };
 }

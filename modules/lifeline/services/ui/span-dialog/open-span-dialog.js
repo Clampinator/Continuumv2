@@ -25,8 +25,11 @@ export async function openSpanDialog(sheet, params) {
     // Exact legacy title logic
     const dialogTitle = "Log Span Result";
 
-    // Use the exact legacy-matched template
-    const content = await renderTemplate("systems/continuum-v2/templates/dialogs/span-result-dialog.html", templateData);
+    // Use the exact legacy-matched template with V13 API
+    const content = await foundry.applications.handlebars.renderTemplate(
+        "systems/continuum-v2/templates/dialogs/span-result-dialog.html", 
+        templateData
+    );
 
     const buttons = {
         save: {
@@ -34,7 +37,7 @@ export async function openSpanDialog(sheet, params) {
             icon: '<i class="fas fa-save"></i>',
             callback: async (html) => {
                 confirmed = true;
-                const formData = new FormDataExtended(html.find("form")[0]).object;
+                const formData = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
                 await handleSubmit(actor, formData, {
                     ...params,
                     ...templateData,
@@ -171,7 +174,7 @@ export async function openSpanDialog(sheet, params) {
                 if (viewport) viewport.updateActor(actor);
             }
         }
-    }, { classes: ["continuum", "dialog"], width: 480 });
+    }, { classes: ["continuum-v2", "dialog"], width: 480 });
 
     dialog.render(true);
 }
