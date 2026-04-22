@@ -1,13 +1,13 @@
 # Implementation Plan: Lifeline HUD Refinement (Ghost Nodes & Experience Boxes)
 
 ## Phase 1: Ghost Nodes
-- [ ] Task: Implement Mathematical Hover-Insertion
-    - [ ] Write Tests: Ensure hover detection correctly identifies the nearest mathematical coordinate on the active rails.
-    - [ ] Implement: Refactor `SpanGraphViewport._updateGhostNodeHover` to project a faint "Ghost Node" onto the nearest rail point. Wire clicking this node to `openEventDialog` with the interpolated coordinates.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Ghost Nodes' (Protocol in workflow.md)
+- [x] Task: Implement Mathematical Hover-Insertion (a7cd483)
+    - [x] Write Tests: Ensure hover detection correctly identifies the nearest mathematical coordinate on the active rails.
+    - [x] Implement: Refactor `SpanGraphViewport._updateGhostNodeHover` to project a faint "Ghost Node" onto the nearest rail point. Wire clicking this node to `openEventDialog` with the interpolated coordinates.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Ghost Nodes' (Protocol in workflow.md)
 
 ## Phase 2: Experience Boxes Engine
-- [ ] Task: Develop Experience Data Model & Geometry
+- [~] Task: Develop Experience Data Model & Geometry
     - [ ] Write Tests: Verify the engine correctly identifies Open, Closed, and Re-Opened states for Experiences and calculates their start/end dates/ages correctly.
     - [ ] Implement: Refactor `SegmentGenerator` (or similar) to output an array of structured Experience bounding boxes, including their name, state, and timeline constraints.
 - [ ] Task: Implement `CreationRenderer` Updates
