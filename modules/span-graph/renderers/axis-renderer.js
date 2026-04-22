@@ -2,7 +2,7 @@ import { formatSubjectiveAge, convertTimestampToDateString } from '../../span-gr
 
 /**
  * Renders the authoritative axes and responsive labels (HUD layer).
- * GUARANTEE: Always displays exactly 5-6 labels evenly spaced across the visible view.
+ * Anchored to the viewport edges.
  */
 export class AxisRenderer {
   constructor(viewport) {
@@ -23,20 +23,22 @@ export class AxisRenderer {
     const gutterWidth = 110;
     const gutterHeight = 40;
 
-    // 1. Static HUD Backgrounds
-    const xBg = this._createRect(0, height - gutterHeight, width, 20, 'graph-axis-label-bg');
-    const yBg = this._createRect(0, 0, gutterWidth, height - 20, 'graph-axis-label-bg');
+    // 1. Static HUD Backgrounds (Ensuring they stay at the edges)
+    const xBg = this._createRect(0, height - gutterHeight, width, 40, 'graph-axis-label-bg');
+    const yBg = this._createRect(0, 0, gutterWidth, height, 'graph-axis-label-bg');
     this.group.appendChild(xBg);
     this.group.appendChild(yBg);
 
     // 2. Static Titles
-    const xTitle = this._createText(width / 2 + (gutterWidth/2), height - 26, 'SUBJECTIVE AGE', 'graph-axis-title', 'middle');
-    const yTitle = this._createText(20, height / 2, 'OBJECTIVE DATE', 'graph-axis-title', 'middle');
-    yTitle.setAttribute('transform', `translate(20, ${height / 2}) rotate(-90)`);
+    // X Title: Moved slightly UP to avoid Age data collision
+    const xTitle = this._createText(width / 2 + (gutterWidth/2), height - 30, 'SUBJECTIVE AGE', 'graph-axis-title', 'middle');
+    // Y Title: Locked to far LEFT
+    const yTitle = this._createText(12, height / 2, 'OBJECTIVE DATE', 'graph-axis-title', 'middle');
+    yTitle.setAttribute('transform', `translate(12, ${height / 2}) rotate(-90)`);
     this.group.appendChild(xTitle);
     this.group.appendChild(yTitle);
 
-    // 3. RESPONSIVE X-AXIS (AGE) - Exactly 5 segments
+    // 3. RESPONSIVE X-AXIS (AGE)
     const leftAge = this.viewport.screenToWorld(gutterWidth, 0).age;
     const rightAge = this.viewport.screenToWorld(width, 0).age;
     const ageRange = rightAge - leftAge;
@@ -45,18 +47,17 @@ export class AxisRenderer {
     for (let i = 0; i <= 5; i++) {
         const age = leftAge + (ageStep * i);
         const screenX = this.viewport.worldToScreen(age, 0).x;
-        
-        // Tick
-        const tick = this._createLine(screenX, height - 40, screenX, height - 35, '#fff');
+        if (screenX < gutterWidth - 5) continue;
+
+        const tick = this._createLine(screenX, height - gutterHeight, screenX, height - gutterHeight + 5, '#ffffff');
         this.group.appendChild(tick);
 
-        // Label
-        const label = this._createText(screenX + 2, height - 26, formatSubjectiveAge(age), 'graph-axis-text graph-axis-text-bold');
-        if (age === 0) label.textContent = 'Birth';
+        const labelStr = age === 0 ? 'Birth' : formatSubjectiveAge(age);
+        const label = this._createText(screenX, height - 10, labelStr, 'graph-axis-text graph-axis-text-bold', 'middle');
         this.group.appendChild(label);
     }
 
-    // 4. RESPONSIVE Y-AXIS (TIME) - Exactly 5 segments
+    // 4. RESPONSIVE Y-AXIS (TIME)
     const topTime = this.viewport.screenToWorld(0, 0).time;
     const bottomTime = this.viewport.screenToWorld(0, height - gutterHeight).time;
     const timeRange = bottomTime - topTime;
@@ -65,17 +66,19 @@ export class AxisRenderer {
     for (let i = 0; i <= 5; i++) {
         const time = topTime + (timeStep * i);
         const screenY = this.viewport.worldToScreen(0, time).y;
+        if (screenY > height - gutterHeight) continue;
 
-        // Tick
-        const tick = this._createLine(gutterWidth - 5, screenY, gutterWidth, screenY, '#fff');
+        const tick = this._createLine(gutterWidth - 5, screenY, gutterWidth, screenY, '#ffffff');
         this.group.appendChild(tick);
 
-        // Multi-line Date Label
         const dt = convertTimestampToDateString(time);
-        const dateText = this._createText(30, screenY - 14, dt.date.split('T')[0], 'graph-axis-text graph-axis-text-bold');
-        const timeText = this._createText(30, screenY - 2, dt.date.split('T')[1]?.substring(0,8) || dt.time, 'graph-axis-text graph-axis-text-bold');
+        const labelX = gutterWidth - 10;
+        
+        // Multi-line Date (Right Aligned to the tick)
+        const dateText = this._createText(labelX, screenY - 12, dt.date.split('T')[0], 'graph-axis-text graph-axis-text-bold', 'end');
+        const timeText = this._createText(labelX, screenY, dt.date.split('T')[1]?.substring(0,5) || dt.time, 'graph-axis-text graph-axis-text-bold', 'end');
         const dayStr = new Date(time).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-        const dayText = this._createText(30, screenY + 10, dayStr, 'graph-axis-text graph-axis-text-bold');
+        const dayText = this._createText(labelX, screenY + 12, dayStr, 'graph-axis-text', 'end');
 
         this.group.appendChild(dateText);
         this.group.appendChild(timeText);
@@ -99,6 +102,7 @@ export class AxisRenderer {
     text.setAttribute('y', y);
     if (cls) text.setAttribute('class', cls);
     text.setAttribute('text-anchor', anchor);
+    text.style.fill = '#ffffff'; // AUTHORITY: Force white text
     text.textContent = txt;
     return text;
   }

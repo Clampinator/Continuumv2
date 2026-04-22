@@ -4,10 +4,6 @@ const viewports = new Map();
 
 /**
  * Initializes or updates the Span Graph for a given actor and sheet.
- * 
- * @param {Actor} actor - The actor whose lifeline is being rendered.
- * @param {jQuery|HTMLElement} html - The sheet's HTML fragment.
- * @param {ActorSheet} sheet - The sheet instance.
  */
 export function initializeSpanGraph(actor, html, sheet) {
   const container = html.find('.span-graph-container').get(0);
@@ -15,17 +11,23 @@ export function initializeSpanGraph(actor, html, sheet) {
 
   let viewport = viewports.get(actor.id);
 
-  if (!viewport || viewport.container !== container) {
-    // Instantiate new Viewport if none exists or container changed
+  if (!viewport) {
+    // Instantiate new Viewport if none exists
     viewport = new SpanGraphViewport(container, actor);
     viewports.set(actor.id, viewport);
   } else {
-    // Update existing viewport
+    // AUTHORITY: Update the existing viewport with the new DOM container.
+    // This prevents the "Leaky Listener" bug that caused stuttering and freezing.
+    viewport.container = container;
+    
+    // Move the persistent SVG to the new container
+    if (viewport.svg && !container.contains(viewport.svg)) {
+        container.appendChild(viewport.svg);
+    }
+    
     viewport.updateActor(actor);
   }
 
-  // AUTHORITY: Store the viewport on the sheet so listeners can access it
   sheet._spanGraphViewport = viewport;
-
   return viewport;
 }

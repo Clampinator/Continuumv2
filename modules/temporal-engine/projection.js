@@ -23,7 +23,7 @@ export function worldToScreen(age, time, viewState) {
   
   // Y moves UP (smaller values) with Time
   // Formula: Y = (Time * TARGET_RATIO * Zoom) + PanY
-  // TARGET_RATIO is negative, so larger Time = smaller Y
+  // TARGET_RATIO is negative (-0.00045), so larger Time = significantly smaller Y
   const y = (Number(time) || 0) * TARGET_RATIO * zoom + panY;
 
   return {

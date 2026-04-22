@@ -31,12 +31,12 @@ describe('calculateSegments', () => {
     // Segment 1 starts at birth
     expect(segments[0].startAge).toBe(0);
     expect(segments[0].startTime).toBe(1000);
-    expect(segments[0].events).toHaveLength(2); // birth, e1
+    expect(segments[0].events).toHaveLength(3); // birth, e1, span1
     
     // Segment 2 starts at span1 arrival
     expect(segments[1].startAge).toBe(20);
     expect(segments[1].startTime).toBe(5000);
-    expect(segments[1].events).toHaveLength(2); // span1, e2
+    expect(segments[1].events).toHaveLength(1); // e2
   });
 
   it('should handle multiple consecutive spans', () => {

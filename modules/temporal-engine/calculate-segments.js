@@ -6,27 +6,36 @@
  * @returns {Array} Array of segments.
  */
 export function calculateSegments(events) {
-  if (!events || !Array.isArray(events) || events.length === 0) return [];
+  if (!events || events.length === 0) return [];
 
   const segments = [];
-  let currentSegment = null;
+  
+  // AUTHORITY: Force startTime to a Number to prevent NaN/Horizontal projection
+  let currentSegment = {
+    startAge: 0,
+    startTime: Number(events[0]?.time) || 0,
+    events: []
+  };
+
+  segments.push(currentSegment);
 
   for (const event of events) {
-    if (!event) continue;
-    if (!currentSegment || event.isSpan) {
-      // Create new segment
-      currentSegment = {
-        startAge: event.age,
-        startTime: event.isSpan ? event.arrivalTime : event.time,
+    if (event.isSpan) {
+      // Start a new segment after the jump
+      const newSegment = {
+        startAge: Number(event.age) || 0,
+        startTime: Number(event.arrivalTime) || 0,
         events: []
       };
+      
+      // The Span event exists as the departure point. 
+      currentSegment.events.push(event);
+      
+      currentSegment = newSegment;
       segments.push(currentSegment);
+      continue;
     }
     
-    // In the case of a span, the span event itself marks the start of the NEW segment
-    // But it also exists as the departure point. 
-    // Actually, lore-wise, a Span is an instantaneous jump.
-    // The previous implementation used the Span as the start of the new rail.
     currentSegment.events.push(event);
   }
 

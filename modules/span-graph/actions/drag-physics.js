@@ -1,59 +1,58 @@
-import { MS_PER_SECOND } from '../../temporal-engine/constants.js';
+/**
+ * AUTHORITATIVE TEMPORAL PHYSICS
+ * This module is the sole source of truth for node placement.
+ */
+import { TARGET_RATIO } from '../../temporal-engine/constants.js';
 
 /**
- * Identifies the intended drag direction based on pointer delta.
- * 
- * @param {number} dx - Pixel delta X.
- * @param {number} dy - Pixel delta Y.
- * @returns {string|null} 'level', 'span', or null.
+ * Determines the interaction mode based on the initial drag vector.
+ * Favors Leveling for rightward intent.
  */
 export function getDragMode(dx, dy) {
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    // 1. NO LEFTWARD MOVEMENT (Age cannot decrease)
-    if (dx < -2) return null;
-
-    // 2. VERTICAL SPAN (Pure up or down)
-    // Threshold: steeper than ~60 degrees
-    if (absY > absX * 1.73) {
-        return 'span';
-    }
-
-    // 3. DIAGONAL LEVEL (Up-Right at exactly 1:1 math ratio)
-    // Threshold: committed horizontal move with upward-right vector
-    if (dx > 5) {
+    // 1. Rightward movement is almost always a LEVEL.
+    if (dx > 2 && absX > (absY * 0.5)) {
         return 'level';
     }
 
-    return null;
+    // 2. Strong vertical movement is a SPAN.
+    if (absY > absX) {
+        return 'span';
+    }
+
+    // 3. Fallback to Level for ambiguous rightward
+    return dx > 0 ? 'level' : 'span';
 }
 
 /**
- * Enforces the physical constraints of the Continuum.
- * 
- * @param {Object} currentWorld - Raw world coordinates from cursor.
- * @param {Object} startWorld - Coordinates at the start of drag.
- * @param {string} mode - 'level' or 'span'.
- * @returns {Object} Constrained world coordinates.
+ * Constrains a world coordinate point based on the active drag mode.
+ * LAW: Age is Subjective, Time is Objective.
  */
 export function constrainMovement(currentWorld, startWorld, mode) {
-    if (mode === 'span') {
-        // Fix Age, allow Time to shift
+    if (!startWorld) return currentWorld;
+
+    if (mode === 'level') {
+        // LOCK TO 30-DEGREE DIAGONAL (Up and Right)
+        // Physics: 1 second of Age = 1000ms of Time.
+        const ageDelta = Math.max(0, currentWorld.age - startWorld.age);
+        const timeDelta = ageDelta * 1000; 
+        
         return {
-            age: startWorld.age,
+            age: startWorld.age + ageDelta,
+            time: startWorld.time + timeDelta
+        };
+    }
+
+    if (mode === 'span') {
+        // AUTHORITY: PERFECT VERTICAL LOCK. 
+        // Subjective Age remains absolutely identical to the departure point.
+        return {
+            age: startWorld.age, 
             time: currentWorld.time
         };
     }
 
-    if (mode === 'level') {
-        // Enforce 1:1 Age-to-Time ratio (Diagonal Authority)
-        const dAge = Math.max(0, currentWorld.age - startWorld.age);
-        return {
-            age: startWorld.age + dAge,
-            time: startWorld.time + (dAge * MS_PER_SECOND)
-        };
-    }
-
-    return { ...startWorld };
+    return currentWorld;
 }

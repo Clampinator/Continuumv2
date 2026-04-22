@@ -40,11 +40,9 @@ export class RailRenderer {
 
             const pathData = this._generatePathData([lastEvent, firstEvent]);
             const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
-            
-            // Apply directional class for CSS animation
-            const isFuture = firstEvent.projectedTime > lastEvent.projectedTime;
-            spanLine.classList.add(isFuture ? 'up' : 'down');
 
+            // Directional Animation is naturally handled by the SVG path vector
+            // (M lastEvent L firstEvent) and the single CSS animation.
             if (fragment) fragment.appendChild(spanLine);
             else this.group.appendChild(spanLine);
         }
@@ -55,17 +53,19 @@ export class RailRenderer {
         const lastEvent = state.events[state.events.length - 1];
         const pathData = this._generatePathData([lastEvent, state.nowNode]);
         
-        const dragType = this.viewport.viewState.activeDragType;
+        const dragMode = this.viewport._interaction?.mode;
         
-        if (dragType === 'span') {
-            // Visual feedback for span logging
+        if (dragMode === 'span') {
+            // DYNAMIC SPAN PREVIEW (Flowing Pink Dots)
+            // Path vector naturally points from lastEvent to NOW, driving the animation forward.
             const logLine = this._createPathElement(pathData, 'span-graph-span-line');
-            const isFuture = state.nowNode.projectedTime > lastEvent.projectedTime;
-            logLine.classList.add(isFuture ? 'up' : 'down');
+            if (fragment) fragment.appendChild(logLine);
+            else this.group.appendChild(logLine);
+        } else if (dragMode === 'level') {
+            const logLine = this._createPathElement(pathData, 'span-graph-rail');
             if (fragment) fragment.appendChild(logLine);
             else this.group.appendChild(logLine);
         } else {
-            // Visual feedback for normal leveling
             const logLine = this._createPathElement(pathData, 'span-graph-log-line');
             if (fragment) fragment.appendChild(logLine);
             else this.group.appendChild(logLine);
@@ -79,7 +79,6 @@ export class RailRenderer {
 
   _generatePathData(events) {
     const points = events.map(event => {
-      // COORDINATE AUTHORITY: Use the calculated projectedTime
       const time = event.projectedTime ?? 0;
       const age = event.age ?? 0;
       return this.viewport.worldToScreen(age, time);

@@ -13,28 +13,38 @@ export class NodeRenderer {
 
   /**
    * Renders all nodes for the current state.
+   * @param {Object} state - The temporal state.
+   * @param {Object} viewState - View state.
+   * @param {SVGElement} [activeNode] - The node currently being dragged (don't recreate).
    */
-  render(state) {
+  render(state, viewState, activeNode = null) {
     if (!this.group) return;
+    
+    // AUTHORITY: We must clear and rebuild, but we can't kill the node we are dragging.
+    // If activeNode is provided, we remove everything ELSE.
     this.group.innerHTML = '';
+    if (activeNode) this.group.appendChild(activeNode);
 
     // 1. Render History Events
     if (state.events) {
       for (const event of state.events) {
+        // Skip if this is the active node (unlikely for historical events but safe)
+        if (activeNode && activeNode.dataset.eventId === event.id) continue;
+        
         const screenPos = this.viewport.worldToScreen(event.age || 0, event.projectedTime || 0);
         const node = this._createNodeElement(event, screenPos);
         if (node) this.group.appendChild(node);
       }
     }
 
-    // 2. Render NOW node
+    // 2. Render NOW node (unless it is being dragged)
     if (state.nowNode) {
-        const screenPos = this.viewport.worldToScreen(state.nowNode.age || 0, state.nowNode.projectedTime || 0);
-        const node = this._createNodeElement(state.nowNode, screenPos);
-        if (node) {
-            node.classList.add('graph-node-now');
-            node.setAttribute('r', '8'); 
-            this.group.appendChild(node);
+        if (activeNode && activeNode.classList.contains('graph-node-now')) {
+            // Already appended above
+        } else {
+            const screenPos = this.viewport.worldToScreen(state.nowNode.age || 0, state.nowNode.projectedTime || 0);
+            const node = this._createNodeElement(state.nowNode, screenPos);
+            if (node) this.group.appendChild(node);
         }
     }
   }
@@ -51,7 +61,6 @@ export class NodeRenderer {
     const cy = pos.y;
 
     if (event.isSpanOrigin) {
-        // --- PINK TRIANGLE ---
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         const r = 5;
         const points = event.spanDirection === 'up'
@@ -61,7 +70,6 @@ export class NodeRenderer {
         shape.classList.add('graph-node-span-origin');
     } 
     else if (event.isSpanDest) {
-        // --- PINK SEMI-CIRCLE ---
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const r = 4;
         const sweep = event.spanDirection === 'down' ? 0 : 1;
@@ -69,7 +77,6 @@ export class NodeRenderer {
         shape.classList.add('graph-node-span-dest');
     }
     else {
-        // --- STANDARD CIRCLE (Level or NOW) ---
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         shape.setAttribute('cx', cx);
         shape.setAttribute('cy', cy);
