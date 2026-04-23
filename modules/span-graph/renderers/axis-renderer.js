@@ -1,8 +1,8 @@
 import { formatSubjectiveAge, convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
 
 /**
- * Renders the authoritative axes and responsive labels (HUD layer).
- * ADI REBUILT: Consistent x/y authority.
+ * DUMB RENDERER: AXIS RENDERER
+ * Performs pure SVG drawing of the HUD axes and labels.
  */
 export class AxisRenderer {
   constructor(viewport, parentGroup) {
@@ -20,7 +20,7 @@ export class AxisRenderer {
     const gutterHeight = 20;
     const labelX = 110; 
 
-    // 1. X-AXIS (Age)
+    // 1. X-AXIS (Subjective Age)
     const xAxisY = height - gutterHeight;
     const worldLeft = this.viewport.screenToWorld(0, 0).age;
     const worldRight = this.viewport.screenToWorld(width, 0).age;
@@ -41,16 +41,14 @@ export class AxisRenderer {
     const ageHeader = this._createText(width / 2, xAxisY + 15, 'SUBJECTIVE AGE', 'graph-axis-text graph-axis-text-bold', 'middle');
     this.group.appendChild(ageHeader);
 
-    // 2. Y-AXIS (Time)
+    // 2. Y-AXIS (Objective Time)
     const topWorld = this.viewport.screenToWorld(0, 0);
     const bottomWorld = this.viewport.screenToWorld(0, height - gutterHeight);
-    const topTime = topWorld.time;
-    const bottomTime = bottomWorld.time;
-    const timeRange = bottomTime - topTime;
+    const timeRange = bottomWorld.time - topWorld.time;
 
     for (let i = 0; i <= 5; i++) {
         const ratio = i / 5;
-        const currentTime = topTime + (timeRange * ratio);
+        const currentTime = topWorld.time + (timeRange * ratio);
         const screenY = this.viewport.worldToScreen(0, currentTime).y;
         
         const dt = convertTimestampToDateString(currentTime);
@@ -97,7 +95,6 @@ export class AxisRenderer {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-axes');
-    g.style.pointerEvents = 'none'; 
     parent.appendChild(g);
     return g;
   }

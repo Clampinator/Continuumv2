@@ -1,6 +1,6 @@
 /**
- * Renders the Experience Bounding Boxes and Labels.
- * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
+ * DUMB RENDERER: EXPERIENCE RENDERER
+ * Performs pure SVG drawing of experience boxes and labels.
  */
 export class ExperienceRenderer {
   constructor(viewport, parentGroup) {
@@ -8,30 +8,28 @@ export class ExperienceRenderer {
     this.group = this._createExperienceGroup(parentGroup);
   }
 
-  render(state) {
-    if (!this.group || !state.experiences) return;
+  /**
+   * Renders experiences from a pre-calculated manifest.
+   * 
+   * @param {Object} manifest - The RenderManifest.
+   */
+  render(manifest) {
+    if (!this.group || !manifest.experiences) return;
     this.group.innerHTML = '';
 
     const labelSlots = {};
 
-    state.experiences.forEach((exp) => {
-        // COORDINATE AUTHORITY: Project all 4 corners using startX/Y and endX/Y
-        const pStart = this.viewport.worldToScreen(exp.startX, exp.startY);
-        const pEnd = this.viewport.worldToScreen(exp.endX, exp.endY);
+    manifest.experiences.forEach(exp => {
+        const { x, y, width, height, isOngoing, opacity, name } = exp;
 
-        const x = pStart.x;
-        const y = Math.min(pStart.y, pEnd.y); 
-        const width = Math.max(1, pEnd.x - pStart.x);
-        const height = Math.max(1, Math.abs(pEnd.y - pStart.y));
-
-        // 1. Draw Experience Box
+        // 1. Draw Box
         const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         box.setAttribute('x', x);
         box.setAttribute('y', y);
         box.setAttribute('width', width);
         box.setAttribute('height', height);
         
-        if (exp.isOngoing) {
+        if (isOngoing) {
             const gradId = `grad-${exp.id}`;
             this._createGradient(gradId);
             box.style.fill = `url(#${gradId})`;
@@ -39,14 +37,14 @@ export class ExperienceRenderer {
             box.style.fill = 'rgba(255, 255, 0, 0.2)';
         }
 
-        box.style.opacity = exp.opacity;
+        box.style.opacity = opacity;
         box.style.pointerEvents = 'none';
         box.style.stroke = 'rgba(255, 255, 0, 0.4)';
         box.style.strokeWidth = '1px';
         this.group.appendChild(box);
 
         // 2. Draw Label
-        if (width > 20 || exp.isOngoing) {
+        if (width > 20 || isOngoing) {
             let slot = 0;
             while (this._isSlotOccupied(slot, x, x + width, labelSlots)) {
                 slot++;
@@ -60,9 +58,9 @@ export class ExperienceRenderer {
             label.style.fontSize = '10px';
             label.style.fontFamily = 'monospace';
             label.style.fontWeight = 'bold';
-            label.style.opacity = exp.opacity;
+            label.style.opacity = opacity;
             label.style.pointerEvents = 'none';
-            label.textContent = exp.name;
+            label.textContent = name;
             this.group.appendChild(label);
         }
     });

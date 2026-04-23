@@ -2,6 +2,7 @@ import { handleNodeDrop } from '../actions/handle-node-drop.js';
 
 /**
  * Handles the pointerup event for the Span Graph.
+ * DEEP DECIMATION REBUILT: Finalizes interaction state.
  */
 export function onPointerUp(event, viewport) {
     if (!viewport._interaction.isDragging) return;
@@ -18,7 +19,8 @@ export function onPointerUp(event, viewport) {
     } else if (state.type === 'node') {
         // Drag end for node/NOW movement
         const world = state.currentWorld;
-        handleNodeDrop(viewport, world, state.mode, state.nodeElement.classList.contains('graph-node-now'));
+        const isNow = state.nodeElement?.classList.contains('graph-node-now');
+        handleNodeDrop(viewport, world, state.mode, isNow);
     }
 
     viewport._interaction.isDragging = false;

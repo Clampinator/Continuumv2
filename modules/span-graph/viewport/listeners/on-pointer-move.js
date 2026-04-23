@@ -5,7 +5,7 @@ import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/se
 
 /**
  * Handles the pointermove event for the Span Graph.
- * ADI REBUILT: Consistent x/y coordinate isolation.
+ * DEEP DECIMATION REBUILT: Uses persistent manifest for interaction checks.
  */
 export function onPointerMove(event, viewport) {
     const rect = viewport.svg.getBoundingClientRect();
@@ -48,6 +48,10 @@ export function onPointerMove(event, viewport) {
         const world = constrainMovement(rawWorld, viewport._interaction.startWorld, viewport._interaction.mode);
         viewport._interaction.currentWorld = world;
         
+        // Update manifest with current drag coordinates for "live" rendering
+        // In the dumb-renderer model, we update the manifest and re-render.
+        _updateDragManifest(viewport, world);
+        
         // AUTHORITY: Real-time Dragging HUD
         _updateDragTooltip(viewport, x, y);
 
@@ -62,8 +66,23 @@ export function onPointerMove(event, viewport) {
 }
 
 /**
- * Updates tooltips during static hover.
+ * Updates the temporary manifest during a drag to ensure smooth node movement.
  * @private
+ */
+function _updateDragManifest(viewport, worldPos) {
+    if (!viewport.latestManifest) return;
+    const manifest = viewport.latestManifest;
+    const isNow = viewport._interaction.nodeElement?.classList.contains('graph-node-now');
+    
+    if (isNow && manifest.hud.now) {
+        const screen = viewport.worldToScreen(worldPos.age, worldPos.time);
+        manifest.hud.now.x = screen.x;
+        manifest.hud.now.y = screen.y;
+    }
+}
+
+/**
+ * Updates tooltips during static hover.
  */
 function _updateHoverTooltips(viewport, event, x, y) {
     const target = event.target;
@@ -74,7 +93,6 @@ function _updateHoverTooltips(viewport, event, x, y) {
         return;
     }
 
-    // PHYSICS AUTHORITY: Use the persistent graph state
     const history = viewport.latestHistory || [];
     const state = viewport.latestState;
     if (!state) return;
@@ -94,7 +112,6 @@ function _updateHoverTooltips(viewport, event, x, y) {
         content.push({ label: 'LOCATION', value: location, color: '#8ecae6' });
     } 
     else {
-        // ADI: Lookup node by ID from persistent history
         const targetNode = history.find(n => n.id === eventId);
         if (targetNode) {
             const record = targetNode.record || targetNode;
@@ -128,7 +145,6 @@ function _updateHoverTooltips(viewport, event, x, y) {
 
 /**
  * Updates tooltips during active dragging.
- * @private
  */
 function _updateDragTooltip(viewport, x, y) {
     const world = viewport._interaction.currentWorld;
@@ -147,7 +163,6 @@ function _updateDragTooltip(viewport, x, y) {
         const arrDT = convertTimestampToDateString(world.time);
         const spent = Math.abs(world.time - viewport._interaction.startWorld.time) / 1000;
         
-        // Calculate Pool
         const pool = calculateSpanPool(viewport.actor, history, { 
             departureTime: viewport._interaction.startWorld.time,
             arrivalTime: world.time

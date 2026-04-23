@@ -1,6 +1,6 @@
 /**
- * Renders the background time/age grid for the Span Graph.
- * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
+ * DUMB RENDERER: GRID RENDERER
+ * Performs pure SVG drawing of the background grid.
  */
 export class GridRenderer {
   constructor(viewport, parentGroup) {
@@ -8,7 +8,7 @@ export class GridRenderer {
     this.group = this._createGridGroup(parentGroup);
   }
 
-  render(state, viewState) {
+  render(viewState) {
     if (!this.group) return;
     this.group.innerHTML = '';
 
@@ -16,7 +16,7 @@ export class GridRenderer {
     const width = rect.width;
     const height = rect.height;
 
-    // 1. AGE GRID (X-Axis)
+    // 1. AGE GRID (Vertical)
     const worldLeft = this.viewport.screenToWorld(0, 0).age;
     const worldRight = this.viewport.screenToWorld(width, 0).age;
     const ageStep = this._calculateGridStep(viewState.zoom);
@@ -28,12 +28,10 @@ export class GridRenderer {
         this.group.appendChild(line);
     }
 
-    // 2. TIME GRID (Y-Axis)
-    // COORDINATE AUTHORITY: worldToScreen/screenToWorld handle x/y.
+    // 2. TIME GRID (Horizontal)
     const worldTop = this.viewport.screenToWorld(0, 0).time;
     const worldBottom = this.viewport.screenToWorld(0, height).time;
-
-    const timeStep = ageStep * 1000; 
+    const timeStep = ageStep * 1000;
     const startTs = Math.floor(Math.min(worldTop, worldBottom) / timeStep) * timeStep;
     const endTs = Math.max(worldTop, worldBottom);
 
@@ -52,7 +50,6 @@ export class GridRenderer {
   }
 
   _createLine(x1, y1, x2, y2, className) {
-    if (typeof document === 'undefined') return null;
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', x1);
     line.setAttribute('y1', y1);
