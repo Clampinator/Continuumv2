@@ -120,7 +120,8 @@ export class SpanGraphViewport {
       this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor);
 
       // 3. PROJECTION MANIFEST
-      this.latestManifest = generateManifest(this.latestState, this);
+      // AUTHORITY: Pass the interaction state so the manifest can project "Live" stretches and jumps
+      this.latestManifest = generateManifest(this.latestState, this, interaction);
 
       // 4. THE DUMB PIPE PUSH
       renderViewport(this, this.latestState, this.latestManifest); 

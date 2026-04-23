@@ -7,9 +7,10 @@ import { projectDiagonal } from '../../temporal-kernel/project-diagonal.js';
  * 
  * @param {Object} state - The state object from getTemporalState.
  * @param {SpanGraphViewport} viewport - Viewport for coordinate conversion.
+ * @param {Object} interaction - Current interaction state for live overrides.
  * @returns {Object} A RenderManifest for the dumb renderers.
  */
-export function generateManifest(state, viewport) {
+export function generateManifest(state, viewport, interaction = null) {
     const manifest = {
         rails: [],
         nodes: [],
@@ -23,7 +24,11 @@ export function generateManifest(state, viewport) {
 
     if (!state || !state.segments) return manifest;
 
-    // 1. PROJECT ERAS (Background Layer)
+    const isDraggingNow = interaction?.isDragging && interaction.nodeElement?.classList.contains('graph-node-now');
+    const dragWorld = interaction?.currentWorld;
+    const dragMode = interaction?.mode;
+
+    // 1. PROJECT ERAS
     const erasRaw = Object.values(viewport.actor.system.eras || {}).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
     let currentAge = 0;
     erasRaw.forEach(era => {
@@ -38,11 +43,18 @@ export function generateManifest(state, viewport) {
         currentAge += Number(era.duration || 0);
     });
 
-    // 2. PROJECT RAILS & SPANS (Content Layer)
+    // 2. PROJECT RAILS & SPANS
     state.segments.forEach((seg, index) => {
+        const isLastSegment = (index === state.segments.length - 1);
+        
         // Level Rail (Blue)
         const railNodes = [seg.arrivalNode, ...seg.nodes];
         if (seg.exitPoint) railNodes.push(seg.exitPoint);
+
+        // AUTHORITY: Stretch the final rail if leveling the NOW node
+        if (isLastSegment && isDraggingNow && dragMode === 'level') {
+            railNodes.push({ x: dragWorld.age, y: dragWorld.time });
+        }
 
         manifest.rails.push({
             type: 'level',
@@ -56,7 +68,6 @@ export function generateManifest(state, viewport) {
             if (nextSeg) {
                 const p1 = viewport.worldToScreen(seg.exitPoint.x, seg.exitPoint.y);
                 const p2 = viewport.worldToScreen(nextSeg.arrivalNode.x, nextSeg.arrivalNode.y);
-                
                 manifest.rails.push({
                     type: 'span',
                     p1, p2,
@@ -67,12 +78,21 @@ export function generateManifest(state, viewport) {
         }
     });
 
-    // 3. PROJECT NODES (History)
+    // AUTHORITY: Project LIVE PINK SPAN if spanning the NOW node
+    if (isDraggingNow && dragMode === 'span') {
+        const p1 = viewport.worldToScreen(interaction.startWorld.age, interaction.startWorld.time);
+        const p2 = viewport.worldToScreen(dragWorld.age, dragWorld.time);
+        manifest.rails.push({
+            type: 'span',
+            p1, p2,
+            isFuture: dragWorld.time > interaction.startWorld.time
+        });
+    }
+
+    // 3. PROJECT NODES
     state.nodes.forEach(node => {
-        // COORDINATE AUTHORITY: Handle both RenderNode (x,y) and legacy (age,time)
         const nodeX = node.x !== undefined ? node.x : node.age;
         const nodeY = node.y !== undefined ? node.y : (node.ts || node.time || 0);
-        
         if (nodeX === undefined || nodeY === undefined) return;
 
         const screen = viewport.worldToScreen(nodeX, nodeY);
@@ -86,10 +106,10 @@ export function generateManifest(state, viewport) {
         });
     });
 
-    // 4. PROJECT NOW INDICATOR (HUD Layer)
+    // 4. PROJECT NOW INDICATOR
     if (state.nowNode) {
-        const nowX = state.nowNode.x !== undefined ? state.nowNode.x : state.nowNode.age;
-        const nowY = state.nowNode.y !== undefined ? state.nowNode.y : (state.nowNode.ts || state.nowNode.time || 0);
+        const nowX = isDraggingNow ? dragWorld.age : (state.nowNode.x !== undefined ? state.nowNode.x : state.nowNode.age);
+        const nowY = isDraggingNow ? dragWorld.time : (state.nowNode.y !== undefined ? state.nowNode.y : (state.nowNode.ts || state.nowNode.time || 0));
         
         const nowScreen = viewport.worldToScreen(nowX, nowY);
         const nowNodeManifest = {
@@ -110,7 +130,6 @@ export function generateManifest(state, viewport) {
     state.experiences.forEach(exp => {
         const pStart = viewport.worldToScreen(exp.startX, exp.startY);
         const pEnd = viewport.worldToScreen(exp.endX, exp.endY);
-        
         manifest.experiences.push({
             id: exp.id,
             name: exp.name,
@@ -125,8 +144,8 @@ export function generateManifest(state, viewport) {
     });
 
     // 6. HUD METADATA
-    const history = state.nodes.filter(n => !n.isVirtual && !n.isNow);
-    const lastEvent = history[history.length - 1] || { x: 0, age: 0 };
+    const historyNodes = state.nodes.filter(n => !n.isVirtual && !n.isNow);
+    const lastEvent = historyNodes[historyNodes.length - 1] || { x: 0, age: 0 };
     const lastX = lastEvent.x !== undefined ? lastEvent.x : lastEvent.age;
     manifest.hud.creationStartX = viewport.worldToScreen(lastX, 0).x;
 
