@@ -8,42 +8,54 @@ export class RailRenderer {
     this.group = this._createRailGroup(parentGroup);
   }
 
+  /**
+   * Renders the rails based on the current state.
+   */
   render(state, interaction = null) {
     if (!this.group) return;
+    
     this.group.innerHTML = '';
 
     if (state.segments) {
         state.segments.forEach((seg, index) => {
             // 1. Draw the Blue Level Rail
             const railNodes = [...seg.nodes];
+            
+            // Start node of the rail is the arrival point
             railNodes.unshift(seg.arrivalNode);
             
+            // End node of the rail is either the exit point or the NOW node if this is the active segment
             if (seg.exitPoint) {
                 railNodes.push(seg.exitPoint);
             } else if (state.nowNode && state.nowNode.x >= seg.arrivalNode.x) {
+                // If dragging NOW, use the interaction coordinates
                 const isDraggingNow = interaction?.isDragging && interaction.nodeElement?.classList.contains('graph-node-now');
                 const nowTarget = isDraggingNow ? interaction.currentWorld : state.nowNode;
                 railNodes.push(nowTarget);
             }
 
+            // Render the continuous blue line for this segment
             const pathData = this._generatePathData(railNodes);
             const rail = this._createPathElement(pathData, 'span-graph-rail');
             if (rail) this.group.appendChild(rail);
 
-            // 2. Draw the Pink Vertical Span
+            // 2. Draw the Pink Vertical Span (if it exists)
             if (seg.exitPoint) {
                 const departureNode = seg.exitPoint;
                 const nextSeg = state.segments[index + 1];
                 const arrivalNode = nextSeg?.arrivalNode;
 
                 if (arrivalNode) {
-                    // AUTHORITY: Use x and y coordinates
+                    // AUTHORITY: Use Physics Coordinates (x, y)
                     const p1 = this.viewport.worldToScreen(departureNode.x, departureNode.y);
                     const p2 = this.viewport.worldToScreen(arrivalNode.x, arrivalNode.y);
                     
                     const spanPath = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
-                    const span = this._createPathElement(spanPath, 'span-graph-span');
                     
+                    // FIXED: Use the correct class from CSS (span-graph-span-line)
+                    const span = this._createPathElement(spanPath, 'span-graph-span-line');
+                    
+                    // Directional animation logic
                     const isFuture = arrivalNode.y > departureNode.y;
                     if (isFuture) span.classList.add('future');
                     else span.classList.add('past');
@@ -58,8 +70,8 @@ export class RailRenderer {
   _generatePathData(nodes) {
     const points = nodes.map(node => {
         // Support both RenderNode (x,y) and interaction worldPos (age,time)
-        const x = node.x !== undefined ? node.x : node.age;
-        const y = node.y !== undefined ? node.y : node.time;
+        const x = node.x !== undefined ? node.x : (node.age ?? 0);
+        const y = node.y !== undefined ? node.y : (node.time ?? 0);
         return this.viewport.worldToScreen(x, y);
     });
 
