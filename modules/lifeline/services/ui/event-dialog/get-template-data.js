@@ -41,8 +41,9 @@ export function getTemplateData(actor, params) {
 
     // 1. DATA EXTRACTION
     if (mode === 'edit' && existingData) {
+        // ADI BRIDGE: Physics from node, Facts from record
         const node = existingData;
-        const record = node.record || node; 
+        const record = node.record || node; // Fallback for transition
         
         age = node.x !== undefined ? node.x : node.age;
         ts = node.y !== undefined ? node.y : (node.ts || node.time);
@@ -75,8 +76,9 @@ export function getTemplateData(actor, params) {
             zoom = record.zoom;
         }
     } else if (mode === 'log') {
-        age = (params.ageRaw !== undefined) ? params.ageRaw : graphData.nowNode.x;
-        ts = (params.timeRaw !== undefined) ? params.timeRaw : graphData.nowNode.y;
+        // ADI coordinates for NOW
+        age = (params.ageRaw !== undefined) ? params.ageRaw : (graphData?.nowNode?.x || 0);
+        ts = (params.timeRaw !== undefined) ? params.timeRaw : (graphData?.nowNode?.y || Date.now());
 
         isSpan = viewState.activeDragType === 'span';
         title = isSpan ? "Span" : "Event";
@@ -107,7 +109,11 @@ export function getTemplateData(actor, params) {
         ts = (params.timeRaw !== undefined) ? params.timeRaw : viewState.hoveredSegment?.worldTime;
         
         const precedingId = params.precedingEventId || viewState.hoveredSegment?.precedingEventId;
-        const precedingNode = graphData.nodes.find(n => n.id === precedingId);
+        
+        // FIXED: Use ADI-compliant 'levelNodes' and check existence before 'find'
+        const nodes = graphData?.levelNodes || [];
+        const precedingNode = nodes.find(n => n.id === precedingId);
+        
         eraId = precedingNode?.eraId;
         expId = precedingNode?.expId;
 
@@ -119,6 +125,7 @@ export function getTemplateData(actor, params) {
         title = "Inserted Event";
     }
 
+    // 2. HISTORICAL AUTHORITY PASS (No real-world leaks)
     if (ts === null || ts === undefined || isNaN(ts)) {
         const dobStr = actor.system.personal?.dob || "";
         const dobDate = parseDate(dobStr);
@@ -127,11 +134,13 @@ export function getTemplateData(actor, params) {
 
     const dt = convertTimestampToDateString(ts);
 
+    // 3. ASSEMBLY
     return {
         mode,
         isLogMode: mode === 'log',
         title,
         notes,
+        // FACTS: Prefer record strings for visual parity
         date: (mode === 'edit' && !isSpan && existingData?.record) ? existingData.record.date : dt.date,
         time: (mode === 'edit' && !isSpan && existingData?.record) ? existingData.record.time : dt.time,
         location,
