@@ -1,6 +1,6 @@
-import { flattenEvents } from '../../../span-graph-data-processor.js';
-import { getTemporalState } from '../../../temporal-engine/get-temporal-state.js';
-import { TARGET_RATIO } from '../../../temporal-engine/constants.js';
+import { flattenEvents } from '/systems/continuum-v2/modules/span-graph-data-processor.js';
+import { getTemporalState } from '/systems/continuum-v2/modules/temporal-engine/get-temporal-state.js';
+import { TARGET_RATIO } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 /**
  * Calculates the autofocus viewState to center on the character's NOW position.

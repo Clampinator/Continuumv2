@@ -1,5 +1,5 @@
 import { reindexLifelineNodes } from '../../../chronology/reindex-lifeline-nodes.js';
-import { normalizeDateInput, parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, parseDate } from '../../../../span-graph-utils/provide-span-graph-utils.js';
 
 /**
  * Handles the chronological re-indexing logic for nodes.

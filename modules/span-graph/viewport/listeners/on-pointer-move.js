@@ -1,4 +1,4 @@
-import { getDragMode, constrainMovement } from '../actions/drag-physics.js';
+import { getDragMode, constrainMovement } from '/systems/continuum-v2/modules/span-graph/actions/drag-physics.js';
 
 /**
  * Handles the pointermove event for the Span Graph.

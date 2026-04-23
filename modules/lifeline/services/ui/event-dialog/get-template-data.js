@@ -1,4 +1,4 @@
-import { convertTimestampToDateString, formatSubjectiveAge, formatDuration, parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { convertTimestampToDateString, formatSubjectiveAge, formatDuration, parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
 import { buildContextOptions } from '../build-context-options.js';
 import { ContextFinder } from '../../context-finder.js';
 
@@ -41,9 +41,8 @@ export function getTemplateData(actor, params) {
 
     // 1. DATA EXTRACTION
     if (mode === 'edit' && existingData) {
-        // ADI BRIDGE: Physics from node, Facts from record
         const node = existingData;
-        const record = node.record || node; // Fallback for transition
+        const record = node.record || node; 
         
         age = node.x !== undefined ? node.x : node.age;
         ts = node.y !== undefined ? node.y : (node.ts || node.time);
@@ -120,7 +119,6 @@ export function getTemplateData(actor, params) {
         title = "Inserted Event";
     }
 
-    // 2. HISTORICAL AUTHORITY PASS (No real-world leaks)
     if (ts === null || ts === undefined || isNaN(ts)) {
         const dobStr = actor.system.personal?.dob || "";
         const dobDate = parseDate(dobStr);
@@ -129,13 +127,11 @@ export function getTemplateData(actor, params) {
 
     const dt = convertTimestampToDateString(ts);
 
-    // 3. ASSEMBLY
     return {
         mode,
         isLogMode: mode === 'log',
         title,
         notes,
-        // FACTS: Prefer record strings for visual parity
         date: (mode === 'edit' && !isSpan && existingData?.record) ? existingData.record.date : dt.date,
         time: (mode === 'edit' && !isSpan && existingData?.record) ? existingData.record.time : dt.time,
         location,

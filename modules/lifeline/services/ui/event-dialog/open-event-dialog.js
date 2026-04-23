@@ -1,10 +1,10 @@
 import { getTemplateData } from './get-template-data.js';
 import { handleSubmit } from './handle-submit.js';
-import { activateDatePickers } from '../../../../../date-picker.js';
-import { renderGraph } from '../../../../../span-graph-render.js';
-import { panToLocation, getMapCenterLocation } from '../../../../../span-graph-map.js';
-import { Sound } from '../../../../../sound-manager.js';
-import { getSheetContext } from '../../../../../span-graph-state.js';
+import { activateDatePickers } from '/systems/continuum-v2/modules/date-picker.js';
+import { renderGraph } from '/systems/continuum-v2/modules/span-graph-render.js';
+import { panToLocation, getMapCenterLocation } from '/systems/continuum-v2/modules/span-graph-map.js';
+import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';
+import { getSheetContext } from '/systems/continuum-v2/modules/span-graph-state.js';
 
 /*
 Opens the unified event node editor dialog.
@@ -16,8 +16,6 @@ export async function openEventDialog(sheet, params) {
     
     if (viewState.interactionMode === 'dialog-open') return;
     
-    // AUTHORITY: Clear stale drag state for non-log modes to prevent data contamination 
-    // during history edits or insertions.
     if (params.mode !== 'log') {
         viewState.dragStartWorld = null;
         viewState.activeDragType = null;
@@ -26,7 +24,7 @@ export async function openEventDialog(sheet, params) {
     viewState.interactionMode = 'dialog-open';
 
     let confirmed = false;
-    const actor = sheet.actor; // Capture actor in local scope
+    const actor = sheet.actor; 
     const templateData = getTemplateData(actor, { ...params, viewState, graphData });
 
     const dialogTitle = {
@@ -163,7 +161,6 @@ export async function openEventDialog(sheet, params) {
         buttons: buttons,
         default: "save",
         close: () => {
-            // Revert NOW node position only on cancel
             if (!confirmed && params.mode === 'log' && viewState.dragStartWorld) {
                 if (graphData.nowNode) {
                     graphData.nowNode.age = viewState.dragStartWorld.age;
@@ -173,12 +170,9 @@ export async function openEventDialog(sheet, params) {
 
             viewState.interactionMode = 'pan';
             viewState.isCommittingLog = false;
-
-            // AUTHORITY: Reset interaction flags to ensure graph re-enters neutral state
             viewState.dragStartWorld = null;
             viewState.activeDragType = null;
 
-            // Safe re-render: only if sheet is still active
             if (sheet.rendered) {
                 const viewport = sheet._spanGraphViewport;
                 if (viewport) viewport.updateActor(actor);

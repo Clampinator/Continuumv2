@@ -1,4 +1,4 @@
-import { normalizeDateInput, convertTimestampToDateString, parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, convertTimestampToDateString, parseDate } from '../../../../span-graph-utils/provide-span-graph-utils.js';
 import { normalizeLifelineAges } from '../../chronology/normalize-lifeline-ages.js';
 import { Sound } from '../../../../sound-manager.js';
 import { createEndOfRestEvent } from '../handle-rest-toggle.js';
