@@ -1,6 +1,6 @@
 import { flattenEvents } from '../../../span-graph-data-processor.js';
 import { getTemporalState } from '../../../temporal-engine/get-temporal-state.js';
-import { generateManifest } from '../projection/manifest-generator.js';
+import { generateManifest } from '../../projection/manifest-generator.js';
 
 /**
  * Executes the authoritative render pass for the entire Span Graph.

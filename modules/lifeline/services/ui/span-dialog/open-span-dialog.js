@@ -1,8 +1,8 @@
 import { getTemplateData } from './get-template-data.js';
 import { handleSubmit } from '../event-dialog/handle-submit.js';
-import { activateDatePickers } from '../../../../date-picker.js';
-import { panToLocation, getMapCenterLocation } from '../../../../span-graph-map.js';
-import { getSheetContext } from '../../../../span-graph-state.js';
+import { activateDatePickers } from '/systems/continuum-v2/modules/date-picker.js';
+import { panToLocation, getMapCenterLocation } from '/systems/continuum-v2/modules/span-graph-map.js';
+import { getSheetContext } from '/systems/continuum-v2/modules/span-graph-state.js';
 
 /**
  * REBUILT: Exact functional replica of legacy openEventDialog, 
