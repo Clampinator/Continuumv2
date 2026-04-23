@@ -1,0 +1,43 @@
+/* Tooltip Styling for Span Graph HUD */
+
+.span-graph-tooltip-body {
+    padding: 8px;
+    margin: 0;
+    color: #fff;
+    font-family: 'monospace';
+    font-size: 11px;
+    line-height: 1.2;
+    display: block;
+    overflow: visible;
+    width: max-content; /* AUTHORITY: Grow to fit content, no more. */
+}
+
+.tooltip-table {
+    border-collapse: collapse;
+    width: auto;
+    margin: 0;
+}
+
+.tooltip-table td {
+    padding: 1px 0;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.tooltip-label {
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    padding-right: 15px !important;
+    font-weight: normal !important;
+}
+
+.tooltip-value {
+    font-weight: bold !important;
+    color: #00ffff !important;
+    text-align: right !important;
+}
+
+.tooltip-text-wrapper {
+    white-space: nowrap;
+}

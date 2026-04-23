@@ -4,114 +4,119 @@ import { generateExperiences } from '../lifeline/services/segment-generator/gene
 
 /**
  * AUTHORITATIVE TEMPORAL STATE ENGINE
- * Enforces the character's journey as a linked sequence of segments and jumps.
- * REBUILT: Immutable Physical Authority Pass.
+ * ADI REBUILT: Processes RenderNodes through a physically deterministic walk.
  */
 export function getTemporalState(history, subjectiveNow = 0, originTime = 0, actor = null) {
+  // history: Array of { id, x, y, arrivalY, record, sort, ... }
   const segments = calculateSegments(history, originTime);
   
   if (segments.length === 0) {
     const birthNode = { 
         id: 'birth',
-        age: 0, 
-        projectedTime: originTime, 
-        time: originTime, 
+        x: 0, 
+        y: originTime, 
+        record: { title: "Birth" },
         isBirth: true 
     };
-    return _finalizeState([{ startAge: 0, startTime: originTime, events: [], arrivalPoint: birthNode }], [], subjectiveNow, 0, actor);
+    return _finalizeState([{ startX: 0, startY: originTime, nodes: [], arrivalNode: birthNode }], [birthNode], subjectiveNow, 0, actor);
   }
 
   let totalDisplacement = 0;
 
-  // 1. Project Events
-  const eventsWithProjection = history.map(event => {
-    let activeSegment = segments.find(s => s.exitPoint?.id === event.id);
+  // 1. PROJECT NODES
+  const nodesWithProjection = history.map(node => {
+    let activeSegment = segments.find(s => s.exitPoint?.id === node.id);
     if (!activeSegment) {
-        activeSegment = segments.find(s => s.events.some(e => e.id === event.id)) || segments[0];
+        activeSegment = segments.find(s => s.nodes.some(n => n.id === node.id)) || segments[0];
     }
     
-    // AUTHORITY: Absolute high-precision age/time from ground-truth storage
-    const authoritativeAge = Number(event.age);
-    const projectedTime = resolveCoordinates(authoritativeAge, activeSegment);
+    // PHYSICS AUTHORITY: Re-resolve Y coordinate to ensure 1:1 diagonal perfection
+    const authoritativeX = Number(node.x);
+    const authoritativeY = resolveCoordinates(authoritativeX, activeSegment);
     
-    const arrivalTime = event.isSpan ? Number(event.arrivalTime || event.time) : 0;
+    const isSpan = !!node.record.isSpan;
+    const arrivalY = isSpan ? Number(node.arrivalY || node.y) : 0;
 
-    if (event.isSpan) {
-        totalDisplacement += Math.abs(arrivalTime - projectedTime);
+    if (isSpan) {
+        totalDisplacement += Math.abs(arrivalY - authoritativeY);
     }
 
-    const spanDirection = event.isSpan ? (arrivalTime > projectedTime ? 'up' : 'down') : null;
+    const spanDirection = isSpan ? (arrivalY > authoritativeY ? 'up' : 'down') : null;
 
     return {
-      ...event,
-      age: authoritativeAge,
-      projectedTime,
-      time: event.time || projectedTime,
-      arrivalTime,
-      isSpanOrigin: !!event.isSpan,
+      ...node,
+      x: authoritativeX,
+      y: authoritativeY,
+      arrivalY,
+      isSpanOrigin: isSpan,
       spanDirection: spanDirection
     };
   });
 
-  // 2. Project Segment Anchors
+  // 2. PROJECT SEGMENT ANCHORS (Virtual Nodes)
   const projectedSegments = segments.map((seg, index) => {
       let exitPoint = null;
       if (seg.exitPoint) {
-          const rawExit = eventsWithProjection.find(e => e.id === seg.exitPoint.id);
-          exitPoint = {
-              id: rawExit.id,
-              age: Number(rawExit.age),
-              projectedTime: Number(rawExit.projectedTime),
-              isSpanOrigin: true,
-              spanDirection: rawExit.spanDirection
-          };
+          exitPoint = nodesWithProjection.find(n => n.id === seg.exitPoint.id);
       }
 
       let arrivalDirection = null;
       if (index > 0) {
-          const prevSeg = segments[index - 1];
-          const spanEvent = eventsWithProjection.find(e => e.id === prevSeg.exitPoint?.id);
-          arrivalDirection = spanEvent?.spanDirection || 'up';
+          const prevSeg = projectedSegments[index - 1] || nodesWithProjection.find(n => n.id === segments[index-1].exitPoint?.id);
+          arrivalDirection = prevSeg?.spanDirection || 'up';
       }
 
-      const arrivalPoint = {
-          id: `arrival-${seg.startTime}-${index}`,
-          age: Number(seg.startAge),
-          projectedTime: Number(seg.startTime),
-          time: Number(seg.startTime),
+      const arrivalNode = {
+          id: `arrival-${seg.startY}-${index}`,
+          x: Number(seg.startX),
+          y: Number(seg.startY),
+          record: { title: "Arrival" },
           isVirtual: true,
-          isSpanDest: seg.startAge > 0,
-          isBirth: seg.startAge === 0,
+          isSpanDest: seg.startX > 0,
+          isBirth: seg.startX === 0,
           spanDirection: arrivalDirection
       };
 
       return {
           ...seg,
-          arrivalPoint,
+          arrivalNode,
           exitPoint,
-          events: seg.events.map(e => eventsWithProjection.find(ep => ep.id === e.id))
+          nodes: seg.nodes.map(sn => nodesWithProjection.find(np => np.id === sn.id))
       };
   });
 
-  return _finalizeState(projectedSegments, eventsWithProjection, subjectiveNow, totalDisplacement, actor);
+  // 3. GATHER ALL RENDER NODES
+  const allRenderNodes = [...nodesWithProjection];
+  projectedSegments.forEach(seg => {
+      if (seg.arrivalNode.isSpanDest || seg.arrivalNode.isBirth) {
+          if (!allRenderNodes.some(n => n.x === seg.arrivalNode.x && n.y === seg.arrivalNode.y)) {
+              allRenderNodes.push(seg.arrivalNode);
+          }
+      }
+  });
+
+  return _finalizeState(projectedSegments, allRenderNodes, subjectiveNow, totalDisplacement, actor);
 }
 
-function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0, actor = null) {
-  const nowSegment = [...segments].reverse().find(s => s.startAge <= subjectiveNow) 
+function _finalizeState(segments, nodes, subjectiveNow, totalDisplacement = 0, actor = null) {
+  const nowSegment = [...segments].reverse().find(s => s.startX <= subjectiveNow) 
                   || segments[0];
 
   const nowNode = {
     id: 'now',
-    age: subjectiveNow,
-    projectedTime: resolveCoordinates(subjectiveNow, nowSegment) || 0,
+    x: subjectiveNow,
+    y: resolveCoordinates(subjectiveNow, nowSegment) || 0,
+    record: { title: "NOW" },
     isNow: true
   };
 
-  if (!events.some(e => Number(e.age) === 0)) {
-      const birth = segments[0].arrivalPoint;
-      events.unshift({ ...birth, title: "Birth", isBirth: true });
+  // Ensure Birth is first
+  if (!nodes.some(n => n.isBirth)) {
+      const birth = segments[0].arrivalNode;
+      nodes.unshift({ ...birth, title: "Birth", isBirth: true });
   }
 
+  // Generate experiences using ADI nodes
   let experiences = [];
   if (actor) {
       const erasWithIds = Object.entries(actor.system.eras || {}).map(([id, era]) => ({
@@ -119,8 +124,9 @@ function _finalizeState(segments, events, subjectiveNow, totalDisplacement = 0, 
           id: id
       })).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 
-      experiences = generateExperiences(erasWithIds, events, nowNode);
+      // generateExperiences needs to handle node.x and node.y
+      experiences = generateExperiences(erasWithIds, nodes, nowNode);
   }
 
-  return { segments, events, nowNode, experiences, spanPool: { consumed: totalDisplacement, total: 0 } };
+  return { segments, nodes, nowNode, experiences, spanPool: { consumed: totalDisplacement, total: 0 } };
 }

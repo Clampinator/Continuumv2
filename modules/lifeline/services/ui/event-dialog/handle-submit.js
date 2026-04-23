@@ -1,120 +1,32 @@
-import { normalizeDateInput, parseAgeString, convertTimestampToDateString, parseDate, formatSubjectiveAge } from '../../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, convertTimestampToDateString, parseDate } from '../../../../span-graph-utils/provide-span-graph-utils.js';
 import { normalizeLifelineAges } from '../../chronology/normalize-lifeline-ages.js';
 import { Sound } from '../../../../sound-manager.js';
-import { reindexLifelineNodes } from '../../chronology/reindex-lifeline-nodes.js';
 import { createEndOfRestEvent } from '../handle-rest-toggle.js';
-import { ReferenceResolver } from '../../reference-resolver.js';
-import { createManualSpan } from '../../spans/create-manual-span.js';
-import { createInsertedSpan } from '../../spans/create-inserted-span.js';
 import { ContextFinder } from '../../context-finder.js';
 
-/*
-Calculates the current objectiveOffset for the rail an event sits on.
-*/
-function _calculateRailOffset(actor, targetAge, targetTime) {
-    return targetTime - (targetAge * 1000);
-}
+// ATOMIZED SERVICES
+import { solveIntent } from './handle-submit/solve-intent.js';
+import { processReindexing } from './handle-submit/process-reindexing.js';
+import { processExperienceLifecycle, handleNewExperience } from './handle-submit/experience-lifecycle.js';
 
-
+/**
+ * ATOMIZED REBUILT: handle-submit.js
+ * Delegates logic to specialized services for stability.
+ */
 export async function handleSubmit(actor, formData, params) {
-  const { mode, existingData, viewState, graphData } = params;
+  const { mode, existingData, graphData } = params;
   const updates = {};
 
-  // ---- 1. Detect Interaction Type ----
-  const isSpan = Boolean(formData.isSpan);
-  
-  let finalAge = Number(params.ageRaw);
-  let finalTime = Number(params.timeRaw);
-  let ageChanged = false;
-  let timeChanged = false;
-  let newId = (mode === 'edit') ? existingData.id : foundry.utils.randomID();
-  let spanResult = null;
+  // 1. SOLVE INTENT (Coordinates & Type)
+  const intent = solveIntent(actor, formData, params);
+  const { finalAge, finalTime, isSpan } = intent;
+  const newId = (mode === 'edit') ? existingData.id : foundry.utils.randomID();
 
-  // ---- 2. Solve Coordinates ----
-  if (!isSpan) {
-      const inputAge = (formData.eventAge && formData.eventAge.trim() !== "") ? parseAgeString(formData.eventAge) : Number(params.ageRaw);
-      const inputDate = normalizeDateInput(formData.eventDate);
-      const inputTime = formData.eventTime || "12:00:00";
-      const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
-      const inputTs = inputDateObj ? inputDateObj.getTime() : finalTime;
-      
-      const baseAge = (mode === 'edit') ? (existingData.age || 0) : Number(params.ageRaw);
-      const baseTime = (mode === 'edit') ? finalTime : Number(params.timeRaw);
+  // 2. PROCESS REINDEXING (Narrative Sequence)
+  const reindexResult = processReindexing(actor, newId, mode, intent, { ...params, formData }, updates);
+  const { authoritativeAge, authoritativeTime, authoritativeSort, positionChanged } = reindexResult;
 
-      const expectedAgeStr = formatSubjectiveAge(baseAge);
-      ageChanged = (formData.eventAge || "").trim() !== expectedAgeStr;
-      timeChanged = Math.abs(inputTs - baseTime) > 1000;
-
-      const currentRailOffset = _calculateRailOffset(actor, baseAge, baseTime);
-
-      if (ageChanged && !timeChanged) {
-          finalAge = inputAge;
-          finalTime = currentRailOffset + (finalAge * 1000);
-      } else if (timeChanged) {
-          finalTime = inputTs;
-          finalAge = (finalTime - currentRailOffset) / 1000;
-      } else if (mode === 'insert') {
-          finalAge = Number(params.ageRaw);
-          finalTime = Number(params.timeRaw);
-      }
-  } else {
-      if (mode === 'log' || mode === 'edit') {
-          spanResult = createManualSpan(actor, formData, params);
-      } else if (mode === 'insert') {
-          spanResult = createInsertedSpan(actor, formData, params);
-      }
-
-      if (spanResult) {
-          finalAge = spanResult.finalAge;
-          finalTime = spanResult.finalTime;
-          newId = spanResult.newId;
-      }
-  }
-
-  // ---- 3. Reindexing & Sequencing ----
-  let positionChanged = true;
-  if (mode === 'edit') {
-      if (!isSpan) {
-          positionChanged = ageChanged || timeChanged;
-      } else {
-          const oldFrom = `${existingData?.spanFromDate || ''}|${existingData?.spanFromTime || '12:00:00'}`;
-          const oldTo = `${existingData?.spanToDate || ''}|${existingData?.spanToTime || '12:00:00'}`;
-          const newFrom = `${normalizeDateInput(formData.spanFromDate || '')}|${formData.spanFromTime || '12:00:00'}`;
-          const newTo = `${normalizeDateInput(formData.spanToDate || '')}|${formData.spanToTime || '12:00:00'}`;
-          positionChanged = (oldFrom !== newFrom || oldTo !== newTo);
-      }
-  }
-
-  let authoritativeAge, authoritativeTime, authoritativeSort;
-
-  if (positionChanged) {
-      let sortTime = finalTime;
-      if (isSpan) {
-          const depDate = normalizeDateInput(formData.spanFromDate);
-          const depTimeStr = formData.spanFromTime || "12:00:00";
-          const depDateObj = parseDate(`${depDate}T${depTimeStr}`);
-          sortTime = depDateObj ? depDateObj.getTime() : (params.departure?.time || finalTime);
-      }
-
-      const reindexUpdates = reindexLifelineNodes(actor, newId, -1, { age: finalAge, time: sortTime }, {
-          graphData,
-          isLog: mode === 'log'
-      });
-
-      authoritativeAge = reindexUpdates.targetAge;
-      authoritativeTime = reindexUpdates.targetTime;
-      authoritativeSort = reindexUpdates.targetSortValue;
-
-      delete reindexUpdates.targetAge;
-      delete reindexUpdates.targetTime;
-      delete reindexUpdates.targetSortValue;
-      Object.assign(updates, reindexUpdates);
-  } else {
-      authoritativeAge = existingData?.age ?? finalAge;
-      authoritativeTime = finalTime;
-      authoritativeSort = existingData?.sort ?? 0;
-  }
-
+  // 3. ASSEMBLE EVENT DATA
   const eventData = {
     id: newId,
     title: formData.title,
@@ -150,38 +62,13 @@ export async function handleSubmit(actor, formData, params) {
       eventData.time = resolvedDT.time;
   }
 
-  // ---- 4. EXPERIENCE LIFECYCLE AUTHORITY ----
+  // 4. EXPERIENCE LIFECYCLE
   const anchorDate = isSpan ? eventData.spanToDate : eventData.date;
   const anchorTime = isSpan ? (eventData.spanToTime || '12:00:00') : (eventData.time || '12:00:00');
   const anchorFull = `${anchorDate}T${anchorTime}`;
 
-  // A. HANDLE CLOSURES (The "Zombie Experience" fix)
-  let closeExps = formData.closeExperiences || [];
-  if (typeof closeExps === 'string') closeExps = [closeExps];
-  
-  // Filter out any null/undefined values before processing
-  closeExps = closeExps.filter(v => typeof v === 'string' && v.includes(':'));
+  processExperienceLifecycle(actor, formData, updates, anchorFull);
 
-  closeExps.forEach(val => {
-      const [eraId, expId] = val.split(':');
-      updates[`system.eras.${eraId}.experiences.${expId}.dateTo`] = anchorFull;
-      updates[`system.eras.${eraId}.experiences.${expId}.isOngoing`] = false;
-  });
-
-  // B. HANDLE RE-OPENING
-  let reopenExps = formData.reopenExperiences || [];
-  if (typeof reopenExps === 'string') reopenExps = [reopenExps];
-  
-  // Filter out any null/undefined values before processing
-  reopenExps = reopenExps.filter(v => typeof v === 'string' && v.includes(':'));
-
-  reopenExps.forEach(val => {
-      const [eraId, expId] = val.split(':');
-      updates[`system.eras.${eraId}.experiences.${expId}.dateTo`] = "";
-      updates[`system.eras.${eraId}.experiences.${expId}.isOngoing`] = true;
-  });
-
-  // C. START NEW EXPERIENCE
   const contextAction = formData.experienceAction;
   let targetEraId = params.eraId || existingData?.eraId || Object.keys(actor.system.eras || {})[0];
   let targetExpId = params.expId || existingData?.expId || null;
@@ -194,27 +81,8 @@ export async function handleSubmit(actor, formData, params) {
     }
   }
 
-  if (formData.startNewExp) {
-      const newExpId = foundry.utils.randomID();
-      const expName = formData.newExpName || "New Experience";
-      const era = actor.system.eras[targetEraId];
-      const exps = era?.experiences || {};
-      let maxSort = 0;
-      for (const e of Object.values(exps)) {
-          const s = Number(e.sort) || 0;
-          if (s > maxSort) maxSort = s;
-      }
-
-      updates[`system.eras.${targetEraId}.experiences.${newExpId}`] = {
-          id: newExpId,
-          name: expName,
-          dateFrom: anchorFull,
-          dateTo: "",
-          isOngoing: true,
-          color: "#2a2a2a",
-          sort: maxSort + 1000
-      };
-
+  const newExpId = handleNewExperience(actor, formData, updates, targetEraId, anchorFull);
+  if (newExpId) {
       targetExpId = newExpId;
       eventData.startsExpId = newExpId;
   }
@@ -226,15 +94,13 @@ export async function handleSubmit(actor, formData, params) {
       eventData.zoom = formData.zoom || null;
   }
 
+  // 5. DATABASE ROUTING
   const hit = ContextFinder.getHitContext(authoritativeAge, graphData);
   let parentPath;
-  
   if (targetExpId) {
       parentPath = `system.eras.${targetEraId}.experiences.${targetExpId}`;
   } else if (hit && hit.path) {
-      if (!contextAction || contextAction === 'null') {
-          targetEraId = hit.eraId;
-      }
+      if (!contextAction || contextAction === 'null') targetEraId = hit.eraId;
       parentPath = `system.eras.${targetEraId}`;
   } else {
       parentPath = `system.eras.${targetEraId}`;
@@ -251,19 +117,17 @@ export async function handleSubmit(actor, formData, params) {
 
   updates[`${parentPath}.events.${newId}`] = eventData;
 
+  // 6. COMPENSATION WAVE
   if (isSpan && mode === 'insert') {
       const pendingSpan = { ...eventData, id: newId, sort: authoritativeSort };
       const { updates: normUpdates } = normalizeLifelineAges(actor, { pendingSpan });
       Object.assign(updates, normUpdates);
   }
 
+  // 7. CHARACTER STATUS
   if (mode === 'log') {
       updates['system.personal.subjectiveNow'] = eventData.age;
-      updates['system.personal.objectiveNow'] = finalTime;
-      if (params.graphData?.nowNode) {
-          params.graphData.nowNode.age = eventData.age;
-          params.graphData.nowNode.time = finalTime;
-      }
+      updates['system.personal.objectiveNow'] = authoritativeTime || finalTime;
   }
 
   const isRestToggledOn = !existingData?.isRest && eventData.isRest;

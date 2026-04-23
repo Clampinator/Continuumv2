@@ -1,14 +1,11 @@
 /**
  * Renders the Experience Bounding Boxes and Labels.
- * REBUILT: Strict 4-corner authoritative geometry (Left/Right Age, Top/Bottom Time).
+ * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
  */
 export class ExperienceRenderer {
-  constructor(viewport) {
+  constructor(viewport, parentGroup) {
     this.viewport = viewport;
-    this.group = this._createExperienceGroup();
-    if (this.viewport.svg && this.group) {
-      this.viewport.svg.appendChild(this.group);
-    }
+    this.group = this._createExperienceGroup(parentGroup);
   }
 
   render(state) {
@@ -18,16 +15,16 @@ export class ExperienceRenderer {
     const labelSlots = {};
 
     state.experiences.forEach((exp) => {
-        // COORDINATE AUTHORITY: Project all 4 corners into screen space
-        const pStart = this.viewport.worldToScreen(exp.startAge, exp.startTime);
-        const pEnd = this.viewport.worldToScreen(exp.endAge, exp.endTime);
+        // COORDINATE AUTHORITY: Project all 4 corners using startX/Y and endX/Y
+        const pStart = this.viewport.worldToScreen(exp.startX, exp.startY);
+        const pEnd = this.viewport.worldToScreen(exp.endX, exp.endY);
 
         const x = pStart.x;
-        const y = Math.min(pStart.y, pEnd.y); // SVG coordinates: smaller Y is higher on screen
+        const y = Math.min(pStart.y, pEnd.y); 
         const width = Math.max(1, pEnd.x - pStart.x);
         const height = Math.max(1, Math.abs(pEnd.y - pStart.y));
 
-        // 1. Draw Experience Box (The Quadrilateral)
+        // 1. Draw Experience Box
         const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         box.setAttribute('x', x);
         box.setAttribute('y', y);
@@ -35,12 +32,10 @@ export class ExperienceRenderer {
         box.setAttribute('height', height);
         
         if (exp.isOngoing) {
-            // Gradient Fade for Open Experiences
             const gradId = `grad-${exp.id}`;
             this._createGradient(gradId);
             box.style.fill = `url(#${gradId})`;
         } else {
-            // Solid Yellow for Closed Experiences
             box.style.fill = 'rgba(255, 255, 0, 0.2)';
         }
 
@@ -50,7 +45,7 @@ export class ExperienceRenderer {
         box.style.strokeWidth = '1px';
         this.group.appendChild(box);
 
-        // 2. Draw Label (Anchored to top-left of box)
+        // 2. Draw Label
         if (width > 20 || exp.isOngoing) {
             let slot = 0;
             while (this._isSlotOccupied(slot, x, x + width, labelSlots)) {
@@ -110,11 +105,12 @@ export class ExperienceRenderer {
       slots[slot] = true;
   }
 
-  _createExperienceGroup() {
+  _createExperienceGroup(parent) {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-experiences');
     g.style.pointerEvents = 'none'; 
+    parent.appendChild(g);
     return g;
   }
 }

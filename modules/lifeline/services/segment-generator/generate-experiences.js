@@ -3,64 +3,61 @@ import { mapDateToSubjective } from '../../../span-graph-utils/map-date-to-subje
 
 /**
  * ELASTIC RESONANCE FIELDS: Dynamic Experience Segment Generator.
- * REBUILT: Authoritative "Most Right" rule for total persistence.
+ * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
  */
-export function generateExperiences(sortedEras, levelNodes, nowNode) {
+export function generateExperiences(sortedEras, nodes, nowNode) {
     const experiences = [];
-    if (!levelNodes || levelNodes.length === 0) return experiences;
+    if (!nodes || nodes.length === 0) return experiences;
 
-    const dobTs = levelNodes[0]?.time || levelNodes[0]?.projectedTime;
+    const dobTs = nodes[0]?.y;
 
     sortedEras.forEach(era => {
         Object.entries(era.experiences || {}).forEach(([expId, exp]) => {
             if (!exp.name) return;
 
-            // 1. START BOUND: Date-Property first, then refine with nodes
             const startD = parseDate(exp.dateFrom);
             if (!startD) return;
             
-            let startAge = mapDateToSubjective(exp.dateFrom, levelNodes, dobTs);
-            let startTime = startD.getTime();
+            // Derive Subjective Age (x) and Objective Time (y)
+            // mapDateToSubjective needs to handle RenderNodes (x, y)
+            let startX = mapDateToSubjective(exp.dateFrom, nodes, dobTs);
+            let startY = startD.getTime();
 
-            const chain = levelNodes.filter(n => n.expId === expId || n.startsExpId === expId);
+            const chain = nodes.filter(n => n.expId === expId || n.record?.startsExpId === expId);
             if (chain.length > 0) {
-                chain.sort((a, b) => (Number(a.age) || 0) - (Number(b.age) || 0));
+                chain.sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
                 const firstNode = chain[0];
-                // AUTHORITY: If nodes exist, the box MUST start at the earliest node's age/time
-                startAge = Math.min(startAge ?? Infinity, firstNode.age);
-                startTime = Math.min(startTime, firstNode.projectedTime || firstNode.time);
+                startX = Math.min(startX ?? Infinity, firstNode.x);
+                startY = Math.min(startY, firstNode.y);
             }
 
-            // 2. END BOUND: The "Most Right" Rule
             const isClosed = !!(exp.dateTo && String(exp.dateTo).trim() !== "");
             const isOngoing = !!exp.isOngoing || !isClosed;
             
-            let endAge;
-            let endTime;
+            let endX;
+            let endY;
 
             if (isOngoing) {
-                endAge = nowNode.age;
-                endTime = nowNode.projectedTime;
+                endX = nowNode.x;
+                endY = nowNode.y;
             } else {
                 const endD = parseDate(exp.dateTo);
-                let projectedEndAge = mapDateToSubjective(exp.dateTo, levelNodes, dobTs);
-                let projectedEndTime = endD ? endD.getTime() : startTime;
+                let projectedEndX = mapDateToSubjective(exp.dateTo, nodes, dobTs);
+                let projectedEndY = endD ? endD.getTime() : startY;
 
                 if (chain.length > 0) {
                     const lastNode = chain[chain.length - 1];
-                    // THE LAW: Max(Physical Node, Projected Date)
-                    endAge = Math.max(projectedEndAge || 0, lastNode.age);
-                    endTime = projectedEndTime; // Date-property is authoritative for Time axis
+                    endX = Math.max(projectedEndX || 0, lastNode.x);
+                    endY = projectedEndY; 
                 } else {
-                    endAge = projectedEndAge || startAge;
-                    endTime = projectedEndTime;
+                    endX = projectedEndX || startX;
+                    endY = projectedEndY;
                 }
             }
 
-            if (startAge === null || endAge === null || startTime === null || endTime === null) return;
+            if (startX === null || endX === null || startY === null || endY === null) return;
 
-            // 3. AUTHORITY: "The Forgetting" Fade
-            const yearsSince = Math.max(0, (nowNode.age - endAge) / 31536000);
+            const yearsSince = Math.max(0, (nowNode.x - endX) / 31536000);
             let opacity = 1.0;
             if (yearsSince > 0) {
                 opacity = Math.max(0.1, 1.0 - (yearsSince / 15) * 0.9);
@@ -70,10 +67,10 @@ export function generateExperiences(sortedEras, levelNodes, nowNode) {
                 id: expId,
                 name: exp.name,
                 eraId: era.id,
-                startAge,
-                endAge,
-                startTime,
-                endTime,
+                startX,
+                endX,
+                startY,
+                endY,
                 isOngoing,
                 opacity
             });

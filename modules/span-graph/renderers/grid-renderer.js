@@ -1,81 +1,72 @@
-import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '../../temporal-engine/constants.js';
-
 /**
- * Renders an adaptive background grid for the Span Graph.
+ * Renders the background time/age grid for the Span Graph.
+ * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
  */
 export class GridRenderer {
-  constructor(viewport) {
+  constructor(viewport, parentGroup) {
     this.viewport = viewport;
-    this.group = this._createGridGroup();
-    if (this.viewport.svg && this.group) {
-      this.viewport.svg.prepend(this.group);
-    }
+    this.group = this._createGridGroup(parentGroup);
   }
 
-  render() {
-    if (!this.group || typeof document === 'undefined') return;
+  render(state, viewState) {
+    if (!this.group) return;
     this.group.innerHTML = '';
 
-    const { zoom } = this.viewport.viewState;
-    const interval = this.getInterval(zoom);
-    const container = this.viewport.container;
-    const width = container.clientWidth || 800;
-    const height = container.clientHeight || 500;
-    
-    // 1. VERTICAL GRID LINES
-    const leftWorld = this.viewport.screenToWorld(0, 0).age;
-    const rightWorld = this.viewport.screenToWorld(width, 0).age;
-    const startAge = Math.floor(leftWorld / interval) * interval;
-    
-    for (let age = startAge; age <= rightWorld; age += interval) {
-      const screenX = this.viewport.worldToScreen(age, 0).x;
-      
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', screenX);
-      line.setAttribute('y1', '0');
-      line.setAttribute('x2', screenX);
-      line.setAttribute('y2', '100%');
-      line.style.stroke = 'rgba(255, 255, 255, 0.05)';
-      line.style.strokeWidth = '1';
-      this.group.appendChild(line);
+    const rect = this.viewport.container.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    // 1. AGE GRID (X-Axis)
+    const worldLeft = this.viewport.screenToWorld(0, 0).age;
+    const worldRight = this.viewport.screenToWorld(width, 0).age;
+    const ageStep = this._calculateGridStep(viewState.zoom);
+    const startAge = Math.floor(worldLeft / ageStep) * ageStep;
+
+    for (let age = startAge; age <= worldRight; age += ageStep) {
+        const screenX = this.viewport.worldToScreen(age, 0).x;
+        const line = this._createLine(screenX, 0, screenX, height, 'grid-line-age');
+        this.group.appendChild(line);
     }
 
-    // 2. HORIZONTAL GRID LINES
-    const timeInterval = interval * 1000; 
+    // 2. TIME GRID (Y-Axis)
+    // COORDINATE AUTHORITY: worldToScreen/screenToWorld handle x/y.
     const worldTop = this.viewport.screenToWorld(0, 0).time;
     const worldBottom = this.viewport.screenToWorld(0, height).time;
-    
-    const startTime = Math.floor(Math.min(worldTop, worldBottom) / timeInterval) * timeInterval;
-    const endTime = Math.max(worldTop, worldBottom);
 
-    for (let time = startTime; time <= endTime; time += timeInterval) {
-        const screenY = this.viewport.worldToScreen(0, time).y;
-        if (screenY < 0 || screenY > height) continue;
+    const timeStep = ageStep * 1000; 
+    const startTs = Math.floor(Math.min(worldTop, worldBottom) / timeStep) * timeStep;
+    const endTs = Math.max(worldTop, worldBottom);
 
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', '0');
-        line.setAttribute('y1', screenY);
-        line.setAttribute('x2', '100%');
-        line.setAttribute('y2', screenY);
-        line.style.stroke = 'rgba(255, 255, 255, 0.05)';
-        line.style.strokeWidth = '1';
+    for (let ts = startTs; ts <= endTs; ts += timeStep) {
+        const screenY = this.viewport.worldToScreen(0, ts).y;
+        const line = this._createLine(0, screenY, width, screenY, 'grid-line-time');
         this.group.appendChild(line);
     }
   }
 
-  getInterval(zoom) {
-    if (zoom > 50) return SECONDS_IN_DAY;
-    if (zoom > 10) return SECONDS_IN_DAY * 30;
-    if (zoom > 1) return SECONDS_IN_YEAR;
-    if (zoom > 0.1) return SECONDS_IN_YEAR * 10;
-    return SECONDS_IN_YEAR * 50;
+  _calculateGridStep(zoom) {
+      if (zoom > 0.001) return 3600; 
+      if (zoom > 0.0001) return 86400; 
+      if (zoom > 0.00001) return 2592000; 
+      return 31536000; 
   }
 
-  _createGridGroup() {
+  _createLine(x1, y1, x2, y2, className) {
+    if (typeof document === 'undefined') return null;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('class', className);
+    return line;
+  }
+
+  _createGridGroup(parent) {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-grid');
-    g.style.pointerEvents = 'none'; 
+    parent.appendChild(g);
     return g;
   }
 }

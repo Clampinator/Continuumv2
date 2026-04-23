@@ -1,58 +1,64 @@
 /**
  * Renders interactive nodes (Events, Spans, and NOW) for the Span Graph.
- * REBUILT: Atomic, stateless rendering for absolute visual consistency.
+ * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
  */
 export class NodeRenderer {
-  constructor(viewport) {
+  constructor(viewport, parentGroup) {
     this.viewport = viewport;
-    this.group = this._createNodeGroup();
-    if (this.viewport.svg && this.group) {
-      this.viewport.svg.appendChild(this.group);
-    }
+    this.group = this._createNodeGroup(parentGroup);
   }
 
-  /**
-   * Renders all nodes for the current state.
-   * GUARANTEE: Historical events are ALWAYS rendered end-to-end.
-   */
-  render(state, viewState) {
+  render(state, viewState, activeNode = null, interaction = null) {
     if (!this.group) return;
-    
-    // Clear the group but keep the ghost node if it exists
-    const ghostNode = this.group.querySelector('.graph-node-ghost');
     this.group.innerHTML = '';
-    if (ghostNode) this.group.appendChild(ghostNode);
 
-    // 1. Render History Events
-    if (state.events) {
-      state.events.forEach(event => {
-        const screenPos = this.viewport.worldToScreen(event.age || 0, event.projectedTime || 0);
-        const node = this._createNodeElement(event, screenPos);
-        if (node) this.group.appendChild(node);
+    // 1. Render History Nodes
+    if (state.nodes) {
+      state.nodes.forEach(node => {
+        const screenPos = this.viewport.worldToScreen(node.x || 0, node.y || 0);
+        const el = this._createNodeElement(node, screenPos);
+        if (el) this.group.appendChild(el);
       });
     }
 
-    // 2. Render NOW node (The big yellow indicator)
+    // 2. Render NOW node
     if (state.nowNode) {
-        const screenPos = this.viewport.worldToScreen(state.nowNode.age || 0, state.nowNode.projectedTime || 0);
-        const node = this._createNodeElement(state.nowNode, screenPos);
-        if (node) {
-            node.classList.add('graph-node-now');
-            node.setAttribute('r', '8'); 
-            this.group.appendChild(node);
+        const draggingNow = interaction && interaction.isDragging && interaction.type === 'node' && interaction.nodeElement?.classList.contains('graph-node-now');
+        
+        if (!draggingNow) {
+            const screenPos = this.viewport.worldToScreen(state.nowNode.x || 0, state.nowNode.y || 0);
+            const el = this._createNodeElement(state.nowNode, screenPos);
+            if (el) {
+                el.classList.add('graph-node-now');
+                this.group.appendChild(el);
+            }
+        }
+    }
+
+    // 3. Render THE ACTIVE DRAG NODE
+    if (interaction && interaction.isDragging && interaction.type === 'node' && interaction.currentWorld) {
+        const world = interaction.currentWorld;
+        const screenPos = this.viewport.worldToScreen(world.age, world.time);
+        
+        const eventId = interaction.nodeElement?.dataset.eventId;
+        const isNow = interaction.nodeElement?.classList.contains('graph-node-now');
+        const sourceNode = isNow ? state.nowNode : state.nodes.find(n => n.id === eventId);
+        
+        if (sourceNode) {
+            const el = this._createNodeElement(sourceNode, screenPos);
+            if (el) {
+                el.classList.add('dragging');
+                if (isNow) el.classList.add('graph-node-now');
+                this.group.appendChild(el);
+            }
         }
     }
   }
 
-  /**
-   * Renders a temporary "ghost" node at a potential insertion point.
-   */
   renderGhostNode(worldPos) {
       if (!this.group) return;
-      
       const existing = this.group.querySelector('.graph-node-ghost');
       if (existing) existing.remove();
-
       if (!worldPos) return;
 
       const screenPos = this.viewport.worldToScreen(worldPos.age, worldPos.time);
@@ -66,60 +72,62 @@ export class NodeRenderer {
       ghost.style.stroke = '#fff';
       ghost.style.strokeWidth = '1';
       ghost.style.strokeDasharray = '2, 1';
-      ghost.style.cursor = 'pointer';
-      ghost.style.pointerEvents = 'auto';
+      ghost.style.cursor = 'crosshair';
+      ghost.style.pointerEvents = 'none';
 
       this.group.appendChild(ghost);
       return ghost;
   }
 
-  /**
-   * Creates an individual node element with correct typography.
-   * @private
-   */
-  _createNodeElement(event, pos) {
+  _createNodeElement(node, pos) {
     if (typeof document === 'undefined') return null;
 
     let shape;
     const cx = pos.x;
     const cy = pos.y;
 
-    if (event.isSpanOrigin) {
+    if (node.isSpanOrigin) {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         const r = 5;
-        const points = event.spanDirection === 'up'
+        const points = node.spanDirection === 'up'
             ? `${cx},${cy - r} ${cx - r},${cy + r} ${cx + r},${cy + r}`
             : `${cx},${cy + r} ${cx - r},${cy - r} ${cx + r},${cy - r}`;
         shape.setAttribute('points', points);
         shape.classList.add('graph-node-span-origin');
     } 
-    else if (event.isSpanDest) {
+    else if (node.isSpanDest) {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const r = 4;
-        const sweep = event.spanDirection === 'down' ? 0 : 1;
-        shape.setAttribute('d', `M ${cx - r} ${cy} A ${r} ${r} 0 0 ${sweep} ${cx + r} ${cy} Z`);
+        const r = 5;
+        let pathData;
+        if (node.spanDirection === 'up') {
+            pathData = `M ${cx - r} ${cy} L ${cx + r} ${cy} A ${r} ${r} 0 0 0 ${cx - r} ${cy} Z`;
+        } else {
+            pathData = `M ${cx + r} ${cy} L ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy} Z`;
+        }
+        shape.setAttribute('d', pathData);
         shape.classList.add('graph-node-span-dest');
     }
     else {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         shape.setAttribute('cx', cx);
         shape.setAttribute('cy', cy);
-        shape.setAttribute('r', event.isNow ? '8' : '5');
-        shape.classList.add(event.isNow ? 'graph-node-now' : 'graph-node-level');
+        shape.setAttribute('r', node.isNow ? '8' : '5');
+        shape.classList.add(node.isNow ? 'graph-node-now' : 'graph-node-level');
     }
 
     shape.style.cursor = 'pointer';
     shape.style.pointerEvents = 'auto';
-    shape.dataset.eventId = event.id;
+    shape.dataset.eventId = node.id;
 
     return shape;
   }
 
-  _createNodeGroup() {
+  _createNodeGroup(parent) {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-nodes');
     g.style.pointerEvents = 'none'; 
+    parent.appendChild(g);
     return g;
   }
 }

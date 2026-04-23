@@ -1,117 +1,66 @@
 /**
  * Renders the authoritative sequential path (Rails & Spans).
- * REBUILT: Strict sequential continuity. Spans are vertical breaks.
+ * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
  */
 export class RailRenderer {
-  constructor(viewport) {
+  constructor(viewport, parentGroup) {
     this.viewport = viewport;
-    this.group = this._createRailGroup();
-    if (this.viewport.svg && this.group) {
-      this.viewport.svg.appendChild(this.group);
-    }
+    this.group = this._createRailGroup(parentGroup);
   }
 
-  /**
-   * Renders the strictly controlled path from Birth to NOW, plus any active drag preview.
-   */
   render(state, interaction = null) {
-    if (!this.group || !state.segments) return;
+    if (!this.group) return;
     this.group.innerHTML = '';
 
-    const fragment = typeof document !== 'undefined' ? document.createDocumentFragment() : null;
-
-    // 1. Trace the Sequence End-to-End through segments
-    for (let i = 0; i < state.segments.length; i++) {
-        const segment = state.segments[i];
-
-        // A. VERTICAL SPAN (Pink Dots) - PRE-SEGMENT
-        if (i > 0) {
-            const prevSegment = state.segments[i - 1];
-            const departureNode = prevSegment.exitPoint;
-            const arrivalNode = segment.arrivalPoint;
-
-            if (departureNode && arrivalNode) {
-                // PHYSICS: Draw PERFECTLY vertical jump
-                const p1 = this.viewport.worldToScreen(departureNode.age, departureNode.projectedTime);
-                const p2 = this.viewport.worldToScreen(arrivalNode.age, arrivalNode.projectedTime);
-                
-                const pathData = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
-                const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
-                
-                // Animation Direction
-                const isFuture = arrivalNode.projectedTime > departureNode.projectedTime;
-                spanLine.classList.add(isFuture ? 'up' : 'down');
-
-                if (fragment) fragment.appendChild(spanLine);
-                else this.group.appendChild(spanLine);
-            }
-        }
-
-        // B. LEVELING RAIL (Solid Blue)
-        const railNodes = [];
-        if (segment.arrivalPoint) railNodes.push(segment.arrivalPoint);
-        if (segment.events) railNodes.push(...segment.events);
-        if (segment.exitPoint) railNodes.push(segment.exitPoint);
-
-        // If this is the last segment and we are not dragging an established node, add the NOW node
-        if (i === state.segments.length - 1 && state.nowNode) {
-            // Only add NOW node to the rail if it's not being dragged as a span
-            // If dragging, the interaction overlay will handle the tether.
-            if (!interaction || !interaction.isDragging) {
-                railNodes.push(state.nowNode);
-            } else if (interaction.type !== 'node' || !interaction.nodeElement?.classList.contains('graph-node-now')) {
-                // If dragging something else (pan, era, or established event), NOW node is static
-                railNodes.push(state.nowNode);
-            }
-        }
-
-        if (railNodes.length >= 2) {
-            const points = railNodes.map(node => this.viewport.worldToScreen(node.age, node.projectedTime));
-            const pathData = points.map((p, j) => `${j === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    if (state.segments) {
+        state.segments.forEach((seg, index) => {
+            // 1. Draw the Blue Level Rail
+            const railNodes = [...seg.nodes];
+            railNodes.unshift(seg.arrivalNode);
             
-            const railLine = this._createPathElement(pathData, 'span-graph-rail');
-            if (fragment) fragment.appendChild(railLine);
-            else this.group.appendChild(railLine);
-        }
-    }
+            if (seg.exitPoint) {
+                railNodes.push(seg.exitPoint);
+            } else if (state.nowNode && state.nowNode.x >= seg.arrivalNode.x) {
+                const isDraggingNow = interaction?.isDragging && interaction.nodeElement?.classList.contains('graph-node-now');
+                const nowTarget = isDraggingNow ? interaction.currentWorld : state.nowNode;
+                railNodes.push(nowTarget);
+            }
 
-    // 2. ACTIVE DRAG PREVIEW OVERLAY
-    if (interaction && interaction.isDragging && interaction.type === 'node' && interaction.startWorld && interaction.currentWorld) {
-        const startW = interaction.startWorld;
-        const currentW = interaction.currentWorld;
-        const mode = interaction.mode;
+            const pathData = this._generatePathData(railNodes);
+            const rail = this._createPathElement(pathData, 'span-graph-rail');
+            if (rail) this.group.appendChild(rail);
 
-        const p1 = this.viewport.worldToScreen(startW.age, startW.time);
-        const p2 = this.viewport.worldToScreen(currentW.age, currentW.time);
-        const pathData = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+            // 2. Draw the Pink Vertical Span
+            if (seg.exitPoint) {
+                const departureNode = seg.exitPoint;
+                const nextSeg = state.segments[index + 1];
+                const arrivalNode = nextSeg?.arrivalNode;
 
-        if (mode === 'span') {
-            const spanLine = this._createPathElement(pathData, 'span-graph-span-line');
-            const isFuture = currentW.time > startW.time;
-            spanLine.classList.add(isFuture ? 'up' : 'down');
-            if (fragment) fragment.appendChild(spanLine);
-            else this.group.appendChild(spanLine);
-        } else if (mode === 'level') {
-            const railLine = this._createPathElement(pathData, 'span-graph-rail');
-            if (fragment) fragment.appendChild(railLine);
-            else this.group.appendChild(railLine);
-        } else {
-            const logLine = this._createPathElement(pathData, 'span-graph-log-line');
-            if (fragment) fragment.appendChild(logLine);
-            else this.group.appendChild(logLine);
-        }
-    }
+                if (arrivalNode) {
+                    // AUTHORITY: Use x and y coordinates
+                    const p1 = this.viewport.worldToScreen(departureNode.x, departureNode.y);
+                    const p2 = this.viewport.worldToScreen(arrivalNode.x, arrivalNode.y);
+                    
+                    const spanPath = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+                    const span = this._createPathElement(spanPath, 'span-graph-span');
+                    
+                    const isFuture = arrivalNode.y > departureNode.y;
+                    if (isFuture) span.classList.add('future');
+                    else span.classList.add('past');
 
-    if (fragment) {
-      this.group.appendChild(fragment);
+                    this.group.appendChild(span);
+                }
+            }
+        });
     }
   }
 
   _generatePathData(nodes) {
     const points = nodes.map(node => {
-        const time = node.projectedTime ?? node.time ?? 0;
-        const age = node.age ?? 0;
-        return this.viewport.worldToScreen(age, time);
+        // Support both RenderNode (x,y) and interaction worldPos (age,time)
+        const x = node.x !== undefined ? node.x : node.age;
+        const y = node.y !== undefined ? node.y : node.time;
+        return this.viewport.worldToScreen(x, y);
     });
 
     const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`);
@@ -124,15 +73,23 @@ export class RailRenderer {
     path.setAttribute('d', d);
     path.setAttribute('class', className);
     path.style.fill = 'none';
-    path.style.pointerEvents = 'none';
+    
+    if (className === 'span-graph-rail') {
+        path.style.pointerEvents = 'stroke';
+        path.style.cursor = 'crosshair';
+    } else {
+        path.style.pointerEvents = 'none';
+    }
+    
     return path;
   }
 
-  _createRailGroup() {
+  _createRailGroup(parent) {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-rails');
     g.style.pointerEvents = 'none';
+    parent.appendChild(g);
     return g;
   }
 }

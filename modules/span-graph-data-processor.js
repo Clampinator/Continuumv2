@@ -4,15 +4,17 @@ import { ReferenceResolver } from './lifeline/services/reference-resolver.js';
 import { computeRailOffset } from './lifeline/services/chronology/compute-rail-offset.js';
 
 /**
- * Flattens the nested eras -> experiences -> events structure into a single sorted array.
- * REBUILT: Absolute Chronological Age Sort with legacy node recovery.
+ * Flattens nested character history into authoritative RenderNode objects.
+ * IMPLEMENTS: Authoritative Data Isolation (ADI).
+ * 
+ * @returns {Array} Array of RenderNodes: { id, x, y, arrivalY, record, ...meta }
  */
 export function flattenEvents(eras, actor = null) {
   if (!eras) return [];
 
-  const allEvents = [];
+  const allNodes = [];
 
-  const _parseTime = (event) => {
+  const _calculateTimestamp = (event) => {
     // AUTHORITY: Prefer stored high-precision timestamp
     if (event.ts !== undefined && event.ts !== null) return Number(event.ts);
 
@@ -23,7 +25,7 @@ export function flattenEvents(eras, actor = null) {
     return dt ? dt.getTime() : 0;
   };
 
-  const _parseArrival = (event) => {
+  const _calculateArrival = (event) => {
     // AUTHORITY: Prefer stored high-precision arrival timestamp
     if (event.arrivalTs !== undefined && event.arrivalTs !== null) return Number(event.arrivalTs);
 
@@ -35,32 +37,42 @@ export function flattenEvents(eras, actor = null) {
     return dt ? dt.getTime() : 0;
   };
 
-  // 1. Gather all events
+  // 1. Gather all events as RenderNodes
   Object.entries(eras).forEach(([eraId, era]) => {
+    // Level Events
     if (era.events) {
       Object.entries(era.events).forEach(([id, event]) => {
-        allEvents.push({ 
-            ...event, 
-            id: id, eraId: eraId, expId: null,
-            age: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
-            time: _parseTime(event),
-            arrivalTime: _parseArrival(event),
-            sort: Number(event.sort) || 0
+        allNodes.push({ 
+            id: id, 
+            eraId: eraId, 
+            expId: null,
+            // PHYSICS LAYER (Authoritative Coordinates)
+            x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
+            y: _calculateTimestamp(event),
+            arrivalY: _calculateArrival(event),
+            sort: Number(event.sort) || 0,
+            // FACT LAYER (Immutable Database Record)
+            record: foundry.utils.deepClone(event)
         });
       });
     }
+    // Experience Events
     if (era.experiences) {
       Object.entries(era.experiences).forEach(([expId, exp]) => {
         if (exp.events) {
           Object.entries(exp.events).forEach(([id, event]) => {
-            allEvents.push({ 
-                ...event, 
-                id: id, eraId: eraId, expId: expId,
+            allNodes.push({ 
+                id: id, 
+                eraId: eraId, 
+                expId: expId,
                 experienceName: exp.name || 'Unnamed Experience',
-                age: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
-                time: _parseTime(event),
-                arrivalTime: _parseArrival(event),
-                sort: Number(event.sort) || 0
+                // PHYSICS LAYER
+                x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
+                y: _calculateTimestamp(event),
+                arrivalY: _calculateArrival(event),
+                sort: Number(event.sort) || 0,
+                // FACT LAYER
+                record: foundry.utils.deepClone(event)
             });
           });
         }
@@ -68,28 +80,28 @@ export function flattenEvents(eras, actor = null) {
     }
   });
 
-  // 2. Recovery for Legacy Nodes
+  // 2. Recovery for Legacy Nodes (X-Coordinate derivation)
   const dobTs = actor ? ReferenceResolver.resolveOrigin(actor) : 0;
-  allEvents.forEach(event => {
-      if (event.age === null) {
-          const roughAge = Math.max(0, (event.time - dobTs) / 1000);
+  allNodes.forEach(node => {
+      if (node.x === null) {
+          const roughAge = Math.max(0, (node.y - dobTs) / 1000);
           const railBase = actor ? computeRailOffset(actor, roughAge) : dobTs;
-          event.age = Math.max(0, (event.time - railBase) / 1000);
+          node.x = Math.max(0, (node.y - railBase) / 1000);
       }
   });
 
-  // 3. PHYSICAL SORT AUTHORITY (Age-First)
-  allEvents.sort((a, b) => {
-    if (a.age !== b.age) return a.age - b.age;
+  // 3. PHYSICAL SORT AUTHORITY (Physics-First: Age then Sort)
+  allNodes.sort((a, b) => {
+    if (a.x !== b.x) return a.x - b.x;
     return a.sort - b.sort;
   });
 
-  // 4. Link them for the Renderer
-  allEvents.forEach((event, index) => {
-      event.nextEventId = allEvents[index + 1]?.id || null;
+  // 4. Sequence Linking
+  allNodes.forEach((node, index) => {
+      node.nextEventId = allNodes[index + 1]?.id || null;
   });
 
-  return allEvents;
+  return allNodes;
 }
 
 /**

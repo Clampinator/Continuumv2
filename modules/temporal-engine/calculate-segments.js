@@ -2,56 +2,54 @@ import { TARGET_RATIO } from './constants.js';
 
 /**
  * CALCULATE SEGMENTS (Physical Character Journey)
- * REBUILT: Only Spans create new segments. Normal events ride on the rails.
+ * ADI REBUILT: Uses isolated x (age) and y (ts) coordinates.
  * 
- * @param {Array} events - Sorted array of events from flattenEvents.
+ * @param {Array} nodes - Array of RenderNodes from flattenEvents.
  * @param {number} originTime - Actor's DoB timestamp (ms).
  * @returns {Array} Array of segments.
  */
-export function calculateSegments(events, originTime) {
+export function calculateSegments(nodes, originTime) {
   const segments = [];
   
-  // Initialize first segment at Birth
-  let currentStartAge = 0;
-  let currentStartTime = originTime;
-  let currentEvents = [];
+  let currentStartX = 0;
+  let currentStartY = originTime;
+  let currentNodes = [];
 
-  // Filter for real historical events (exclude virtual/now)
-  const history = events.filter(e => !e.isVirtual && !e.isNow && !e.isBirth);
+  // Filter for real historical events
+  const history = nodes.filter(n => !n.isVirtual && !n.isNow && !n.isBirth);
 
   for (let i = 0; i < history.length; i++) {
-    const event = history[i];
+    const node = history[i];
     
-    if (event.isSpan) {
+    if (node.record.isSpan) {
         // AUTHORITY: A Span ends the current segment
         const exitPoint = {
-            id: event.id,
-            age: Number(event.age),
-            time: event.time // Original departure time
+            id: node.id,
+            x: Number(node.x),
+            y: Number(node.y),
+            record: node.record
         };
 
         segments.push({
-            startAge: currentStartAge,
-            startTime: currentStartTime,
-            events: [...currentEvents],
+            startX: currentStartX,
+            startY: currentStartY,
+            nodes: [...currentNodes],
             exitPoint: exitPoint
         });
 
         // Start a new segment at the Span's arrival
-        currentStartAge = Number(event.age);
-        currentStartTime = Number(event.arrivalTime || event.time);
-        currentEvents = [];
+        currentStartX = Number(node.x);
+        currentStartY = Number(node.arrivalY || node.y);
+        currentNodes = [];
     } else {
-        // Normal event: just keep it in the current segment's bucket
-        currentEvents.push(event);
+        currentNodes.push(node);
     }
   }
 
-  // Final Segment (from last span/birth to the "infinity" of current history)
   segments.push({
-      startAge: currentStartAge,
-      startTime: currentStartTime,
-      events: currentEvents,
+      startX: currentStartX,
+      startY: currentStartY,
+      nodes: currentNodes,
       exitPoint: null
   });
 
