@@ -1,29 +1,23 @@
 import { ReferenceResolver } from '../reference-resolver.js';
 import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
 
-/*
-Walks all events in sort order, accumulates objectiveOffset across spans, and
-derives each event's subjective age from its objective date. This is the same
-logic the engine uses at render time, made available as a write-back utility.
-
-Returns:
-  updates    - dot-path patches for events whose stored age differs by > 0.5s
-  finalOffset - the rail offset after processing all events (used to compute the
-                age of a new event appended at the end of the timeline)
-
-pendingSpan: optional span not yet persisted to actor.system (e.g. a span being
-             inserted this turn). It participates in the objectiveOffset walk so
-             downstream events are reanchored correctly without a round-trip.
-*/
-export function normalizeLifelineAges(actor, { pendingSpan = null } = {}) {
+/**
+ * REINDEX LIFELINE AGES (Dynamic Compensation Wave)
+ * Walks all events in sort order, accumulates objectiveOffset across spans, and
+ * derives each event's subjective age from its objective physics coordinate (TS).
+ * ADI REBUILT: Prioritizes .ts and .arrivalTs over fuzzy date strings.
+ */
+export function normalizeLifelineAges(actor, { pendingSpan = null, excludeNodeId = null } = {}) {
     const dobTs = ReferenceResolver.resolveOrigin(actor);
     if (!dobTs) return { updates: {}, finalOffset: 0 };
 
     const entries = [];
     const rawEras = actor.system.eras || {};
 
+    // 1. Gather all nodes (with ID exclusion to prevent collisions)
     for (const [eraId, era] of Object.entries(rawEras)) {
         for (const [eventId, event] of Object.entries(era.events || {})) {
+            if (eventId === excludeNodeId) continue;
             entries.push({
                 eventId, event, isPending: false,
                 sort: Number(event.sort) || 0,
@@ -33,6 +27,7 @@ export function normalizeLifelineAges(actor, { pendingSpan = null } = {}) {
         }
         for (const [expId, exp] of Object.entries(era.experiences || {})) {
             for (const [eventId, event] of Object.entries(exp.events || {})) {
+                if (eventId === excludeNodeId) continue;
                 entries.push({
                     eventId, event, isPending: false,
                     sort: Number(event.sort) || 0,
@@ -52,6 +47,7 @@ export function normalizeLifelineAges(actor, { pendingSpan = null } = {}) {
         });
     }
 
+    // 2. Physical Sort (Sequence of character journey)
     entries.sort((a, b) => {
         if (a.sort !== b.sort) return a.sort - b.sort;
         if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt;
@@ -61,27 +57,37 @@ export function normalizeLifelineAges(actor, { pendingSpan = null } = {}) {
     const updates = {};
     let objectiveOffset = dobTs;
 
+    // 3. Compensation Walk (The Physics Pass)
     for (const entry of entries) {
         const ev = entry.event;
         if (ev.isSpan) {
-            const fromTs = ev.spanFromDate
-                ? parseDate(`${ev.spanFromDate}T${ev.spanFromTime || '12:00:00'}`)?.getTime()
-                : null;
-            const toTs = ev.spanToDate
-                ? parseDate(`${ev.spanToDate}T${ev.spanToTime || '12:00:00'}`)?.getTime()
-                : null;
-            if (fromTs && toTs) {
+            // AUTHORITY: Use stored high-precision timestamps (Physics Layer)
+            // Fallback to record strings only for legacy data
+            const fromTs = (ev.ts !== undefined && ev.ts !== null) 
+                ? Number(ev.ts) 
+                : (ev.spanFromDate ? parseDate(`${ev.spanFromDate}T${ev.spanFromTime || '12:00:00'}`)?.getTime() : null);
+            
+            const toTs = (ev.arrivalTs !== undefined && ev.arrivalTs !== null)
+                ? Number(ev.arrivalTs)
+                : (ev.spanToDate ? parseDate(`${ev.spanToDate}T${ev.spanToTime || '12:00:00'}`)?.getTime() : null);
+
+            if (fromTs !== null && toTs !== null) {
                 const newAge = Math.max(0, (fromTs - objectiveOffset) / 1000);
-                if (!entry.isPending && Math.abs(newAge - Number(ev.age)) > 0.5) {
+                
+                // Only commit if change is significant (> 0.1s to prevent jitter)
+                if (!entry.isPending && Math.abs(newAge - (Number(ev.age) || 0)) > 0.1) {
                     updates[`${entry.path}.age`] = newAge;
                 }
                 objectiveOffset = toTs - (newAge * 1000);
             }
-        } else if (!ev.isBirth && ev.date) {
-            const ts = parseDate(`${ev.date}T${ev.time || '12:00:00'}`)?.getTime();
-            if (ts) {
+        } else if (!ev.isBirth) {
+            const ts = (ev.ts !== undefined && ev.ts !== null)
+                ? Number(ev.ts)
+                : (ev.date ? parseDate(`${ev.date}T${ev.time || '12:00:00'}`)?.getTime() : null);
+
+            if (ts !== null) {
                 const newAge = Math.max(0, (ts - objectiveOffset) / 1000);
-                if (!entry.isPending && Math.abs(newAge - Number(ev.age)) > 0.5) {
+                if (!entry.isPending && Math.abs(newAge - (Number(ev.age) || 0)) > 0.1) {
                     updates[`${entry.path}.age`] = newAge;
                 }
             }
