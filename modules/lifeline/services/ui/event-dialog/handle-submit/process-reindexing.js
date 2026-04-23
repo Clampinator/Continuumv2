@@ -1,4 +1,4 @@
-import { resolveNarrativeOrder } from '../../../../temporal-kernel/resolve-narrative-order.js';
+import { resolveNarrativeOrder } from '/systems/continuum-v2/modules/temporal-kernel/resolve-narrative-order.js';
 import { normalizeDateInput, parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
 
 /**
