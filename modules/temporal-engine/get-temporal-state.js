@@ -54,20 +54,22 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
   });
 
   // 2. PROJECT SEGMENT ANCHORS (Virtual Nodes)
-  const projectedSegments = segments.map((seg, index) => {
+  const projectedSegments = [];
+  for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
       let exitPoint = null;
       if (seg.exitPoint) {
           exitPoint = nodesWithProjection.find(n => n.id === seg.exitPoint.id);
       }
 
       let arrivalDirection = null;
-      if (index > 0) {
-          const prevSeg = projectedSegments[index - 1] || nodesWithProjection.find(n => n.id === segments[index-1].exitPoint?.id);
-          arrivalDirection = prevSeg?.spanDirection || 'up';
+      if (i > 0) {
+          const prevSeg = projectedSegments[i - 1];
+          arrivalDirection = prevSeg?.exitPoint?.spanDirection || 'up';
       }
 
       const arrivalNode = {
-          id: `arrival-${seg.startY}-${index}`,
+          id: `arrival-${seg.startY}-${i}`,
           x: Number(seg.startX),
           y: Number(seg.startY),
           record: { title: "Arrival" },
@@ -77,13 +79,13 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
           spanDirection: arrivalDirection
       };
 
-      return {
+      projectedSegments.push({
           ...seg,
           arrivalNode,
           exitPoint,
           nodes: seg.nodes.map(sn => nodesWithProjection.find(np => np.id === sn.id))
-      };
-  });
+      });
+  }
 
   // 3. GATHER ALL RENDER NODES
   const allRenderNodes = [...nodesWithProjection];
@@ -124,7 +126,6 @@ function _finalizeState(segments, nodes, subjectiveNow, totalDisplacement = 0, a
           id: id
       })).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 
-      // generateExperiences needs to handle node.x and node.y
       experiences = generateExperiences(erasWithIds, nodes, nowNode);
   }
 
