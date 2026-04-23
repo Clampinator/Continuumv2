@@ -10,6 +10,7 @@ import { parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
 import { flattenEvents } from '../span-graph-data-processor.js';
 import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
+import { generateManifest } from './projection/manifest-generator.js';
 
 // ATOMIZED ACTIONS
 import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
@@ -99,20 +100,30 @@ export class SpanGraphViewport {
   setViewState(newState) { this.viewState = { ...this.viewState, ...newState }; this._render(); }
   
   /**
-   * REBUILT: Authorative render pass with Live Override support.
+   * AUTHORITATIVE MASTER RENDER PASS
+   * Gathers data and pushes it through the Dumb Pipe.
    */
   _render() { 
+      if (!this.actor || !this.container) return;
+
       const interaction = this._interaction;
       const isDraggingNow = interaction.isDragging && interaction.nodeElement?.classList.contains('graph-node-now');
       
-      // AUTHORITY: If dragging NOW, we override the subjectiveNow age
-      const subjectiveNow = isDraggingNow ? interaction.currentWorld.age : (Number(this.actor.system.personal?.subjectiveNow) || 0);
-
+      // 1. DATA KERNEL
       this.latestHistory = flattenEvents(this.actor.system.eras || {}, this.actor);
       const originTime = this._getOriginTime();
+      
+      // AUTHORITY: Handle the NOW node drag override before any projection
+      const subjectiveNow = isDraggingNow ? interaction.currentWorld.age : (Number(this.actor.system.personal?.subjectiveNow) || 0);
+
+      // 2. TEMPORAL STATE
       this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor);
 
-      renderViewport(this); 
+      // 3. PROJECTION MANIFEST
+      this.latestManifest = generateManifest(this.latestState, this);
+
+      // 4. THE DUMB PIPE PUSH
+      renderViewport(this, this.latestState, this.latestManifest); 
   }
 
   worldToScreen(xCoord, yCoordinate) {
