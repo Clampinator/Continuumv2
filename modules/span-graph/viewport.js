@@ -10,12 +10,12 @@ import { parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
 
 // ATOMIZED ACTIONS
-import { calculateAutofocus } from './actions/handle-autofocus.js';
-import { renderViewport } from './actions/handle-rendering.js';
-import { updateGhostNodeHover, handleGhostNodeClick } from './actions/handle-ghost-node.js';
+import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
+import { renderViewport } from './viewport/actions/handle-rendering.js';
+import { updateGhostNodeHover, handleGhostNodeClick } from './viewport/actions/handle-ghost-node.js';
 
 // ATOMIZED LISTENERS
-import { activateListeners } from './listeners/activate-listeners.js';
+import { activateListeners } from './viewport/listeners/activate-listeners.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
