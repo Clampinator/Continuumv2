@@ -1,4 +1,4 @@
-import { convertTimestampToDateString, formatSubjectiveAge, formatDuration, parseDate } from '../../../../span-graph-utils/provide-span-graph-utils.js';
+import { convertTimestampToDateString, formatSubjectiveAge, formatDuration, parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
 import { buildContextOptions } from '../build-context-options.js';
 import { ContextFinder } from '../../context-finder.js';
 

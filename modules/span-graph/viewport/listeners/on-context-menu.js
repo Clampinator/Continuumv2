@@ -1,4 +1,4 @@
-import { flattenEvents } from '../../span-graph-data-processor.js';
+import { flattenEvents } from '../../../span-graph-data-processor.js';
 import { handleNodeEdit } from '../actions/handle-node-edit.js';
 
 /**

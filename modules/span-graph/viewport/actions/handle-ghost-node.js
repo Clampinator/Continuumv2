@@ -1,5 +1,5 @@
-import { flattenEvents } from '../../span-graph-data-processor.js';
-import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
+import { flattenEvents } from '../../../span-graph-data-processor.js';
+import { getTemporalState } from '../../../temporal-engine/get-temporal-state.js';
 
 /**
  * Updates the ghost node position based on the nearest rail segment.
@@ -57,6 +57,6 @@ function getProjectionOnSegment(p, v, w) {
 export async function handleGhostNodeClick(viewport) {
     if (!viewport._interaction.hoverWorldPos) return;
     const pos = viewport._interaction.hoverWorldPos;
-    const { openEventDialog } = await import('../../lifeline/services/ui/event-dialog/open-event-dialog.js');
+    const { openEventDialog } = await import('../../../lifeline/services/ui/event-dialog/open-event-dialog.js');
     await openEventDialog(viewport.actor.sheet, { mode: 'insert', ageRaw: pos.age, timeRaw: pos.time });
 }

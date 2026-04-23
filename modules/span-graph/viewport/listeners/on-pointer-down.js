@@ -1,5 +1,5 @@
-import { flattenEvents } from '../../span-graph-data-processor.js';
-import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
+import { flattenEvents } from '../../../span-graph-data-processor.js';
+import { getTemporalState } from '../../../temporal-engine/get-temporal-state.js';
 import { handleCreateEraClick } from '../actions/handle-create-era.js';
 
 /**

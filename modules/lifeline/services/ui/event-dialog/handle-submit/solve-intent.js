@@ -1,6 +1,6 @@
-import { normalizeDateInput, parseAgeString, parseDate, formatSubjectiveAge } from '../../../../span-graph-utils/provide-span-graph-utils.js';
-import { createManualSpan } from '../../spans/create-manual-span.js';
-import { createInsertedSpan } from '../../spans/create-inserted-span.js';
+import { normalizeDateInput, parseAgeString, parseDate, formatSubjectiveAge } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { createManualSpan } from '../../../spans/create-manual-span.js';
+import { createInsertedSpan } from '../../../spans/create-inserted-span.js';
 
 /**
  * Solves the user's intent from the form data to derive high-precision coordinates.

@@ -1,10 +1,10 @@
 import { getTemplateData } from './get-template-data.js';
 import { handleSubmit } from './handle-submit.js';
-import { activateDatePickers } from '../../../../date-picker.js';
-import { renderGraph } from '../../../../span-graph-render.js';
-import { panToLocation, getMapCenterLocation } from '../../../../span-graph-map.js';
-import { Sound } from '../../../../sound-manager.js';
-import { getSheetContext } from '../../../../span-graph-state.js';
+import { activateDatePickers } from '../../../../../date-picker.js';
+import { renderGraph } from '../../../../../span-graph-render.js';
+import { panToLocation, getMapCenterLocation } from '../../../../../span-graph-map.js';
+import { Sound } from '../../../../../sound-manager.js';
+import { getSheetContext } from '../../../../../span-graph-state.js';
 
 /*
 Opens the unified event node editor dialog.
