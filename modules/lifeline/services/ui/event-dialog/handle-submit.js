@@ -1,6 +1,6 @@
-import { normalizeDateInput, convertTimestampToDateString, parseDate } from '../../../../span-graph-utils/provide-span-graph-utils.js';
-import { normalizeLifelineAges } from '../../chronology/normalize-lifeline-ages.js';
-import { Sound } from '../../../../sound-manager.js';
+import { normalizeDateInput, convertTimestampToDateString, parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
+import { normalizeLifelineAges } from '/systems/continuum-v2/modules/lifeline/services/chronology/normalize-lifeline-ages.js';
+import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';
 import { createEndOfRestEvent } from '../handle-rest-toggle.js';
 import { ContextFinder } from '../../context-finder.js';
 
