@@ -8,6 +8,8 @@ import { ExperienceRenderer } from './renderers/experience-renderer.js';
 import { TooltipManager } from './ui/tooltips.js';
 import { parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
+import { flattenEvents } from '../span-graph-data-processor.js';
+import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
 
 // ATOMIZED ACTIONS
 import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
@@ -19,13 +21,17 @@ import { activateListeners } from './viewport/listeners/activate-listeners.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
- * ATOMIZED FINAL: Pure delegator class.
+ * ATOMIZED FINAL: Pure delegator class with persistent state authority.
  */
 export class SpanGraphViewport {
   constructor(container, actor = null) {
     this.container = container;
     this.actor = actor;
     
+    // PERSISTENT DATA AUTHORITY
+    this.latestHistory = [];
+    this.latestState = null;
+
     this._interaction = {
         isDragging: false,
         hasSignificantMovement: false,
@@ -91,7 +97,15 @@ export class SpanGraphViewport {
 
   setViewState(newState) { this.viewState = { ...this.viewState, ...newState }; this._render(); }
   
-  _render() { renderViewport(this); }
+  _render() { 
+      // Update persistent authority before rendering
+      this.latestHistory = flattenEvents(this.actor.system.eras || {}, this.actor);
+      const originTime = this._getOriginTime();
+      const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
+      this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor);
+
+      renderViewport(this); 
+  }
 
   worldToScreen(xCoord, yCoordinate) {
     const { panX, panY, zoom } = this.viewState;
