@@ -15,9 +15,7 @@ export function flattenEvents(eras, actor = null) {
   const allNodes = [];
 
   const _calculateTimestamp = (event) => {
-    // AUTHORITY: Prefer stored high-precision timestamp
     if (event.ts !== undefined && event.ts !== null) return Number(event.ts);
-
     const d = event.isSpan ? event.spanFromDate : (event.date || event.dateTime?.split('T')[0]);
     const t = (event.isSpan ? event.spanFromTime : (event.time || event.dateTime?.split('T')[1]?.substring(0, 5))) || '12:00:00';
     if (!d) return 0;
@@ -26,9 +24,7 @@ export function flattenEvents(eras, actor = null) {
   };
 
   const _calculateArrival = (event) => {
-    // AUTHORITY: Prefer stored high-precision arrival timestamp
     if (event.arrivalTs !== undefined && event.arrivalTs !== null) return Number(event.arrivalTs);
-
     if (!event.isSpan) return 0;
     const d = event.spanToDate;
     const t = event.spanToTime || '12:00:00';
@@ -39,39 +35,35 @@ export function flattenEvents(eras, actor = null) {
 
   // 1. Gather all events as RenderNodes
   Object.entries(eras).forEach(([eraId, era]) => {
-    // Level Events
     if (era.events) {
       Object.entries(era.events).forEach(([id, event]) => {
         allNodes.push({ 
-            id: id, 
-            eraId: eraId, 
-            expId: null,
-            // PHYSICS LAYER (Authoritative Coordinates)
+            id: id, eraId: eraId, expId: null,
             x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
             y: _calculateTimestamp(event),
             arrivalY: _calculateArrival(event),
             sort: Number(event.sort) || 0,
-            // FACT LAYER (Immutable Database Record)
+            // AUTHORITY: Preserve complete record for Tooltips
+            isSpan: !!event.isSpan,
+            title: event.title || "Event",
             record: foundry.utils.deepClone(event)
         });
       });
     }
-    // Experience Events
     if (era.experiences) {
       Object.entries(era.experiences).forEach(([expId, exp]) => {
         if (exp.events) {
           Object.entries(exp.events).forEach(([id, event]) => {
             allNodes.push({ 
-                id: id, 
-                eraId: eraId, 
-                expId: expId,
+                id: id, eraId: eraId, expId: expId,
                 experienceName: exp.name || 'Unnamed Experience',
-                // PHYSICS LAYER
                 x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
                 y: _calculateTimestamp(event),
                 arrivalY: _calculateArrival(event),
                 sort: Number(event.sort) || 0,
-                // FACT LAYER
+                // AUTHORITY: Preserve complete record
+                isSpan: !!event.isSpan,
+                title: event.title || "Event",
                 record: foundry.utils.deepClone(event)
             });
           });
@@ -80,7 +72,7 @@ export function flattenEvents(eras, actor = null) {
     }
   });
 
-  // 2. Recovery for Legacy Nodes (X-Coordinate derivation)
+  // 2. Recovery for Legacy Nodes
   const dobTs = actor ? ReferenceResolver.resolveOrigin(actor) : 0;
   allNodes.forEach(node => {
       if (node.x === null) {
@@ -90,7 +82,7 @@ export function flattenEvents(eras, actor = null) {
       }
   });
 
-  // 3. PHYSICAL SORT AUTHORITY (Physics-First: Age then Sort)
+  // 3. PHYSICAL SORT AUTHORITY
   allNodes.sort((a, b) => {
     if (a.x !== b.x) return a.x - b.x;
     return a.sort - b.sort;
