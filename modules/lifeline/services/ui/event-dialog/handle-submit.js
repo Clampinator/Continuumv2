@@ -26,14 +26,16 @@ export async function handleSubmit(actor, formData, params) {
   const reindexResult = processReindexing(actor, newId, mode, intent, { ...params, formData }, updates);
   const { authoritativeAge, authoritativeTime, authoritativeSort, positionChanged } = reindexResult;
 
-  // 3. ASSEMBLE EVENT DATA
+  // 3. ASSEMBLE EVENT DATA (The ADI Fact Pass)
   const eventData = {
     id: newId,
     title: formData.title,
     notes: formData.notes,
     isRest: Boolean(formData.isRest && !isSpan),
     isSpan: isSpan,
+    // PHYSICS LAYER (Authoritative coordinates)
     age: authoritativeAge,
+    ts: authoritativeTime || finalTime,
     sort: authoritativeSort,
     createdAt: existingData?.createdAt || Date.now(),
     startsExpId: existingData?.startsExpId || null,
@@ -42,7 +44,7 @@ export async function handleSubmit(actor, formData, params) {
     frag: parseInt(formData.frag) || 0
   };
 
-  const resolvedDT = convertTimestampToDateString(authoritativeTime || finalTime);
+  const resolvedDT = convertTimestampToDateString(eventData.ts);
   if (isSpan) {
       eventData.spanFromDate = normalizeDateInput(formData.spanFromDate);
       eventData.spanFromTime = formData.spanFromTime || "12:00:00";
@@ -57,9 +59,13 @@ export async function handleSubmit(actor, formData, params) {
       eventData.spanToLat = parseFloat(formData.lat) || null;
       eventData.spanToLng = parseFloat(formData.lng) || null;
       eventData.spanToZoom = parseInt(formData.zoom) || null;
+      
+      // AUTHORITY: Explicitly save high-precision arrival coordinate
+      eventData.arrivalTs = parseDate(`${eventData.spanToDate}T${eventData.spanToTime}`)?.getTime() || eventData.ts;
   } else {
-      eventData.date = resolvedDT.date;
-      eventData.time = resolvedDT.time;
+      // FACTS LAYER (UI strings)
+      eventData.date = (mode === 'edit' && !positionChanged) ? (existingData.date || resolvedDT.date) : resolvedDT.date;
+      eventData.time = (mode === 'edit' && !positionChanged) ? (existingData.time || resolvedDT.time) : resolvedDT.time;
   }
 
   // 4. EXPERIENCE LIFECYCLE
@@ -117,17 +123,19 @@ export async function handleSubmit(actor, formData, params) {
 
   updates[`${parentPath}.events.${newId}`] = eventData;
 
-  // 6. COMPENSATION WAVE
-  if (isSpan && mode === 'insert') {
-      const pendingSpan = { ...eventData, id: newId, sort: authoritativeSort };
-      const { updates: normUpdates } = normalizeLifelineAges(actor, { pendingSpan });
-      Object.assign(updates, normUpdates);
-  }
+  // 6. COMPENSATION WAVE (The ADI Physics Pass)
+  // AUTHORITY: Every timeline change triggers a global X-Axis realignment.
+  // We exclude the current node to prevent duplicate calculation crashes.
+  const { updates: normUpdates } = normalizeLifelineAges(actor, { 
+      pendingSpan: eventData,
+      excludeNodeId: newId 
+  });
+  Object.assign(updates, normUpdates);
 
   // 7. CHARACTER STATUS
   if (mode === 'log') {
       updates['system.personal.subjectiveNow'] = eventData.age;
-      updates['system.personal.objectiveNow'] = authoritativeTime || finalTime;
+      updates['system.personal.objectiveNow'] = eventData.ts;
   }
 
   const isRestToggledOn = !existingData?.isRest && eventData.isRest;
