@@ -55,6 +55,13 @@
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
 }
 
+.graph-node-birth {
+    fill: #ffd700; /* Gold for the start of life */
+    stroke: #ffffff;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+}
+
 /* Authoritative Legacy Colors */
 .graph-node-span-origin {
     fill: #ff00ff;

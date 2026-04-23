@@ -5,7 +5,7 @@ import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/se
 
 /**
  * Handles the pointermove event for the Span Graph.
- * DEEP DECIMATION REBUILT: Uses persistent manifest for interaction checks.
+ * DEEP DECIMATION REBUILT: Consistent x/y coordinate isolation.
  */
 export function onPointerMove(event, viewport) {
     const rect = viewport.svg.getBoundingClientRect();
@@ -13,7 +13,7 @@ export function onPointerMove(event, viewport) {
     const y = event.clientY - rect.top;
 
     if (!viewport._interaction.isDragging) {
-        // AUTHORITY: Static Hover HUD (Using persistent state)
+        // AUTHORITY: Static Hover HUD
         _updateHoverTooltips(viewport, event, x, y);
         viewport._updateGhostNodeHover(x, y);
         return;
@@ -48,36 +48,18 @@ export function onPointerMove(event, viewport) {
         const world = constrainMovement(rawWorld, viewport._interaction.startWorld, viewport._interaction.mode);
         viewport._interaction.currentWorld = world;
         
-        // Update manifest with current drag coordinates for "live" rendering
-        // In the dumb-renderer model, we update the manifest and re-render.
-        _updateDragManifest(viewport, world);
-        
         // AUTHORITY: Real-time Dragging HUD
         _updateDragTooltip(viewport, x, y);
 
+        // AUTHORITY: The _render pass now handles drag overrides correctly via the viewport's state machine.
         viewport._render();
+        
     } else if (viewport._interaction.type === 'pan') {
         const newPan = {
             panX: viewport._interaction.startPanX + dx,
             panY: viewport._interaction.startPanY + dy
         };
         viewport.setViewState(newPan);
-    }
-}
-
-/**
- * Updates the temporary manifest during a drag to ensure smooth node movement.
- * @private
- */
-function _updateDragManifest(viewport, worldPos) {
-    if (!viewport.latestManifest) return;
-    const manifest = viewport.latestManifest;
-    const isNow = viewport._interaction.nodeElement?.classList.contains('graph-node-now');
-    
-    if (isNow && manifest.hud.now) {
-        const screen = viewport.worldToScreen(worldPos.age, worldPos.time);
-        manifest.hud.now.x = screen.x;
-        manifest.hud.now.y = screen.y;
     }
 }
 

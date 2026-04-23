@@ -23,9 +23,7 @@ export function generateManifest(state, viewport) {
 
     if (!state || !state.segments) return manifest;
 
-    const rect = viewport.container.getBoundingClientRect();
-
-    // 1. PROJECT ERAS
+    // 1. PROJECT ERAS (Background Layer)
     const erasRaw = Object.values(viewport.actor.system.eras || {}).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
     let currentAge = 0;
     erasRaw.forEach(era => {
@@ -40,16 +38,16 @@ export function generateManifest(state, viewport) {
         currentAge += Number(era.duration || 0);
     });
 
-    // 2. PROJECT RAILS & SPANS
+    // 2. PROJECT RAILS & SPANS (Content Layer)
     state.segments.forEach((seg, index) => {
         // Level Rail (Blue)
-        const railPoints = [seg.arrivalNode, ...seg.nodes];
-        if (seg.exitPoint) railPoints.push(seg.exitPoint);
+        const railNodes = [seg.arrivalNode, ...seg.nodes];
+        if (seg.exitPoint) railNodes.push(seg.exitPoint);
 
         manifest.rails.push({
             type: 'level',
-            path: _pointsToPath(railPoints, viewport),
-            nodes: railPoints.map(n => n.id)
+            path: _pointsToPath(railNodes, viewport),
+            nodes: railNodes.map(n => n.id)
         });
 
         // Jump Span (Pink)
@@ -69,20 +67,46 @@ export function generateManifest(state, viewport) {
         }
     });
 
-    // 3. PROJECT NODES
+    // 3. PROJECT NODES (History)
     state.nodes.forEach(node => {
-        const screen = viewport.worldToScreen(node.x, node.y);
+        // COORDINATE AUTHORITY: Handle both RenderNode (x,y) and legacy (age,time)
+        const nodeX = node.x !== undefined ? node.x : node.age;
+        const nodeY = node.y !== undefined ? node.y : (node.ts || node.time || 0);
+        
+        if (nodeX === undefined || nodeY === undefined) return;
+
+        const screen = viewport.worldToScreen(nodeX, nodeY);
         manifest.nodes.push({
             id: node.id,
             x: screen.x,
             y: screen.y,
             type: _resolveNodeType(node),
-            record: node.record,
+            record: node.record || node,
             spanDirection: node.spanDirection
         });
     });
 
-    // 4. PROJECT EXPERIENCES
+    // 4. PROJECT NOW INDICATOR (HUD Layer)
+    if (state.nowNode) {
+        const nowX = state.nowNode.x !== undefined ? state.nowNode.x : state.nowNode.age;
+        const nowY = state.nowNode.y !== undefined ? state.nowNode.y : (state.nowNode.ts || state.nowNode.time || 0);
+        
+        const nowScreen = viewport.worldToScreen(nowX, nowY);
+        const nowNodeManifest = {
+            id: 'now',
+            x: nowScreen.x,
+            y: nowScreen.y,
+            type: 'now',
+            record: { title: "NOW" },
+            age: nowX,
+            time: nowY
+        };
+        
+        manifest.hud.now = nowNodeManifest;
+        manifest.nodes.push(nowNodeManifest);
+    }
+
+    // 5. PROJECT EXPERIENCES
     state.experiences.forEach(exp => {
         const pStart = viewport.worldToScreen(exp.startX, exp.startY);
         const pEnd = viewport.worldToScreen(exp.endX, exp.endY);
@@ -100,26 +124,21 @@ export function generateManifest(state, viewport) {
         });
     });
 
-    // 5. PROJECT HUD
-    if (state.nowNode) {
-        const nowScreen = viewport.worldToScreen(state.nowNode.x, state.nowNode.y);
-        manifest.hud.now = {
-            x: nowScreen.x,
-            y: nowScreen.y,
-            age: state.nowNode.x,
-            time: state.nowNode.y
-        };
-    }
-
+    // 6. HUD METADATA
     const history = state.nodes.filter(n => !n.isVirtual && !n.isNow);
-    const lastEvent = history[history.length - 1] || { x: 0 };
-    manifest.hud.creationStartX = viewport.worldToScreen(lastEvent.x, 0).x;
+    const lastEvent = history[history.length - 1] || { x: 0, age: 0 };
+    const lastX = lastEvent.x !== undefined ? lastEvent.x : lastEvent.age;
+    manifest.hud.creationStartX = viewport.worldToScreen(lastX, 0).x;
 
     return manifest;
 }
 
 function _pointsToPath(nodes, viewport) {
-    const points = nodes.map(n => viewport.worldToScreen(n.x, n.y));
+    const points = nodes.map(node => {
+        const x = node.x !== undefined ? node.x : node.age;
+        const y = node.y !== undefined ? node.y : (node.ts || node.time || 0);
+        return viewport.worldToScreen(x, y);
+    });
     return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 }
 

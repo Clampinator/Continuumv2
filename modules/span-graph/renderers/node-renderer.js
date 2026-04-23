@@ -1,6 +1,7 @@
 /**
  * DUMB RENDERER: NODE RENDERER
  * Performs pure SVG drawing of node shapes at specified coordinates.
+ * REBUILT: High-precision defensive layout pass.
  */
 export class NodeRenderer {
   constructor(viewport, parentGroup) {
@@ -18,16 +19,29 @@ export class NodeRenderer {
     this.group.innerHTML = '';
 
     manifest.nodes.forEach(node => {
+      // DEFENSIVE: Skip nodes with invalid or missing screen coordinates
+      if (node.x === undefined || node.y === undefined || isNaN(node.x) || isNaN(node.y)) {
+          console.warn(`SpanGraph | NodeRenderer: Invalid coordinates for node ${node.id}`, node);
+          return;
+      }
+
       const el = this._createNodeShape(node);
       if (el) this.group.appendChild(el);
     });
   }
 
+  /**
+   * Renders a temporary "ghost" node at a potential insertion point.
+   */
   renderGhostNode(screenPos) {
       if (!this.group) return;
       const existing = this.group.querySelector('.graph-node-ghost');
       if (existing) existing.remove();
-      if (!screenPos) return;
+      
+      // DEFENSIVE
+      if (!screenPos || screenPos.x === undefined || screenPos.y === undefined || isNaN(screenPos.x) || isNaN(screenPos.y)) {
+          return;
+      }
 
       const ghost = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       ghost.setAttribute('cx', screenPos.x);
@@ -84,6 +98,9 @@ export class NodeRenderer {
     }
 
     shape.dataset.eventId = node.id;
+    shape.style.cursor = 'pointer';
+    shape.style.pointerEvents = 'auto';
+
     return shape;
   }
 

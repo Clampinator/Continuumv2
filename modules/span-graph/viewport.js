@@ -31,6 +31,7 @@ export class SpanGraphViewport {
     // PERSISTENT DATA AUTHORITY
     this.latestHistory = [];
     this.latestState = null;
+    this.latestManifest = null;
 
     this._interaction = {
         isDragging: false,
@@ -97,11 +98,18 @@ export class SpanGraphViewport {
 
   setViewState(newState) { this.viewState = { ...this.viewState, ...newState }; this._render(); }
   
+  /**
+   * REBUILT: Authorative render pass with Live Override support.
+   */
   _render() { 
-      // Update persistent authority before rendering
+      const interaction = this._interaction;
+      const isDraggingNow = interaction.isDragging && interaction.nodeElement?.classList.contains('graph-node-now');
+      
+      // AUTHORITY: If dragging NOW, we override the subjectiveNow age
+      const subjectiveNow = isDraggingNow ? interaction.currentWorld.age : (Number(this.actor.system.personal?.subjectiveNow) || 0);
+
       this.latestHistory = flattenEvents(this.actor.system.eras || {}, this.actor);
       const originTime = this._getOriginTime();
-      const subjectiveNow = Number(this.actor.system.personal?.subjectiveNow) || 0;
       this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor);
 
       renderViewport(this); 
