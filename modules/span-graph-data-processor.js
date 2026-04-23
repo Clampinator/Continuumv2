@@ -7,7 +7,7 @@ import { computeRailOffset } from './lifeline/services/chronology/compute-rail-o
  * Flattens nested character history into authoritative RenderNode objects.
  * IMPLEMENTS: Authoritative Data Isolation (ADI).
  * 
- * @returns {Array} Array of RenderNodes: { id, x, y, arrivalY, record, ...meta }
+ * @returns {Array} Array of RenderNodes: { id, x, y, arrivalY, record, path, ...meta }
  */
 export function flattenEvents(eras, actor = null) {
   if (!eras) return [];
@@ -39,11 +39,11 @@ export function flattenEvents(eras, actor = null) {
       Object.entries(era.events).forEach(([id, event]) => {
         allNodes.push({ 
             id: id, eraId: eraId, expId: null,
+            path: `system.eras.${eraId}.events.${id}`, // REQUIRED for re-indexing
             x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
             y: _calculateTimestamp(event),
             arrivalY: _calculateArrival(event),
             sort: Number(event.sort) || 0,
-            // AUTHORITY: Preserve complete record for Tooltips
             isSpan: !!event.isSpan,
             title: event.title || "Event",
             record: foundry.utils.deepClone(event)
@@ -56,12 +56,12 @@ export function flattenEvents(eras, actor = null) {
           Object.entries(exp.events).forEach(([id, event]) => {
             allNodes.push({ 
                 id: id, eraId: eraId, expId: expId,
+                path: `system.eras.${eraId}.experiences.${expId}.events.${id}`,
                 experienceName: exp.name || 'Unnamed Experience',
                 x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
                 y: _calculateTimestamp(event),
                 arrivalY: _calculateArrival(event),
                 sort: Number(event.sort) || 0,
-                // AUTHORITY: Preserve complete record
                 isSpan: !!event.isSpan,
                 title: event.title || "Event",
                 record: foundry.utils.deepClone(event)
