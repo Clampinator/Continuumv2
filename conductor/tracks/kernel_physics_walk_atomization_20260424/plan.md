@@ -1,13 +1,13 @@
 # Implementation Plan: Kernel Physics Walk Atomization
 
-## Phase 1: Mathematical Extraction
+## Phase 1: Mathematical Extraction [checkpoint: a65887b]
 - [x] Task: Create `project-subjective-age.js` (ce9cc2e)
-    - [ ] Create the file in the `modules/temporal-kernel/` directory.
-    - [ ] Implement the `projectSubjectiveAge(timestamp, offset)` pure function based on the "Diagonal Authority" (1s Age = 1000ms Time).
+    - [x] Create the file in the `modules/temporal-kernel/` directory.
+    - [x] Implement the `projectSubjectiveAge(timestamp, offset)` pure function based on the "Diagonal Authority" (1s Age = 1000ms Time).
 - [x] Task: Create `calculate-span-displacement.js` (faa7a29)
-    - [ ] Create the file in the `modules/temporal-kernel/` directory.
-    - [ ] Implement the `calculateSpanDisplacement(departureTs, arrivalTs)` pure function to determine the objective time gap.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Mathematical Extraction' (Protocol in workflow.md)
+    - [x] Create the file in the `modules/temporal-kernel/` directory.
+    - [x] Implement the `calculateSpanDisplacement(departureTs, arrivalTs)` pure function to determine the objective time gap.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Mathematical Extraction' (Protocol in workflow.md)
 
 ## Phase 2: Orchestrator Refactoring
 - [ ] Task: Refactor `solve-history-physics.js`
