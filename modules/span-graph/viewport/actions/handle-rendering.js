@@ -25,6 +25,13 @@ export function renderViewport(viewport, state, manifest) {
     // 3. HUD Layer (Interface)
     viewport.axisRenderer.render();
     
+    // AUTHORITY: Ghost Node rendering now flows through the Projector
+    if (manifest.interaction?.ghost) {
+        viewport.nodeRenderer.renderGhostNode(manifest.interaction.ghost);
+    } else {
+        viewport.nodeRenderer.renderGhostNode(null);
+    }
+
     const spanRank = viewport.actor?.system.spanning?.span || 0;
     if (spanRank >= 1) {
         viewport.creationRenderer.render(manifest.hud.creationStartX);
