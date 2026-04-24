@@ -16,17 +16,19 @@ export function generateManifest(state, viewport, interaction = null) {
     const liveWorld = interaction?.currentWorld;
     const liveMode = interaction?.mode;
 
-    // 1. PROJECT ERAS
-    const erasRaw = Object.values(viewport.actor.system.eras || {}).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
-    let currentAge = 0;
-    erasRaw.forEach(era => {
-        const startX = viewport.worldToScreen(currentAge, 0).x;
-        const endX = viewport.worldToScreen(currentAge + Number(era.duration || 0), 0).x;
-        manifest.eras.push({
-            name: era.name, startX, width: Math.max(0, endX - startX), color: era.color
+    // 1. PROJECT ERAS (Dumb Pipe: Data provided by Engine)
+    if (state.eras) {
+        state.eras.forEach(era => {
+            const startX = viewport.worldToScreen(era.startAge, 0).x;
+            const endX = viewport.worldToScreen(era.startAge + (era.duration || 0), 0).x;
+            manifest.eras.push({
+                name: era.name || 'Unknown Era',
+                startX,
+                width: Math.max(0, endX - startX),
+                color: era.color || '#555'
+            });
         });
-        currentAge += Number(era.duration || 0);
-    });
+    }
 
     // 2. PROJECT RAILS
     state.segments.forEach((seg, index) => {
