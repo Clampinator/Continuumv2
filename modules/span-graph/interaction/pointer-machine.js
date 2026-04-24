@@ -37,7 +37,6 @@ export class PointerMachine {
         this.state.activeNodeId = target.dataset.eventId || null;
 
         // RULE: Snapping to Origin
-        // The drag must start from the EXACT world coordinates of the node, not the mouse pixel.
         if (this.state.activeNodeId) {
             const node = this.viewport.latestHistory.find(n => n.id === this.state.activeNodeId);
             if (node) {
@@ -57,20 +56,27 @@ export class PointerMachine {
 
         if (!this.state.isDown) {
             // RULE: Node Hover Priority
-            // If the mouse is over an existing node, do not show the "Click to Add" preview.
             const targetNodeId = event.target.dataset.eventId;
             if (targetNodeId) {
                 this.state.ghostSnap = null;
-                this.viewport.nodeRenderer.renderGhostNode(null);
+                this.viewport._interaction.ghostSnap = null;
                 this._updateStaticHover(event, screenPos);
+                this.viewport._render();
                 return;
             }
 
             // RULE: Ghost Node Preview (Empty Blue Lines Only)
+            if (!this.viewport.latestManifest?.rails) {
+                this.viewport._interaction.ghostSnap = null;
+                this.viewport.tooltipManager.hide();
+                return;
+            }
+
             this.state.ghostSnap = calculateGhostSnap(screenPos, this.viewport.latestManifest.rails);
-            
+            // HANDSHAKE: Provide the snap to the interaction state for the Projector
+            this.viewport._interaction.ghostSnap = this.state.ghostSnap;
+
             if (this.state.ghostSnap) {
-                this.viewport.nodeRenderer.renderGhostNode(this.state.ghostSnap.screen);
                 const dt = convertTimestampToDateString(this.state.ghostSnap.world.time);
                 this.viewport.tooltipManager.show([
                     { label: 'INSERT', value: 'CLICK TO ADD', color: '#ffd700' },
@@ -78,9 +84,10 @@ export class PointerMachine {
                     { label: 'DATE', value: dt.date }
                 ], screenPos);
             } else {
-                this.viewport.nodeRenderer.renderGhostNode(null);
                 this.viewport.tooltipManager.hide();
             }
+            
+            this.viewport._render(); // Trigger authoritative render pass
             return;
         }
 
