@@ -5,7 +5,8 @@
 export function generateManifest(state, viewport, interaction = null) {
     const manifest = {
         rails: [], nodes: [], experiences: [], eras: [],
-        hud: { now: null, creationStartX: null }
+        hud: { now: null, creationStartX: null },
+        interaction: {}
     };
 
     if (!state || !state.segments) return manifest;
@@ -94,6 +95,14 @@ export function generateManifest(state, viewport, interaction = null) {
         });
     }
 
+    // 5. PROJECT INTERACTION (GHOST NODE)
+    if (interaction?.ghostSnap) {
+        manifest.interaction.ghost = {
+            x: interaction.ghostSnap.screen.x,
+            y: interaction.ghostSnap.screen.y
+        };
+    }
+
     // FORCE NOW ON TOP
     manifest.nodes.sort((a, b) => {
         if (a.id === 'now') return 1;
@@ -101,7 +110,7 @@ export function generateManifest(state, viewport, interaction = null) {
         return 0;
     });
 
-    // 5. HUD ALIGNMENT
+    // 6. HUD ALIGNMENT
     const historyNodes = state.nodes.filter(n => !n.isVirtual && n.id !== 'now');
     const lastEvent = historyNodes.pop() || { x: 0 };
     manifest.hud.creationStartX = viewport.worldToScreen(lastEvent.x, 0).x;
