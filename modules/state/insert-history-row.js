@@ -41,6 +41,7 @@ export async function insertHistoryRow(actor, data, options = {}) {
     const virtualHistory = [...history, { ...targetNode, sort }];
     const physicsShifts = solveHistoryPhysics(virtualHistory, dobTime);
 
+
     const updates = {};
     const finalRecord = {
         ...data,

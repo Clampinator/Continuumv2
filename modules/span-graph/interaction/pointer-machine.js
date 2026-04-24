@@ -56,7 +56,17 @@ export class PointerMachine {
         if (this.state.isPending) return;
 
         if (!this.state.isDown) {
-            // RULE: Ghost Node Preview (Blue Lines Only)
+            // RULE: Node Hover Priority
+            // If the mouse is over an existing node, do not show the "Click to Add" preview.
+            const targetNodeId = event.target.dataset.eventId;
+            if (targetNodeId) {
+                this.state.ghostSnap = null;
+                this.viewport.nodeRenderer.renderGhostNode(null);
+                this._updateStaticHover(event, screenPos);
+                return;
+            }
+
+            // RULE: Ghost Node Preview (Empty Blue Lines Only)
             this.state.ghostSnap = calculateGhostSnap(screenPos, this.viewport.latestManifest.rails);
             
             if (this.state.ghostSnap) {
@@ -69,7 +79,7 @@ export class PointerMachine {
                 ], screenPos);
             } else {
                 this.viewport.nodeRenderer.renderGhostNode(null);
-                this._updateStaticHover(event, screenPos);
+                this.viewport.tooltipManager.hide();
             }
             return;
         }
@@ -138,13 +148,29 @@ export class PointerMachine {
         }
     }
 
-    async _openDialog(mode, age, time, isSpan = false) {
+    async onRightClick(event, screenPos) {
+        if (this.state.isPending) return;
+
+        const targetNodeId = event.target.dataset.eventId;
+        if (!targetNodeId || targetNodeId === 'now') return;
+
+        const node = this.viewport.latestHistory.find(n => n.id === targetNodeId);
+        if (!node) return;
+
+        this.state.isPending = true;
+        this.viewport._interaction.isPending = true;
+        
+        await this._openDialog('edit', node.x, node.y, node.record.isSpan, node);
+    }
+
+    async _openDialog(mode, age, time, isSpan = false, existingData = null) {
         const { openEventNodeDialog } = await import('../../span-graph-ui-dialogs.js');
         const dt = convertTimestampToDateString(time);
         
         await openEventNodeDialog(this.actor.sheet, {
             mode, ageRaw: age, timeRaw: time, date: dt.date, time: dt.time, isSpan,
             startWorld: this.state.startWorld,
+            existingData,
             onClose: (confirmed) => {
                 this._resetInteraction();
                 this.viewport._render();

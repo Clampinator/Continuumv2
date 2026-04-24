@@ -38,6 +38,10 @@ export function activateListeners(viewport) {
         viewport.setViewState(updates);
     }, { passive: false });
 
-    // Prevent default context menu on the SVG itself
-    viewport.svg.addEventListener('contextmenu', (e) => e.preventDefault());
+    // --- CONTEXT MENU (Editing) ---
+    viewport.svg.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const rect = viewport.svg.getBoundingClientRect();
+        viewport.pointerMachine.onRightClick(e, { x: e.clientX - rect.left, y: e.clientY - rect.top });
+    });
 }

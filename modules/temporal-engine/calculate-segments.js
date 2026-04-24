@@ -1,7 +1,7 @@
 /**
  * CALCULATE SEGMENTS (Physical Character Journey)
- * Breaks history into discrete segments. 
- * ENFORCES: NOW node is terminal (only in the last segment).
+ * Breaks history into discrete segments.
+ * ENFORCES: Physical origin at Birth (Age 0).
  */
 export function calculateSegments(history, originTime) {
   const segments = [];
@@ -10,15 +10,14 @@ export function calculateSegments(history, originTime) {
   const nodes = [...history].sort((a, b) => (a.sort || 0) - (b.sort || 0))
                              .filter(n => !n.isVirtual && !n.isBirth);
 
+  // RULE: THE FIRST BREATH
+  // The character's physical journey ALWAYS begins at Age 0 and the Date of Birth.
   let currentStartX = 0;
   let currentStartY = originTime;
   let currentNodes = [];
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
-    
-    // RULE: The 'now' node must never be an exit point or an intermediate node.
-    // It only exists at the very end of the final segment.
     if (node.id === 'now') continue;
 
     if (node.record?.isSpan) {
@@ -39,7 +38,7 @@ export function calculateSegments(history, originTime) {
     }
   }
 
-  // 2. THE FINAL SEGMENT: Terminal nodes only
+  // 2. THE FINAL SEGMENT: Ends at the yellow dot.
   const nowNode = history.find(n => n.id === 'now');
   if (nowNode) {
       currentNodes.push(nowNode);
