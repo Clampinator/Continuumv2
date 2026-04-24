@@ -1,32 +1,33 @@
+import { projectSubjectiveAge } from './project-subjective-age.js';
+import { calculateSpanDisplacement } from './calculate-span-displacement.js';
+
 /**
  * TEMPORAL KERNEL: SOLVE HISTORY PHYSICS
- * Pure mathematical walk through the character's journey.
+ * Orchestrator for the physical walk through a character's journey.
+ * ENFORCES: Atomization Law (Delegates math to single-purpose files).
  * ENFORCES: Birth Node Authority (Age 0 = dobTime).
  */
 export function solveHistoryPhysics(history, dobTime) {
     const shifts = {};
     
-    // 1. Prepare history for the walk
+    // 1. Prepare history for the walk.
+    // AUTHORITY: We EXCLUDE 'now' as it is a result, not a source of physics.
     const sorted = [...history].filter(n => !n.isNow && !n.isVirtual && !n.isBirth)
-                               .sort((a, b) => (a.sort || 0) - (b.sort || 0));
+                               .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 
     if (sorted.length === 0) return shifts;
 
-    // RULE: BIRTH ANCHOR AUTHORITY
-    // All age calculations begin at the character's Date of Birth.
+    // 2. The Physical Anchor
     let objectiveOffset = Number(dobTime) || 0;
 
-    // 2. The Compensation Wave
+    // 3. The Compensation Wave
     for (const node of sorted) {
-        const ev = node.record;
-        
-        // Physics X: Subjective Age
+        const ev = node.record || node;
         const fromTs = Number(node.y);
         const savedAge = Number(node.x);
         
-        // Calculate the only mathematically possible Age for this timestamp
-        // based on the birth anchor and preceding spans.
-        const calculatedAge = Math.max(0, (fromTs - objectiveOffset) / 1000);
+        // DELEGATE: Age Projection
+        const calculatedAge = projectSubjectiveAge(fromTs, objectiveOffset);
 
         // AUTHORITY: Only apply shift if drift is significant (> 100ms)
         if (Math.abs(calculatedAge - savedAge) > 0.1) {
@@ -35,10 +36,14 @@ export function solveHistoryPhysics(history, dobTime) {
 
         // Arrival Physics (The "Offset" shift)
         if (ev.isSpan) {
-            // Spans shift the "World Clock" relative to the "Character Clock"
             const arrivalTs = Number(node.arrivalY || node.y); 
-            const effectiveAge = shifts[node.id] !== undefined ? shifts[node.id] : savedAge;
-            objectiveOffset = arrivalTs - (effectiveAge * 1000);
+            
+            // DELEGATE: Span Physics (Displacement check, though offset calculation is the core)
+            const displacement = calculateSpanDisplacement(fromTs, arrivalTs);
+            
+            // Shift the world clock for the next segment
+            const ageAtJump = shifts[node.id] !== undefined ? shifts[node.id] : savedAge;
+            objectiveOffset = arrivalTs - (ageAtJump * 1000);
         }
     }
 
