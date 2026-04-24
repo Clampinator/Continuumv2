@@ -37,6 +37,7 @@ export class RailRenderer {
 
   _createPathElement(d, className) {
     if (typeof document === 'undefined') return null;
+    this._injectStyles();
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', d);
     path.setAttribute('class', className);
@@ -50,6 +51,32 @@ export class RailRenderer {
     }
     
     return path;
+  }
+
+  _injectStyles() {
+      if (document.getElementById('span-graph-rail-styles')) return;
+      const style = document.createElement('style');
+      style.id = 'span-graph-rail-styles';
+      style.textContent = `
+          .span-graph-rail {
+              stroke: #00e5ff;
+              stroke-width: 2;
+          }
+          .span-graph-span-line {
+              stroke: #ff00ff;
+              stroke-width: 3;
+              stroke-dasharray: 6, 4;
+              animation: span-flow 0.5s linear infinite;
+          }
+          .span-graph-span-line.past {
+              animation-direction: reverse;
+          }
+          @keyframes span-flow {
+              from { stroke-dashoffset: 20; }
+              to { stroke-dashoffset: 0; }
+          }
+      `;
+      document.head.appendChild(style);
   }
 
   _createRailGroup(parent) {

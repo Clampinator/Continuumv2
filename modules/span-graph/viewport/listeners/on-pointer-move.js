@@ -26,24 +26,29 @@ export function onPointerMove(event, viewport) {
     if (!viewport._interaction.hasSignificantMovement) {
         if (Math.hypot(dx, dy) < 5) return;
         viewport._interaction.hasSignificantMovement = true;
-        
-        if (viewport._interaction.type === 'node') {
-            const isNowNode = viewport._interaction.nodeElement?.classList.contains('graph-node-now');
-            const history = viewport.latestHistory || [];
-            const lastEvent = history[history.length - 1];
-            const spanRank = viewport.actor.system.spanning?.span || 0;
-
-            viewport._interaction.mode = getDragMode(dx, dy, { 
-                isNow: isNowNode, 
-                lastEvent: lastEvent,
-                spanRank: spanRank 
-            });
-            viewport.viewState.interactionMode = 'drag-node';
-        }
+        viewport.viewState.interactionMode = 'drag-node';
     }
 
     // 2. Perform Movement
     if (viewport._interaction.type === 'node') {
+        const isNowNode = viewport._interaction.nodeElement?.classList.contains('graph-node-now');
+        
+        // AUTHORITY: Recalculate mode on every frame for NOW node to allow smooth axis transitions.
+        if (isNowNode) {
+            const history = viewport.latestHistory || [];
+            const lastEvent = history[history.length - 1];
+            const spanRank = viewport.actor.system.spanning?.span || 0;
+            
+            viewport._interaction.mode = getDragMode(dx, dy, { 
+                isNow: true, 
+                lastEvent: lastEvent,
+                spanRank: spanRank 
+            });
+        } else if (!viewport._interaction.mode) {
+            // Standard nodes lock their mode after the initial threshold.
+            viewport._interaction.mode = getDragMode(dx, dy);
+        }
+
         const rawWorld = viewport.screenToWorld(x, y);
         const world = constrainMovement(rawWorld, viewport._interaction.startWorld, viewport._interaction.mode);
         viewport._interaction.currentWorld = world;

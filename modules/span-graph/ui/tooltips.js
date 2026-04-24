@@ -1,137 +1,125 @@
 /**
- * Manages the display of rich contextual tooltips within the Span Graph.
- * REBUILT: Uses isolated double-pass layout to guarantee absolute tight-fit.
- * Styling is maintained in tooltips.css.
+ * HUD: TOOLTIP MANAGER
+ * Authoritative display for contextual metadata.
+ * Implements "Double-Pass HTML-in-SVG" shrink-wrap measurement.
+ * 
+ * Mandate: Tooltips must be surgically tight to their content.
  */
 export class TooltipManager {
-  /**
-   * @param {SpanGraphViewport} viewport - The viewport instance.
-   * @param {SVGGElement} parentGroup - The HUD layer group.
-   */
-  constructor(viewport, parentGroup) {
-    this.viewport = viewport;
-    this.isVisible = false;
-    this.group = this._createTooltipGroup(parentGroup);
-    
-    // AUTHORITY: Inject stylesheet if not already present
-    this._injectStylesheet();
-  }
-
-  /**
-   * Injects the external tooltips.css into the document head.
-   */
-  _injectStylesheet() {
-      if (typeof document === 'undefined') return;
-      const href = 'systems/continuum-v2/modules/span-graph/ui/tooltips.css';
-      if (document.querySelector(`link[href="${href}"]`)) return;
-
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.type = 'text/css';
-      link.href = href;
-      link.media = 'all';
-      document.head.appendChild(link);
-  }
-
-  /**
-   * Shows the tooltip with the provided content at the specified position.
-   */
-  show(content, pos) {
-    if (!this.group) return;
-
-    const container = this.group.querySelector('.span-graph-tooltip-body');
-    const fo = this.group.querySelector('foreignObject');
-    const bg = this.group.querySelector('rect');
-    if (!container || !fo || !bg) return;
-
-    // 1. CONTENT PREPARATION
-    let html = '';
-    if (typeof content === 'string') {
-        html = `<div class="tooltip-text-wrapper">${content}</div>`;
-    } else if (Array.isArray(content)) {
-        html = `<table class="tooltip-table">` + content.map(line => {
-            const style = line.color ? `style="color: ${line.color}"` : '';
-            return `<tr ${style}>
-                <td class="tooltip-label">${line.label}:</td>
-                <td class="tooltip-value">${line.value}</td>
-            </tr>`;
-        }).join('') + `</table>`;
+    constructor(viewport, parentGroup) {
+        this.viewport = viewport;
+        this.group = this._createTooltipGroup(parentGroup);
+        this.isVisible = false;
+        
+        // Authority: Static Styles
+        this._injectStyles();
     }
 
-    // 2. ISOLATED MEASUREMENT PASS
-    fo.setAttribute('width', '1');
-    fo.setAttribute('height', '1');
-    container.innerHTML = html;
+    /**
+     * Shows a table-based HUD tooltip.
+     * @param {Array} rows - [{ label, value, color }]
+     * @param {Object} pos - { x, y } screen coordinates.
+     */
+    show(rows, pos) {
+        if (!this.group) return;
 
-    const wrapper = container.querySelector('.tooltip-table') || container.querySelector('.tooltip-text-wrapper');
-    const width = Math.ceil(wrapper.offsetWidth) + 16;
-    const height = Math.ceil(wrapper.offsetHeight) + 16;
+        const container = this.group.querySelector('.tooltip-body');
+        const fo = this.group.querySelector('foreignObject');
+        const bg = this.group.querySelector('rect');
+        if (!container || !fo || !bg) return;
 
-    // 3. APPLY AUTHORITATIVE DIMENSIONS
-    fo.setAttribute('width', width);
-    fo.setAttribute('height', height);
-    bg.setAttribute('width', width);
-    bg.setAttribute('height', height);
+        // 1. CONTENT INJECTION (The Table Mandate)
+        const html = `
+            <table class="tooltip-table">
+                ${rows.map(row => `
+                    <tr ${row.color ? `style="color: ${row.color}"` : ''}>
+                        <td class="label">${row.label}:</td>
+                        <td class="value">${row.value}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
 
-    // 4. POSITIONING & CLAMPING
-    this.isVisible = true;
-    this.group.style.display = 'block';
+        // 2. PASS 1: RESET FOR MEASUREMENT
+        // We set dimensions to 1x1 to force the HTML to wrap/expand naturally.
+        this.group.style.display = 'block';
+        fo.setAttribute('width', '1');
+        fo.setAttribute('height', '1');
+        container.innerHTML = html;
 
-    const viewRect = this.viewport.container.getBoundingClientRect();
-    let x = pos.x + 15;
-    let y = pos.y + 15;
-    
-    if (x + width > viewRect.width) x = pos.x - width - 10;
-    if (y + height > viewRect.height) y = pos.y - height - 10;
+        // 3. PASS 2: SHRINK-WRAP MEASUREMENT
+        // We capture the exact offset of the rendered table.
+        const table = container.querySelector('.tooltip-table');
+        const width = Math.ceil(table.offsetWidth) + 12; // + padding
+        const height = Math.ceil(table.offsetHeight) + 12;
 
-    x = Math.max(5, Math.min(x, viewRect.width - width - 5));
-    y = Math.max(5, Math.min(y, viewRect.height - height - 5));
+        // 4. APPLY AUTHORITATIVE DIMENSIONS
+        fo.setAttribute('width', width);
+        fo.setAttribute('height', height);
+        bg.setAttribute('width', width);
+        bg.setAttribute('height', height);
 
-    this.group.setAttribute('transform', `translate(${x}, ${y})`);
-  }
+        // 5. CLAMP TO VIEWPORT BOUNDS
+        const viewRect = this.viewport.container.getBoundingClientRect();
+        let finalX = pos.x + 15;
+        let finalY = pos.y + 15;
 
-  /**
-   * Hides the tooltip.
-   */
-  hide() {
-    if (!this.group) return;
-    this.isVisible = false;
-    this.group.style.display = 'none';
-  }
+        if (finalX + width > viewRect.width) finalX = pos.x - width - 10;
+        if (finalY + height > viewRect.height) finalY = pos.y - height - 10;
 
-  /**
-   * Creates the SVG group for the rich tooltip.
-   * @private
-   */
-  _createTooltipGroup(parent) {
-    if (typeof document === 'undefined') return null;
+        // Absolute boundaries
+        finalX = Math.max(5, Math.min(finalX, viewRect.width - width - 5));
+        finalY = Math.max(5, Math.min(finalY, viewRect.height - height - 5));
 
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('class', 'span-graph-tooltip-group');
-    g.style.display = 'none';
-    g.style.pointerEvents = 'none';
+        this.group.setAttribute('transform', `translate(${finalX}, ${finalY})`);
+        this.isVisible = true;
+    }
 
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('rx', '3');
-    rect.setAttribute('ry', '3');
-    rect.style.fill = 'rgba(0, 0, 0, 0.95)';
-    rect.style.stroke = '#ffd700'; 
-    rect.style.strokeWidth = '1.2';
-    g.appendChild(rect);
+    hide() {
+        if (this.group) this.group.style.display = 'none';
+        this.isVisible = false;
+    }
 
-    const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-    fo.setAttribute('x', '0');
-    fo.setAttribute('y', '0');
+    _createTooltipGroup(parent) {
+        if (typeof document === 'undefined') return null;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'span-graph-tooltip-group');
+        g.style.display = 'none';
+        g.style.pointerEvents = 'none';
 
-    const body = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-    body.setAttribute('class', 'span-graph-tooltip-body');
-    body.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
-    
-    fo.appendChild(body);
-    g.appendChild(fo);
+        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('rx', '2');
+        bg.style.fill = 'rgba(0, 0, 0, 0.95)';
+        bg.style.stroke = '#ffd700'; // High-Visibility Gold
+        bg.style.strokeWidth = '1';
+        g.appendChild(bg);
 
-    if (parent) parent.appendChild(g);
+        const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        const body = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        body.setAttribute('class', 'tooltip-body');
+        fo.appendChild(body);
+        g.appendChild(fo);
 
-    return g;
-  }
+        if (parent) parent.appendChild(g);
+        return g;
+    }
+
+    _injectStyles() {
+        if (document.getElementById('span-graph-tooltip-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'span-graph-tooltip-styles';
+        style.textContent = `
+            .tooltip-body {
+                padding: 6px;
+                font-family: "Signika", sans-serif;
+                font-size: 11px;
+                color: #fff;
+            }
+            .tooltip-table { border-collapse: collapse; white-space: nowrap; }
+            .tooltip-table td { padding: 1px 4px; vertical-align: top; }
+            .tooltip-table .label { font-weight: bold; color: #ffffff; text-transform: uppercase; }
+            .tooltip-table .value { color: #00ffff; font-family: monospace; }
+        `;
+        document.head.appendChild(style);
+    }
 }

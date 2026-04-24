@@ -7,7 +7,7 @@ import { ContextFinder } from '../../context-finder.js';
  * ADI REBUILT: Separates Facts (record) from Physics (x/y).
  */
 export function getTemplateData(actor, params) {
-    const { mode, existingData, viewState, graphData } = params;
+    const { mode, existingData, graphData } = params;
     
     let age = 0;
     let ts = null; 
@@ -31,29 +31,20 @@ export function getTemplateData(actor, params) {
 
     let spanToDate = "";
     let spanToTime = "";
-    let spanToLocation = "";
-    let spanToLat = null;
-    let spanToLng = null;
-    let spanToZoom = null;
-
-    let ageDeltaFormatted = "";
+    
     let timeDeltaFormatted = "";
+    let ageDeltaFormatted = "";
 
-    // 1. DATA EXTRACTION
     if (mode === 'edit' && existingData) {
-        // ADI BRIDGE: Physics from node, Facts from record
-        const node = existingData;
-        const record = node.record || node; // Fallback for transition
-        
-        age = node.x !== undefined ? node.x : node.age;
-        ts = node.y !== undefined ? node.y : (node.ts || node.time);
-        
-        isSpan = !!record.isSpan;
-        title = record.title || "";
-        notes = record.notes || record.description || "";
-        isRest = !!record.isRest;
-        eraId = node.eraId || record.eraId;
-        expId = node.expId || record.expId;
+        const record = existingData.record || existingData;
+        age = (existingData.x !== undefined) ? existingData.x : record.age;
+        ts = (existingData.y !== undefined) ? existingData.y : record.ts;
+        title = record.title;
+        notes = record.notes;
+        isRest = record.isRest;
+        isSpan = record.isSpan;
+        eraId = existingData.eraId;
+        expId = existingData.expId;
 
         if (isSpan) {
             spanFromDate = record.spanFromDate;
@@ -62,12 +53,12 @@ export function getTemplateData(actor, params) {
             spanFromLat = record.spanFromLat;
             spanFromLng = record.spanFromLng;
             spanFromZoom = record.spanFromZoom;
-
+            
             spanToDate = record.spanToDate;
             spanToTime = record.spanToTime;
-            spanToLocation = record.spanToLocation;
-            spanToLat = record.spanToLat;
-            spanToLng = record.spanToLng;
+            location = record.spanToLocation || "";
+            lat = record.spanToLat;
+            lng = record.spanToLng;
             spanToZoom = record.spanToZoom;
         } else {
             location = record.location || "";
@@ -80,96 +71,84 @@ export function getTemplateData(actor, params) {
         age = (params.ageRaw !== undefined) ? params.ageRaw : (graphData?.nowNode?.x || 0);
         ts = (params.timeRaw !== undefined) ? params.timeRaw : (graphData?.nowNode?.y || Date.now());
 
-        isSpan = viewState.activeDragType === 'span';
+        isSpan = Boolean(params.isSpan);
         title = isSpan ? "Span" : "Event";
-        const startWorld = viewState.dragStartWorld || { eraId: null, expId: null, time: ts, age };
-        eraId = startWorld.eraId;
-        expId = startWorld.expId;
+        
+        // Start world from params (provided by PointerMachine) or fallback
+        const startWorld = params.startWorld || { time: ts, age };
+        eraId = params.eraId || null;
+        expId = params.expId || null;
 
         const timeDiff = (ts - startWorld.time) / 1000;
         timeDeltaFormatted = formatDuration(timeDiff);
         ageDeltaFormatted = formatDuration(age - startWorld.age);
 
         if (isSpan) {
-            const fromDT = convertTimestampToDateString(viewState.dragStartWorld.time);
+            const fromDT = convertTimestampToDateString(startWorld.time);
             spanFromDate = fromDT.date;
             spanFromTime = fromDT.time;
-            spanFromLocation = viewState.dragStartWorld.eventTitle || "";
-            spanFromLat = viewState.dragStartWorld.lat;
-            spanFromLng = viewState.dragStartWorld.lng;
-            spanFromZoom = viewState.dragStartWorld.zoom;
+            spanFromLocation = startWorld.eventTitle || "";
+            spanFromLat = startWorld.lat;
+            spanFromLng = startWorld.lng;
+            spanFromZoom = startWorld.zoom;
 
             const toDT = convertTimestampToDateString(ts);
             spanToDate = toDT.date;
             spanToTime = toDT.time;
-            spanToLocation = ""; 
         }
     } else if (mode === 'insert') {
-        age = (params.ageRaw !== undefined) ? params.ageRaw : viewState.hoveredSegment?.worldAge;
-        ts = (params.timeRaw !== undefined) ? params.timeRaw : viewState.hoveredSegment?.worldTime;
-        
-        const precedingId = params.precedingEventId || viewState.hoveredSegment?.precedingEventId;
-        
-        // FIXED: Use ADI-compliant 'levelNodes' and check existence before 'find'
-        const nodes = graphData?.levelNodes || [];
-        const precedingNode = nodes.find(n => n.id === precedingId);
-        
-        eraId = precedingNode?.eraId;
-        expId = precedingNode?.expId;
+        age = params.ageRaw || 0;
+        ts = params.timeRaw || Date.now();
+        title = "New Event";
+        isSpan = Boolean(params.isSpan);
 
-        if (!eraId && age !== undefined) {
-            const hit = ContextFinder.getHitContext(age, graphData);
-            eraId = hit?.eraId;
+        const dt = convertTimestampToDateString(ts);
+        if (isSpan) {
+            spanFromDate = dt.date;
+            spanFromTime = dt.time;
+            spanToDate = dt.date;
+            spanToTime = dt.time;
         }
-
-        title = "Inserted Event";
     }
 
-    // 2. HISTORICAL AUTHORITY PASS (No real-world leaks)
-    if (ts === null || ts === undefined || isNaN(ts)) {
-        const dobStr = actor.system.personal?.dob || "";
-        const dobDate = parseDate(dobStr);
-        ts = dobDate ? dobDate.getTime() : 0; 
-    }
+    // Resolved readable strings for display
+    const dt = convertTimestampToDateString(ts || Date.now());
+    const dateStr = dt.date;
+    const timeStr = dt.time;
 
-    const dt = convertTimestampToDateString(ts);
+    // Context Options for dropdown
+    const contextOptions = buildContextOptions(actor, eraId, expId);
 
-    // 3. ASSEMBLY
     return {
         mode,
-        isLogMode: mode === 'log',
+        id: existingData?.id || null,
         title,
         notes,
-        // FACTS: Prefer record strings for visual parity
-        date: (mode === 'edit' && !isSpan && existingData?.record) ? existingData.record.date : dt.date,
-        time: (mode === 'edit' && !isSpan && existingData?.record) ? existingData.record.time : dt.time,
+        age,
+        ageFormatted: formatSubjectiveAge(age),
+        date: dateStr,
+        time: timeStr,
+        isRest,
+        isSpan,
         location,
         lat,
         lng,
         zoom,
-        spanFromDate: spanFromDate || dt.date,
-        spanFromTime: spanFromTime || dt.time,
+        // Span specific
+        spanFromDate,
+        spanFromTime,
         spanFromLocation,
         spanFromLat,
         spanFromLng,
         spanFromZoom,
-        spanToDate: spanToDate || dt.date,
-        spanToTime: spanToTime || dt.time,
-        spanToLocation,
-        spanToLat,
-        spanToLng,
-        spanToZoom,
-        ageFormatted: formatSubjectiveAge(age),
-        ageDeltaFormatted,
+        spanToDate,
+        spanToTime,
         timeDeltaFormatted,
-        isRest,
-        isSpan,
-        defaultNewExpName: isSpan ? "Parallel Project" : "New Experience",
-        contextOptions: buildContextOptions(actor, eraId, expId),
-        eraId,
-        expId,
-        ageRaw: age,
-        timeRaw: ts,
-        canSeeSpan: (actor.system.spanning?.span || 0) >= 1
+        ageDeltaFormatted,
+        // UI Helpers
+        contextOptions,
+        isEdit: mode === 'edit',
+        isLog: mode === 'log',
+        isInsert: mode === 'insert'
     };
 }

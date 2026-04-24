@@ -67,32 +67,47 @@ export class NodeRenderer {
 
     if (node.type === 'span-origin') {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        const r = 5;
+        const r = 6;
         const points = node.spanDirection === 'up'
             ? `${cx},${cy - r} ${cx - r},${cy + r} ${cx + r},${cy + r}`
             : `${cx},${cy + r} ${cx - r},${cy - r} ${cx + r},${cy - r}`;
         shape.setAttribute('points', points);
         shape.classList.add('graph-node-span-origin');
+        shape.style.fill = '#ff00ff'; // Unified Span Pink
+        shape.style.stroke = '#ffffff';
     } 
     else if (node.type === 'span-dest') {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const r = 5;
+        const r = 6;
         let pathData;
+
+        // Rule: Flat part down for up spans, flat part up for down spans.
+        // Visually: Up span arc points "Up" (lower Y), Down span arc points "Down" (higher Y).
         if (node.spanDirection === 'up') {
+            // Flat at bottom, arc points up
             pathData = `M ${cx - r} ${cy} L ${cx + r} ${cy} A ${r} ${r} 0 0 0 ${cx - r} ${cy} Z`;
         } else {
-            pathData = `M ${cx + r} ${cy} L ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy} Z`;
+            // Flat at top, arc points down
+            pathData = `M ${cx - r} ${cy} L ${cx + r} ${cy} A ${r} ${r} 0 0 1 ${cx - r} ${cy} Z`;
         }
         shape.setAttribute('d', pathData);
         shape.classList.add('graph-node-span-dest');
+        shape.style.fill = '#ff00ff';
+        shape.style.stroke = '#fff';
     }
+
     else {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         shape.setAttribute('cx', cx);
         shape.setAttribute('cy', cy);
-        shape.setAttribute('r', node.type === 'now' ? '8' : '5');
+        shape.setAttribute('r', node.type === 'now' ? '7' : '5');
         
-        if (node.type === 'now') shape.classList.add('graph-node-now');
+        if (node.type === 'now') {
+            shape.classList.add('graph-node-now');
+            shape.style.fill = '#ffff00'; // Pure Yellow
+            shape.style.stroke = '#ffffff';
+            shape.style.strokeWidth = '1.5';
+        }
         else if (node.type === 'birth') shape.classList.add('graph-node-birth');
         else shape.classList.add('graph-node-level');
     }

@@ -8,14 +8,14 @@ import { ExperienceRenderer } from './renderers/experience-renderer.js';
 import { TooltipManager } from './ui/tooltips.js';
 import { parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
-import { flattenEvents } from '../span-graph-data-processor.js';
+import { getActorHistory } from '../state/get-actor-history.js';
 import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
 import { generateManifest } from './projection/manifest-generator.js';
+import { PointerMachine } from './interaction/pointer-machine.js';
 
 // ATOMIZED ACTIONS
 import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
 import { renderViewport } from './viewport/actions/handle-rendering.js';
-import { updateGhostNodeHover, handleGhostNodeClick } from './viewport/actions/handle-ghost-node.js';
 
 // ATOMIZED LISTENERS
 import { activateListeners } from './viewport/listeners/activate-listeners.js';
@@ -34,20 +34,16 @@ export class SpanGraphViewport {
     this.latestState = null;
     this.latestManifest = null;
 
+    // THE INTERACTION MACHINE
+    this.pointerMachine = new PointerMachine(this);
+
+    // LEGACY COMPATIBILITY (Will be decimated)
     this._interaction = {
         isDragging: false,
-        hasSignificantMovement: false,
-        type: null,
-        nodeElement: null,
-        startX: 0, startY: 0,
-        startPanX: 0, startPanY: 0,
-        startWorld: null,
-        currentWorld: null,
-        hoverWorldPos: null,
         mode: null,
-        cachedHistory: null,
-        cachedNow: 0,
-        cachedOrigin: 0
+        currentWorld: null,
+        startWorld: null,
+        nodeElement: null
     };
 
     this.viewState = {
@@ -107,20 +103,32 @@ export class SpanGraphViewport {
       if (!this.actor || !this.container) return;
 
       const interaction = this._interaction;
-      const isDraggingNow = interaction.isDragging && interaction.nodeElement?.classList.contains('graph-node-now');
+      const isDraggingNow = interaction.isDragging || interaction.isPending;
       
-      // 1. DATA KERNEL
-      this.latestHistory = flattenEvents(this.actor.system.eras || {}, this.actor);
+      // 1. STATE (Database Pass)
+      this.latestHistory = getActorHistory(this.actor);
+
+      // HANDSHAKE: Inject Live Drag coordinates into the virtual history array
+      // This ensures the blue rail remains connected to the node during dragging and dialog display.
+      if (isDraggingNow && interaction.activeNodeId === 'now') {
+          const nowNode = this.latestHistory.find(n => n.id === 'now');
+          if (nowNode && interaction.currentWorld) {
+              nowNode.x = interaction.currentWorld.age;
+              nowNode.y = interaction.currentWorld.time;
+          }
+      }
+
       const originTime = this._getOriginTime();
       
-      // AUTHORITY: Handle the NOW node drag override before any projection
-      const subjectiveNow = isDraggingNow ? interaction.currentWorld.age : (Number(this.actor.system.personal?.subjectiveNow) || 0);
+      // AUTHORITY: Use the injected virtual history for the entire render pass
+      const subjectiveNow = (isDraggingNow && interaction.activeNodeId === 'now') 
+          ? interaction.currentWorld.age 
+          : (Number(this.actor.system.personal?.subjectiveNow) || 0);
 
-      // 2. TEMPORAL STATE
+      // 2. KERNEL (Physics Pass)
       this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor);
 
-      // 3. PROJECTION MANIFEST
-      // AUTHORITY: Pass the interaction state so the manifest can project "Live" stretches and jumps
+      // 3. PROJECTOR (UI Pass)
       this.latestManifest = generateManifest(this.latestState, this, interaction);
 
       // 4. THE DUMB PIPE PUSH
@@ -152,6 +160,7 @@ export class SpanGraphViewport {
       return g;
   }
 
-  _updateGhostNodeHover(x, y) { updateGhostNodeHover(this, x, y); }
-  _handleGhostNodeClick() { handleGhostNodeClick(this); }
+  // REWIRED TO INTERACTION MACHINE
+  _updateGhostNodeHover(x, y) { /* Deprecated */ }
+  _handleGhostNodeClick() { /* Deprecated */ }
 }

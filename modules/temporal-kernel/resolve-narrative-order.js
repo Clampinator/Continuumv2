@@ -1,88 +1,52 @@
 /**
  * TEMPORAL KERNEL: RESOLVE NARRATIVE ORDER
  * Pure mathematical sequencing of the character's journey.
- * 
- * @param {Array} history - Array of { id, x, y, sort, created, isNow }
- * @param {Object} target - The node being sequenced { id, x, y }
- * @param {Object} options - { isLog: boolean }
- * @returns {Object} { sort, shifts: Array<{id, path, sort}> }
  */
-export function resolveNarrativeOrder(history, target, options = {}) {
+export function resolveNarrativeOrder(history, targetNode, options = {}) {
     const DEFAULT_STEP = 1000;
-    const shifts = [];
     
-    // 1. Prepare Target
-    const targetNode = {
-        ...target,
-        sort: 0,
-        created: Date.now(),
-        isTarget: true
-    };
+    // 1. Separate target from others
+    const others = history.filter(n => n.id !== targetNode.id && !n.isNow)
+                          .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 
-    // 2. Filter out the target from history (if it exists)
-    const others = history.filter(h => h.id !== target.id);
+    let newSort = 0;
+    const shifts = [];
 
-    // 3. PHYSICAL SORT AUTHORITY (Age then Time)
-    others.sort((a, b) => {
-        if (a.x !== b.x) return a.x - b.x;
-        
-        // NOW node is always the absolute end for a given age
-        if (a.isNow) return 1;
-        if (b.isNow) return -1;
+    // RULE: SEQUENTIAL AUTHORITY
+    // If this is a "Log" operation (dragging the NOW node), it is mathematically
+    // guaranteed to be the absolute last chapter of the character's life so far.
+    if (options.isLog) {
+        const lastEvent = others[others.length - 1];
+        newSort = (lastEvent ? Number(lastEvent.sort || 0) : 0) + DEFAULT_STEP;
+        return { sort: newSort, shifts: [] };
+    }
 
-        if (a.y !== b.y) return a.y - b.y;
-        
-        return (a.sort - b.sort) || (a.created - b.created);
-    });
-
-    // 4. Find Insertion Slot
+    // 2. STANDARD INSERTION (For inserting into the middle of the history)
     let insertAt = others.findIndex(e => {
-        // If inserting into history, MUST stay before 'Now'
-        if (e.isNow && !options.isLog) return true;
-
         if (e.x > targetNode.x) return true;
         if (e.x === targetNode.x && e.y > targetNode.y) return true;
         return false;
     });
-    if (insertAt === -1) insertAt = others.length;
 
-    others.splice(insertAt, 0, targetNode);
+    if (insertAt === -1) {
+        const lastSort = others.length > 0 ? others[others.length - 1].sort : 0;
+        newSort = lastSort + DEFAULT_STEP;
+    } else {
+        const prevSort = insertAt > 0 ? others[insertAt - 1].sort : 0;
+        const nextSort = others[insertAt].sort;
+        
+        // Use mid-point
+        newSort = Math.floor((prevSort + nextSort) / 2);
 
-    // 5. Calculate Neighbors for Sorting
-    const nextNode = others[insertAt + 1] || null;
-    
-    let prevSort = null;
-    for (let i = 0; i < insertAt; i++) {
-        const s = Number.isFinite(others[i].sort) ? others[i].sort : 0;
-        if (prevSort === null || s > prevSort) prevSort = s;
-    }
-    const nextSort = nextNode ? (Number.isFinite(nextNode.sort) ? nextNode.sort : 0) : null;
-
-    let newSort = null;
-
-    // 6. Assignment Logic
-    if (prevSort !== null && nextSort !== null) {
-        if (nextSort - prevSort >= 2) {
-            newSort = Math.floor((prevSort + nextSort) / 2);
-        } else {
-            // Local reindex (Cascade)
-            let base = prevSort;
+        // RE-INDEXING: If the gap is too small, shift everything after
+        if (nextSort - prevSort < 2) {
+            newSort = prevSort + DEFAULT_STEP;
+            let current = newSort + DEFAULT_STEP;
             for (let i = insertAt; i < others.length; i++) {
-                base += DEFAULT_STEP;
-                const node = others[i];
-                if (node.isTarget) {
-                    newSort = base;
-                } else if (node.id !== 'now') {
-                    shifts.push({ id: node.id, sort: base, path: node.path });
-                }
+                shifts.push({ id: others[i].id, path: others[i].path, sort: current });
+                current += DEFAULT_STEP;
             }
         }
-    } else if (prevSort !== null && nextSort === null) {
-        newSort = prevSort + DEFAULT_STEP;
-    } else if (prevSort === null && nextSort !== null) {
-        newSort = Math.max(1, nextSort - DEFAULT_STEP);
-    } else {
-        newSort = DEFAULT_STEP;
     }
 
     return { sort: newSort, shifts };

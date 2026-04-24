@@ -13,10 +13,9 @@ export const SECONDS_IN_YEAR_STRICT = 31557600; // 365.25 days (precision)
 
 /**
  * The target visual ratio for the Lifeline graph.
- * This ratio balances X (Age in seconds) and Y (Time in ms) to achieve a ~30-degree visual sweep.
- * tan(30) ≈ 0.577. 
- * Since 1s Age = 1000ms Time, a 1:1 physical ratio would be extremely steep visually.
- * TARGET_RATIO ≈ -0.00045 (negative because Y-axis in SVG usually grows downward, 
- * but we want time to move "up" or at least follow a specific convention).
+ * This ratio balances X (Age in seconds) and Y (Time in ms) to achieve a 30-degree visual sweep.
+ * tan(30) ≈ 0.57735.
+ * Since 1s Age = 1000ms Time, and Y increases downward in SVG,
+ * we use -0.00057735 to make Time move "Up" at 30 degrees.
  */
-export const TARGET_RATIO = -0.00045;
+export const TARGET_RATIO = -0.00057735;
