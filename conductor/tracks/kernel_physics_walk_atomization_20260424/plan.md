@@ -13,7 +13,8 @@
 - [x] Task: Refactor `solve-history-physics.js` (b3f3337)
     - [x] Update `solve-history-physics.js` to import the two newly created atomic math functions.
     - [x] Delegate the age calculation and the span displacement math to these pure functions.
-    - [x] Ensure the file retains its role as a "Pure Orchestrator," focusing only on iterating through history nodes and accumulating shifts and clock offsets.
+    - [x] Ensure the file retains its role as a "Pure Orchestrator."
+- [x] Task: Stabilize Birth Anchor Authority (Ensure Birth node is included in the sorted walk to establish the initial physical offset)
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Orchestrator Refactoring' (Protocol in workflow.md)
 
 ## Phase 3: Verification Tests [checkpoint: b3f3337]

@@ -12,7 +12,8 @@ export function solveHistoryPhysics(history, dobTime) {
     
     // 1. Prepare history for the walk.
     // AUTHORITY: We EXCLUDE 'now' as it is a result, not a source of physics.
-    const sorted = [...history].filter(n => !n.isNow && !n.isVirtual && !n.isBirth)
+    // AUTHORITY: We INCLUDE 'isBirth' because it is the physical origin anchor.
+    const sorted = [...history].filter(n => !n.isNow && !n.isVirtual)
                                .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 
     if (sorted.length === 0) return shifts;
@@ -22,6 +23,12 @@ export function solveHistoryPhysics(history, dobTime) {
 
     // 3. The Compensation Wave
     for (const node of sorted) {
+        if (node.isBirth) {
+            // Handshake: Birth establishes the FIRST offset
+            objectiveOffset = Number(node.y);
+            continue;
+        }
+
         const ev = node.record || node;
         const fromTs = Number(node.y);
         const savedAge = Number(node.x);
@@ -38,7 +45,7 @@ export function solveHistoryPhysics(history, dobTime) {
         if (ev.isSpan) {
             const arrivalTs = Number(node.arrivalY || node.y); 
             
-            // DELEGATE: Span Physics (Displacement check, though offset calculation is the core)
+            // DELEGATE: Span Physics
             const displacement = calculateSpanDisplacement(fromTs, arrivalTs);
             
             // Shift the world clock for the next segment
