@@ -15,3 +15,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [~] **Track: Codebase Stabilization & Architectural Integrity**
   *Link: [./tracks/codebase_stabilization_20260422/](./tracks/codebase_stabilization_20260422/)*
+
+---
+
+- [ ] **Track: Kernel Physics Walk Atomization**
+  *Link: [./tracks/kernel_physics_walk_atomization_20260424/](./tracks/kernel_physics_walk_atomization_20260424/)*
