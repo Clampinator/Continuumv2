@@ -8,7 +8,7 @@
 - [x] Task: Update Rendering Action (40b3306)
     - [ ] Modify `handle-rendering.js` to inspect `manifest.interaction?.ghost`.
     - [ ] Trigger `viewport.nodeRenderer.renderGhostNode` with the provided coordinates, or pass `null` to clear it if the object is omitted.
-- [ ] Task: Clean Interaction Machine
+- [x] Task: Clean Interaction Machine (01abbec)
     - [ ] Remove all direct calls to `this.viewport.nodeRenderer.renderGhostNode()` from `PointerMachine.js`.
 - [ ] Task: Add Projection Tests
     - [ ] Write unit tests to verify `manifest-generator.js` correctly populates or omits `manifest.interaction.ghost` based on the interaction state provided.
