@@ -43,4 +43,9 @@ describe('Manifest Generator: Interaction Layer', () => {
             expect(manifest.interaction.ghost).toBeUndefined();
         }
     });
+
+    it('should omit manifest.interaction if interaction param is null', () => {
+        const manifest = generateManifest(mockState, mockViewport, null);
+        expect(manifest.interaction).toEqual({});
+    });
 });
