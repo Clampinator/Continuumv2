@@ -4,7 +4,7 @@
 - [x] Task: Create `project-subjective-age.js` (ce9cc2e)
     - [ ] Create the file in the `modules/temporal-kernel/` directory.
     - [ ] Implement the `projectSubjectiveAge(timestamp, offset)` pure function based on the "Diagonal Authority" (1s Age = 1000ms Time).
-- [ ] Task: Create `calculate-span-displacement.js`
+- [x] Task: Create `calculate-span-displacement.js` (faa7a29)
     - [ ] Create the file in the `modules/temporal-kernel/` directory.
     - [ ] Implement the `calculateSpanDisplacement(departureTs, arrivalTs)` pure function to determine the objective time gap.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Mathematical Extraction' (Protocol in workflow.md)
