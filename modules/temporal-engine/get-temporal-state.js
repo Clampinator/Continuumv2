@@ -10,14 +10,30 @@ import { generateExperiences } from '../lifeline/services/segment-generator/gene
 export function getTemporalState(history, subjectiveNow = 0, originTime = 0, actor = null) {
   const segments = calculateSegments(history, originTime);
   
+  // 1. ERA EXTRACTION (ADI Enforcement)
+  const eras = [];
+  if (actor) {
+      const erasRaw = Object.values(actor.system.eras || {}).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
+      let currentAge = 0;
+      erasRaw.forEach(era => {
+          eras.push({
+              name: era.name,
+              startAge: currentAge,
+              duration: Number(era.duration || 0),
+              color: era.color
+          });
+          currentAge += Number(era.duration || 0);
+      });
+  }
+
   if (segments.length === 0) {
     const birthNode = { id: 'birth', x: 0, y: originTime, record: { title: "Birth" }, isBirth: true };
-    return _finalizeState([{ startX: 0, startY: originTime, nodes: [], arrivalNode: birthNode }], [birthNode], subjectiveNow, 0, actor);
+    return _finalizeState([{ startX: 0, startY: originTime, nodes: [], arrivalNode: birthNode }], [birthNode], subjectiveNow, 0, eras, actor);
   }
 
   let totalDisplacement = 0;
 
-  // 1. PHYSICAL PROJECTION
+  // 2. PHYSICAL PROJECTION
   const nodesWithProjection = history.map(node => {
     let activeSegment = segments.find(s => s.exitPoint?.id === node.id);
     if (!activeSegment) {
@@ -39,7 +55,7 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
     };
   });
 
-  // 2. SEGMENT ANCHORING
+  // 3. SEGMENT ANCHORING
   const projectedSegments = [];
   for (let i = 0; i < segments.length; i++) {
       const seg = segments[i];
@@ -66,7 +82,7 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
       });
   }
 
-  // 3. COLLATING NODES (The Singular Identity Rule)
+  // 4. COLLATING NODES (The Singular Identity Rule)
   const allRenderNodes = [...nodesWithProjection];
   projectedSegments.forEach(seg => {
       // Check for exact physical overlap with 100ms tolerance
@@ -88,10 +104,10 @@ export function getTemporalState(history, subjectiveNow = 0, originTime = 0, act
       }
   });
 
-  return _finalizeState(projectedSegments, allRenderNodes, subjectiveNow, totalDisplacement, actor);
+  return _finalizeState(projectedSegments, allRenderNodes, subjectiveNow, totalDisplacement, eras, actor);
 }
 
-function _finalizeState(segments, nodes, subjectiveNow, totalDisplacement = 0, actor = null) {
+function _finalizeState(segments, nodes, subjectiveNow, totalDisplacement = 0, eras = [], actor = null) {
   const nowNode = nodes.find(n => n.id === 'now');
   let experiences = [];
   if (actor) {
@@ -99,5 +115,5 @@ function _finalizeState(segments, nodes, subjectiveNow, totalDisplacement = 0, a
           .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
       experiences = generateExperiences(erasWithIds, nodes, nowNode);
   }
-  return { segments, nodes, nowNode, experiences, spanPool: { consumed: totalDisplacement, total: 0 } };
+  return { segments, nodes, nowNode, experiences, eras, spanPool: { consumed: totalDisplacement, total: 0 } };
 }
