@@ -1,7 +1,7 @@
 # Implementation Plan: Era Data Decoupling
 
 ## Phase 1: Engine Data Extraction
-- [ ] Task: Update Temporal Engine to Gather Eras
+- [x] Task: Update Temporal Engine to Gather Eras (14bea2b)
     - [ ] Modify `get-temporal-state.js` to iterate over `actor.system.eras`.
     - [ ] Calculate the `startAge` of each era sequentially based on the database's provided order.
     - [ ] Append a pre-calculated `eras` array to the final returned state object: `[{ name, startAge, duration, color }]`.
