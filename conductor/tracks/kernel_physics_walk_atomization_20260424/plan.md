@@ -1,7 +1,7 @@
 # Implementation Plan: Kernel Physics Walk Atomization
 
 ## Phase 1: Mathematical Extraction
-- [ ] Task: Create `project-subjective-age.js`
+- [x] Task: Create `project-subjective-age.js` (ce9cc2e)
     - [ ] Create the file in the `modules/temporal-kernel/` directory.
     - [ ] Implement the `projectSubjectiveAge(timestamp, offset)` pure function based on the "Diagonal Authority" (1s Age = 1000ms Time).
 - [ ] Task: Create `calculate-span-displacement.js`
