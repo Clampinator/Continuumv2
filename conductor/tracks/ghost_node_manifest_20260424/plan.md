@@ -5,7 +5,7 @@
     - [ ] Modify `manifest-generator.js` to check the `interaction` object for a `ghostSnap` property.
     - [ ] Create a `manifest.interaction` object to hold interaction state, omitting the `ghost` key entirely if no snap exists.
     - [ ] If a `ghostSnap` exists, project its coordinates into `manifest.interaction.ghost`.
-- [ ] Task: Update Rendering Action
+- [x] Task: Update Rendering Action (40b3306)
     - [ ] Modify `handle-rendering.js` to inspect `manifest.interaction?.ghost`.
     - [ ] Trigger `viewport.nodeRenderer.renderGhostNode` with the provided coordinates, or pass `null` to clear it if the object is omitted.
 - [ ] Task: Clean Interaction Machine
