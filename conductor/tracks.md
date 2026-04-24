@@ -18,5 +18,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Kernel Date-to-Timestamp Law**
+- [x] **Track: Kernel Date-to-Timestamp Law**
   *Link: [./tracks/kernel_date_to_timestamp_20260424/](./tracks/kernel_date_to_timestamp_20260424/)*
