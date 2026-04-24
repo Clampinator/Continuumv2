@@ -1,13 +1,13 @@
 # Implementation Plan: Era Data Decoupling
 
-## Phase 1: Engine Data Extraction
+## Phase 1: Engine Data Extraction [checkpoint: ab072d4]
 - [x] Task: Update Temporal Engine to Gather Eras (14bea2b)
-    - [ ] Modify `get-temporal-state.js` to iterate over `actor.system.eras`.
-    - [ ] Calculate the `startAge` of each era sequentially based on the database's provided order.
-    - [ ] Append a pre-calculated `eras` array to the final returned state object: `[{ name, startAge, duration, color }]`.
+    - [x] Modify `get-temporal-state.js` to iterate over `actor.system.eras`.
+    - [x] Calculate the `startAge` of each era sequentially based on the database's provided order.
+    - [x] Append a pre-calculated `eras` array to the final returned state object: `[{ name, startAge, duration, color }]`.
 - [x] Task: Add Era Extraction Tests (14bea2b)
-    - [ ] Write unit tests for `get-temporal-state.js` to verify it correctly maps and calculates the start ages of multiple eras from the actor object into the `state.eras` array.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Engine Data Extraction' (Protocol in workflow.md)
+    - [x] Write unit tests for `get-temporal-state.js` to verify it correctly maps and calculates the start ages of multiple eras from the actor object into the `state.eras` array.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Engine Data Extraction' (Protocol in workflow.md)
 
 ## Phase 2: Projector Manifest Refactoring
 - [ ] Task: Update Manifest Generator
