@@ -10,7 +10,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Engine Data Extraction' (Protocol in workflow.md)
 
 ## Phase 2: Projector Manifest Refactoring
-- [ ] Task: Update Manifest Generator
+- [x] Task: Update Manifest Generator (1ce77c6)
     - [ ] Modify `manifest-generator.js` to completely remove any reference to `viewport.actor.system.eras`.
     - [ ] Refactor the "PROJECT ERAS" section to iterate exclusively over the new `state.eras` array.
     - [ ] Implement Defensive Rendering: Ensure graceful skipping if `state.eras` is missing, and apply safe fallbacks for missing duration/color properties.
