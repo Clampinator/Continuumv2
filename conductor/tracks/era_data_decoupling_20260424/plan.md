@@ -14,6 +14,6 @@
     - [ ] Modify `manifest-generator.js` to completely remove any reference to `viewport.actor.system.eras`.
     - [ ] Refactor the "PROJECT ERAS" section to iterate exclusively over the new `state.eras` array.
     - [ ] Implement Defensive Rendering: Ensure graceful skipping if `state.eras` is missing, and apply safe fallbacks for missing duration/color properties.
-- [ ] Task: Add Manifest Era Tests
+- [x] Task: Add Manifest Era Tests (1ce77c6)
     - [ ] Write unit tests for `manifest-generator.js` to verify that `manifest.eras` is correctly populated based strictly on the provided `state.eras` object, including defensive fallbacks.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Projector Manifest Refactoring' (Protocol in workflow.md)
