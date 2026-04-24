@@ -15,8 +15,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [~] **Track: Codebase Stabilization & Architectural Integrity**
   *Link: [./tracks/codebase_stabilization_20260422/](./tracks/codebase_stabilization_20260422/)*
-
----
-
-- [x] **Track: Kernel Date-to-Timestamp Law**
-  *Link: [./tracks/kernel_date_to_timestamp_20260424/](./tracks/kernel_date_to_timestamp_20260424/)*
