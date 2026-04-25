@@ -12,9 +12,9 @@
   - [x] Create `modules/temporal-engine/anchor-segments.js`.
   - [x] Port virtual anchor creation.
 
-- [ ] **Task: Extract Finalization Logic**
-  - [ ] Create `modules/temporal-engine/finalize-state.js`.
-  - [ ] Port experience collation and state assembly.
+- [x] **Task: Extract Finalization Logic** [830ecbd]
+  - [x] Create `modules/temporal-engine/finalize-state.js`.
+  - [x] Port experience collation and state assembly.
 
 - [ ] **Task: Orchestrator Refactor**
   - [ ] Refactor `modules/temporal-engine/get-temporal-state.js` to use the new units.
