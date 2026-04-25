@@ -4,9 +4,9 @@
   - [x] Create `modules/temporal-engine/extract-eras.js`.
   - [x] Port era formatting and sorting from `get-temporal-state.js`.
 
-- [ ] **Task: Extract Projection Logic**
-  - [ ] Create `modules/temporal-engine/project-nodes.js`.
-  - [ ] Port physical projection and displacement calculation.
+- [x] **Task: Extract Projection Logic** [eae530e]
+  - [x] Create `modules/temporal-engine/project-nodes.js`.
+  - [x] Port physical projection and displacement calculation.
 
 - [ ] **Task: Extract Anchoring Logic**
   - [ ] Create `modules/temporal-engine/anchor-segments.js`.
