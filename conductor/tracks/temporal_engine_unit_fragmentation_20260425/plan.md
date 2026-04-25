@@ -1,4 +1,4 @@
-# Plan: Temporal Engine Unit Fragmentation
+# Plan: Temporal Engine Unit Fragmentation [checkpoint: 9cdd1ed]
 
 - [x] **Task: Extract Era Logic** [856922d]
   - [x] Create `modules/temporal-engine/extract-eras.js`.
