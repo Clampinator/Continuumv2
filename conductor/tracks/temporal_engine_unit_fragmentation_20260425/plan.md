@@ -8,9 +8,9 @@
   - [x] Create `modules/temporal-engine/project-nodes.js`.
   - [x] Port physical projection and displacement calculation.
 
-- [ ] **Task: Extract Anchoring Logic**
-  - [ ] Create `modules/temporal-engine/anchor-segments.js`.
-  - [ ] Port virtual anchor creation.
+- [x] **Task: Extract Anchoring Logic** [901eab7]
+  - [x] Create `modules/temporal-engine/anchor-segments.js`.
+  - [x] Port virtual anchor creation.
 
 - [ ] **Task: Extract Finalization Logic**
   - [ ] Create `modules/temporal-engine/finalize-state.js`.
