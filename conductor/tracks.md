@@ -4,6 +4,12 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [x] **Track: Kernel Fuzzy Collision Law**
+  *Link: [./archive/kernel_fuzzy_collision_law_20260425/](./archive/kernel_fuzzy_collision_law_20260425/)*
+
+- [x] **Track: Temporal Engine Unit Fragmentation**
+  *Link: [./tracks/temporal_engine_unit_fragmentation_20260425/](./tracks/temporal_engine_unit_fragmentation_20260425/)*
+
 - [~] **Track: Historical Event Insertion**
   *Link: [./tracks/event_insertion_20260423/](./tracks/event_insertion_20260423/)*
 
