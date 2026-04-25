@@ -16,6 +16,6 @@
   - [x] Create `modules/temporal-engine/finalize-state.js`.
   - [x] Port experience collation and state assembly.
 
-- [ ] **Task: Orchestrator Refactor**
-  - [ ] Refactor `modules/temporal-engine/get-temporal-state.js` to use the new units.
-  - [ ] Verify that all existing tests pass.
+- [x] **Task: Orchestrator Refactor** [6cb673a]
+  - [x] Refactor `modules/temporal-engine/get-temporal-state.js` to use the new units.
+  - [x] Verify that all existing tests pass.
