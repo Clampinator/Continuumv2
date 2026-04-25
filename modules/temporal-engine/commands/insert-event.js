@@ -10,7 +10,9 @@ export function insertEvent(history, newEvent) {
 
   // 1. Canonical Stable Sort
   updatedHistory.sort((a, b) => {
-    if (a.age !== b.age) return a.age - b.age;
+    const ax = Number(a.x || 0);
+    const bx = Number(b.x || 0);
+    if (ax !== bx) return ax - bx;
     if (a.sort !== undefined && b.sort !== undefined) return a.sort - b.sort;
     return (a.id || '').localeCompare(b.id || '');
   });

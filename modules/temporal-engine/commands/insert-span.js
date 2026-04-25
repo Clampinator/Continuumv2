@@ -11,18 +11,21 @@ import { insertEvent } from './insert-event.js';
  * @returns {Array} The updated and shifted history.
  */
 export function insertSpan(history, newSpan) {
-  if (!newSpan.isSpan) {
+  if (!newSpan.record?.isSpan && !newSpan.isSpan) {
     throw new Error('insertSpan requires an event with isSpan: true');
   }
 
   // 1. Determine displacement
   // We need to calculate what the Objective Time WOULD have been at this age.
-  const segments = calculateSegments(history);
-  const activeSegment = segments.reverse().find(s => s.startAge <= newSpan.age) 
+  const birthNode = history.find(n => n.isBirth);
+  const originTime = birthNode ? Number(birthNode.y) : 0;
+  const segments = calculateSegments(history, originTime);
+  const activeSegment = [...segments].reverse().find(s => s.startX <= newSpan.x) 
                      || segments[0]; // Fallback to birth segment
 
-  const projectedTime = resolveCoordinates(newSpan.age, activeSegment);
-  const displacement = newSpan.arrivalTime - projectedTime;
+  const projectedTime = resolveCoordinates(newSpan.x, activeSegment);
+  const arrivalTime = Number(newSpan.arrivalY || newSpan.y);
+  const displacement = arrivalTime - projectedTime;
 
   // 2. Insert the span (stable sort)
   let updatedHistory = insertEvent(history, newSpan);
@@ -31,13 +34,13 @@ export function insertSpan(history, newSpan) {
   return updatedHistory.map(event => {
     // Only shift events that occur AFTER the span's departure in Subjective Age
     // If multiple events at same age, shift those that are sorted after the span
-    const isAfter = event.age > newSpan.age || 
-                   (event.age === newSpan.age && event.sort > newSpan.sort);
+    const isAfter = event.x > newSpan.x || 
+                   (event.x === newSpan.x && event.sort > newSpan.sort);
     
     if (isAfter) {
       return {
         ...event,
-        time: (event.time || 0) + displacement
+        y: (event.y || 0) + displacement
       };
     }
     return event;
