@@ -1,90 +1,66 @@
 /**
  * STATE: GET ACTOR HISTORY
  * Maps the nested actor era/experience/event structure into a flat, 
- * authoritative array of physical nodes for the Span Graph.
+ * authoritative array of raw facts for the Temporal Engine.
  * 
- * ENFORCES: Subjective Age Authority for sorting.
+ * ENFORCES: Pure Fact Reporting (No physical coordinates).
  * 
  * @param {Actor} actor - The Foundry Actor instance.
- * @returns {Array} A flat array of { id, x, y, arrivalY, sort, record, path }
+ * @returns {Array} A flat array of { id, sort, record, path }
  */
 export function getActorHistory(actor) {
     const history = [];
     const eras = actor.system.eras || {};
-    const dobStr = actor.system.personal?.dob || "1970-01-01";
-    const dobTime = new Date(`${dobStr}T12:00:00`).getTime();
 
     for (const [eraId, era] of Object.entries(eras)) {
         // Era-level events
         for (const [eventId, event] of Object.entries(era.events || {})) {
-            history.push(mapToNode(eventId, event, `system.eras.${eraId}.events.${eventId}`, dobTime));
+            history.push(mapToFact(eventId, event, `system.eras.${eraId}.events.${eventId}`));
         }
 
         // Experience-level events
         for (const [expId, exp] of Object.entries(era.experiences || {})) {
             for (const [eventId, event] of Object.entries(exp.events || {})) {
-                history.push(mapToNode(eventId, event, `system.eras.${eraId}.experiences.${expId}.events.${eventId}`, dobTime));
+                history.push(mapToFact(eventId, event, `system.eras.${eraId}.experiences.${expId}.events.${eventId}`));
             }
         }
     }
 
-    // Include the "Now" node
-    const subNow = Number(actor.system.personal?.subjectiveNow) || 0;
-    const objNow = Number(actor.system.personal?.objectiveNow) || dobTime;
-    
+    // Include the "Now" fact
     history.push({
         id: 'now',
-        x: subNow,
-        y: objNow,
-        arrivalY: 0,
         sort: 999999999, // Now is always narratives end
         isNow: true,
         record: {
             title: "NOW",
             isSpan: false,
-            isRest: false
+            isRest: false,
+            age: Number(actor.system.personal?.subjectiveNow) || 0,
+            objectiveNow: actor.system.personal?.objectiveNow
         },
         path: 'system.personal'
     });
 
-    // AUTHORITY: Subjective Age is the primary sort.
-    // Use Narrative 'sort' as the tie-breaker for Spans (where Age is identical).
-    // Objective Time (y) is NO LONGER used for sorting to prevent Down-Span flips.
+    // AUTHORITY: Narrative 'sort' is the primary order for Facts.
+    // If sort is identical, use ID.
+    // Physics coordinates (x, y) are NO LONGER calculated here.
     return history.sort((a, b) => {
-        if (a.x !== b.x) return a.x - b.x;
+        const ageA = Number(a.record.age) || 0;
+        const ageB = Number(b.record.age) || 0;
+        if (ageA !== ageB) return ageA - ageB;
         return (a.sort || 0) - (b.sort || 0);
     });
 }
 
 /**
- * Maps a raw event record to a Physics Node.
+ * Maps a raw event record to a Fact Node.
  * @private
  */
-function mapToNode(id, event, path, dobTime) {
-    const isSpan = Boolean(event.isSpan);
-    const dateStr = isSpan ? (event.spanFromDate || event.date) : event.date;
-    const timeStr = isSpan ? (event.spanFromTime || event.time) : event.time;
-    
-    const timestamp = dateStr ? new Date(`${dateStr}T${timeStr || '12:00:00'}`).getTime() : dobTime;
-
-    let arrivalY = 0;
-    if (isSpan) {
-        if (event.arrivalTs !== undefined && event.arrivalTs !== null) {
-            arrivalY = Number(event.arrivalTs);
-        } else {
-            const arrDate = event.spanToDate || event.date;
-            const arrTime = event.spanToTime || event.time || '12:00:00';
-            arrivalY = arrDate ? new Date(`${arrDate}T${arrTime}`).getTime() : timestamp;
-        }
-    }
-
+function mapToFact(id, event, path) {
     return {
         id,
-        x: Number(event.age) || 0, // Physics X: Subjective Age
-        y: timestamp,
-        arrivalY: arrivalY,
         sort: Number(event.sort) || 0,
         path,
-        record: { ...event, isSpan } // Fact Layer
+        record: { ...event, isSpan: Boolean(event.isSpan) } // Fact Layer
     };
 }
