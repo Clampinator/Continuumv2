@@ -5,7 +5,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 ---
 
 ## [ ] Combined Track 1: The Umbilical Cord & Precision Handshake
-*Link: [./tracks/umbilical_cord_20260426/](./tracks/umbilical_cord_20260426/)*
+*Link: [./tracks/data_layer_purification_20260426/](./tracks/data_layer_purification_20260426/)*
 
 ## [ ] Combined Track 2: Manifest Engine & Interaction Machine
 *Link: [./tracks/manifest_engine_20260426/](./tracks/manifest_engine_20260426/)*
