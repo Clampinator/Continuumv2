@@ -2,7 +2,7 @@
 
 ## Phase 1: Purify the Data Layer
 - [x] Task: Refactor `modules/state/get-actor-history.js` to strip all coordinate math (`Date.getTime()`, `x`, `y`, `arrivalY`) and return only raw facts. [33efa4d]
-- [ ] Task: Update the automated tests for `get-actor-history.js` to ensure it only returns raw strings and ignores legacy physics properties.
+- [x] Task: Update the automated tests for `get-actor-history.js` to ensure it only returns raw strings and ignores legacy physics properties. [33efa4d]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Purify the Data Layer' (Protocol in workflow.md)
 
 ## Phase 2: The Precision Handshake (UI to Kernel to DB)
