@@ -21,10 +21,11 @@ export function getTemplateData(actor, params) {
 
     // 3. Prepare Raw Facts for Translation
     // We normalize different input types into a single "Bag of Facts"
+    // AUTHORITY: Favor physical coordinates (x, y) if they exist, as they are the Engine's source of truth.
     const rawFacts = {
         eventAge: (existingData?.x !== undefined) ? existingData.x : (params.ageRaw || 0),
-        ts: record.ts || params.timeRaw || params.time || 0,
-        arrivalTs: record.arrivalTs || (eventIsSpan ? (params.arrival?.eventTime || params.timeRaw) : record.ts),
+        ts: (existingData?.y !== undefined) ? existingData.y : (record.ts || params.timeRaw || params.time || 0),
+        arrivalTs: (existingData?.arrivalY !== undefined) ? existingData.arrivalY : (record.arrivalTs || (eventIsSpan ? (params.arrival?.eventTime || params.timeRaw) : (record.ts || params.timeRaw))),
         eventIsSpan,
         eventTitle: record.eventTitle || (eventIsSpan ? "Span" : "Event")
     };

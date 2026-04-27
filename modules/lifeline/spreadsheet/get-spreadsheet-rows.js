@@ -1,6 +1,8 @@
-import { formatSubjectiveAge } from '../../span-graph-utils/provide-span-graph-utils.js';
 import { flattenEvents } from '../../span-graph-data-processor.js';
 import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
+import { Translator } from '../../temporal-translator/temporal-translator.js';
+import { parseObjectiveTime } from '../../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
 
 /**
  * Reads actor.system.eras, flattens all events using the new Temporal Engine,
@@ -12,12 +14,18 @@ import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
 export function getSpreadsheetRows(actor) {
     const rawEras = actor.system.eras || {};
     const subjectiveNow = Number(actor.system.personal?.subjectiveNow) || 0;
+    
+    // AUTHORITY: Resolve Birth Date timestamp as Origin Time
+    const dob = actor.system.personal?.dob || "1970-01-01";
+    // For Birth, we establish the context from Age 0
+    const birthCtx = resolveLocationContext([], 0, actor);
+    const originTime = parseObjectiveTime(dob, "12:00:00", birthCtx);
 
     // 1. Get Flattened canonical history
     const history = flattenEvents(rawEras, actor);
 
     // 2. Process through the new Temporal Engine (Brain)
-    const state = getTemporalState(history, subjectiveNow);
+    const state = getTemporalState(history, subjectiveNow, originTime, actor);
 
     // 3. Prep Metadata lookups
     const eraLookup = {};
@@ -41,22 +49,27 @@ export function getSpreadsheetRows(actor) {
     });
 
     // 4. Map to Spreadsheet Rows with explicit names
-    const rows = state.events.map(event => {
-        // Robust Lookup: check ID lookup first, fallback to the raw property on the event
-        const expName = expLookup[event.expId] || event.experienceName || '';
+    const rows = (state.nodes || []).map((node, index) => {
+        const record = node.record || node;
+        const expName = expLookup[node.expId] || node.experienceName || '';
+
+        // AUTHORITY: Use Translator for consistent display logic
+        const human = Translator.toHuman({
+            eventAge: node.x,
+            ts: node.y,
+            arrivalTs: node.arrivalY,
+            eventIsSpan: !!record.eventIsSpan
+        }, history, actor);
         
         return {
-            ...event,
-            eventId: event.id,
-            eraName: eraLookup[event.eraId] || 'Unknown Era',
+            ...record,
+            ...human,
+            eventId: node.id,
+            eraName: eraLookup[node.eraId] || 'Unknown Era',
             expName: expName, 
-            typeLabel: event.isSpan ? 'Span' : 'Event',
-            ageFormatted: event.age > 0 ? formatSubjectiveAge(event.age) : 'Birth',
-            date: event.isSpan ? (event.spanFromDate || '') : (event.date || ''),
-            time: event.isSpan ? (event.spanFromTime || '') : (event.time || ''),
-            notes: event.notes || event.description || '',
-            location: event.isSpan ? (event.spanFromLocation || '') : (event.location || ''),
-            projectedTime: event.projectedTime
+            typeLabel: record.eventIsSpan ? 'Span' : 'Event',
+            eventNotes: record.eventNotes || record.description || '',
+            projectedTime: node.y
         };
     });
 

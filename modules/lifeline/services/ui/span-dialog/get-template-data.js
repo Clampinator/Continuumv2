@@ -16,10 +16,11 @@ export function getTemplateData(actor, params) {
 
     // 2. Prepare Raw Facts for Translation
     // We normalize different input types into a single "Bag of Facts"
+    // AUTHORITY: Favor physical coordinates (x, y) if they exist, as they are the Engine's source of truth.
     const rawFacts = {
-        eventAge: (existingData?.eventAge !== undefined) ? existingData.eventAge : (params.ageRaw !== undefined ? params.ageRaw : (graphData?.nowNode?.eventAge || 0)),
-        ts: record.ts || params.timeRaw || (graphData?.nowNode?.eventTime || 0),
-        arrivalTs: record.arrivalTs || (eventIsSpan ? (params.arrival?.eventTime || params.timeRaw) : (record.ts || params.timeRaw)),
+        eventAge: (existingData?.x !== undefined) ? existingData.x : (existingData?.eventAge !== undefined ? existingData.eventAge : (params.ageRaw !== undefined ? params.ageRaw : (graphData?.nowNode?.eventAge || 0))),
+        ts: (existingData?.y !== undefined) ? existingData.y : (record.ts || params.timeRaw || (graphData?.nowNode?.eventTime || 0)),
+        arrivalTs: (existingData?.arrivalY !== undefined) ? existingData.arrivalY : (record.arrivalTs || (eventIsSpan ? (params.arrival?.eventTime || params.timeRaw) : (record.ts || params.timeRaw))),
         eventIsSpan,
         eventTitle: record.eventTitle || (eventIsSpan ? "Span" : "Event")
     };
