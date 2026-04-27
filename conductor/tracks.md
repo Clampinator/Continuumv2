@@ -22,6 +22,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 ## [~] Track: Span Drawing Fix (Multi-Rail Rendering)
 *Link: [./tracks/span_drawing_fix_20260427/](./tracks/span_drawing_fix_20260427/)*
 
+- [x] **Track: Temporal Translation Layer (Task 5: Refactor State/Submit)** [./archive/temporal_translation_layer_task5_20260427/](./archive/temporal_translation_layer_task5_20260427/)
 - [x] **Track: Temporal Translation Layer (Task 4: Refactor UI Services)** [./archive/temporal_translation_layer_task4_20260427/](./archive/temporal_translation_layer_task4_20260427/)
 - [x] **Track: Temporal Translation Layer (Task 3: Location Resolver)** [./archive/temporal_translation_layer_task3_20260427/](./archive/temporal_translation_layer_task3_20260427/)
 - [x] **Track: Temporal Translation Layer (Task 2: Coordinate Converter)** [./archive/temporal_translation_layer_task2_20260427/](./archive/temporal_translation_layer_task2_20260427/)
