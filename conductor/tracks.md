@@ -4,7 +4,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Combined Track 1: The Umbilical Cord & Precision Handshake
+## [~] Combined Track 1: The Umbilical Cord & Precision Handshake
 *Link: [./tracks/data_layer_purification_20260426/](./tracks/data_layer_purification_20260426/)*
 
 ## [ ] Combined Track 2: Manifest Engine & Interaction Machine
@@ -16,9 +16,13 @@ This file tracks all major tracks for the project. Each track has its own detail
 ## [ ] Combined Track 4: Visual Fidelity & Stress Audit
 *Link: [./tracks/visual_fidelity_audit_20260426/](./tracks/visual_fidelity_audit_20260426/)*
 
+## [~] Track: Span Drawing Fix (Multi-Rail Rendering)
+*Link: [./tracks/span_drawing_fix_20260427/](./tracks/span_drawing_fix_20260427/)*
+
 ---
 
 ### Archived Tracks
+- [x] **Track: Temporal Translation Layer (Task 1: Age Converter)** [./archive/temporal_translation_layer_task1_20260427/](./archive/temporal_translation_layer_task1_20260427/)
 - [x] **Track: Kernel Fuzzy Collision Law** [./archive/kernel_fuzzy_collision_law_20260425/](./archive/kernel_fuzzy_collision_law_20260425/)
 - [x] **Track: Temporal Engine Unit Fragmentation** [./archive/temporal_engine_unit_fragmentation_20260425/](./archive/temporal_engine_unit_fragmentation_20260425/)
 - [x] **Track: Authoritative Data Isolation & Project Atomization** [./archive/architectural_atomization_20260423/](./archive/architectural_atomization_20260423/)
