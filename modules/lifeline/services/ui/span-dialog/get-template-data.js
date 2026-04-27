@@ -1,120 +1,35 @@
-import { convertTimestampToDateString, formatSubjectiveAge, formatDuration, parseDate, normalizeDateInput } from '../../../../span-graph-utils/provide-span-graph-utils.js';
+import { Translator } from '../../../../temporal-translator/temporal-translator.js';
 import { buildContextOptions } from './build-context-options.js';
-import { ContextFinder } from '../../context-finder.js';
+import { getActorHistory } from '../../../../state/get-actor-history.js';
 
 /**
- * REBUILT: Exact replica of legacy get-template-data.js logic.
+ * SPAN TEMPLATE DATA PROVIDER
+ * ENFORCES: Pure Fact Reporting.
+ * TTL PURITY: Stripped of all math and string-parsing.
  */
 export function getTemplateData(actor, params) {
     const { mode, existingData, viewState, graphData } = params;
     
-    let age = 0;
-    let ts = Date.now();
-    let eventTitle = "";
-    let eventNotes = "";
-    let eventIsRest = false;
-    let eventIsSpan = false;
-    let eraId = null;
-    let expId = null;
-    let location = "";
-    let lat = null;
-    let lng = null;
-    let zoom = null;
+    // 1. Resolve Narrative Identity
+    const record = (mode === 'edit' && existingData) ? (existingData.record || existingData) : {};
+    const eventIsSpan = Boolean(params.eventIsSpan || record.eventIsSpan || (viewState && viewState.activeDragType === 'span'));
 
-    let eventSpanFromDate = "";
-    let eventSpanFromTime = "";
-    let eventSpanFromLocation = "";
-    let eventSpanFromLat = null;
-    let eventSpanFromLng = null;
-    let eventSpanFromZoom = null;
+    // 2. Prepare Raw Facts for Translation
+    // We normalize different input types into a single "Bag of Facts"
+    const rawFacts = {
+        eventAge: (existingData?.eventAge !== undefined) ? existingData.eventAge : (params.ageRaw !== undefined ? params.ageRaw : (graphData?.nowNode?.eventAge || 0)),
+        ts: record.ts || params.timeRaw || (graphData?.nowNode?.eventTime || 0),
+        arrivalTs: record.arrivalTs || (eventIsSpan ? (params.arrival?.eventTime || params.timeRaw) : (record.ts || params.timeRaw)),
+        eventIsSpan,
+        eventTitle: record.eventTitle || (eventIsSpan ? "Span" : "Event")
+    };
 
-    let eventSpanToDate = "";
-    let eventSpanToTime = "";
-    let eventSpanToLocation = "";
-    let eventSpanToLat = null;
-    let eventSpanToLng = null;
-    let eventSpanToZoom = null;
+    // 3. TRANSLATION GATEWAY
+    // The UI does not know how to format strings. It asks the Translator.
+    const history = getActorHistory(actor);
+    const humanStrings = Translator.toHuman(rawFacts, history, actor);
 
-    let ageDeltaFormatted = "";
-    let timeDeltaFormatted = "";
-
-    if (mode === 'edit') {
-        age = existingData.eventAge;
-        eventIsSpan = !!existingData.eventIsSpan;
-        
-        if (eventIsSpan) {
-            eventSpanFromDate = existingData.eventSpanFromDate;
-            eventSpanFromTime = existingData.eventSpanFromTime;
-            eventSpanFromLocation = existingData.eventSpanFromLocation;
-            eventSpanFromLat = existingData.eventSpanFromLat;
-            eventSpanFromLng = existingData.eventSpanFromLng;
-            eventSpanFromZoom = existingData.eventSpanFromZoom;
-
-            eventSpanToDate = existingData.eventSpanToDate;
-            eventSpanToTime = existingData.eventSpanToTime;
-            eventSpanToLocation = existingData.eventSpanToLocation;
-            eventSpanToLat = existingData.eventSpanToLat;
-            eventSpanToLng = existingData.eventSpanToLng;
-            eventSpanToZoom = existingData.eventSpanToZoom;
-
-            const toDateObj = parseDate(`${eventSpanToDate}T${eventSpanToTime || '12:00:00'}`);
-            ts = toDateObj ? toDateObj.getTime() : Date.now();
-        } else {
-            const dateObj = parseDate(`${existingData.eventDate}T${existingData.eventTime || '12:00:00'}`);
-            ts = dateObj ? dateObj.getTime() : Date.now();
-            location = existingData.eventLocation || "";
-            lat = existingData.lat;
-            lng = existingData.lng;
-            zoom = existingData.zoom;
-        }
-        
-        eventTitle = existingData.eventTitle;
-        eventNotes = existingData.eventNotes || existingData.description || "";
-        eventIsRest = !!existingData.eventIsRest;
-        eraId = existingData.eraId;
-        expId = existingData.expId;
-    } else if (mode === 'log') {
-        age = (params.ageRaw !== undefined) ? params.ageRaw : (graphData.nowNode.eventAge || graphData.nowNode.age);
-        ts = (params.timeRaw !== undefined) ? params.timeRaw : (graphData.nowNode.eventTime || graphData.nowNode.time);
-
-        // Interaction check: is this a span jump?
-        eventIsSpan = params.eventIsSpan || (viewState && viewState.activeDragType === 'span');
-        eventTitle = eventIsSpan ? "Span" : "Event";
-        
-        const startWorld = params.departure || (viewState ? viewState.dragStartWorld : { eventTime: ts, eventAge: age });
-        eraId = startWorld.eraId || null;
-        expId = startWorld.expId || null;
-
-        const startAge = startWorld.eventAge !== undefined ? startWorld.eventAge : startWorld.age;
-        const startTime = startWorld.eventTime !== undefined ? startWorld.eventTime : startWorld.time;
-
-        const timeDiff = (ts - startTime) / 1000;
-        timeDeltaFormatted = formatDuration(timeDiff);
-        ageDeltaFormatted = formatDuration(age - startAge);
-
-        if (eventIsSpan) {
-            const fromDT = convertTimestampToDateString(startTime);
-            eventSpanFromDate = fromDT.date;
-            eventSpanFromTime = fromDT.time;
-            eventSpanFromLocation = startWorld.eventTitle || "";
-            eventSpanFromLat = startWorld.lat;
-            eventSpanFromLng = startWorld.lng;
-            eventSpanFromZoom = startWorld.zoom;
-
-            const toDT = convertTimestampToDateString(ts);
-            eventSpanToDate = toDT.date;
-            eventSpanToTime = toDT.time;
-            eventSpanToLocation = ""; 
-        }
-    }
-
-    const dt = convertTimestampToDateString(ts);
-
-    if (!eventSpanFromDate) eventSpanFromDate = dt.date;
-    if (!eventSpanFromTime) eventSpanFromTime = dt.time;
-    if (!eventSpanToDate) eventSpanToDate = dt.date;
-    if (!eventSpanToTime) eventSpanToTime = dt.time;
-
+    // 4. Permission Logic
     let canSeeSpan = true;
     try {
         canSeeSpan = actor.getFlag('continuum-v2', 'playersCanSeeSpan') ?? actor.getFlag('continuum', 'playersCanSeeSpan') ?? true;
@@ -122,40 +37,25 @@ export function getTemplateData(actor, params) {
         console.warn("SpanGraph | getFlag failed:", e);
     }
 
-    return {
+    // 5. Narrative Context
+    const eraId = existingData?.eraId || params.eraId;
+    const expId = existingData?.expId || params.expId;
+
+    // 6. Fact Assembly
+    const data = {
+        ...humanStrings,
         mode,
         isLogMode: mode === 'log',
-        eventTitle,
-        eventNotes,
-        date: dt.date,
-        time: dt.time,
-        location,
-        lat,
-        lng,
-        zoom,
-        eventSpanFromDate,
-        eventSpanFromTime,
-        eventSpanFromLocation,
-        eventSpanFromLat,
-        eventSpanFromLng,
-        eventSpanFromZoom,
-        eventSpanToDate,
-        eventSpanToTime,
-        eventSpanToLocation,
-        eventSpanToLat,
-        eventSpanToLng,
-        eventSpanToZoom,
-        ageFormatted: formatSubjectiveAge(age),
-        ageDeltaFormatted,
-        timeDeltaFormatted,
-        eventIsRest,
-        eventIsSpan,
+        eventNotes: record.eventNotes || record.description || "",
+        eventIsRest: !!record.eventIsRest,
         defaultNewExpName: eventIsSpan ? "Parallel Project" : "New Experience",
         contextOptions: buildContextOptions(actor, eraId, expId),
         eraId,
         expId,
-        ageRaw: age,
-        timeRaw: ts,
+        ageRaw: rawFacts.eventAge,
+        timeRaw: rawFacts.ts,
         canSeeSpan
     };
+
+    return data;
 }
