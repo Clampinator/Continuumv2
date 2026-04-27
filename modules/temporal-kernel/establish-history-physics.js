@@ -12,9 +12,10 @@ import { projectSubjectiveAge } from './project-subjective-age.js';
  * 
  * @param {Array} historyFacts - Flat array of { id, sort, record }
  * @param {number} originTime - Mathematical timestamp of birth (ms).
+ * @param {number} [subjectiveNow] - Optional override for the current age (s).
  * @returns {Array} Array of physical nodes with { x, y, arrivalY }.
  */
-export function establishHistoryPhysics(historyFacts, originTime) {
+export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow = null) {
     const physicalNodes = [];
     
     // 1. Resolve Origin
@@ -30,30 +31,46 @@ export function establishHistoryPhysics(historyFacts, originTime) {
         
         if (fact.isNow || fact.id === 'now') {
             const y = Number(record.objectiveNow || record.ts) || Date.now();
-            const x = projectSubjectiveAge(y, currentOffset);
-            physicalNodes.push({ ...fact, x, y, arrivalY: y });
+            const calculatedAge = projectSubjectiveAge(y, currentOffset);
+            
+            // AUTHORITY: Detect if the character is currently Spanning.
+            // If the provided subjectiveNow (Age) differs from the calculated one,
+            // they have broken the rail.
+            const isSpanningNow = subjectiveNow !== null && Math.abs(subjectiveNow - calculatedAge) > 0.1;
+            
+            const x = isSpanningNow ? subjectiveNow : calculatedAge;
+
+            physicalNodes.push({ 
+                ...fact, 
+                x, y, arrivalY: y,
+                isSpanOrigin: isSpanningNow // Ends the previous leveling segment
+            });
             continue;
         }
 
-        const isSpan = !!record.isSpan;
+        const eventIsSpan = !!record.eventIsSpan;
 
         // 3. Establish Departure (Objective Time / Physics Y)
-        const dateStr = isSpan ? (record.spanFromDate || record.date) : record.date;
-        const timeStr = isSpan ? (record.spanFromTime || record.time) : record.time;
-        
-        // Note: We use UTC as the system mathematical base.
-        const y = parseObjectiveTimestamp(dateStr, timeStr, { timezone: 'UTC' }) || originTime;
+        // AUTHORITY: Prefer raw timestamp from fact to prevent string re-parsing drift.
+        const y = Number(record.ts) || (parseObjectiveTimestamp(
+            eventIsSpan ? (record.eventSpanFromDate || record.eventDate) : record.eventDate,
+            eventIsSpan ? (record.eventSpanFromTime || record.eventTime) : record.eventTime,
+            { timezone: 'UTC' }
+        ) || originTime);
 
         // 4. Project Subjective Age (Physics X)
         // Law: Age = (Time - WorldOffset) / 1000
         const x = projectSubjectiveAge(y, currentOffset);
 
         let arrivalY = y;
-        if (isSpan) {
+        if (eventIsSpan) {
             // 5. Resolve Span Arrival
-            const toDate = record.spanToDate || record.date;
-            const toTime = record.spanToTime || record.time || '12:00:00';
-            arrivalY = parseObjectiveTimestamp(toDate, toTime, { timezone: 'UTC' }) || y;
+            // AUTHORITY: Prefer raw arrivalTs from fact.
+            arrivalY = Number(record.arrivalTs) || (parseObjectiveTimestamp(
+                record.eventSpanToDate || record.eventDate,
+                record.eventSpanToTime || record.eventTime || '12:00:00',
+                { timezone: 'UTC' }
+            ) || y);
 
             // 6. Update World Offset for subsequent nodes
             // The character has shifted their "Today" relative to the World.
@@ -66,7 +83,7 @@ export function establishHistoryPhysics(historyFacts, originTime) {
             x,
             y,
             arrivalY,
-            isSpanOrigin: isSpan
+            isSpanOrigin: eventIsSpan
         });
     }
 

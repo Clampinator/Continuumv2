@@ -32,10 +32,9 @@ export function getActorHistory(actor) {
         sort: 999999999, // Now is always narratives end
         isNow: true,
         record: {
-            title: "NOW",
-            isSpan: false,
-            isRest: false,
-            age: Number(actor.system.personal?.subjectiveNow) || 0,
+            eventTitle: "NOW",
+            eventIsSpan: false,
+            eventIsRest: false,
             objectiveNow: actor.system.personal?.objectiveNow
         },
         path: 'system.personal'
@@ -45,10 +44,8 @@ export function getActorHistory(actor) {
     // If sort is identical, use ID.
     // Physics coordinates (x, y) are NO LONGER calculated here.
     return history.sort((a, b) => {
-        const ageA = Number(a.record.age) || 0;
-        const ageB = Number(b.record.age) || 0;
-        if (ageA !== ageB) return ageA - ageB;
-        return (a.sort || 0) - (b.sort || 0);
+        if (a.sort !== b.sort) return a.sort - b.sort;
+        return a.id.localeCompare(b.id);
     });
 }
 
@@ -57,10 +54,31 @@ export function getActorHistory(actor) {
  * @private
  */
 function mapToFact(id, event, path) {
+    const eventIsSpan = Boolean(event.eventIsSpan);
+    const fact = {
+        eventTitle: event.eventTitle || "",
+        eventAge: event.eventAge || 0,
+        eventDate: event.eventDate || "",
+        eventTime: event.eventTime || "12:00:00",
+        eventLocation: event.eventLocation || "",
+        eventIsSpan,
+        eventIsRest: Boolean(event.eventIsRest),
+        // AUTHORITY: Preserve raw timestamps from database to prevent re-parsing drift.
+        ts: event.ts,
+        arrivalTs: event.arrivalTs
+    };
+
+    if (eventIsSpan) {
+        fact.eventSpanFromDate = event.eventSpanFromDate || fact.eventDate;
+        fact.eventSpanFromTime = event.eventSpanFromTime || fact.eventTime;
+        fact.eventSpanToDate = event.eventSpanToDate || fact.eventDate;
+        fact.eventSpanToTime = event.eventSpanToTime || fact.eventTime;
+    }
+
     return {
         id,
         sort: Number(event.sort) || 0,
         path,
-        record: { ...event, isSpan: Boolean(event.isSpan) } // Fact Layer
+        record: fact // Standardized Fact Layer
     };
 }

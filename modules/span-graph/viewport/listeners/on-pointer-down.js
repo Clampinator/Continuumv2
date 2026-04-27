@@ -27,12 +27,12 @@ export function onPointerDown(event, viewport) {
     let nodeWorld = null;
     if (node) {
         if (node.classList.contains('graph-node-now')) {
-            nodeWorld = { age: state.nowNode.x, time: state.nowNode.y };
+            nodeWorld = { eventAge: state.nowNode.x, eventTime: state.nowNode.y };
         } else {
             const eventId = node.dataset.eventId;
             const targetNode = state.nodes.find(n => n.id === eventId);
             if (targetNode) {
-                nodeWorld = { age: targetNode.x, time: targetNode.y };
+                nodeWorld = { eventAge: targetNode.x, eventTime: targetNode.y };
             }
         }
     }

@@ -23,15 +23,15 @@ export async function openSpanDialog(sheet, params) {
     const templateData = getTemplateData(actor, { 
         ...params, 
         mode: 'log',
-        ageRaw: params.arrival.age,
-        timeRaw: params.arrival.time,
+        ageRaw: params.arrival.eventAge,
+        timeRaw: params.arrival.eventTime,
         departure: params.departure,
         viewState, 
         graphData, 
-        isSpan: true 
+        eventIsSpan: true 
     });
 
-    // Exact legacy title logic
+    // Exact legacy eventTitle logic
     const dialogTitle = "Log Span Result";
 
     // Use the exact legacy-matched template with V13 API
@@ -64,7 +64,7 @@ export async function openSpanDialog(sheet, params) {
     };
 
     const dialog = new Dialog({
-        title: dialogTitle,
+        eventTitle: dialogTitle,
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -117,8 +117,8 @@ export async function openSpanDialog(sheet, params) {
             updateNewExpVisibility();
 
             // --- REPLICATED: SPAN TOGGLE (Locked ON for this dialog) ---
-            const spanToggle = html.find('input[name="isSpan"]');
-            const restCheckbox = html.find('input[name="isRest"]');
+            const spanToggle = html.find('input[name="eventIsSpan"]');
+            const restCheckbox = html.find('input[name="eventIsRest"]');
             const spanFields = html.find('#spanFields');
             const eventFields = html.find('#eventFields');
 
@@ -169,8 +169,8 @@ export async function openSpanDialog(sheet, params) {
             // Revert NOW node position only on cancel
             if (!confirmed && params.mode === 'log' && viewState.dragStartWorld) {
                 if (graphData.nowNode) {
-                    graphData.nowNode.age = viewState.dragStartWorld.age;
-                    graphData.nowNode.time = viewState.dragStartWorld.time;
+                    graphData.nowNode.eventAge = viewState.dragStartWorld.eventAge;
+                    graphData.nowNode.eventTime = viewState.dragStartWorld.eventTime;
                 }
             }
 

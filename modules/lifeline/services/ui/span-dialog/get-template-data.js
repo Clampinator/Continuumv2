@@ -10,10 +10,10 @@ export function getTemplateData(actor, params) {
     
     let age = 0;
     let ts = Date.now();
-    let title = "";
-    let notes = "";
-    let isRest = false;
-    let isSpan = false;
+    let eventTitle = "";
+    let eventNotes = "";
+    let eventIsRest = false;
+    let eventIsSpan = false;
     let eraId = null;
     let expId = null;
     let location = "";
@@ -21,96 +21,99 @@ export function getTemplateData(actor, params) {
     let lng = null;
     let zoom = null;
 
-    let spanFromDate = "";
-    let spanFromTime = "";
-    let spanFromLocation = "";
-    let spanFromLat = null;
-    let spanFromLng = null;
-    let spanFromZoom = null;
+    let eventSpanFromDate = "";
+    let eventSpanFromTime = "";
+    let eventSpanFromLocation = "";
+    let eventSpanFromLat = null;
+    let eventSpanFromLng = null;
+    let eventSpanFromZoom = null;
 
-    let spanToDate = "";
-    let spanToTime = "";
-    let spanToLocation = "";
-    let spanToLat = null;
-    let spanToLng = null;
-    let spanToZoom = null;
+    let eventSpanToDate = "";
+    let eventSpanToTime = "";
+    let eventSpanToLocation = "";
+    let eventSpanToLat = null;
+    let eventSpanToLng = null;
+    let eventSpanToZoom = null;
 
     let ageDeltaFormatted = "";
     let timeDeltaFormatted = "";
 
     if (mode === 'edit') {
-        age = existingData.age;
-        isSpan = !!existingData.isSpan;
+        age = existingData.eventAge;
+        eventIsSpan = !!existingData.eventIsSpan;
         
-        if (isSpan) {
-            spanFromDate = existingData.spanFromDate;
-            spanFromTime = existingData.spanFromTime;
-            spanFromLocation = existingData.spanFromLocation;
-            spanFromLat = existingData.spanFromLat;
-            spanFromLng = existingData.spanFromLng;
-            spanFromZoom = existingData.spanFromZoom;
+        if (eventIsSpan) {
+            eventSpanFromDate = existingData.eventSpanFromDate;
+            eventSpanFromTime = existingData.eventSpanFromTime;
+            eventSpanFromLocation = existingData.eventSpanFromLocation;
+            eventSpanFromLat = existingData.eventSpanFromLat;
+            eventSpanFromLng = existingData.eventSpanFromLng;
+            eventSpanFromZoom = existingData.eventSpanFromZoom;
 
-            spanToDate = existingData.spanToDate;
-            spanToTime = existingData.spanToTime;
-            spanToLocation = existingData.spanToLocation;
-            spanToLat = existingData.spanToLat;
-            spanToLng = existingData.spanToLng;
-            spanToZoom = existingData.spanToZoom;
+            eventSpanToDate = existingData.eventSpanToDate;
+            eventSpanToTime = existingData.eventSpanToTime;
+            eventSpanToLocation = existingData.eventSpanToLocation;
+            eventSpanToLat = existingData.eventSpanToLat;
+            eventSpanToLng = existingData.eventSpanToLng;
+            eventSpanToZoom = existingData.eventSpanToZoom;
 
-            const toDateObj = parseDate(`${spanToDate}T${spanToTime || '12:00:00'}`);
+            const toDateObj = parseDate(`${eventSpanToDate}T${eventSpanToTime || '12:00:00'}`);
             ts = toDateObj ? toDateObj.getTime() : Date.now();
         } else {
-            const dateObj = parseDate(`${existingData.date}T${existingData.time || '12:00:00'}`);
+            const dateObj = parseDate(`${existingData.eventDate}T${existingData.eventTime || '12:00:00'}`);
             ts = dateObj ? dateObj.getTime() : Date.now();
-            location = existingData.location || "";
+            location = existingData.eventLocation || "";
             lat = existingData.lat;
             lng = existingData.lng;
             zoom = existingData.zoom;
         }
         
-        title = existingData.title;
-        notes = existingData.notes || existingData.description || "";
-        isRest = !!existingData.isRest;
+        eventTitle = existingData.eventTitle;
+        eventNotes = existingData.eventNotes || existingData.description || "";
+        eventIsRest = !!existingData.eventIsRest;
         eraId = existingData.eraId;
         expId = existingData.expId;
     } else if (mode === 'log') {
-        age = (params.ageRaw !== undefined) ? params.ageRaw : graphData.nowNode.age;
-        ts = (params.timeRaw !== undefined) ? params.timeRaw : graphData.nowNode.time;
+        age = (params.ageRaw !== undefined) ? params.ageRaw : (graphData.nowNode.eventAge || graphData.nowNode.age);
+        ts = (params.timeRaw !== undefined) ? params.timeRaw : (graphData.nowNode.eventTime || graphData.nowNode.time);
 
         // Interaction check: is this a span jump?
-        isSpan = params.isSpan || (viewState && viewState.activeDragType === 'span');
-        title = isSpan ? "Span" : "Event";
+        eventIsSpan = params.eventIsSpan || (viewState && viewState.activeDragType === 'span');
+        eventTitle = eventIsSpan ? "Span" : "Event";
         
-        const startWorld = params.departure || (viewState ? viewState.dragStartWorld : { time: ts, age });
+        const startWorld = params.departure || (viewState ? viewState.dragStartWorld : { eventTime: ts, eventAge: age });
         eraId = startWorld.eraId || null;
         expId = startWorld.expId || null;
 
-        const timeDiff = (ts - startWorld.time) / 1000;
-        timeDeltaFormatted = formatDuration(timeDiff);
-        ageDeltaFormatted = formatDuration(age - startWorld.age);
+        const startAge = startWorld.eventAge !== undefined ? startWorld.eventAge : startWorld.age;
+        const startTime = startWorld.eventTime !== undefined ? startWorld.eventTime : startWorld.time;
 
-        if (isSpan) {
-            const fromDT = convertTimestampToDateString(startWorld.time);
-            spanFromDate = fromDT.date;
-            spanFromTime = fromDT.time;
-            spanFromLocation = startWorld.eventTitle || "";
-            spanFromLat = startWorld.lat;
-            spanFromLng = startWorld.lng;
-            spanFromZoom = startWorld.zoom;
+        const timeDiff = (ts - startTime) / 1000;
+        timeDeltaFormatted = formatDuration(timeDiff);
+        ageDeltaFormatted = formatDuration(age - startAge);
+
+        if (eventIsSpan) {
+            const fromDT = convertTimestampToDateString(startTime);
+            eventSpanFromDate = fromDT.date;
+            eventSpanFromTime = fromDT.time;
+            eventSpanFromLocation = startWorld.eventTitle || "";
+            eventSpanFromLat = startWorld.lat;
+            eventSpanFromLng = startWorld.lng;
+            eventSpanFromZoom = startWorld.zoom;
 
             const toDT = convertTimestampToDateString(ts);
-            spanToDate = toDT.date;
-            spanToTime = toDT.time;
-            spanToLocation = ""; 
+            eventSpanToDate = toDT.date;
+            eventSpanToTime = toDT.time;
+            eventSpanToLocation = ""; 
         }
     }
 
     const dt = convertTimestampToDateString(ts);
 
-    if (!spanFromDate) spanFromDate = dt.date;
-    if (!spanFromTime) spanFromTime = dt.time;
-    if (!spanToDate) spanToDate = dt.date;
-    if (!spanToTime) spanToTime = dt.time;
+    if (!eventSpanFromDate) eventSpanFromDate = dt.date;
+    if (!eventSpanFromTime) eventSpanFromTime = dt.time;
+    if (!eventSpanToDate) eventSpanToDate = dt.date;
+    if (!eventSpanToTime) eventSpanToTime = dt.time;
 
     let canSeeSpan = true;
     try {
@@ -122,32 +125,32 @@ export function getTemplateData(actor, params) {
     return {
         mode,
         isLogMode: mode === 'log',
-        title,
-        notes,
+        eventTitle,
+        eventNotes,
         date: dt.date,
         time: dt.time,
         location,
         lat,
         lng,
         zoom,
-        spanFromDate,
-        spanFromTime,
-        spanFromLocation,
-        spanFromLat,
-        spanFromLng,
-        spanFromZoom,
-        spanToDate,
-        spanToTime,
-        spanToLocation,
-        spanToLat,
-        spanToLng,
-        spanToZoom,
+        eventSpanFromDate,
+        eventSpanFromTime,
+        eventSpanFromLocation,
+        eventSpanFromLat,
+        eventSpanFromLng,
+        eventSpanFromZoom,
+        eventSpanToDate,
+        eventSpanToTime,
+        eventSpanToLocation,
+        eventSpanToLat,
+        eventSpanToLng,
+        eventSpanToZoom,
         ageFormatted: formatSubjectiveAge(age),
         ageDeltaFormatted,
         timeDeltaFormatted,
-        isRest,
-        isSpan,
-        defaultNewExpName: isSpan ? "Parallel Project" : "New Experience",
+        eventIsRest,
+        eventIsSpan,
+        defaultNewExpName: eventIsSpan ? "Parallel Project" : "New Experience",
         contextOptions: buildContextOptions(actor, eraId, expId),
         eraId,
         expId,

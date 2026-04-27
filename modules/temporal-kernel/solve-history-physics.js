@@ -5,9 +5,9 @@ import { calculateSpanDisplacement } from './calculate-span-displacement.js';
  * TEMPORAL KERNEL: SOLVE HISTORY PHYSICS
  * Orchestrator for the physical walk through a character's journey.
  * ENFORCES: Atomization Law (Delegates math to single-purpose files).
- * ENFORCES: Birth Node Authority (Age 0 = dobTime).
+ * ENFORCES: Birth Node Authority (Age 0 = originTime).
  */
-export function solveHistoryPhysics(history, dobTime) {
+export function solveHistoryPhysics(history, originTime) {
     const shifts = {};
     
     // 1. Prepare history for the walk.
@@ -19,7 +19,7 @@ export function solveHistoryPhysics(history, dobTime) {
     if (sorted.length === 0) return shifts;
 
     // 2. The Physical Anchor
-    let objectiveOffset = Number(dobTime) || 0;
+    let objectiveOffset = Number(originTime) || 0;
 
     // 3. The Compensation Wave
     for (const node of sorted) {
@@ -30,8 +30,9 @@ export function solveHistoryPhysics(history, dobTime) {
         }
 
         const ev = node.record || node;
-        const fromTs = Number(node.y);
-        const savedAge = Number(node.x);
+        // AUTHORITY: Prefer raw timestamp from record if available.
+        const fromTs = Number(ev.ts || node.y);
+        const savedAge = Number(ev.eventAge || node.x);
         
         // DELEGATE: Age Projection
         const calculatedAge = projectSubjectiveAge(fromTs, objectiveOffset);
@@ -42,8 +43,9 @@ export function solveHistoryPhysics(history, dobTime) {
         }
 
         // Arrival Physics (The "Offset" shift)
-        if (ev.isSpan) {
-            const arrivalTs = Number(node.arrivalY || node.y); 
+        if (ev.eventIsSpan) {
+            // AUTHORITY: Prefer raw arrivalTs
+            const arrivalTs = Number(ev.arrivalTs || node.arrivalY || fromTs); 
             
             // DELEGATE: Span Physics
             const displacement = calculateSpanDisplacement(fromTs, arrivalTs);
