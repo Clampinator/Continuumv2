@@ -25,6 +25,7 @@
 - **Temporal Translation Layer (TTL)**: Acts as an authoritative, bidirectional "air gap" between human-readable UI strings (e.g., "10y 5d") and pure mathematical integers (seconds/ms), preventing data corruption from round-tripping string formats.
     - **Age Converter**: Authoritative logic for subjective time (seconds).
     - **Coordinate Converter**: Location-aware logic for objective time (ms), strictly enforcing character-local chronology over UTC/System clocks.
+    - **Location Resolver**: Establishes chronological context by performing a historical reverse-walk to map locations to IANA timezones.
 
 ## AI & External Services
 - **Gemini / OpenRouter**: Integrated via `npc-generator` for lore-accurate, automated character and lifeline generation.
