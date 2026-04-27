@@ -4,52 +4,62 @@ import { solveHistoryPhysics } from '../temporal-kernel/solve-history-physics.js
 import { validateSpanPhysics } from '../temporal-kernel/validate-span-physics.js';
 import { getLoreContext } from './get-lore-context.js';
 import { resolveRecordPath } from './resolve-record-path.js';
+import { Translator } from '../temporal-translator/temporal-translator.js';
+import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 
 /**
  * STATE: INSERT HISTORY ROW
  * Inserts a new record into the database and triggers re-sequencing.
+ * ENFORCES: TTL Precision Handshake.
  */
 export async function insertHistoryRow(actor, data, options = {}) {
     const newId = foundry.utils.randomID();
-    const dobStr = actor.system.personal?.dob || "1970-01-01";
-    const dobTime = new Date(`${dobStr}T12:00:00`).getTime();
     
     const history = getActorHistory(actor);
     const lore = getLoreContext(actor);
+
+    // 1. Resolve Origin Time (Birth Authority)
+    const dob = actor.system.personal?.dob || "1970-01-01";
+    const birthCtx = resolveLocationContext([], 0, actor);
+    const originTime = parseObjectiveTime(dob, "12:00:00", birthCtx);
     
-    const age = Number(data.age) || 0;
-    const dateStr = data.isSpan ? (data.spanFromDate || data.date) : data.date;
-    const timeStr = data.isSpan ? (data.spanFromTime || data.time) : data.time;
-    const timestamp = dateStr ? new Date(`${dateStr}T${timeStr || '12:00:00'}`).getTime() : dobTime;
+    // 2. Facts to Physics Conversion (TTL Handshake)
+    // AUTHORITY: The Translator is the only authorized way to turn UI strings into integers.
+    const atomic = Translator.toAtomic(data, history, actor);
 
-    let arrivalY = timestamp;
-    if (data.isSpan) {
-        const arrDate = data.spanToDate || data.date;
-        const arrTime = data.spanToTime || data.time || '12:00:00';
-        arrivalY = arrDate ? new Date(`${arrDate}T${arrTime}`).getTime() : timestamp;
-    }
+    const targetNode = { 
+        id: newId, 
+        x: atomic.eventAge, 
+        y: atomic.ts, 
+        arrivalY: atomic.arrivalTs, 
+        record: atomic 
+    };
 
-    const targetNode = { id: newId, x: age, y: timestamp, arrivalY, record: data };
-
+    // 3. Physical Validation
     const validation = validateSpanPhysics(targetNode, lore);
     if (!validation.isValid) {
         ui.notifications.error(validation.error);
         return null;
     }
 
+    // 4. Narrative Re-sequencing
     const { sort, shifts: narrativeShifts } = resolveNarrativeOrder(history, targetNode, options);
+    
+    // 5. Compensation Wave (Propagate physical changes)
     const virtualHistory = [...history, { ...targetNode, sort }];
-    const physicsShifts = solveHistoryPhysics(virtualHistory, dobTime);
+    const physicsShifts = solveHistoryPhysics(virtualHistory, originTime);
 
-
+    // 6. Database Commit
     const updates = {};
     const finalRecord = {
-        ...data,
+        ...atomic,
         id: newId,
         sort,
-        age,
-        ts: timestamp,
-        arrivalTs: arrivalY,
+        // Cached coordinates for initial fetch pass
+        eventAge: physicsShifts[newId] !== undefined ? physicsShifts[newId] : atomic.eventAge,
+        ts: atomic.ts,
+        arrivalTs: atomic.arrivalTs,
         createdAt: Date.now()
     };
 
@@ -62,7 +72,7 @@ export async function insertHistoryRow(actor, data, options = {}) {
         let cumulativeAge = 0;
         for (const era of eras) {
             cumulativeAge += Number(era.duration || 0);
-            if (age <= cumulativeAge) {
+            if (atomic.eventAge <= cumulativeAge) {
                 eraId = era.id;
                 break;
             }
@@ -78,6 +88,7 @@ export async function insertHistoryRow(actor, data, options = {}) {
         updates[`${shift.path}.sort`] = shift.sort;
     }
     for (const [id, newAge] of Object.entries(physicsShifts)) {
+        if (id === newId) continue; 
         const node = history.find(n => n.id === id);
         if (node && node.path) {
             updates[`${node.path}.age`] = newAge;
@@ -85,9 +96,8 @@ export async function insertHistoryRow(actor, data, options = {}) {
     }
 
     if (options.isLog) {
-        const finalAge = physicsShifts[newId] !== undefined ? physicsShifts[newId] : age;
-        updates['system.personal.subjectiveNow'] = finalAge;
-        updates['system.personal.objectiveNow'] = data.isSpan ? arrivalY : timestamp;
+        // AUTHORITY: Sync the Character's Current Fact (Date/Time) to the result of the log.
+        updates['system.personal.objectiveNow'] = atomic.eventIsSpan ? atomic.arrivalTs : atomic.ts;
     }
 
     await actor.update(updates);

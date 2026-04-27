@@ -1,5 +1,6 @@
-import { parseObjectiveTimestamp } from './parse-objective-timestamp.js';
 import { projectSubjectiveAge } from './project-subjective-age.js';
+import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 
 /**
  * TEMPORAL KERNEL: ESTABLISH HISTORY PHYSICS
@@ -13,9 +14,10 @@ import { projectSubjectiveAge } from './project-subjective-age.js';
  * @param {Array} historyFacts - Flat array of { id, sort, record }
  * @param {number} originTime - Mathematical timestamp of birth (ms).
  * @param {number} [subjectiveNow] - Optional override for the current age (s).
+ * @param {Object} [actor] - character actor for context fallback
  * @returns {Array} Array of physical nodes with { x, y, arrivalY }.
  */
-export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow = null) {
+export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow = null, actor = null) {
     const physicalNodes = [];
     
     // 1. Resolve Origin
@@ -34,8 +36,6 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
             const calculatedAge = projectSubjectiveAge(y, currentOffset);
             
             // AUTHORITY: Detect if the character is currently Spanning.
-            // If the provided subjectiveNow (Age) differs from the calculated one,
-            // they have broken the rail.
             const isSpanningNow = subjectiveNow !== null && Math.abs(subjectiveNow - calculatedAge) > 0.1;
             
             const x = isSpanningNow ? subjectiveNow : calculatedAge;
@@ -51,11 +51,13 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
         const eventIsSpan = !!record.eventIsSpan;
 
         // 3. Establish Departure (Objective Time / Physics Y)
-        // AUTHORITY: Prefer raw timestamp from fact to prevent string re-parsing drift.
-        const y = Number(record.ts) || (parseObjectiveTimestamp(
+        // AUTHORITY: Location field defines the local timezone.
+        const context = resolveLocationContext(physicalNodes, projectSubjectiveAge(Number(record.ts) || originTime, currentOffset), actor);
+
+        const y = Number(record.ts) || (parseObjectiveTime(
             eventIsSpan ? (record.eventSpanFromDate || record.eventDate) : record.eventDate,
             eventIsSpan ? (record.eventSpanFromTime || record.eventTime) : record.eventTime,
-            { timezone: 'UTC' }
+            context
         ) || originTime);
 
         // 4. Project Subjective Age (Physics X)
@@ -65,16 +67,13 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
         let arrivalY = y;
         if (eventIsSpan) {
             // 5. Resolve Span Arrival
-            // AUTHORITY: Prefer raw arrivalTs from fact.
-            arrivalY = Number(record.arrivalTs) || (parseObjectiveTimestamp(
+            arrivalY = Number(record.arrivalTs) || (parseObjectiveTime(
                 record.eventSpanToDate || record.eventDate,
                 record.eventSpanToTime || record.eventTime || '12:00:00',
-                { timezone: 'UTC' }
+                context
             ) || y);
 
             // 6. Update World Offset for subsequent nodes
-            // The character has shifted their "Today" relative to the World.
-            // newOffset = ArrivalTime - AgeAtDeparture * 1000
             currentOffset = arrivalY - (x * 1000);
         }
 

@@ -3,11 +3,14 @@ import { resolveNarrativeOrder } from '../temporal-kernel/resolve-narrative-orde
 import { solveHistoryPhysics } from '../temporal-kernel/solve-history-physics.js';
 import { validateSpanPhysics } from '../temporal-kernel/validate-span-physics.js';
 import { getLoreContext } from './get-lore-context.js';
-import { convertTimestampToDateString } from '../span-graph-utils/provide-span-graph-utils.js';
+import { Translator } from '../temporal-translator/temporal-translator.js';
+import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 
 /**
  * STATE: UPDATE HISTORY ROW
  * Updates a record in the database, including physical re-sequencing.
+ * ENFORCES: TTL Precision Handshake.
  */
 export async function updateHistoryRow(actor, recordId, data) {
     if (!recordId || recordId === 'now') return;
@@ -18,59 +21,56 @@ export async function updateHistoryRow(actor, recordId, data) {
     const oldNode = history.find(n => n.id === recordId);
     if (!oldNode) return;
 
-    // 1. PRECISION HANDSHAKE
-    const oldDT = convertTimestampToDateString(oldNode.y);
-    const dateChanged = data.date && data.date !== oldDT.date;
-    const timeChanged = data.time && data.time !== oldDT.time;
-    
-    const newTimestamp = (dateChanged || timeChanged) 
-        ? new Date(`${data.date}T${data.time}`).getTime() 
-        : oldNode.y;
+    // 1. Resolve Origin Time (Birth Authority)
+    const dob = actor.system.personal?.dob || "1970-01-01";
+    const birthCtx = resolveLocationContext([], 0, actor);
+    const originTime = parseObjectiveTime(dob, "12:00:00", birthCtx);
 
-    const newAge = (data.age !== undefined && data.age !== "") ? Number(data.age) : oldNode.x;
-    const physicsChanged = (newTimestamp !== oldNode.y) || (newAge !== oldNode.x);
+    // 2. Facts to Physics Conversion (TTL Handshake)
+    const atomic = Translator.toAtomic(data, history, actor);
 
-    let arrivalY = newTimestamp;
-    if (data.isSpan) {
-        const arrDate = data.spanToDate || data.date;
-        const arrTime = data.spanToTime || data.time || '12:00:00';
-        arrivalY = new Date(`${arrDate}T${arrTime}`).getTime();
-    }
+    const targetNode = { 
+        id: recordId, 
+        x: atomic.eventAge, 
+        y: atomic.ts, 
+        arrivalY: atomic.arrivalTs, 
+        record: atomic 
+    };
 
-    const targetNode = { id: recordId, x: newAge, y: newTimestamp, arrivalY, record: { ...oldNode.record, ...data } };
-
-    // 2. Kernel: Resolve
+    // 3. Physical Validation
     const validation = validateSpanPhysics(targetNode, lore);
     if (!validation.isValid) {
         ui.notifications.error(validation.error);
         return;
     }
 
+    // 4. Narrative Re-sequencing
     const { sort, shifts: narrativeShifts } = resolveNarrativeOrder(history, targetNode);
     
-    // AUTHORITY: Only trigger the Compensation Wave if the physics actually changed.
-    let physicsShifts = {};
-    if (physicsChanged) {
-        const virtualHistory = history.map(n => n.id === recordId ? { 
-            ...n, x: newAge, y: newTimestamp, sort,
-            record: { ...n.record, ...data, age: newAge, ts: newTimestamp }
-        } : n);
-        physicsShifts = solveHistoryPhysics(virtualHistory, dobTime);
-    }
+    // 5. Compensation Wave (Propagate physical changes)
+    const virtualHistory = history.map(n => n.id === recordId ? { ...targetNode, sort } : n);
+    const physicsShifts = solveHistoryPhysics(virtualHistory, originTime);
 
-    // 3. Commit
+    // 6. Database Commit
     const updates = {};
     const finalRecord = { 
-        ...oldNode.record, ...data, sort, age: newAge, 
-        ts: newTimestamp, arrivalTs: arrivalY 
+        ...atomic, 
+        id: recordId,
+        sort, 
+        eventAge: physicsShifts[recordId] !== undefined ? physicsShifts[recordId] : atomic.eventAge, 
+        ts: atomic.ts, 
+        arrivalTs: atomic.arrivalTs 
     };
 
     const oldPath = oldNode.path;
     const newEraId = data.eraId || oldNode.record.eraId;
     const newExpId = data.expId || oldNode.record.expId;
-    const newPath = newExpId && newExpId !== 'null'
-        ? `system.eras.${newEraId}.experiences.${newExpId}.events.${recordId}`
-        : `system.eras.${newEraId}.events.${recordId}`;
+    
+    // Manual path resolution for updates
+    const newRoot = newExpId && newExpId !== 'null'
+        ? `system.eras.${newEraId}.experiences.${newExpId}`
+        : `system.eras.${newEraId}`;
+    const newPath = `${newRoot}.events.${recordId}`;
 
     if (newPath !== oldPath) {
         const oldParentPath = oldPath.substring(0, oldPath.lastIndexOf('.'));
@@ -83,9 +83,10 @@ export async function updateHistoryRow(actor, recordId, data) {
     for (const shift of narrativeShifts) {
         updates[`${shift.path}.sort`] = shift.sort;
     }
-    for (const [id, age] of Object.entries(physicsShifts)) {
+    for (const [id, newAge] of Object.entries(physicsShifts)) {
+        if (id === recordId) continue;
         const node = history.find(n => n.id === id);
-        if (node && node.path) updates[`${node.path}.age`] = age;
+        if (node && node.path) updates[`${node.path}.age`] = newAge;
     }
 
     await actor.update(updates);
