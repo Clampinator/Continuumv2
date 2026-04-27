@@ -64,6 +64,9 @@ export function getSpreadsheetRows(actor) {
         return {
             ...record,
             ...human,
+            location: record.eventLocation || human.locationContext.location || "",
+            date: human.date,
+            time: human.time,
             eventId: node.id,
             eraName: eraLookup[node.eraId] || 'Unknown Era',
             expName: expName, 

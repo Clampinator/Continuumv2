@@ -38,13 +38,15 @@ export function getTemplateData(actor, params) {
     // 5. Fact Assembly
     const data = {
         ...humanStrings,
+        eventDate: humanStrings.date,
+        eventTime: humanStrings.time,
+        eventLocation: record.eventLocation || humanStrings.locationContext.location || "",
         mode,
         id: existingData?.id || null,
         eventNotes: record.eventNotes || "",
         eventIsRest: Boolean(record.eventIsRest),
         
         // Level Facts
-        eventLocation: record.eventLocation || "",
         lat: record.lat, lng: record.lng, zoom: record.zoom,
 
         // Span Facts

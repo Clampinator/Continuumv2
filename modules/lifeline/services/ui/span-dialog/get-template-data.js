@@ -45,6 +45,8 @@ export function getTemplateData(actor, params) {
     // 6. Fact Assembly
     const data = {
         ...humanStrings,
+        eventDate: humanStrings.date,
+        eventTime: humanStrings.time,
         mode,
         isLogMode: mode === 'log',
         eventNotes: record.eventNotes || record.description || "",
