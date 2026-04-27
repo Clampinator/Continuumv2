@@ -1,6 +1,8 @@
+import { formatSubjectiveAge as ttlFormatAge } from '../temporal-translator/age-converter.js';
 
-import { formatDuration } from './format-duration.js';
-
+/**
+ * LEGACY WRAPPER: Use temporal-translator/age-converter.js instead.
+ */
 export function formatSubjectiveAge(seconds) {
-    return formatDuration(seconds);
+    return ttlFormatAge(seconds);
 }
