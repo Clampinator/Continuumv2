@@ -1,6 +1,17 @@
 /**
  * PROJECTION ENGINE: MANIFEST GENERATOR
  * Authoritative mapping of character state to screen coordinates.
+ *
+ * Receives the pre-calculated TemporalState from the Engine and transforms
+ * every element (eras, experiences, rails, nodes) from world coordinates
+ * (age/time) to screen pixels via viewport.worldToScreen(). The resulting
+ * manifest is a pure data object consumed by the dumb renderers - no domain
+ * logic exists here, only coordinate conversion.
+ *
+ * @param {Object} state - Pre-calculated TemporalState from getTemporalState()
+ * @param {Object} viewport - SpanGraphViewport instance (provides worldToScreen)
+ * @param {Object|null} interaction - Current pointer interaction state
+ * @returns {Object} RenderManifest with screen-coordinate arrays
  */
 export function generateManifest(state, viewport, interaction = null) {
     const manifest = {
@@ -26,6 +37,34 @@ export function generateManifest(state, viewport, interaction = null) {
                 startX,
                 width: Math.max(0, endX - startX),
                 color: era.color || '#555'
+            });
+        });
+    }
+
+    // 1.5 PROJECT EXPERIENCES
+    // Transform world-coordinate experience bounding boxes to screen rectangles.
+    // generateExperiences already computed startAge/endAge/startTime/endTime and
+    // opacity/bonus. Here we just convert to pixel x/y/width/height for the
+    // dumb ExperienceRenderer. No domain logic allowed - pure math.
+    if (state.experiences) {
+        state.experiences.forEach(exp => {
+            const topLeft = viewport.worldToScreen(exp.startAge, exp.startTime);
+            const bottomRight = viewport.worldToScreen(exp.endAge, exp.endTime);
+            manifest.experiences.push({
+                id: exp.id,
+                name: exp.name,
+                eraId: exp.eraId,
+                // Screen rect: top-left corner and dimensions
+                x: Math.min(topLeft.x, bottomRight.x),
+                y: Math.min(topLeft.y, bottomRight.y),
+                width: Math.max(0, Math.abs(bottomRight.x - topLeft.x)),
+                height: Math.max(0, Math.abs(bottomRight.y - topLeft.y)),
+                // Domain properties passed through for renderer decisions
+                isOngoing: exp.isOngoing,
+                isClosed: exp.isClosed,
+                // Single-authority opacity from generateExperiences (The Forgetting)
+                opacity: exp.opacity,
+                bonus: exp.bonus
             });
         });
     }
