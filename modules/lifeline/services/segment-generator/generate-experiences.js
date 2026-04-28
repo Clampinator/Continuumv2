@@ -30,8 +30,9 @@ export function generateExperiences(sortedEras, nodes, nowNode) {
 
     // Dual-format accessors: new engine uses .age/.time, legacy uses .x/.y.
     // .age/.time takes priority because the engine is the primary producer.
-    const _age = (n) => n.age !== undefined ? n.age : n.x;
-    const _time = (n) => n.time !== undefined ? n.time : n.y;
+    // Null guard: some node arrays may contain undefined entries from empty segments.
+    const _age = (n) => n ? (n.age !== undefined ? n.age : n.x) : null;
+    const _time = (n) => n ? (n.time !== undefined ? n.time : n.y) : null;
 
     // Current subjective age of NOW - used for The Forgetting opacity decay
     // and for ongoing experience boundary projection

@@ -29,8 +29,11 @@ export function calculateResonanceBonuses(actor) {
     const results = [];
 
     // 4. Transform metadata into final bonuses
+    // Dual-format accessor: aggregateActiveExperiences may store .age
+    // (new engine) or .eventAge (legacy). Prefer .age, fall back to .eventAge.
     expMap.forEach((data) => {
-        const diffSeconds = data.isOngoing ? 0 : (nowAge - data.eventAge);
+        const age = data.age !== undefined ? data.age : data.eventAge;
+        const diffSeconds = data.isOngoing ? 0 : (nowAge - age);
         const diffYears = diffSeconds / SECONDS_PER_YEAR;
         
         const bonus = mapYearsToBonus(diffYears);
