@@ -142,7 +142,7 @@ Hooks.once('init', async () => {
   Handlebars.registerHelper('isDeletable', function(item, type) {
     if (!item) return true;
     const safeTrim = (val) => String(val || '').trim();
-    const val = safeTrim(item.name || item.description || item.title);
+    const val = safeTrim(item.name || item.description || item.eventTitle);
     return !val || val.toLowerCase() === 'none';
   });
 
@@ -180,7 +180,7 @@ Hooks.on('createItem', (item) => {
   }
 
   new Dialog({
-    title: 'Select Gear Type',
+    eventTitle: 'Select Gear Type',
     content: '<p>What type of gear are you creating?</p>',
     buttons,
     default: 'technology'

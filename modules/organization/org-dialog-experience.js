@@ -31,7 +31,7 @@ export function showInsertExperienceDialog(viewState, graphData, sheet, svg, dur
     `;
 
     new Dialog({
-        title: "Create New Operation",
+        eventTitle: "Create New Operation",
         content: content,
         render: (html) => {
             activateDatePickers(html);

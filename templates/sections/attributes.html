@@ -9,16 +9,16 @@
           <h2 class="section-heading">Attributes</h2>
       </label>
       <div class="attributes-controls">
-        <button type="button" class="attributes-help" title="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="attributes-help" eventTitle="Help"><i class="fas fa-question"></i></button>
       </div>
   </div>
   <div class="attributes-container">
     <!-- Character Image -->
     <div class="character-image-wrapper">
       <div class="character-image-container">
-        <img class="character-image" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+        <img class="character-image" src="{{actor.img}}" data-edit="img" eventTitle="{{actor.name}}"/>
       </div>
-      <button type="button" class="token-image-pick" title="Set Token Image"></button>
+      <button type="button" class="token-image-pick" eventTitle="Set Token Image"></button>
     </div>
 
     <div class="attributes-single-row">
@@ -82,7 +82,7 @@
       <h3>Benefits</h3>
       <div class="benefits-scroll-list">
         {{#each benefitsList}}
-        <label class="benefit-item" title="{{description}}">
+        <label class="benefit-item" eventTitle="{{description}}">
           <input type="checkbox" class="benefit-checkbox" data-benefit-id="{{id}}" {{#if selected}}checked{{/if}}>
           {{name}}
         </label>

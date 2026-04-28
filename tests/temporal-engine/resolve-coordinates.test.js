@@ -3,8 +3,8 @@ import { resolveCoordinates } from '../../modules/temporal-engine/resolve-coordi
 
 describe('resolveCoordinates', () => {
   const segment = {
-    startAge: 100,
-    startTime: 1000000
+    startX: 100,
+    startY: 1000000
   };
 
   it('should project time correctly within a segment', () => {

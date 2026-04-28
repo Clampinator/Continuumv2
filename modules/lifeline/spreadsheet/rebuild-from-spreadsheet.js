@@ -70,8 +70,8 @@ export async function rebuildFromSpreadsheet(sheet, editedEventId = null, formEd
 
     let lastSpanToTs = null;
     for (const row of rows) {
-        if (!row.title) continue;
-        if (!row.date && !row.spanFromDate) continue;
+        if (!row.eventTitle) continue;
+        if (!row.date && !row.eventSpanFromDate) continue;
 
         const isTarget = !!(editedEventId && row.eventId === editedEventId);
         const r = isTarget ? { ...row, ...formEdits } : row;
@@ -98,24 +98,24 @@ export async function rebuildFromSpreadsheet(sheet, editedEventId = null, formEd
 
         const fv = {
             date: r.date || '', time: r.time || '',
-            title: r.title, notes: r.notes || '', location: r.location || '',
+            eventTitle: r.eventTitle, eventNotes: r.eventNotes || '', location: r.location || '',
             lat: r.lat ?? null, lng: r.lng ?? null, zoom: r.zoom ?? null,
-            isSpan: r.isSpan, isRest: r.isRest || false,
-            spanFromDate: r.spanFromDate || '', spanFromTime: r.spanFromTime || '',
-            spanFromLocation: r.spanFromLocation || '',
-            spanFromLat: r.spanFromLat ?? null, spanFromLng: r.spanFromLng ?? null, spanFromZoom: r.spanFromZoom ?? null,
-            spanToDate: r.spanToDate || '', spanToTime: r.spanToTime || '',
-            spanToLocation: r.spanToLocation || '',
-            spanToLat: r.spanToLat ?? null, spanToLng: r.spanToLng ?? null, spanToZoom: r.spanToZoom ?? null,
+            eventIsSpan: r.eventIsSpan, eventIsRest: r.eventIsRest || false,
+            eventSpanFromDate: r.eventSpanFromDate || '', eventSpanFromTime: r.eventSpanFromTime || '',
+            eventSpanFromLocation: r.eventSpanFromLocation || '',
+            eventSpanFromLat: r.eventSpanFromLat ?? null, eventSpanFromLng: r.eventSpanFromLng ?? null, eventSpanFromZoom: r.eventSpanFromZoom ?? null,
+            eventSpanToDate: r.eventSpanToDate || '', eventSpanToTime: r.eventSpanToTime || '',
+            eventSpanToLocation: r.eventSpanToLocation || '',
+            eventSpanToLat: r.eventSpanToLat ?? null, eventSpanToLng: r.eventSpanToLng ?? null, eventSpanToZoom: r.eventSpanToZoom ?? null,
             startNewExp, newExpName, experienceAction,
             closeExperiences: '', reopenExperiences: '',
         };
 
         await submitNewRow(sheet, fv, { batchImport: true, lastSpanToTs, skipGeocode: true });
 
-        const d = r.isSpan && r.spanToDate ? normalizeDate(r.spanToDate) : null;
-        lastSpanToTs = (r.isSpan && d)
-            ? new Date(`${d}T${r.spanToTime || '12:00:00'}`).getTime()
+        const d = r.eventIsSpan && r.eventSpanToDate ? normalizeDate(r.eventSpanToDate) : null;
+        lastSpanToTs = (r.eventIsSpan && d)
+            ? new Date(`${d}T${r.eventSpanToTime || '12:00:00'}`).getTime()
             : null;
 
         await Promise.resolve();

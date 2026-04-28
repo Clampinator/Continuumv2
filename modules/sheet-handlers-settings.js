@@ -28,12 +28,12 @@ export async function handleSettingsClick(sheet, event) {
                 <option value="top-to-bottom" ${timelineDirection === 'top-to-bottom' ? 'selected' : ''}>Downwards (Top is Oldest)</option>
             </select>
         </div>
-        <p class="notes" style="font-size: 0.8em; color: #888; margin-top: 5px;">Determines the direction in which Span Pool is calculated.</p>
+        <p class="eventNotes" style="font-size: 0.8em; color: #888; margin-top: 5px;">Determines the direction in which Span Pool is calculated.</p>
       </form>
     `;
 
     new Dialog({
-      title: "Sheet Settings",
+      eventTitle: "Sheet Settings",
       content: content,
       buttons: {
         save: {

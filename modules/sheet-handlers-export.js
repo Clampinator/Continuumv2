@@ -20,7 +20,7 @@ export async function handleImportLifelineClick(sheet, event) {
     event.preventDefault();
 
     new Dialog({
-        title: "Import Lifeline Data",
+        eventTitle: "Import Lifeline Data",
         content: `
             <div style="margin-bottom: 10px;">
                 <p>Paste the content of your <code>.json</code> export file below.</p>

@@ -50,7 +50,7 @@ export function manageLinkCreation(svg, g, nodeSel, sheet) {
                     target: targetId,
                     relationshipType: "Connection",
                     importance: "Professional",
-                    notes: ""
+                    eventNotes: ""
                 }
             });
             

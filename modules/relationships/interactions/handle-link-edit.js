@@ -78,7 +78,7 @@ export function handleLinkEdit(linkHit, linkVisible, sheet) {
         }).join("");
 
         new Dialog({
-            title: "Edit Relationship",
+            eventTitle: "Edit Relationship",
             content: `
                 <style>
                     .rel-link-edit select, .rel-link-edit input[type="date"] {
@@ -124,8 +124,8 @@ export function handleLinkEdit(linkHit, linkVisible, sheet) {
                         </div>
                     </div>
                     <div class="field-row">
-                        <label>Notes</label>
-                        <textarea id="link-notes" placeholder="History, context, or details about this connection...">${d.notes || ''}</textarea>
+                        <label>eventNotes</label>
+                        <textarea id="link-eventNotes" placeholder="History, context, or details about this connection...">${d.eventNotes || ''}</textarea>
                     </div>
                 </div>
             `,
@@ -139,7 +139,7 @@ export function handleLinkEdit(linkHit, linkVisible, sheet) {
                         await sheet.actor.update({
                             [`system.networkEdges.${d.id}.relationshipType`]: html.find("#link-type").val(),
                             [`system.networkEdges.${d.id}.importance`]:       html.find("#link-sphere").val(),
-                            [`system.networkEdges.${d.id}.notes`]:            html.find("#link-notes").val(),
+                            [`system.networkEdges.${d.id}.eventNotes`]:            html.find("#link-eventNotes").val(),
                             [`system.networkEdges.${d.id}.dateFrom`]:         dateFrom || null,
                             [`system.networkEdges.${d.id}.dateTo`]:           dateTo   || null,
                         });

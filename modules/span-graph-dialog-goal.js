@@ -30,7 +30,7 @@ export function openGoalEditDialog(sheet, goalId, goalData, viewState) {
     `;
 
     new Dialog({
-        title: "Edit Goal",
+        eventTitle: "Edit Goal",
         content: content,
         render: (html) => {
             html.find('input[name="resolved"]').on('change', (e) => {

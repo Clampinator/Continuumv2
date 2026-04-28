@@ -7,15 +7,15 @@ Maps a normal event into a standardized graph node forced onto the diagonal.
 */
 export function processLevelEvent(event, objectiveOffset) {
     // Derive age from the event's objective date and the current rail offset.
-    // Stored event.age is a stale cache and is NOT authoritative for positioning.
+    // Stored event.eventAge is a stale cache and is NOT authoritative for positioning.
     // This ensures level events always land at the correct diagonal position
-    // regardless of what was previously written to event.age.
+    // regardless of what was previously written to event.eventAge.
     let age;
-    if (event.date) {
-        const dateObj = parseDate(`${event.date}T${event.time || '12:00:00'}`);
+    if (event.eventDate) {
+        const dateObj = parseDate(`${event.eventDate}T${event.eventTime || '12:00:00'}`);
         if (dateObj) age = Math.max(0, (dateObj.getTime() - objectiveOffset) / 1000);
     }
-    if (!Number.isFinite(age)) age = Math.max(0, Number(event.age) || 0);
+    if (!Number.isFinite(age)) age = Math.max(0, Number(event.eventAge) || 0);
 
     // THE DIAGONAL AUTHORITY: 1s subjective age = 1000ms objective time on the current rail.
     const time = objectiveOffset + (age * 1000);
@@ -23,10 +23,10 @@ export function processLevelEvent(event, objectiveOffset) {
     const goalIds = (event.linkedGoalIds || []).concat(event.linkedGoalId ? [event.linkedGoalId] : []);
     const uniqueGoalIds = [...new Set(goalIds)];
 
-    if (event.isRest || event.isRestEnd) {
+    if (event.eventIsRest || event.isRestEnd) {
         console.log("Continuum | processLevelEvent Rest Node:", {
             id: event.id,
-            isRest: event.isRest,
+            eventIsRest: event.eventIsRest,
             isRestEnd: event.isRestEnd
         });
     }
@@ -42,9 +42,9 @@ export function processLevelEvent(event, objectiveOffset) {
         eraSort: event.eraSort,
         expSort: event.expSort,
         sort: event.sort,
-        eventTitle: event.title || "Event", 
+        eventTitle: event.eventTitle || "Event", 
         linkedGoalIds: uniqueGoalIds,
-        isRestStart: !!event.isRest,
+        isRestStart: !!event.eventIsRest,
         isRestEnd: !!event.isRestEnd,
         lat: event.lat,
         lng: event.lng,

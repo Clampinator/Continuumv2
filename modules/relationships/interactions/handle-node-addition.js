@@ -19,7 +19,7 @@ export function handleNodeAddition(sheet) {
             name: "New NPC",
             img: "icons/svg/mystery-man.svg",
             groups: [],
-            notes: "",
+            eventNotes: "",
             favor: "",
             x: (width / 2) + (Math.random() * 50 - 25),
             y: (height / 2) + (Math.random() * 50 - 25)

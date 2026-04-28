@@ -2,7 +2,7 @@
     <!-- Row 1: ID & Attributes -->
     <div class="card-primary-row">
         <div class="npc-identity">
-            <img class="npc-portrait" src="{{img}}" title="{{name}}">
+            <img class="npc-portrait" src="{{img}}" eventTitle="{{name}}">
             <span class="npc-name">{{name}}</span>
         </div>
         
@@ -11,10 +11,10 @@
         </div>
 
         <div class="npc-attr-rolls">
-            <button type="button" class="npc-roll-btn" data-attribute="body" title="Roll Force AP">F</button>
-            <button type="button" class="npc-roll-btn" data-attribute="mind" title="Roll Analyze AP">A</button>
-            <button type="button" class="npc-roll-btn" data-attribute="eq" title="Roll Relate AP">R</button>
-            <button type="button" class="npc-roll-btn" data-attribute="quick" title="Roll Move AP">M</button>
+            <button type="button" class="npc-roll-btn" data-attribute="body" eventTitle="Roll Force AP">F</button>
+            <button type="button" class="npc-roll-btn" data-attribute="mind" eventTitle="Roll Analyze AP">A</button>
+            <button type="button" class="npc-roll-btn" data-attribute="eq" eventTitle="Roll Relate AP">R</button>
+            <button type="button" class="npc-roll-btn" data-attribute="quick" eventTitle="Roll Move AP">M</button>
         </div>
     </div>
 
@@ -25,10 +25,10 @@
             <div class="phase-box {{p.mode}}" data-phase-index="{{p.index}}">
                 {{#if p.isActive}}
                     <div class="action-cluster">
-                        <i class="fas fa-clock npc-declare-btn" data-action="defer" title="Defer"></i>
-                        <i class="fas fa-running npc-declare-btn" data-action="flee" title="Flee"></i>
-                        <i class="fas fa-shield-alt npc-declare-btn" data-action="defend" title="Defend"></i>
-                        <i class="fas fa-swords npc-declare-btn" data-action="fight" title="Fight"></i>
+                        <i class="fas fa-clock npc-declare-btn" data-action="defer" eventTitle="Defer"></i>
+                        <i class="fas fa-running npc-declare-btn" data-action="flee" eventTitle="Flee"></i>
+                        <i class="fas fa-shield-alt npc-declare-btn" data-action="defend" eventTitle="Defend"></i>
+                        <i class="fas fa-swords npc-declare-btn" data-action="fight" eventTitle="Fight"></i>
                     </div>
                 {{else if (or p.isLocked p.isHistorical)}}
                     <div class="locked-action">

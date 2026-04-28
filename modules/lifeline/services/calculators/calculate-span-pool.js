@@ -20,7 +20,7 @@ export function calculateSpanPool(actor, history, currentSpan = null) {
     // 2. Identify the start of the current "Pool Cycle"
     // The cycle starts at the last rest event, or Birth (Age 0).
     const events = [...history].sort((a, b) => (Number(b.age) || 0) - (Number(a.age) || 0));
-    const lastRest = events.find(e => e.isRest || Number(e.age) === 0);
+    const lastRest = events.find(e => e.eventIsRest || Number(e.age) === 0);
     const cycleStartAge = lastRest ? Number(lastRest.age) : 0;
 
     // 3. Sum consumption since the last rest
@@ -28,7 +28,7 @@ export function calculateSpanPool(actor, history, currentSpan = null) {
     let consumed = 0;
 
     cycleEvents.forEach(e => {
-        if (e.isSpan) {
+        if (e.eventIsSpan) {
             const dep = Number(e.ts || e.time);
             const arr = Number(e.arrivalTs || e.arrivalTime || e.time);
             consumed += Math.abs(arr - dep);

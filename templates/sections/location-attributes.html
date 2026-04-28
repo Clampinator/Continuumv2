@@ -10,7 +10,7 @@
         <div class="attributes-container location-attributes">
             <!-- Location Image (Flag Aspect Ratio) -->
             <div class="character-image-container location-image-container">
-                <img class="character-image" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+                <img class="character-image" src="{{actor.img}}" data-edit="img" eventTitle="{{actor.name}}"/>
             </div>
 
             <!-- Core Attributes -->
@@ -38,17 +38,17 @@
                 <div class="attribute-block capital-block">
                     <span class="static-text">CAPITAL</span>
                     <div class="pool-inputs">
-                        <input type="number" name="system.attributes.capital.value" value="{{system.attributes.capital.value}}" title="Current">
+                        <input type="number" name="system.attributes.capital.value" value="{{system.attributes.capital.value}}" eventTitle="Current">
                         <span>/</span>
-                        <input type="number" name="system.attributes.capital.max" value="{{system.attributes.capital.max}}" title="Max">
+                        <input type="number" name="system.attributes.capital.max" value="{{system.attributes.capital.max}}" eventTitle="Max">
                     </div>
                 </div>
                 <div class="attribute-block momentum-block">
                     <span class="static-text">MOMENTUM</span>
                     <div class="pool-inputs">
-                        <input type="number" name="system.attributes.momentum.value" value="{{system.attributes.momentum.value}}" title="Current">
+                        <input type="number" name="system.attributes.momentum.value" value="{{system.attributes.momentum.value}}" eventTitle="Current">
                         <span>/</span>
-                        <input type="number" name="system.attributes.momentum.max" value="{{system.attributes.momentum.max}}" title="Max">
+                        <input type="number" name="system.attributes.momentum.max" value="{{system.attributes.momentum.max}}" eventTitle="Max">
                     </div>
                 </div>
             </div>

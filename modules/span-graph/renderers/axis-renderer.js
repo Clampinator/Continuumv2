@@ -22,8 +22,8 @@ export class AxisRenderer {
 
     // 1. X-AXIS (Subjective Age)
     const xAxisY = height - gutterHeight;
-    const worldLeft = this.viewport.screenToWorld(0, 0).age;
-    const worldRight = this.viewport.screenToWorld(width, 0).age;
+    const worldLeft = this.viewport.screenToWorld(0, 0).eventAge;
+    const worldRight = this.viewport.screenToWorld(width, 0).eventAge;
     const ageRange = worldRight - worldLeft;
     
     for (let i = 0; i <= 5; i++) {
@@ -44,11 +44,11 @@ export class AxisRenderer {
     // 2. Y-AXIS (Objective Time)
     const topWorld = this.viewport.screenToWorld(0, 0);
     const bottomWorld = this.viewport.screenToWorld(0, height - gutterHeight);
-    const timeRange = bottomWorld.time - topWorld.time;
+    const timeRange = bottomWorld.eventTime - topWorld.eventTime;
 
     for (let i = 0; i <= 5; i++) {
         const ratio = i / 5;
-        const currentTime = topWorld.time + (timeRange * ratio);
+        const currentTime = topWorld.eventTime + (timeRange * ratio);
         const screenY = this.viewport.worldToScreen(0, currentTime).y;
         
         const dt = convertTimestampToDateString(currentTime);

@@ -5,15 +5,15 @@ import { findNextNode } from './find-next-node.js';
 /**
  * Automatically generates a reconciliation loop if a span introduces a spacetime fracture.
  * @param {Actor} actor
- * @param {object} params - { mode, isSpan, finalTime, finalAge, authoritativeAge, authoritativeSort, graphData, newId, parentPath }
+ * @param {object} params - { mode, eventIsSpan, finalTime, finalAge, authoritativeAge, authoritativeSort, graphData, newId, parentPath }
  * @param {object} updates
  */
 export function reconcileSpacetimeDebt(actor, params, updates) {
-    const { mode, isSpan, finalTime, finalAge, authoritativeAge, authoritativeSort, graphData, newId, parentPath } = params;
+    const { mode, eventIsSpan, finalTime, finalAge, authoritativeAge, authoritativeSort, graphData, newId, parentPath } = params;
     
     // AUTHORITY: We only reconcile if this event is a Span and NOT the 'Now' node.
     // The 'Now' node (log mode) is allowed to stay in a fracture at the head of the timeline.
-    if (!isSpan || mode === 'log') return;
+    if (!eventIsSpan || mode === 'log') return;
 
     const dobTs = ReferenceResolver.resolveOrigin(actor);
     const currentOffset = finalTime - (finalAge * 1000);
@@ -63,15 +63,15 @@ export function reconcileSpacetimeDebt(actor, params, updates) {
 
         const reconcileEvent = {
             id: reconcileId,
-            title: "Reconciliation Loop",
-            notes: "Automatically generated to settle spacetime debt and preserve upstream history.",
-            isSpan: true,
+            eventTitle: "Reconciliation Loop",
+            eventNotes: "Automatically generated to settle spacetime debt and preserve upstream history.",
+            eventIsSpan: true,
             age: reconcileAge,
             sort: reconcileSort,
-            spanFromDate: rOriginDT.date,
-            spanFromTime: rOriginDT.time,
-            spanToDate: rDestDT.date,
-            spanToTime: rDestDT.time,
+            eventSpanFromDate: rOriginDT.date,
+            eventSpanFromTime: rOriginDT.time,
+            eventSpanToDate: rDestDT.date,
+            eventSpanToTime: rDestDT.time,
             createdAt: Date.now()
         };
 

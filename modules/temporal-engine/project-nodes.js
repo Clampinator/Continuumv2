@@ -16,22 +16,26 @@ export function projectNodes(physicalHistory, segments) {
         
         const x = Number(node.x);
         
-        // AUTHORITY: For level events, we align 'y' to the rail defined by the segment.
-        // This ensures the 30-degree visual consistency.
-        const y = node.id === 'now' ? node.y : resolveCoordinates(x, activeSegment);
+        // AUTHORITY: Projection determines the physical "snap" to the rail.
+        // RULE: If the node is currently Spanning (including a live NOW drag), 
+        // we MUST NOT override its Y coordinate, as vertical displacement IS the intent.
+        const eventIsSpan = Boolean(node.record?.eventIsSpan || node.isSpanOrigin);
         
-        const isSpan = Boolean(node.record?.isSpan || node.isSpanOrigin);
-        const arrivalY = isSpan ? Number(node.arrivalY || node.y) : y;
+        const y = (node.id === 'now' && eventIsSpan) 
+            ? node.y 
+            : resolveCoordinates(x, activeSegment);
+        
+        const arrivalY = eventIsSpan ? Number(node.arrivalY || node.y) : y;
 
-        if (isSpan) totalDisplacement += Math.abs(arrivalY - y);
+        if (eventIsSpan) totalDisplacement += Math.abs(arrivalY - y);
 
         return {
             ...node, 
             x, 
             y, 
             arrivalY,
-            isSpanOrigin: isSpan,
-            spanDirection: isSpan ? (arrivalY > y ? 'up' : 'down') : null
+            isSpanOrigin: eventIsSpan,
+            spanDirection: eventIsSpan ? (arrivalY > y ? 'up' : 'down') : null
         };
     });
 

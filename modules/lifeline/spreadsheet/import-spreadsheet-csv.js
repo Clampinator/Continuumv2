@@ -55,13 +55,13 @@ function _orientFromBirth(rawHeaders, dataRows) {
     return [birthRow, ...dataRows.slice(0, birthIdx).reverse()];
 }
 
-// Builds a Set of 'title|date' keys from all events already on the actor.
+// Builds a Set of 'eventTitle|date' keys from all events already on the actor.
 // Used to skip rows that would create duplicate entries.
 function _buildExistingKeys(actor) {
     const keys = new Set();
     const add = (ev) => {
-        const d = ev.isSpan ? (ev.spanFromDate || '') : (ev.date || '');
-        if (ev.title && d) keys.add(`${ev.title.toLowerCase().trim()}|${d}`);
+        const d = ev.eventIsSpan ? (ev.eventSpanFromDate || '') : (ev.eventDate || '');
+        if (ev.eventTitle && d) keys.add(`${ev.eventTitle.toLowerCase().trim()}|${d}`);
     };
     for (const era of Object.values(actor.system.eras || {})) {
         Object.values(era.events || {}).forEach(add);
@@ -108,16 +108,16 @@ function _rowToFormValues(headers, cells, actor) {
     return {
         date:             date('date'),
         time:             get('time'),
-        title:            get('title'),
-        notes:            get('notes'),
+        eventTitle:            get('eventTitle'),
+        eventNotes:            get('eventNotes'),
         location:         get('location'),
-        isSpan:           parseBool(get('isSpan')),
-        spanFromDate:     date('spanFromDate'),
-        spanFromTime:     get('spanFromTime'),
-        spanFromLocation: get('spanFromLocation'),
-        spanToDate:       date('spanToDate'),
-        spanToTime:       get('spanToTime'),
-        spanToLocation:   get('spanToLocation'),
+        eventIsSpan:           parseBool(get('eventIsSpan')),
+        eventSpanFromDate:     date('eventSpanFromDate'),
+        eventSpanFromTime:     get('eventSpanFromTime'),
+        eventSpanFromLocation: get('eventSpanFromLocation'),
+        eventSpanToDate:       date('eventSpanToDate'),
+        eventSpanToTime:       get('eventSpanToTime'),
+        eventSpanToLocation:   get('eventSpanToLocation'),
         startNewExp,
         newExpName,
         experienceAction,
@@ -129,8 +129,8 @@ function _rowToFormValues(headers, cells, actor) {
 
 /*
 Opens a file picker, reads a CSV, and imports each row as a new lifeline event.
-Rows with no title and no date are silently skipped.
-Rows whose title+date match an existing event are skipped as duplicates.
+Rows with no eventTitle and no date are silently skipped.
+Rows whose eventTitle+date match an existing event are skipped as duplicates.
 */
 export async function importFromCsv(app) {
     const input = document.createElement('input');
@@ -154,9 +154,9 @@ export async function importFromCsv(app) {
         const rawHeaders = allRows[0].map(h => h.trim().toLowerCase());
         const dataRows   = _orientFromBirth(rawHeaders, allRows.slice(1));
 
-        if (!rawHeaders.includes('title')) {
+        if (!rawHeaders.includes('eventTitle')) {
             _importing = false;
-            return void ui.notifications.error("CSV is missing a 'title' column. Download the template for the correct format.");
+            return void ui.notifications.error("CSV is missing a 'eventTitle' column. Download the template for the correct format.");
         }
 
         const headers = rawHeaders.map(h => {
@@ -173,12 +173,12 @@ export async function importFromCsv(app) {
         try {
             for (const cells of dataRows) {
                 const fv = _rowToFormValues(headers, cells, app.sheet.actor);
-                if (!fv.date && !fv.spanFromDate) { skipped++; continue; }
-                if (!fv.title)                    { skipped++; continue; }
+                if (!fv.date && !fv.eventSpanFromDate) { skipped++; continue; }
+                if (!fv.eventTitle)                    { skipped++; continue; }
 
-                // Skip if a matching title+date already exists.
-                const primaryDate = fv.isSpan ? fv.spanFromDate : fv.date;
-                const key = `${fv.title.toLowerCase().trim()}|${primaryDate}`;
+                // Skip if a matching eventTitle+date already exists.
+                const primaryDate = fv.eventIsSpan ? fv.eventSpanFromDate : fv.date;
+                const key = `${fv.eventTitle.toLowerCase().trim()}|${primaryDate}`;
                 if (existingKeys.has(key)) { duplicates++; continue; }
 
                 const ok = await submitNewRow(app.sheet, fv, { batchImport: true, lastSpanToTs });
@@ -186,8 +186,8 @@ export async function importFromCsv(app) {
                     existingKeys.add(key); // guard against duplicate rows within the CSV itself
                     imported++;
                     // Record span arrival so next span can compute lived time for diagonal slope.
-                    const d = fv.isSpan && fv.spanToDate ? normalizeDate(fv.spanToDate) : null;
-                    lastSpanToTs = d ? new Date(`${d}T${fv.spanToTime || '12:00:00'}`).getTime() : null;
+                    const d = fv.eventIsSpan && fv.eventSpanToDate ? normalizeDate(fv.eventSpanToDate) : null;
+                    lastSpanToTs = d ? new Date(`${d}T${fv.eventSpanToTime || '12:00:00'}`).getTime() : null;
                     await Promise.resolve();
                     processGraphData(app.sheet, getSheetContext(app.sheet).graphData);
                 } else {

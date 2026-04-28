@@ -4,7 +4,7 @@ import { insertEvent } from '../../../modules/temporal-engine/commands/insert-ev
 describe('insertEvent', () => {
   it('should insert an event into an empty history', () => {
     const history = [];
-    const newEvent = { id: 'birth', age: 0, time: 1000 };
+    const newEvent = { id: 'birth', x: 0, y: 1000 };
     
     const updatedHistory = insertEvent(history, newEvent);
     
@@ -14,10 +14,10 @@ describe('insertEvent', () => {
 
   it('should insert an event between two existing events', () => {
     const history = [
-      { id: 'e1', age: 0, sort: 1000 },
-      { id: 'e3', age: 20, sort: 2000 }
+      { id: 'e1', x: 0, sort: 1000 },
+      { id: 'e3', x: 20, sort: 2000 }
     ];
-    const newEvent = { id: 'e2', age: 10 };
+    const newEvent = { id: 'e2', x: 10 };
     
     const updatedHistory = insertEvent(history, newEvent);
     
@@ -28,10 +28,10 @@ describe('insertEvent', () => {
 
   it('should maintain chronological order by age', () => {
     const history = [
-      { id: 'e1', age: 10, sort: 1000 },
-      { id: 'e2', age: 30, sort: 2000 }
+      { id: 'e1', x: 10, sort: 1000 },
+      { id: 'e2', x: 30, sort: 2000 }
     ];
-    const newEvent = { id: 'e3', age: 20 };
+    const newEvent = { id: 'e3', x: 20 };
     
     const updatedHistory = insertEvent(history, newEvent);
     
@@ -42,10 +42,10 @@ describe('insertEvent', () => {
 
   it('should perform a local reindex if there is no sort room', () => {
     const history = [
-      { id: 'e1', age: 10, sort: 1000 },
-      { id: 'e2', age: 30, sort: 1001 }
+      { id: 'e1', x: 10, sort: 1000 },
+      { id: 'e2', x: 30, sort: 1001 }
     ];
-    const newEvent = { id: 'e3', age: 20 };
+    const newEvent = { id: 'e3', x: 20 };
     
     const updatedHistory = insertEvent(history, newEvent);
     
@@ -58,10 +58,10 @@ describe('insertEvent', () => {
 
   it('should handle sort collisions by regapping', () => {
     const history = [
-      { id: 'e1', age: 10, sort: 1000 },
-      { id: 'e2', age: 10, sort: 1000 } // Collision
+      { id: 'e1', x: 10, sort: 1000 },
+      { id: 'e2', x: 10, sort: 1000 } // Collision
     ];
-    const newEvent = { id: 'e3', age: 10 };
+    const newEvent = { id: 'e3', x: 10 };
     
     const updatedHistory = insertEvent(history, newEvent);
     

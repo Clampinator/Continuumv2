@@ -12,7 +12,7 @@
       <div class="reputation-gate-display" data-tooltip="Unit Tier Gate: Maximum Level derived from External Reputation.">
           Max Tier: <strong>{{system.attributes.externalReputation.perm}}</strong>
       </div>
-      <button type="button" class="org-conflict-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="org-conflict-help" eventTitle="Help"><i class="fas fa-question"></i></button>
     </div>
   </div>
     <div class="section-content">
@@ -50,7 +50,7 @@
     <div class="combat-items-list">
       {{#each conflictUnits.physical as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="physical">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="physical" title="Unit Settings"><i class="fas fa-cog"></i></button>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="physical" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
         <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.physical.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
         <div style="flex: 1 1 160px;">
           <select name="system.conflict.physical.{{unit.id}}.size">
@@ -96,8 +96,8 @@
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="physical">
-          {{#if unit.commanderId}}<i class="fas fa-user" title="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" title="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
         </div>
         <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictPhysical" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
@@ -133,7 +133,7 @@
     <div class="combat-items-list">
       {{#each conflictUnits.espionage as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="espionage">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="espionage" title="Unit Settings"><i class="fas fa-cog"></i></button>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="espionage" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
         <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.espionage.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
         <div style="flex: 1 1 160px;">
           <select name="system.conflict.espionage.{{unit.id}}.size">
@@ -177,8 +177,8 @@
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="espionage">
-          {{#if unit.commanderId}}<i class="fas fa-user" title="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" title="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
         </div>
         <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictEspionage" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
@@ -214,7 +214,7 @@
     <div class="combat-items-list">
       {{#each conflictUnits.online as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="online">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="online" title="Unit Settings"><i class="fas fa-cog"></i></button>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="online" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
         <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.online.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
         <div style="flex: 1 1 160px;">
           <select name="system.conflict.online.{{unit.id}}.type">
@@ -264,8 +264,8 @@
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="online">
-          {{#if unit.commanderId}}<i class="fas fa-user" title="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" title="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
         </div>
         <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictOnline" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
@@ -301,7 +301,7 @@
     <div class="combat-items-list">
       {{#each conflictUnits.psyops as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="psyops">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="psyops" title="Unit Settings"><i class="fas fa-cog"></i></button>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="psyops" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
         <div style="flex: 1 1 160px;"><input type="text" name="system.conflict.psyops.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
         <div style="flex: 1 1 140px;">
           <select name="system.conflict.psyops.{{unit.id}}.role">
@@ -340,8 +340,8 @@
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="psyops">
-          {{#if unit.commanderId}}<i class="fas fa-user" title="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" title="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
         </div>
         <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictPsyops" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>

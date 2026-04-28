@@ -41,18 +41,38 @@ describe('Temporal Translator: Facade', () => {
     });
 
     describe('toAtomic (Inbound)', () => {
-        it('should translate UI strings into pure integers', () => {
+        it('should translate standard event strings into pure integers', () => {
             const ms = new Date("2026-04-27T12:00:00Z").getTime();
             const bagOfStrings = {
                 eventAge: '1y 1d',
                 eventDate: '2026-04-27',
-                eventTime: '13:00:00' // 13:00 local is 12:00 UTC
+                eventTime: '13:00:00', // 13:00 local is 12:00 UTC
+                eventIsSpan: false
             };
 
             const result = Translator.toAtomic(bagOfStrings, mockHistory, mockActor);
 
             expect(result.eventAge).toBe(31536000 + 86400);
             expect(result.ts).toBe(ms);
+        });
+
+        it('should translate span strings using span-specific fields', () => {
+            const msFrom = new Date("2026-04-27T12:00:00Z").getTime();
+            const msTo = new Date("2026-04-28T12:00:00Z").getTime();
+            
+            const bagOfStrings = {
+                eventAge: '100',
+                eventIsSpan: true,
+                eventSpanFromDate: '2026-04-27',
+                eventSpanFromTime: '13:00:00',
+                eventSpanToDate: '2026-04-28',
+                eventSpanToTime: '13:00:00'
+            };
+
+            const result = Translator.toAtomic(bagOfStrings, mockHistory, mockActor);
+
+            expect(result.ts).toBe(msFrom);
+            expect(result.arrivalTs).toBe(msTo);
         });
     });
 });

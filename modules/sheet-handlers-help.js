@@ -1,8 +1,8 @@
 import { HELP_TEXT } from '../helptext.js';
 
-function renderHelpDialog(title, content) {
+function renderHelpDialog(eventTitle, content) {
     new Dialog({
-        title: title,
+        eventTitle: eventTitle,
         content: content,
         buttons: {
             ok: { label: "Got it", icon: '<i class="fas fa-check"></i>' }

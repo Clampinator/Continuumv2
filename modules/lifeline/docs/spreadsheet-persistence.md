@@ -22,17 +22,17 @@ which persists to Foundry's database and fires the `updateActor` hook.
 ### 1. Simple Field Edit - `submitSimpleFieldEdit`
 File: `spreadsheet/submit-spreadsheet-row.js`
 
-Used for title, notes, location - fields that do not require coordinate recalculation.
+Used for eventTitle, eventNotes, location - fields that do not require coordinate recalculation.
 Builds a dot-path update object and calls `actor.update()` directly.
 
 ```
 actor.update({
-    "system.ages.<ageId>.experiences.<expId>.events.<eventId>.title": value,
+    "system.ages.<ageId>.experiences.<expId>.events.<eventId>.eventTitle": value,
     ...
 })
 ```
 
-Triggered by: blur on `.lss-field-title`, `.lss-field-notes`, `.lss-field-location`.
+Triggered by: blur on `.lss-field-eventTitle`, `.lss-field-eventNotes`, `.lss-field-location`.
 
 ### 2. New Row - `submitNewRow`
 File: `spreadsheet/submit-spreadsheet-row.js`
@@ -73,7 +73,7 @@ Triggered by: clicking `.lss-save-row-btn`, or blur on `.lss-field-date` / `.lss
 Location data is stored in two separate fields per event:
 
 - Non-span events: `location` (display name), `lat`, `lng`, `zoom`
-- Span events: `spanFromLocation`, `spanFromLat`, `spanFromLng`, `spanFromZoom`
+- Span events: `eventSpanFromLocation`, `eventSpanFromLat`, `eventSpanFromLng`, `eventSpanFromZoom`
   (and matching `spanTo*` fields for the arrival end)
 
 ### How coordinates get saved on blur
@@ -136,10 +136,10 @@ actor.system.ages
   [ageId]
     events
       [eventId]
-        title, notes, date, time, location, lat, lng, zoom
-        isSpan, isRest, sort, createdAt, age
-        spanFromDate, spanFromTime, spanFromLocation, spanFromLat, spanFromLng, spanFromZoom
-        spanToDate, spanToTime, spanToLocation, spanToLat, spanToLng, spanToZoom
+        eventTitle, eventNotes, date, time, location, lat, lng, zoom
+        eventIsSpan, eventIsRest, sort, createdAt, age
+        eventSpanFromDate, eventSpanFromTime, eventSpanFromLocation, eventSpanFromLat, eventSpanFromLng, eventSpanFromZoom
+        eventSpanToDate, eventSpanToTime, eventSpanToLocation, eventSpanToLat, eventSpanToLng, eventSpanToZoom
     experiences
       [expId]
         name, dateFrom, dateTo, isOngoing, color, sort

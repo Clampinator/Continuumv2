@@ -37,7 +37,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
     `;
 
     new Dialog({
-        title: "Create New Era",
+        eventTitle: "Create New Era",
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -180,7 +180,7 @@ export function showCreateExperienceDialog(viewState, graphData, sheet, svg, dur
     `;
 
     new Dialog({
-        title: "Create New Experience",
+        eventTitle: "Create New Experience",
         content: content,
         render: (html) => {
             activateDatePickers(html);

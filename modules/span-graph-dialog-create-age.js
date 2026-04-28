@@ -71,7 +71,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
     `;
 
     new Dialog({
-        title: "Create New Era",
+        eventTitle: "Create New Era",
         content: content,
         render: (html) => {
             activateDatePickers(html);

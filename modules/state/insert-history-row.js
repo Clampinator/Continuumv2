@@ -28,6 +28,20 @@ export async function insertHistoryRow(actor, data, options = {}) {
     // AUTHORITY: The Translator is the only authorized way to turn UI strings into integers.
     const atomic = Translator.toAtomic(data, history, actor);
 
+    if (data.eventIsSpan) {
+        console.group('SPAN DEBUG | STEP 4 | INSERT HISTORY ROW - after toAtomic');
+        console.log('data.eventSpanFromDate (form string):', data.eventSpanFromDate);
+        console.log('data.eventSpanFromTime (form string):', data.eventSpanFromTime);
+        console.log('data.eventSpanToDate (form string):', data.eventSpanToDate);
+        console.log('data.eventSpanToTime (form string):', data.eventSpanToTime);
+        console.log('atomic.ts (departure ts after parse):', atomic.ts);
+        console.log('atomic.arrivalTs (arrival ts after parse):', atomic.arrivalTs);
+        console.log('atomic.eventAge:', atomic.eventAge);
+        console.log('displacement:', atomic.arrivalTs - atomic.ts, 'ms');
+        console.log('EXPECT: displacement > 0. If 0, toAtomic got identical From/To strings.');
+        console.groupEnd();
+    }
+
     const targetNode = { 
         id: newId, 
         x: atomic.eventAge, 
@@ -98,6 +112,7 @@ export async function insertHistoryRow(actor, data, options = {}) {
     if (options.isLog) {
         // AUTHORITY: Sync the Character's Current Fact (Date/Time) to the result of the log.
         updates['system.personal.objectiveNow'] = atomic.eventIsSpan ? atomic.arrivalTs : atomic.ts;
+        updates['system.personal.subjectiveNow'] = finalRecord.eventAge;
     }
 
     await actor.update(updates);

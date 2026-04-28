@@ -31,7 +31,7 @@ function openGroupDialog(sheet) {
     const rowsHtml = Object.values(networkGroups).map(g => makeRow(g.id, g.name, g.color, memberCount[g.id] || 0)).join("");
 
     new Dialog({
-        title: "Manage Groups",
+        eventTitle: "Manage Groups",
         content: `
             <style>
                 #group-manager { display: flex; flex-direction: column; gap: 6px; }
@@ -113,8 +113,8 @@ function makeRow(id, name, color, members = 0) {
         <div class="group-row" data-id="${id}">
             <input type="color" class="group-color" value="${color}">
             <input type="text" class="group-name" value="${name}" placeholder="Group name (e.g. Family, Enemies)">
-            ${hasMembers ? `<span class="group-member-count" title="${deleteTitle}" style="font-size:11px; color:#aaa; white-space:nowrap;">${memberLabel}</span>` : ""}
-            <button class="group-delete" title="${deleteTitle}" ${hasMembers ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : ""}>
+            ${hasMembers ? `<span class="group-member-count" eventTitle="${deleteTitle}" style="font-size:11px; color:#aaa; white-space:nowrap;">${memberLabel}</span>` : ""}
+            <button class="group-delete" eventTitle="${deleteTitle}" ${hasMembers ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : ""}>
                 <i class="fas fa-trash"></i>
             </button>
         </div>

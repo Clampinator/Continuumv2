@@ -14,10 +14,10 @@ export function autoCenter(viewport, target) {
   const centerX = (container.clientWidth || 0) / 2;
   const centerY = (container.clientHeight || 0) / 2;
 
-  // We want: centerX = (target.age * zoom) + newPanX
-  // Therefore: newPanX = centerX - (target.age * zoom)
-  const newPanX = centerX - (target.age * zoom);
-  const newPanY = centerY - (target.time * zoom);
+  // We want: centerX = (target.eventAge * zoom) + newPanX
+  // Therefore: newPanX = centerX - (target.eventAge * zoom)
+  const newPanX = centerX - (target.eventAge * zoom);
+  const newPanY = centerY - (target.eventTime * zoom);
 
   viewport.setViewState({
     panX: newPanX,

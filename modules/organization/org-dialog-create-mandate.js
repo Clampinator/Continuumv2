@@ -26,7 +26,7 @@ export function showCreateMandateDialog(sheet) {
     `;
 
     new Dialog({
-        title: "Create New Mandate",
+        eventTitle: "Create New Mandate",
         content: content,
         render: (html) => {
             html.find("input[type='text']").on("focus", event => event.currentTarget.select());
@@ -84,7 +84,7 @@ export function openMandateEditDialog(sheet, mandateId, mandateData, viewState) 
     `;
 
     new Dialog({
-        title: "Edit Mandate",
+        eventTitle: "Edit Mandate",
         content: content,
         render: (html) => {
             html.find("input[type='text']").on("focus", event => event.currentTarget.select());

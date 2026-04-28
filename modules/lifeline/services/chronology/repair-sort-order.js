@@ -19,7 +19,7 @@ export function repairSortOrder(actor) {
                 path: `system.eras.${eraId}.events.${eventId}`,
                 sort: Number(event.sort) || 0,
                 createdAt: Number(event.createdAt) || 0,
-                age: Number(event.age) || 0,
+                age: Number(event.eventAge) || 0,
                 id: eventId,
                 event
             });
@@ -30,7 +30,7 @@ export function repairSortOrder(actor) {
                     path: `system.eras.${eraId}.experiences.${expId}.events.${eventId}`,
                     sort: Number(event.sort) || 0,
                     createdAt: Number(event.createdAt) || 0,
-                    age: Number(event.age) || 0,
+                    age: Number(event.eventAge) || 0,
                     id: eventId,
                     event
                 });
@@ -87,12 +87,12 @@ export function repairSortOrder(actor) {
             for (const entry of byAge) {
                 const ev = entry.event;
                 if (ev.isBirth) continue;
-                if (ev.isSpan) {
-                    const fromTs = ev.spanFromDate
-                        ? parseDate(`${ev.spanFromDate}T${ev.spanFromTime || '12:00:00'}`)?.getTime()
+                if (ev.eventIsSpan) {
+                    const fromTs = ev.eventSpanFromDate
+                        ? parseDate(`${ev.eventSpanFromDate}T${ev.eventSpanFromTime || '12:00:00'}`)?.getTime()
                         : null;
-                    const toTs = ev.spanToDate
-                        ? parseDate(`${ev.spanToDate}T${ev.spanToTime || '12:00:00'}`)?.getTime()
+                    const toTs = ev.eventSpanToDate
+                        ? parseDate(`${ev.eventSpanToDate}T${ev.eventSpanToTime || '12:00:00'}`)?.getTime()
                         : null;
                     if (fromTs && toTs) {
                         const newAge = Math.max(0, (fromTs - objectiveOffset) / 1000);
@@ -100,8 +100,8 @@ export function repairSortOrder(actor) {
                         correctedAge = newAge;
                         correctedTs = toTs;
                     }
-                } else if (ev.date) {
-                    const ts = parseDate(`${ev.date}T${ev.time || '12:00:00'}`)?.getTime();
+                } else if (ev.eventDate) {
+                    const ts = parseDate(`${ev.eventDate}T${ev.eventTime || '12:00:00'}`)?.getTime();
                     if (ts) {
                         correctedAge = Math.max(0, (ts - objectiveOffset) / 1000);
                         correctedTs = ts;

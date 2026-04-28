@@ -12,7 +12,7 @@
       {{#if fiscal.overextension.isOverextended}}
       <span class="overextension-chip" data-tooltip="Overextended! {{#if fiscal.overextension.severe}}Severe: –2 to rolls, no new units.{{else}}–1 or –2 to rolls.{{/if}}"><i class="fas fa-exclamation-triangle"></i> OVEREXTENDED</span>
       {{/if}}
-      <button type="button" class="org-structure-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="org-structure-help" eventTitle="Help"><i class="fas fa-question"></i></button>
     </div>
   </div>
   <div class="section-content">
@@ -63,8 +63,8 @@
                 <input type="text" id="org-headquarters" name="system.structure.headquarters" value="{{system.structure.headquarters}}" placeholder="City, Country" />
                 <input type="hidden" name="system.structure.headquartersLat" value="{{system.structure.headquartersLat}}"/>
                 <input type="hidden" name="system.structure.headquartersLng" value="{{system.structure.headquartersLng}}"/>
-                <button type="button" class="personal-geo-btn personal-locate-btn" title="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
-                <button type="button" class="personal-geo-btn personal-grab-btn" title="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
+                <button type="button" class="personal-geo-btn personal-locate-btn" eventTitle="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
+                <button type="button" class="personal-geo-btn personal-grab-btn" eventTitle="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
             </div>
           </div>
           <div class="form-row">

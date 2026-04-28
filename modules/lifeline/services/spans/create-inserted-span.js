@@ -12,13 +12,13 @@ export function createInsertedSpan(actor, formData, params) {
     let finalTime = Number(params.timeRaw);  // Departure time on the rail at the drop point
     const newId = (mode === 'edit') ? existingData.id : foundry.utils.randomID();
 
-    // DIAGONAL AUTHORITY: If the user edited spanFromDate in the dialog, project it
+    // DIAGONAL AUTHORITY: If the user edited eventSpanFromDate in the dialog, project it
     // onto the current rail to derive the correct age. This prevents the "horizontal
     // line" violation where the departure node sits off the rail because the click's
     // X position was kept while the Y (time) was overridden by user input.
     // Correct relationship: time = railOffset + age * 1000.
-    if (formData.spanFromDate) {
-        const fromDateObj = parseDate(`${normalizeDateInput(formData.spanFromDate)}T${formData.spanFromTime || '12:00:00'}`);
+    if (formData.eventSpanFromDate) {
+        const fromDateObj = parseDate(`${normalizeDateInput(formData.eventSpanFromDate)}T${formData.eventSpanFromTime || '12:00:00'}`);
         if (fromDateObj) {
             const resolvedFromTime = fromDateObj.getTime();
             const railOffset = finalTime - (finalAge * 1000);  // Rail at the click point
@@ -30,5 +30,5 @@ export function createInsertedSpan(actor, formData, params) {
         }
     }
 
-    return { finalAge, finalTime, newId, isSpan: true };
+    return { finalAge, finalTime, newId, eventIsSpan: true };
 }

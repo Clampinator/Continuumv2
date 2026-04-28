@@ -5,8 +5,8 @@ import { getSpreadsheetRows } from './get-spreadsheet-rows.js';
  */
 
 const CSV_HEADERS = [
-    'date', 'time', 'title', 'notes', 'location', 'age', 'isSpan', 
-    'spanToDate', 'spanToTime', 'spanToLocation'
+    'date', 'time', 'eventTitle', 'eventNotes', 'location', 'age', 'eventIsSpan', 
+    'eventSpanToDate', 'eventSpanToTime', 'eventSpanToLocation'
 ];
 
 /**

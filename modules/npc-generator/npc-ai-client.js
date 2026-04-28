@@ -77,22 +77,22 @@ async function generateWithGemini(wizardData, apiKey, addLog) {
               type: 'OBJECT',
               properties: {
                 id: { type: 'STRING' },
-                title: { type: 'STRING' },
-                notes: { type: 'STRING' },
+                eventTitle: { type: 'STRING' },
+                eventNotes: { type: 'STRING' },
                 date: { type: 'STRING', description: 'YYYY-MM-DD' },
                 time: { type: 'STRING', description: 'HH:MM:SS' },
                 location: { type: 'STRING', description: 'City, Country' },
-                isSpan: { type: 'BOOLEAN' },
-                isRest: { type: 'BOOLEAN', description: 'true for rest/recovery events (24h rest to refill span pool)' },
+                eventIsSpan: { type: 'BOOLEAN' },
+                eventIsRest: { type: 'BOOLEAN', description: 'true for rest/recovery events (24h rest to refill span pool)' },
                 experienceId: { type: 'STRING', description: 'EXACT name of the experience this event belongs to' },
                 isExpStart: { type: 'BOOLEAN', description: 'true ONLY on the first event that starts an experience' },
                 isExpEnd: { type: 'BOOLEAN', description: 'true ONLY on the last event that ends an experience' },
-                spanFromDate: { type: 'STRING' },
-                spanFromTime: { type: 'STRING' },
-                spanFromLocation: { type: 'STRING' },
-                spanToDate: { type: 'STRING' },
-                spanToTime: { type: 'STRING' },
-                spanToLocation: { type: 'STRING' }
+                eventSpanFromDate: { type: 'STRING' },
+                eventSpanFromTime: { type: 'STRING' },
+                eventSpanFromLocation: { type: 'STRING' },
+                eventSpanToDate: { type: 'STRING' },
+                eventSpanToTime: { type: 'STRING' },
+                eventSpanToLocation: { type: 'STRING' }
               }
             }
           },
@@ -103,7 +103,7 @@ async function generateWithGemini(wizardData, apiKey, addLog) {
               properties: {
                 name: { type: 'STRING' },
                 relationshipType: { type: 'STRING' },
-                notes: { type: 'STRING' }
+                eventNotes: { type: 'STRING' }
               }
             }
           },
@@ -114,7 +114,7 @@ async function generateWithGemini(wizardData, apiKey, addLog) {
               properties: {
                 name: { type: 'STRING' },
                 direction: { type: 'STRING' },
-                notes: { type: 'STRING' }
+                eventNotes: { type: 'STRING' }
               }
             }
           }
@@ -203,7 +203,7 @@ async function generateWithOpenRouter(wizardData, apiKey, addLog) {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Continuum NPC Generator'
+      'X-eventTitle': 'Continuum NPC Generator'
     },
     body: JSON.stringify({
       model,
@@ -272,22 +272,22 @@ async function generateWithOpenRouter(wizardData, apiKey, addLog) {
                     type: 'object',
                     properties: {
                       id: { type: 'string' },
-                      title: { type: 'string' },
-                      notes: { type: 'string' },
+                      eventTitle: { type: 'string' },
+                      eventNotes: { type: 'string' },
                       date: { type: 'string', description: 'YYYY-MM-DD' },
                       time: { type: 'string', description: 'HH:MM:SS' },
                       location: { type: 'string', description: 'City, Country' },
-                      isSpan: { type: 'boolean' },
-                      isRest: { type: 'boolean', description: 'true for rest/recovery events (24h rest to refill span pool)' },
+                      eventIsSpan: { type: 'boolean' },
+                      eventIsRest: { type: 'boolean', description: 'true for rest/recovery events (24h rest to refill span pool)' },
                       experienceId: { type: 'string', description: 'EXACT name of the experience this event belongs to' },
                       isExpStart: { type: 'boolean', description: 'true ONLY on the first event that starts an experience' },
                       isExpEnd: { type: 'boolean', description: 'true ONLY on the last event that ends an experience' },
-                      spanFromDate: { type: 'string' },
-                      spanFromTime: { type: 'string' },
-                      spanFromLocation: { type: 'string' },
-                      spanToDate: { type: 'string' },
-                      spanToTime: { type: 'string' },
-                      spanToLocation: { type: 'string' }
+                      eventSpanFromDate: { type: 'string' },
+                      eventSpanFromTime: { type: 'string' },
+                      eventSpanFromLocation: { type: 'string' },
+                      eventSpanToDate: { type: 'string' },
+                      eventSpanToTime: { type: 'string' },
+                      eventSpanToLocation: { type: 'string' }
                     }
                   }
                 },
@@ -298,7 +298,7 @@ async function generateWithOpenRouter(wizardData, apiKey, addLog) {
                     properties: {
                       name: { type: 'string' },
                       relationshipType: { type: 'string' },
-                      notes: { type: 'string' }
+                      eventNotes: { type: 'string' }
                     }
                   }
                 },
@@ -309,7 +309,7 @@ async function generateWithOpenRouter(wizardData, apiKey, addLog) {
                     properties: {
                       name: { type: 'string' },
                       direction: { type: 'string' },
-                      notes: { type: 'string' }
+                      eventNotes: { type: 'string' }
                     }
                   }
                 }
@@ -466,7 +466,7 @@ function buildPrompt(wizardData) {
 **Concept**
 - Role: ${role}
 - Concept: ${concept || 'not specified'}
-- GM Notes: ${gmNotes || 'none'}
+- GM eventNotes: ${gmNotes || 'none'}
 
 ${loreConstraints}
 
@@ -497,19 +497,19 @@ Experiences are SPECIFIC ACTIVITIES the character DID (jobs, training, relations
       - location: real city, country (e.g. "Zurich, Switzerland")
     - lifelineEvents: 15-50 events depending on character complexity. Each event has:
       - id: random 16-char alphanumeric string
-      - title: short event name (e.g. "Graduated from Oxford", "Joined the Engineers", "Moved to Paris", "First Span")
-      - notes: 1-2 sentence description
+      - eventTitle: short event name (e.g. "Graduated from Oxford", "Joined the Engineers", "Moved to Paris", "First Span")
+      - eventNotes: 1-2 sentence description
       - date: YYYY-MM-DD format
       - time: HH:MM:SS format (default "12:00:00"). CRITICAL: Every event MUST have a UNIQUE date+time combination. No two events can share the exact same date and time. Increment the time by at least 1 second for events on the same day.
       - location: a real, geocodeable place name with country (e.g. "Zurich, Switzerland", "London, England", "Cairo, Egypt")
       - experienceId: (optional) the EXACT name of the experience this event belongs to. Use this for the first event ("Started X") and last event ("Completed X"/"Left X") of each experience, plus any events in between.
       - isExpStart: boolean, true ONLY on the first event that begins an experience. Must also have experienceId set.
       - isExpEnd: boolean, true ONLY on the last event that ends an experience. Must also have experienceId set.
-      - isRest: boolean, true for rest/recovery events where the character rests for 24 hours to refill their span pool. Only used for Spanners. Rest events have isSpan: false.${isSpanner ? `
-      - isSpan: boolean, true for span events. See SPAN POOL RULES below for distance and pool limits.
-      - For span events, also include: spanFromDate, spanFromTime, spanFromLocation, spanToDate, spanToTime, spanToLocation` : ''}
-    - relationships: at least 3 named relationships. Each has id, name${isSpanner ? ', relationshipType (one of: Sibling, Parent, Friend, Colleague, Mentor, Student, Rival, Superior, Subordinate, Acquaintance, Spouse)' : ', relationshipType (one of: Family, Friend, Colleague, Neighbor, Rival)'}, notes.
-    - favors: at least 2 favors. Each has id, name, direction ("owed" or "owing"), notes.
+      - eventIsRest: boolean, true for rest/recovery events where the character rests for 24 hours to refill their span pool. Only used for Spanners. Rest events have eventIsSpan: false.${isSpanner ? `
+      - eventIsSpan: boolean, true for span events. See SPAN POOL RULES below for distance and pool limits.
+      - For span events, also include: eventSpanFromDate, eventSpanFromTime, eventSpanFromLocation, eventSpanToDate, eventSpanToTime, eventSpanToLocation` : ''}
+    - relationships: at least 3 named relationships. Each has id, name${isSpanner ? ', relationshipType (one of: Sibling, Parent, Friend, Colleague, Mentor, Student, Rival, Superior, Subordinate, Acquaintance, Spouse)' : ', relationshipType (one of: Family, Friend, Colleague, Neighbor, Rival)'}, eventNotes.
+    - favors: at least 2 favors. Each has id, name, direction ("owed" or "owing"), eventNotes.
 
 CRITICAL EXPERIENCE BRACKETING AND DURATION RULES:
 Experiences are specific activities with a clear beginning AND end. Think of them as resume entries - jobs end, school ends, apprenticeships end.
@@ -545,15 +545,15 @@ OPEN EXPERIENCES (at most 1-2, the character's current situation):
 - "Living in Geneva" dateFrom: 2015-09-01, dateTo: near present day
 
 For EVERY experience, create bracketing events in lifelineEvents:
-1. A START event with isExpStart: true, experienceId matching the experience name, title like "Started [Experience Name]", date matching dateFrom
-2. An END event with isExpEnd: true, experienceId matching the experience name, title like "Completed [Experience Name]" or "Left [Experience Name]", date matching dateTo
+1. A START event with isExpStart: true, experienceId matching the experience name, eventTitle like "Started [Experience Name]", date matching dateFrom
+2. An END event with isExpEnd: true, experienceId matching the experience name, eventTitle like "Completed [Experience Name]" or "Left [Experience Name]", date matching dateTo
 3. Optional MIDDLE events with experienceId set (no isExpStart/isExpEnd), for key moments within the experience
 
 Example for "Oxford University" experience:
   lifelineEvents: [
-    { title: "Started Oxford University", date: "1988-09-01", experienceId: "Oxford University", isExpStart: true, ... },
-    { title: "Passed Prelims", date: "1989-06-15", experienceId: "Oxford University", ... },
-    { title: "Completed Oxford University", date: "1991-06-15", experienceId: "Oxford University", isExpEnd: true, ... }
+    { eventTitle: "Started Oxford University", date: "1988-09-01", experienceId: "Oxford University", isExpStart: true, ... },
+    { eventTitle: "Passed Prelims", date: "1989-06-15", experienceId: "Oxford University", ... },
+    { eventTitle: "Completed Oxford University", date: "1991-06-15", experienceId: "Oxford University", isExpEnd: true, ... }
   ]
 
 Do NOT create experiences for life stages like "Childhood" or "Adolescence" - those are Ages, not Experiences.
@@ -564,7 +564,7 @@ BEFORE RETURNING JSON, verify these consistency checks:
 3. Every experience has dateTo that is after dateFrom
 4. At most 1-2 experiences have dateTo near the present day (ongoing); all others are clearly closed
 5. Ages cover the entire life from birth to present with no gaps and no overlaps
-6. Every lifelineEvent date falls within one of the Ages${isSpanner ? `\n7. For span events: cumulative time-travel duration does not exceed the pool for this character's Span level (Span ${spanRank} pool = ${spanRank === 1 ? '1' : spanRank === 2 ? '10' : spanRank === 3 ? '100' : spanRank === 4 ? '1,000' : '10,000'} years). Insert isRest: true rest events when the pool would be exhausted.\n8. No span jump exceeds the per-jump distance limit (Span ${spanRank} max = ${spanRank === 1 ? '1 km' : spanRank === 2 ? '10 km' : spanRank === 3 ? '100 km' : spanRank === 4 ? '1,000 km' : '10,000 km'}). Spatial travel beyond this must be summarized, not itemized.\n9. Rest events (isRest: true) have isSpan: false and occur roughly 24 hours after the pool-exhausting span.\n10. Span events are NEVER adjacent - there is ALWAYS at least 1 second of level time between spans. Two isSpan: true events cannot share the same timestamp.` : ''}
+6. Every lifelineEvent date falls within one of the Ages${isSpanner ? `\n7. For span events: cumulative time-travel duration does not exceed the pool for this character's Span level (Span ${spanRank} pool = ${spanRank === 1 ? '1' : spanRank === 2 ? '10' : spanRank === 3 ? '100' : spanRank === 4 ? '1,000' : '10,000'} years). Insert eventIsRest: true rest events when the pool would be exhausted.\n8. No span jump exceeds the per-jump distance limit (Span ${spanRank} max = ${spanRank === 1 ? '1 km' : spanRank === 2 ? '10 km' : spanRank === 3 ? '100 km' : spanRank === 4 ? '1,000 km' : '10,000 km'}). Spatial travel beyond this must be summarized, not itemized.\n9. Rest events (eventIsRest: true) have eventIsSpan: false and occur roughly 24 hours after the pool-exhausting span.\n10. Span events are NEVER adjacent - there is ALWAYS at least 1 second of level time between spans. Two eventIsSpan: true events cannot share the same timestamp.` : ''}
 
 ${isSpanner ? `SPAN POOL RULES - This character is Span ${spanRank}:
 Spanners can teleport through time (spanning). Each span jump has two limits:
@@ -581,23 +581,23 @@ This character is Span ${spanRank}: max ${spanRank === 1 ? '1 km per jump, 1 yea
 
 TIME TRAVEL rules:
 - Each time-travel span consumes years from the pool equal to the duration of the jump. Example: A Span 3 spanning from 1920 to 1870 uses 50 years of their 100-year pool, leaving 50 years remaining.
-- CRITICAL: One may NEVER span instantly after spanning. The character MUST exist level for at least 1 second before spanning again. This means you cannot place two isSpan: true events at the exact same timestamp. Every span must be separated by at least 1 second of level time (insert a level event, a rest event, or simply increment the time by at least 1 second).
-- When the pool is exhausted, the character MUST rest for 24 hours (level time) before spanning again. Insert an isRest: true event titled something like "Recovered After Spanning" or "Rest at Zurich Corner". This rest event resets the pool to full.
+- CRITICAL: One may NEVER span instantly after spanning. The character MUST exist level for at least 1 second before spanning again. This means you cannot place two eventIsSpan: true events at the exact same timestamp. Every span must be separated by at least 1 second of level time (insert a level event, a rest event, or simply increment the time by at least 1 second).
+- When the pool is exhausted, the character MUST rest for 24 hours (level time) before spanning again. Insert an eventIsRest: true event titled something like "Recovered After Spanning" or "Rest at Zurich Corner". This rest event resets the pool to full.
 - A character can make multiple spans as long as the cumulative time duration does not exceed their pool. Track the pool internally: start at full, subtract each span's duration, and when you reach 0 or less, you MUST insert a rest event before the next span.
 - Do NOT exceed the pool limit. If a single span would exceed the remaining pool, the character must rest first, then span.
 
 SPAN 1 CHARACTERS - SPECIAL ATTENTION REQUIRED:
 - Span 1 characters have only a 1-year pool. This is exhausted VERY quickly. After ANY time-travel span longer than a few months, they will need to rest.
-- For example: A Span 1 character spans from 2020 to 2019 (1 year). Pool is now EMPTY. They MUST have a rest event (isRest: true) before spanning again.
+- For example: A Span 1 character spans from 2020 to 2019 (1 year). Pool is now EMPTY. They MUST have a rest event (eventIsRest: true) before spanning again.
 - Another example: A Span 1 spans from 2020 to 2019-06-01 (6 months), then spans to 2019-01-01 (another 5 months). That's 11 months total - pool nearly empty. Next span of more than 1 month would require a rest first.
-- When in doubt, REST. Span 1 characters rest frequently. Include the rest events in the lifelineEvents array with isRest: true.
+- When in doubt, REST. Span 1 characters rest frequently. Include the rest events in the lifelineEvents array with eventIsRest: true.
 
 SPATIAL TRAVEL (location change only, no time travel):
 - If the character needs to travel a distance within their per-jump limit, summarize it in ONE span event. Do NOT itemize every small jump. Example: "Traveled from Paris to Berlin" is ONE event for a Span 4+, not 880 separate 1 km span events.
 - For a Span 1 (1 km/jump), a cross-city move of 5 km could be summarized as "Traveled across Geneva via multiple short spans".
 - Only create individual span events for TIME TRAVEL jumps. Spatial movement is hand-waved in the narrative.
 
-Include ${isMentor ? '8-15' : '4-8'} time-travel span events and ${isMentor ? '2-4' : '1-2'} rest events appropriate to this character's span rank and life story. Every rest event must have isRest: true and isSpan: false.` : 'This is a Leveler - they do NOT have any span events or rest events. All events are level (linear time) events only. Do NOT set isSpan or isRest to true.'}
+Include ${isMentor ? '8-15' : '4-8'} time-travel span events and ${isMentor ? '2-4' : '1-2'} rest events appropriate to this character's span rank and life story. Every rest event must have eventIsRest: true and eventIsSpan: false.` : 'This is a Leveler - they do NOT have any span events or rest events. All events are level (linear time) events only. Do NOT set eventIsSpan or eventIsRest to true.'}
 
 LOCATIONS: Every event MUST have a realistic, geocodeable location. Use format "City, Country" (e.g. "Paris, France", "New York, USA", "Kyoto, Japan"). Locations should be consistent with the era - use period-appropriate city names where applicable.
 CRITICAL LOCATION RULE: NEVER use fictional Continuum-universe location names as event locations. Corners, fraternity halls, and spanner meeting places are SECRET and operate inside real buildings in real cities. Use the REAL CITY, not the corner name. Example: if an event happens at "Der Spanner" corner in Zurich, write location "Zurich, Switzerland" - NOT "Der Spanner" or "Zurich Corner". The location must be a real place that OpenStreetMap can find.

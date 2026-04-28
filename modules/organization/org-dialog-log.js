@@ -61,15 +61,15 @@ export function showLogEngagementDialog(viewState, graphData, sheet, svg) {
             <div class="form-group"><label>Location</label><div class="input-with-btn">
                 <input type="text" name="eventLocation" placeholder="e.g. Paris"/>
                 <input type="hidden" name="eventLat"/><input type="hidden" name="eventLng"/><input type="hidden" name="eventZoom"/>
-                <button type="button" class="geo-btn locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                <button type="button" class="geo-btn grab-btn" title="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
             </div></div>
             <div class="form-group"><label>Description</label><textarea name="description"></textarea></div>
         </form>
     `;
 
     const dialog = new Dialog({
-        title: "Log Engagement",
+        eventTitle: "Log Engagement",
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -117,8 +117,8 @@ export function showLogEngagementDialog(viewState, graphData, sheet, svg) {
                     updates[`system.phases.${phaseId}.operations.${opId}.engagements.${newId}`] = {
                         id: newId, name: formData.name, description: formData.description,
                         date: eventDate, time: formData.time, unitId: formData.unitId,
-                        spanFromLocation: formData.eventLocation,
-                        spanFromLat: safeFloat(formData.eventLat), spanFromLng: safeFloat(formData.eventLng), spanFromZoom: safeFloat(formData.eventZoom)
+                        eventSpanFromLocation: formData.eventLocation,
+                        eventSpanFromLat: safeFloat(formData.eventLat), eventSpanFromLng: safeFloat(formData.eventLng), eventSpanFromZoom: safeFloat(formData.eventZoom)
                     };
                     await sheet.actor.update(updates);
                     sheet.render();

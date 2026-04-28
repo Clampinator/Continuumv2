@@ -23,26 +23,26 @@ export const ChronologyAssembler = {
      * If missing, solves for Age using the objective date relative to Birth.
      */
     const _ensureAge = (event) => {
-        const val = event.age;
+        const val = event.eventAge;
         const hasAge = val !== undefined && val !== null && val !== "";
         if (hasAge) return event;
 
         // RECOVERY: age field is missing. Recover via two-pass rail-offset computation
         // using actor data alone - no graphData dependency.
-        const dateStr = event.isSpan ? event.spanFromDate : event.date;
-        const timeStr = event.isSpan ? event.spanFromTime : event.time;
+        const dateStr = event.eventIsSpan ? event.eventSpanFromDate : event.eventDate;
+        const timeStr = event.eventIsSpan ? event.eventSpanFromTime : event.eventTime;
         if (dobTs && dateStr) {
             const dateObj = parseDate(`${dateStr}T${timeStr || '12:00:00'}`);
             if (dateObj) {
                 const roughAge = Math.max(0, (dateObj.getTime() - dobTs) / 1000);
                 const railBase = computeRailOffset(actor, roughAge);
-                event.age = Math.max(0, (dateObj.getTime() - railBase) / 1000);
+                event.eventAge = Math.max(0, (dateObj.getTime() - railBase) / 1000);
                 return event;
             }
         }
 
         console.warn("Continuum | ChronologyAssembler | Cannot recover age for event:", event.id);
-        event.age = 0;
+        event.eventAge = 0;
         return event;
     };
 

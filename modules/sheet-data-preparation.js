@@ -33,14 +33,14 @@ function _calculateLifelineStats(context) {
     let currentSpanSpentInCycle = 0;
     let lastObjectiveTime = genesisTime;
     for (const event of allEvents) {
-        if (event.isRest) currentSpanSpentInCycle = 0;
-        const arrivalDate = event.isSpan ? event.spanToDate : event.date;
-        const arrivalTime = event.isSpan ? event.spanToTime : event.time;
+        if (event.eventIsRest) currentSpanSpentInCycle = 0;
+        const arrivalDate = event.eventIsSpan ? event.eventSpanToDate : event.eventDate;
+        const arrivalTime = event.eventIsSpan ? event.eventSpanToTime : event.eventTime;
         if (!arrivalDate) continue;
         const arrivalTs = new Date(`${arrivalDate}T${arrivalTime || '12:00:00'}`).getTime();
         if (isNaN(arrivalTs)) continue;
         const objectiveDeltaSeconds = Math.abs(arrivalTs - lastObjectiveTime) / 1000;
-        if (event.isSpan) {
+        if (event.eventIsSpan) {
             currentSpanSpentInCycle += objectiveDeltaSeconds;
             event.calculatedSpentFormatted = _formatSecondsToDuration(objectiveDeltaSeconds);
         } else {

@@ -1,6 +1,6 @@
 /**
  * Floating tooltip for the relationship graph.
- * Shows node name/notes/favor on node hover, and relationship type/notes on link hover.
+ * Shows node name/eventNotes/favor on node hover, and relationship type/eventNotes on link hover.
  */
 export function handleGraphTooltip(container, nodeSel, linkHit) {
     const wrapperNode = container.node().closest('.org-network-wrapper');
@@ -47,9 +47,9 @@ export function handleGraphTooltip(container, nodeSel, linkHit) {
         .on('mouseenter.tooltip', (event, d) => {
             if (d.isRoot) return; // PC node needs no tooltip
             let html = `<div style="color:#6dbfff;font-weight:bold;font-size:13px;margin-bottom:4px">${d.name}</div>`;
-            if (d.notes) html += `<div style="color:#ccc">${d.notes}</div>`;
+            if (d.eventNotes) html += `<div style="color:#ccc">${d.eventNotes}</div>`;
             if (d.favor) html += `<div style="color:#ffd700;margin-top:6px">💰 ${d.favor}</div>`;
-            if (!d.notes && !d.favor) html += `<div style="color:#555;font-style:italic">No notes</div>`;
+            if (!d.eventNotes && !d.favor) html += `<div style="color:#555;font-style:italic">No eventNotes</div>`;
             show(event, html);
         })
         .on('mousemove.tooltip',  move)
@@ -62,7 +62,7 @@ export function handleGraphTooltip(container, nodeSel, linkHit) {
             const sphere = d.importance || '';
             let html = `<div style="color:#bbb;font-weight:bold;font-size:13px;margin-bottom:4px">${type}</div>`;
             if (sphere) html += `<div style="color:#666;font-size:11px">${sphere} sphere</div>`;
-            if (d.notes) html += `<div style="color:#ccc;margin-top:6px">${d.notes}</div>`;
+            if (d.eventNotes) html += `<div style="color:#ccc;margin-top:6px">${d.eventNotes}</div>`;
             show(event, html);
         })
         .on('mousemove.tooltip',  move)

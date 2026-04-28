@@ -16,18 +16,18 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
   const dobTs = ReferenceResolver.resolveOrigin(actor);
 
   const _resolveAge = (event) => {
-    if (event.age !== undefined && event.age !== null && !isNaN(Number(event.age))) {
-      return Number(event.age);
+    if (event.eventAge !== undefined && event.eventAge !== null && !isNaN(Number(event.eventAge))) {
+      return Number(event.eventAge);
     }
 
-    // FALLBACK: event.age is missing. Recover from date using a two-pass approach:
+    // FALLBACK: event.eventAge is missing. Recover from date using a two-pass approach:
     // 1) Estimate rough age ignoring spans (date - dob).
     // 2) Compute rail offset at that rough age from actor data alone.
     // 3) Return corrected age using rail offset as the objective base.
     // No graphData dependency - safe to call before the graph exists.
-    const dateStr = event.isSpan ? event.spanFromDate : event.date;
+    const dateStr = event.eventIsSpan ? event.eventSpanFromDate : event.eventDate;
     if (dateStr) {
-      const timeStr = event.isSpan ? event.spanFromTime : event.time;
+      const timeStr = event.eventIsSpan ? event.eventSpanFromTime : event.eventTime;
       const dateObj = parseDate(`${dateStr}T${timeStr || "12:00:00"}`);
       if (dateObj) {
         const roughAge = Math.max(0, (dateObj.getTime() - dobTs) / 1000);
@@ -44,8 +44,8 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
   };
 
   const _resolveTime = (event) => {
-    const dateStr = event.isSpan ? event.spanFromDate : event.date;
-    const timeStr = event.isSpan ? event.spanFromTime : event.time;
+    const dateStr = event.eventIsSpan ? event.eventSpanFromDate : event.eventDate;
+    const timeStr = event.eventIsSpan ? event.eventSpanFromTime : event.eventTime;
     if (dateStr) {
       const dateObj = parseDate(`${dateStr}T${timeStr || "12:00:00"}`);
       if (dateObj) return dateObj.getTime();

@@ -27,8 +27,8 @@ export function activateSheetListeners(sheet, html) {
     // Select text on focus for input fields
     html.find("input[type='text'], input[type='number']").on("focus", event => event.currentTarget.select());
 
-    // --- EXPERIENCE TITLE TOOLTIP ---
-    html.find('.experience-title').on('mouseenter', (event) => {
+    // --- EXPERIENCE eventTITLE TOOLTIP ---
+    html.find('.experience-eventTitle').on('mouseenter', (event) => {
         ExperienceTooltipService.show(sheet.actor, event.currentTarget, event);
     }).on('mousemove', (event) => {
         ExperienceTooltipService.updatePosition(event);
@@ -191,10 +191,10 @@ export function activateSheetListeners(sheet, html) {
         const eventItem = label.closest('.event-item');
         if (!eventItem.length) return;
 
-        const fromDateInput = eventItem.find('input[name*="spanFromDate"]');
-        const fromTimeInput = eventItem.find('input[name*="spanFromTime"]');
-        const toDateInput = eventItem.find('input[name*="spanToDate"]');
-        const toTimeInput = eventItem.find('input[name*="spanToTime"]');
+        const fromDateInput = eventItem.find('input[name*="eventSpanFromDate"]');
+        const fromTimeInput = eventItem.find('input[name*="eventSpanFromTime"]');
+        const toDateInput = eventItem.find('input[name*="eventSpanToDate"]');
+        const toTimeInput = eventItem.find('input[name*="eventSpanToTime"]');
         
         // Manual sync to bypass change events that might not fire correctly in some versions
         toDateInput.val(fromDateInput.val());

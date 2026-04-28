@@ -39,12 +39,12 @@ export async function handleCharacterSettingsClick(sheet, event) {
         <hr style="margin: 12px 0; border-color: #555;">
         <div class="form-group"><label>Link Lifeline to SpaceTime</label><input type="checkbox" name="spaceTimeLinked" ${spaceTimeLinked ? 'checked' : ''} /></div>
         <hr style="margin: 12px 0; border-color: #555;">
-        <div class="form-group"><label>Lock Operant Potentials</label><input type="checkbox" name="potentialsLocked" ${potentialsLocked ? 'checked' : ''} title="When locked, players cannot change their Operant Potential maximums" /></div>
+        <div class="form-group"><label>Lock Operant Potentials</label><input type="checkbox" name="potentialsLocked" ${potentialsLocked ? 'checked' : ''} eventTitle="When locked, players cannot change their Operant Potential maximums" /></div>
       </form>
     `;
 
     new Dialog({
-      title: "Character Sheet Settings",
+      eventTitle: "Character Sheet Settings",
       content: content,
       buttons: {
         save: {

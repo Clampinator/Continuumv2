@@ -26,7 +26,7 @@ export function openEraEditDialog(data, sheet, viewState) {
     `;
 
     new Dialog({
-        title: "Edit Era",
+        eventTitle: "Edit Era",
         content: content,
         render: (html) => {
             html.find("input[type='text']").on("focus", event => event.currentTarget.select());

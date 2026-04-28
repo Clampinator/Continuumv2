@@ -7,7 +7,7 @@ import { panToCoordinates } from '../../../span-graph-map.js';
  */
 export function showLocationChoiceDialog(eventData, actorId) {
     new Dialog({
-        title: `Travel: ${eventData.title || 'Level Span'}`,
+        eventTitle: `Travel: ${eventData.eventTitle || 'Level Span'}`,
         content: `
             <style>
                 .location-choice-dialog .dialog-buttons {
@@ -40,12 +40,12 @@ export function showLocationChoiceDialog(eventData, actorId) {
         `,
         buttons: {
             start: {
-                label: `<i class="fas fa-sign-out-alt"></i> <span>Start:</span> <span class="location-label">${eventData.spanFromLocation || 'Origin'}</span>`,
-                callback: () => panToCoordinates(eventData.spanFromLat, eventData.spanFromLng, 12, actorId)
+                label: `<i class="fas fa-sign-out-alt"></i> <span>Start:</span> <span class="location-label">${eventData.eventSpanFromLocation || 'Origin'}</span>`,
+                callback: () => panToCoordinates(eventData.eventSpanFromLat, eventData.eventSpanFromLng, 12, actorId)
             },
             dest: {
-                label: `<i class="fas fa-sign-in-alt"></i> <span>End:</span> <span class="location-label">${eventData.spanToLocation || 'Arrival'}</span>`,
-                callback: () => panToCoordinates(eventData.spanToLat, eventData.spanToLng, 12, actorId)
+                label: `<i class="fas fa-sign-in-alt"></i> <span>End:</span> <span class="location-label">${eventData.eventSpanToLocation || 'Arrival'}</span>`,
+                callback: () => panToCoordinates(eventData.eventSpanToLat, eventData.eventSpanToLng, 12, actorId)
             }
         },
         default: "dest"

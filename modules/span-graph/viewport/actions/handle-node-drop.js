@@ -16,6 +16,6 @@ export async function handleNodeDrop(viewport, worldPos, mode, isNow) {
     } else {
         if (!isNow) return; 
         const { openEventDialog } = await import('../../../lifeline/services/ui/event-dialog/open-event-dialog.js'); 
-        await openEventDialog(viewport.actor.sheet, { mode: 'log', ageRaw: worldPos.age, timeRaw: worldPos.time });
+        await openEventDialog(viewport.actor.sheet, { mode: 'log', ageRaw: worldPos.eventAge, timeRaw: worldPos.eventTime });
     }
 }

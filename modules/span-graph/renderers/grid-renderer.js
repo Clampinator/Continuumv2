@@ -17,8 +17,8 @@ export class GridRenderer {
     const height = rect.height;
 
     // 1. AGE GRID (Vertical)
-    const worldLeft = this.viewport.screenToWorld(0, 0).age;
-    const worldRight = this.viewport.screenToWorld(width, 0).age;
+    const worldLeft = this.viewport.screenToWorld(0, 0).eventAge;
+    const worldRight = this.viewport.screenToWorld(width, 0).eventAge;
     const ageStep = this._calculateGridStep(viewState.zoom);
     const startAge = Math.floor(worldLeft / ageStep) * ageStep;
 
@@ -29,8 +29,8 @@ export class GridRenderer {
     }
 
     // 2. TIME GRID (Horizontal)
-    const worldTop = this.viewport.screenToWorld(0, 0).time;
-    const worldBottom = this.viewport.screenToWorld(0, height).time;
+    const worldTop = this.viewport.screenToWorld(0, 0).eventTime;
+    const worldBottom = this.viewport.screenToWorld(0, height).eventTime;
     const timeStep = ageStep * 1000;
     const startTs = Math.floor(Math.min(worldTop, worldBottom) / timeStep) * timeStep;
     const endTs = Math.max(worldTop, worldBottom);

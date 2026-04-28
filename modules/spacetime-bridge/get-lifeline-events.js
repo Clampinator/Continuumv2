@@ -2,7 +2,7 @@
 Extracts located events from an actor's lifeline, sorted by objective date.
 Returns { waypoints, segments } for drawing on the SpaceTime map.
 
-Waypoint: { ms, lat, lng, title, subjectiveAge }
+Waypoint: { ms, lat, lng, eventTitle, subjectiveAge }
 Segment:  { fromMs, toMs, fromLat, fromLng, toLat, toLng, type }
   type: 'solid' | 'dashed' | 'dotted'
 */
@@ -28,29 +28,29 @@ function collectAllEvents(actor) {
 function buildWaypoints(events) {
     const points = [];
     for (const ev of events) {
-        if (ev.isSpan) {
-            const fromMs = parseDateToMs(ev.spanFromDate, ev.spanFromTime);
-            const toMs   = parseDateToMs(ev.spanToDate,   ev.spanToTime);
-            if (fromMs !== null && ev.spanFromLat != null && ev.spanFromLng != null) {
+        if (ev.eventIsSpan) {
+            const fromMs = parseDateToMs(ev.eventSpanFromDate, ev.eventSpanFromTime);
+            const toMs   = parseDateToMs(ev.eventSpanToDate,   ev.eventSpanToTime);
+            if (fromMs !== null && ev.eventSpanFromLat != null && ev.eventSpanFromLng != null) {
                 points.push({
-                    ms: fromMs, lat: ev.spanFromLat, lng: ev.spanFromLng,
-                    title: ev.title, subjectiveAge: ev.age,
+                    ms: fromMs, lat: ev.eventSpanFromLat, lng: ev.eventSpanFromLng,
+                    eventTitle: ev.eventTitle, subjectiveAge: ev.eventAge,
                     spanId: ev.id, spanRole: 'from'
                 });
             }
-            if (toMs !== null && ev.spanToLat != null && ev.spanToLng != null) {
+            if (toMs !== null && ev.eventSpanToLat != null && ev.eventSpanToLng != null) {
                 points.push({
-                    ms: toMs, lat: ev.spanToLat, lng: ev.spanToLng,
-                    title: ev.title, subjectiveAge: ev.age,
+                    ms: toMs, lat: ev.eventSpanToLat, lng: ev.eventSpanToLng,
+                    eventTitle: ev.eventTitle, subjectiveAge: ev.eventAge,
                     spanId: ev.id, spanRole: 'to'
                 });
             }
         } else {
-            const ms = parseDateToMs(ev.date, ev.time);
+            const ms = parseDateToMs(ev.eventDate, ev.eventTime);
             if (ms !== null && ev.lat != null && ev.lng != null) {
                 points.push({
                     ms, lat: ev.lat, lng: ev.lng,
-                    title: ev.title, subjectiveAge: ev.age,
+                    eventTitle: ev.eventTitle, subjectiveAge: ev.eventAge,
                     spanId: null, spanRole: null
                 });
             }
@@ -71,13 +71,13 @@ function buildSegments(waypoints, allEvents) {
     // Collect ms values of events that lack location data
     const unlocatedTimes = [];
     for (const ev of allEvents) {
-        if (ev.isSpan) {
-            const fMs = parseDateToMs(ev.spanFromDate, ev.spanFromTime);
-            const tMs = parseDateToMs(ev.spanToDate,   ev.spanToTime);
-            if (fMs !== null && (ev.spanFromLat == null || ev.spanFromLng == null)) unlocatedTimes.push(fMs);
-            if (tMs !== null && (ev.spanToLat   == null || ev.spanToLng   == null)) unlocatedTimes.push(tMs);
+        if (ev.eventIsSpan) {
+            const fMs = parseDateToMs(ev.eventSpanFromDate, ev.eventSpanFromTime);
+            const tMs = parseDateToMs(ev.eventSpanToDate,   ev.eventSpanToTime);
+            if (fMs !== null && (ev.eventSpanFromLat == null || ev.eventSpanFromLng == null)) unlocatedTimes.push(fMs);
+            if (tMs !== null && (ev.eventSpanToLat   == null || ev.eventSpanToLng   == null)) unlocatedTimes.push(tMs);
         } else {
-            const ms = parseDateToMs(ev.date, ev.time);
+            const ms = parseDateToMs(ev.eventDate, ev.eventTime);
             if (ms !== null && (ev.lat == null || ev.lng == null)) unlocatedTimes.push(ms);
         }
     }

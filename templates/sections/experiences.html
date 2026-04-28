@@ -9,10 +9,10 @@
       <input type="text" id="experience-search" placeholder="Search Eras, Experiences & Events...">
     </div>
     <div class="experiences-controls">
-        <button type="button" class="timeline-sort-toggle" title="Toggle Sort Order ({{#if (eq timelineSortDirection 'asc')}}Oldest First{{else}}Newest First{{/if}})">
+        <button type="button" class="timeline-sort-toggle" eventTitle="Toggle Sort Order ({{#if (eq timelineSortDirection 'asc')}}Oldest First{{else}}Newest First{{/if}})">
             <i class="fas {{#if (eq timelineSortDirection 'asc')}}fa-sort-amount-down-alt{{else}}fa-sort-amount-down{{/if}}"></i>
         </button>
-        <button type="button" class="experiences-help" title="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="experiences-help" eventTitle="Help"><i class="fas fa-question"></i></button>
         <button type="button" class="item-add" data-type="era" data-tooltip="Add a new Era"><i class="fas fa-plus"></i> Add Era</button>
         <button type="button" class="item-add" data-type="yetItem" data-tooltip="Add a new Yet Item"><i class="fas fa-plus"></i> Add Yet</button>
     </div>
@@ -22,10 +22,10 @@
     {{#each eras as |era|}}
     <div class="era-item draggable-item" data-level="a" data-item-id="{{era.id}}">
       <div class="era-header">
-        <i class="fas fa-grip-vertical drag-handle" title="Drag to reorder Era"></i>
+        <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Era"></i>
         <input type="checkbox" id="toggle-era-{{era.id}}" class="sheet-hidden event-toggle-checkbox minimize-toggle-cb" {{#if (lookup @root.toggles (concat "toggle-era-" era.id))}}checked{{else}}checked{{/if}}>
         <label for="toggle-era-{{era.id}}" class="minimize-maximize-toggle" data-tooltip="Minimize/Maximize Era"></label>
-        <input type="text" class="era-title" name="system.eras.{{era.id}}.name" value="{{era.name}}" placeholder="Era Name (e.g., Childhood, The War Years)">
+        <input type="text" class="era-eventTitle" name="system.eras.{{era.id}}.name" value="{{era.name}}" placeholder="Era Name (e.g., Childhood, The War Years)">
         <label>From:</label>
         
         <div class="date-picker-container era-date">
@@ -56,17 +56,17 @@
               <div class="event-item draggable-item {{#if event.isError}}error-border{{/if}}" data-level="c" data-item-id="{{event.id}}" data-era-id="{{event.eraId}}" data-exp-id="null">
                   <div class="event-main-content-wrapper">
                       <div class="event-normal-layout">
-                          <i class="fas fa-grip-vertical drag-handle" title="Drag to reorder Event"></i>
+                          <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Event"></i>
                           <div class="event-content">
-                              <div class="event-title-row">
+                              <div class="event-eventTitle-row">
                                   <span class="trauma-toggle" data-id="{{event.id}}" data-type="event" data-tooltip="Toggle Trauma">
                                       {{#if (lookup @root.toggles (concat "trauma-" event.id))}}😱{{else}}😊{{/if}}
                                   </span>
                                   <div class="rest-toggle-wrapper">
-                                      <input type="checkbox" id="rest-toggle-{{event.id}}-age" class="sheet-hidden rest-toggle-cb" name="system.eras.{{event.eraId}}.events.{{event.id}}.isRest" {{#if event.isRest}}checked{{/if}}>
+                                      <input type="checkbox" id="rest-toggle-{{event.id}}-age" class="sheet-hidden rest-toggle-cb" name="system.eras.{{event.eraId}}.events.{{event.id}}.eventIsRest" {{#if event.eventIsRest}}checked{{/if}}>
                                       <label for="rest-toggle-{{event.id}}-age" class="event-control-button" data-tooltip="Toggle 24h Rest Event">R</label>
                                   </div>
-                                  <input type="text" class="event-title-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.title" value="{{event.title}}" placeholder="Event Title" />
+                                  <input type="text" class="event-eventTitle-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.eventTitle" value="{{event.eventTitle}}" placeholder="Event eventTitle" />
                                   <div class="date-picker-container event-date-input">
                                       <input type="text" class="date-text-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.date" value="{{event.date}}" placeholder="YYYY-MM-DD" />
                                       <i class="fas fa-calendar-alt date-picker-icon"></i>
@@ -74,7 +74,7 @@
                                   </div>
                                   <input type="time" class="event-time-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.time" value="{{event.time}}" />
                               </div>
-                              <textarea name="system.eras.{{event.eraId}}.events.{{event.id}}.notes" class="js-auto-expand" placeholder="Event Notes">{{event.notes}}</textarea>
+                              <textarea name="system.eras.{{event.eraId}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Event eventNotes">{{event.eventNotes}}</textarea>
                           </div>
                           <div class="event-controls">
                               <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}Cannot delete an element with content{{else}}Delete Event{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{event.eraId}}"><i class="fas fa-trash"></i></a>
@@ -90,8 +90,8 @@
         <div class="experience-item draggable-item {{#unless (eq ../id experience.sourceAgeId)}}is-clone{{/unless}}" data-level="b" data-item-id="{{experience.id}}" data-parent-id="{{era.id}}" style="border-left: 5px solid {{experience.displayColor}};">
 
           <div class="experience-content">
-            <div class="experience-title-row">
-              <i class="fas fa-grip-vertical drag-handle" title="Drag to reorder Experience"></i>
+            <div class="experience-eventTitle-row">
+              <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Experience"></i>
               <input type="checkbox" id="toggle-experience-{{experience.id}}-ctx-{{../id}}" class="sheet-hidden event-toggle-checkbox minimize-toggle-cb" {{#if (lookup @root.toggles (concat "toggle-experience-" experience.id))}}checked{{else}}checked{{/if}}>
               <label for="toggle-experience-{{experience.id}}-ctx-{{../id}}" class="minimize-maximize-toggle" data-tooltip="Minimize/Maximize Experience"></label>
               
@@ -99,7 +99,7 @@
                 {{#if (lookup @root.toggles (concat "trauma-" experience.id))}}😱{{else}}😊{{/if}}
               </span>
               
-              <input type="text" class="experience-title" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.name" value="{{experience.name}}" placeholder="Experience Title" />
+              <input type="text" class="experience-eventTitle" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.name" value="{{experience.name}}" placeholder="Experience eventTitle" />
               <label>From:</label>
               
               <div class="date-picker-container experience-date">
@@ -122,16 +122,16 @@
                   <button type="button" class="event-add" data-era-id="{{experience.sourceAgeId}}" data-exp-id="{{experience.id}}"><i class="fas fa-plus"></i> Add Event</button>
                 </div>
             </div>
-<textarea name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.description" class="js-auto-expand" placeholder="Experience Notes">{{experience.description}}</textarea>
+<textarea name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.description" class="js-auto-expand" placeholder="Experience eventNotes">{{experience.description}}</textarea>
 
             <div class="events-container" data-level="c-list" data-parent-id="{{experience.id}}">
               {{#each experience.events as |event|}}
               <div class="event-item draggable-item {{#if event.isError}}error-border{{/if}}" data-level="c" data-item-id="{{event.id}}" data-parent-id="{{experience.id}}">
                 
                 <div class="event-main-content-wrapper">
-                {{#if event.isSpan}}
+                {{#if event.eventIsSpan}}
                   <div class="event-span-layout">
-                    <i class="fas fa-grip-vertical drag-handle" title="Drag to reorder Event"></i>
+                    <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Event"></i>
                     <div class="event-span-grid">
                         <div class="span-grid-column">
                           <div class="direction-radio-group">
@@ -150,26 +150,26 @@
                             <div class="span-datetime-row">
                               <label>From:</label>
                               <div class="date-picker-container">
-                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanFromDate" value="{{event.spanFromDate}}" placeholder="YYYY-MM-DD" />
+                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromDate" value="{{event.eventSpanFromDate}}" placeholder="YYYY-MM-DD" />
                                 <i class="fas fa-calendar-alt date-picker-icon"></i>
                                 <input type="date" class="date-picker-hidden" tabindex="-1" />
                               </div>
-                              <input type="time" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanFromTime" value="{{event.spanFromTime}}">
+                              <input type="time" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromTime" value="{{event.eventSpanFromTime}}">
                             </div>
                             <div class="span-location-row">
-                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanFromLocation" value="{{event.spanFromLocation}}" placeholder="Location From">
+                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromLocation" value="{{event.eventSpanFromLocation}}" placeholder="Location From">
                             </div>
                             <div class="span-datetime-row">
                               <label>To:</label>
                               <div class="date-picker-container">
-                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanToDate" value="{{event.spanToDate}}" placeholder="YYYY-MM-DD" />
+                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToDate" value="{{event.eventSpanToDate}}" placeholder="YYYY-MM-DD" />
                                 <i class="fas fa-calendar-alt date-picker-icon"></i>
                                 <input type="date" class="date-picker-hidden" tabindex="-1" />
                               </div>
-                              <input type="time" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanToTime" value="{{event.spanToTime}}">
+                              <input type="time" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToTime" value="{{event.eventSpanToTime}}">
                             </div>
                             <div class="span-location-row">
-                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanToLocation" value="{{event.spanToLocation}}" placeholder="Location To">
+                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToLocation" value="{{event.eventSpanToLocation}}" placeholder="Location To">
                             </div>
                           </div>
                         </div>
@@ -189,7 +189,7 @@
                             <div class="event-controls">
                                 {{#if (or @root.isGM @root.playersCanSeeSpan)}}
                                 <div class="span-toggle-wrapper">
-                                    <input type="checkbox" id="span-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden span-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.isSpan" {{#if event.isSpan}}checked{{/if}}>
+                                    <input type="checkbox" id="span-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden span-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventIsSpan" {{#if event.eventIsSpan}}checked{{/if}}>
                                     <label for="span-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="Toggle Span Event">S</label>
                                 </div>
                                 {{/if}}
@@ -203,17 +203,17 @@
                   </div>
                 {{else}}
                 <div class="event-normal-layout">
-                  <i class="fas fa-grip-vertical drag-handle" title="Drag to reorder Event"></i>
+                  <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Event"></i>
                   <div class="event-content">
-                    <div class="event-title-row">
+                    <div class="event-eventTitle-row">
                       <span class="trauma-toggle" data-id="{{event.id}}" data-type="event" data-tooltip="Toggle Trauma">
                         {{#if (lookup @root.toggles (concat "trauma-" event.id))}}😱{{else}}😊{{/if}}
                       </span>
                       <div class="rest-toggle-wrapper">
-                        <input type="checkbox" id="rest-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden rest-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.isRest" {{#if event.isRest}}checked{{/if}}>
+                        <input type="checkbox" id="rest-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden rest-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventIsRest" {{#if event.eventIsRest}}checked{{/if}}>
                         <label for="rest-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="Toggle 24h Rest Event">R</label>
                       </div>
-                      <input type="text" class="event-title-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.title" value="{{event.title}}" placeholder="Event Title" />
+                      <input type="text" class="event-eventTitle-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventTitle" value="{{event.eventTitle}}" placeholder="Event eventTitle" />
                       
                       <div class="date-picker-container event-date-input">
                         <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.date" value="{{event.date}}" placeholder="YYYY-MM-DD" />
@@ -228,12 +228,12 @@
                         <i class="fas fa-map-marker-alt"></i> <span>Spacetime Link</span>
                     </div>
                     {{/if}}
-<textarea name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.notes" class="js-auto-expand" placeholder="Event Notes">{{event.notes}}</textarea>
+<textarea name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Event eventNotes">{{event.eventNotes}}</textarea>
                   </div>
                   <div class="event-controls">
                     {{#if (or @root.isGM @root.playersCanSeeSpan)}}
                     <div class="span-toggle-wrapper">
-                      <input type="checkbox" id="span-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden span-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.isSpan" {{#if event.isSpan}}checked{{/if}}>
+                      <input type="checkbox" id="span-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden span-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventIsSpan" {{#if event.eventIsSpan}}checked{{/if}}>
                       <label for="span-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="Toggle Span Event">S</label>
                     </div>
                     {{/if}}

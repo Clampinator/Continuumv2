@@ -12,7 +12,7 @@ Return value: an objective timestamp representing the "rail origin" at targetAge
   - No spans: returns dobTs
   - After N spans: returns dobTs + sum(toTs - fromTs for each span)
 
-Usage pattern for converting date -> age when event.age is missing:
+Usage pattern for converting date -> age when event.eventAge is missing:
   const roughAge  = Math.max(0, (dateTs - dobTs) / 1000);
   const railBase  = computeRailOffset(actor, roughAge);
   const actualAge = Math.max(0, (dateTs - railBase) / 1000);
@@ -26,15 +26,15 @@ export function computeRailOffset(actor, targetAge) {
 
     const collectSpans = (events) => {
         for (const event of Object.values(events || {})) {
-            if (!event.isSpan) continue;
-            const eventAge = Number(event.age);
+            if (!event.eventIsSpan) continue;
+            const eventAge = Number(event.eventAge);
             if (!Number.isFinite(eventAge) || eventAge > targetAge) continue;
-            if (!event.spanFromDate || !event.spanToDate) continue;
+            if (!event.eventSpanFromDate || !event.eventSpanToDate) continue;
             const fromTs = parseDate(
-                `${event.spanFromDate}T${event.spanFromTime || '12:00:00'}`
+                `${event.eventSpanFromDate}T${event.eventSpanFromTime || '12:00:00'}`
             )?.getTime();
             const toTs = parseDate(
-                `${event.spanToDate}T${event.spanToTime || '12:00:00'}`
+                `${event.eventSpanToDate}T${event.eventSpanToTime || '12:00:00'}`
             )?.getTime();
             if (fromTs && toTs && toTs !== fromTs) {
                 spans.push({ age: eventAge, fromTs, toTs });

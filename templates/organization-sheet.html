@@ -16,15 +16,15 @@
         <h2 class="section-heading">Operational Map</h2>
       </label>
       <div class="span-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
-        <button type="button" class="org-lifeline-toggle-map" title="Toggle Lifeline Graph (Spacebar)"><i class="fas fa-project-diagram"></i></button>
-        <button type="button" class="org-lifeline-reset-view" title="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="org-lifeline-toggle-map" eventTitle="Toggle Lifeline Graph (Spacebar)"><i class="fas fa-project-diagram"></i></button>
+        <button type="button" class="org-lifeline-reset-view" eventTitle="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
       </div>
     </div>
 
     <div class="section-content">
       <!-- Mandate HUD -->
       <div class="graph-goal-hud-container">
-        <button type="button" class="goal-hud-add" title="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
+        <button type="button" class="goal-hud-add" eventTitle="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
         {{#each mandates as |mandate|}}
           {{#unless (eq mandate.importance "Achieved")}}
           <div class="goal-hud-chip" data-id="{{mandate.id}}" data-importance="{{mandate.importance}}">

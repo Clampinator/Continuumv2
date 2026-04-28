@@ -1,13 +1,13 @@
 /*
 CSV column names accepted by the importer. Order does not matter - matched by name.
-Required for events: title AND (date OR spanFromDate).
+Required for events: eventTitle AND (date OR eventSpanFromDate).
 */
 export const TEMPLATE_HEADERS = [
     'type',
-    'date', 'time', 'title', 'notes', 'location',
-    'isSpan',
-    'spanFromDate', 'spanFromTime', 'spanFromLocation',
-    'spanToDate',   'spanToTime',   'spanToLocation',
+    'date', 'time', 'eventTitle', 'eventNotes', 'location',
+    'eventIsSpan',
+    'eventSpanFromDate', 'eventSpanFromTime', 'eventSpanFromLocation',
+    'eventSpanToDate',   'eventSpanToTime',   'eventSpanToLocation',
     'experience', 'startExperience', 'endExperience',
     'age', 'isBirth',
     'subjectiveAge',
@@ -18,7 +18,7 @@ Example rows shown in the downloaded template.
 Age rows come first; event rows follow and reference the age by name.
 */
 const TEMPLATE_EXAMPLE_ROWS = [
-    // type=age rows create Age containers - no date needed, just a title
+    // type=age rows create Age containers - no date needed, just a eventTitle
     ['age', '', '', 'College Years', '', '', '', '', '', '', '', '', '', '', '', '', ''],
     // type=event (or blank) rows are lifeline events
     // experience=name, startExperience=true opens an Experience; age=name routes to that Age

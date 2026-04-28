@@ -16,7 +16,7 @@ export async function commitBatchRows(actor, rows) {
         // For CSV import, we usually assume these are NEW events to be added.
         // But for now, we'll use the existing submit logic which searches by ID.
         if (row.eventId) {
-            await submitSpreadsheetRow(actor, row.eventId, 'title', row.title);
+            await submitSpreadsheetRow(actor, row.eventId, 'eventTitle', row.eventTitle);
             // ... apply other fields
             count++;
         }

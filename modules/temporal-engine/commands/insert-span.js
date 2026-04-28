@@ -11,8 +11,9 @@ import { insertEvent } from './insert-event.js';
  * @returns {Array} The updated and shifted history.
  */
 export function insertSpan(history, newSpan) {
-  if (!newSpan.record?.isSpan && !newSpan.isSpan) {
-    throw new Error('insertSpan requires an event with isSpan: true');
+  const eventIsSpan = Boolean(newSpan.record?.eventIsSpan || newSpan.eventIsSpan);
+  if (!eventIsSpan) {
+    throw new Error('insertSpan requires an event with eventIsSpan: true');
   }
 
   // 1. Determine displacement

@@ -9,7 +9,7 @@ import { createEndOfRestEvent } from '../../handle-rest-toggle.js';
  */
 export async function handleRestLogic(actor, eventData, existingData, context) {
     const { targetAgeId, targetExpId } = context;
-    const isRestToggledOn = !existingData?.isRest && eventData.isRest;
+    const isRestToggledOn = !existingData?.eventIsRest && eventData.eventIsRest;
     
     if (isRestToggledOn) {
         await createEndOfRestEvent(actor, eventData, targetAgeId, targetExpId);

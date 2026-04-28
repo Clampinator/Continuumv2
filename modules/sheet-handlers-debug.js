@@ -57,14 +57,14 @@ export async function handleFixRailOffsetsClick(sheet, event) {
 
     for (const [eraId, era] of Object.entries(system.eras || {})) {
         for (const [eventId, evt] of Object.entries(era.events || {})) {
-            if (evt.isSpan && evt.title === "Reconciliation Loop") {
+            if (evt.eventIsSpan && evt.eventTitle === "Reconciliation Loop") {
                 updates[`system.eras.${eraId}.events.-=${eventId}`] = null;
                 count++;
             }
         }
         for (const [expId, exp] of Object.entries(era.experiences || {})) {
             for (const [eventId, evt] of Object.entries(exp.events || {})) {
-                if (evt.isSpan && evt.title === "Reconciliation Loop") {
+                if (evt.eventIsSpan && evt.eventTitle === "Reconciliation Loop") {
                     updates[`system.eras.${eraId}.experiences.${expId}.events.-=${eventId}`] = null;
                     count++;
                 }

@@ -26,12 +26,12 @@ export function calculateGhostSnap(pointer, rails) {
                 minDist = proj.dist;
                 
                 // Interpolate world coordinates based on the projection factor 't'
-                const worldAge = p1.world.age + proj.t * (p2.world.age - p1.world.age);
-                const worldTime = p1.world.time + proj.t * (p2.world.time - p1.world.time);
+                const worldAge = p1.world.eventAge + proj.t * (p2.world.eventAge - p1.world.eventAge);
+                const worldTime = p1.world.eventTime + proj.t * (p2.world.eventTime - p1.world.eventTime);
 
                 nearest = {
                     screen: proj.point,
-                    world: { age: worldAge, time: worldTime },
+                    world: { eventAge: worldAge, eventTime: worldTime },
                     t: proj.t
                 };
             }

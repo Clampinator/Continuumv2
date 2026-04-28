@@ -46,7 +46,7 @@ export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, ac
     let spentInCurrentCycle = 0;
 
     subjectiveStream.forEach(event => {
-        if (event.isSpan) {
+        if (event.eventIsSpan) {
             const result = processSpanEvent(event, objectiveOffset);
             levelNodes.push(...result.nodes);
             // Span cost = absolute time jump in seconds
@@ -57,7 +57,7 @@ export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, ac
             objectiveOffset = result.newOffset;
         } else {
             // A rest event refreshes the span pool
-            if (event.isRest) spentInCurrentCycle = 0;
+            if (event.eventIsRest) spentInCurrentCycle = 0;
             // Level events are forced onto the diagonal rail
             const node = processLevelEvent(event, objectiveOffset);
             if (node) levelNodes.push(node);

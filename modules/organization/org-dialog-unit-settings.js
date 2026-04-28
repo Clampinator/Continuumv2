@@ -24,7 +24,7 @@ export function showUnitSettingsDialog(sheet, unitId, unitType, unit) {
             <label style="text-align:right; white-space:nowrap;">Unit Logo</label>
             <div style="display:flex; gap:6px; align-items:center;">
                 <input type="text" name="logo" value="${currentLogo}" placeholder="Path or URL to image" style="flex:1; min-width:0;"/>
-                <button type="button" class="unit-logo-browse" title="Browse for image" style="flex:0 0 auto; padding:2px 6px;">
+                <button type="button" class="unit-logo-browse" eventTitle="Browse for image" style="flex:0 0 auto; padding:2px 6px;">
                     <i class="fas fa-file-image"></i>
                 </button>
             </div>
@@ -42,7 +42,7 @@ export function showUnitSettingsDialog(sheet, unitId, unitType, unit) {
     `;
 
     new Dialog({
-        title: `Unit Settings — ${unitName}`,
+        eventTitle: `Unit Settings — ${unitName}`,
         content: content,
         render: (html) => {
             // Live preview as user types/pastes a path

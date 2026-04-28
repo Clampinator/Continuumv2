@@ -36,7 +36,7 @@ export function activateOrgListeners(sheet, html) {
     html.on('click', '.personal-grab-btn', (event) => handleOrgGrabClick(sheet, event));
 
     // Rest Handling
-    html.on('change', 'input[name*=".isRest"]', (event) => handleRestToggle(sheet, event));
+    html.on('change', 'input[name*=".eventIsRest"]', (event) => handleRestToggle(sheet, event));
 
     // Commander slot: allow actor drops
     html.on('dragover', '.commander-slot', (event) => {

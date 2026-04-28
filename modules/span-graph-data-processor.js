@@ -16,8 +16,8 @@ export function flattenEvents(eras, actor = null) {
 
   const _calculateTimestamp = (event) => {
     if (event.ts !== undefined && event.ts !== null) return Number(event.ts);
-    const d = event.isSpan ? event.spanFromDate : (event.date || event.dateTime?.split('T')[0]);
-    const t = (event.isSpan ? event.spanFromTime : (event.time || event.dateTime?.split('T')[1]?.substring(0, 5))) || '12:00:00';
+    const d = event.eventIsSpan ? event.eventSpanFromDate : (eventDate || event.dateTime?.split('T')[0]);
+    const t = (event.eventIsSpan ? event.eventSpanFromTime : (event.eventTime || event.dateTime?.split('T')[1]?.substring(0, 5))) || '12:00:00';
     if (!d) return 0;
     const dt = parseDate(`${d}T${t}`);
     return dt ? dt.getTime() : 0;
@@ -25,9 +25,9 @@ export function flattenEvents(eras, actor = null) {
 
   const _calculateArrival = (event) => {
     if (event.arrivalTs !== undefined && event.arrivalTs !== null) return Number(event.arrivalTs);
-    if (!event.isSpan) return 0;
-    const d = event.spanToDate;
-    const t = event.spanToTime || '12:00:00';
+    if (!event.eventIsSpan) return 0;
+    const d = event.eventSpanToDate;
+    const t = event.eventSpanToTime || '12:00:00';
     if (!d) return 0;
     const dt = parseDate(`${d}T${t}`);
     return dt ? dt.getTime() : 0;
@@ -40,12 +40,12 @@ export function flattenEvents(eras, actor = null) {
         allNodes.push({ 
             id: id, eraId: eraId, expId: null,
             path: `system.eras.${eraId}.events.${id}`, // REQUIRED for re-indexing
-            x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
+            x: (event.eventAge !== undefined && event.eventAge !== null) ? Number(event.eventAge) : null,
             y: _calculateTimestamp(event),
             arrivalY: _calculateArrival(event),
             sort: Number(event.sort) || 0,
-            isSpan: !!event.isSpan,
-            title: event.title || "Event",
+            eventIsSpan: !!event.eventIsSpan,
+            eventTitle: event.eventTitle || "Event",
             record: foundry.utils.deepClone(event)
         });
       });
@@ -58,12 +58,12 @@ export function flattenEvents(eras, actor = null) {
                 id: id, eraId: eraId, expId: expId,
                 path: `system.eras.${eraId}.experiences.${expId}.events.${id}`,
                 experienceName: exp.name || 'Unnamed Experience',
-                x: (event.age !== undefined && event.age !== null) ? Number(event.age) : null,
+                x: (event.eventAge !== undefined && event.eventAge !== null) ? Number(event.eventAge) : null,
                 y: _calculateTimestamp(event),
                 arrivalY: _calculateArrival(event),
                 sort: Number(event.sort) || 0,
-                isSpan: !!event.isSpan,
-                title: event.title || "Event",
+                eventIsSpan: !!event.eventIsSpan,
+                eventTitle: event.eventTitle || "Event",
                 record: foundry.utils.deepClone(event)
             });
           });

@@ -6,11 +6,11 @@ describe('getTemporalState: The Umbilical Cord', () => {
 
     it('should calculate the full state of a simple lifeline from raw facts', () => {
         const historyFacts = [
-            { id: 'birth', sort: 1000, isBirth: true, record: { age: 0, date: "2000-01-01", time: "12:00:00" } },
-            { id: 'e1', sort: 2000, record: { age: 10, date: "2000-01-01", time: "12:00:10" } }
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'e1', sort: 2000, record: { eventAge: 10, eventDate: "2000-01-01", eventTime: "12:00:10" } }
         ];
         
-        const state = getTemporalState(historyFacts, 0, originTime);
+        const state = getTemporalState(historyFacts, null, originTime);
         
         expect(state.segments).toHaveLength(1);
         expect(state.nodes).toHaveLength(2);
@@ -22,12 +22,12 @@ describe('getTemporalState: The Umbilical Cord', () => {
 
     it('should correctly shift rails and calculate displacement from Span facts', () => {
         const historyFacts = [
-            { id: 'birth', sort: 1000, isBirth: true, record: { age: 0, date: "2000-01-01", time: "12:00:00" } },
-            { id: 'span1', sort: 2000, record: { age: 10, isSpan: true, spanFromDate: "2000-01-01", spanFromTime: "12:00:10", spanToDate: "2000-01-01", spanToTime: "12:00:20" } },
-            { id: 'e2', sort: 3000, record: { age: 20, date: "2000-01-01", time: "12:00:30" } }
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'span1', sort: 2000, record: { eventAge: 10, eventIsSpan: true, eventSpanFromDate: "2000-01-01", eventSpanFromTime: "12:00:10", eventSpanToDate: "2000-01-01", eventSpanToTime: "12:00:20" } },
+            { id: 'e2', sort: 3000, record: { eventAge: 20, eventDate: "2000-01-01", eventTime: "12:00:30" } }
         ];
         
-        const state = getTemporalState(historyFacts, 0, originTime);
+        const state = getTemporalState(historyFacts, null, originTime);
         
         const e2 = state.nodes.find(n => n.id === 'e2');
         // Age 20: 10s after span arrival (noon+20s). Time = noon+30s.

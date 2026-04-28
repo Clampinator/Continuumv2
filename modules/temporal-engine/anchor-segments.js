@@ -19,7 +19,7 @@ export function anchorSegments(segments, nodesWithProjection) {
             id: `arrival-${seg.startX}-${seg.startY}`,
             x: Number(seg.startX),
             y: Number(seg.startY),
-            record: { title: i === 0 ? "Birth" : "Arrival" },
+            record: { eventTitle: i === 0 ? "Birth" : "Arrival" },
             isVirtual: true,
             isSpanDest: i > 0,
             isBirth: i === 0,

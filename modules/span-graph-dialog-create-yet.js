@@ -22,7 +22,7 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
     let ageStr = "";
     let dateStr = "";
     let timeStr = "";
-    let locationStr = isEdit ? existingData.location : "";
+    let locationStr = isEdit ? existingData.eventLocation : "";
     let lat = isEdit ? existingData.lat : null;
     let lng = isEdit ? existingData.lng : null;
     let isFragSuppressed = isEdit ? !!existingData.isFragSuppressed : false;
@@ -39,10 +39,10 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
     const calculatedTime = `${hh}:${min}:${ss}`;
 
     if (isEdit) {
-        if (existingData.age) ageStr = formatSubjectiveAge(parseFloat(existingData.age) * SECONDS_IN_YEAR);
-        if (existingData.date) {
-            dateStr = existingData.date;
-            timeStr = existingData.time || "";
+        if (existingData.eventAge) ageStr = formatSubjectiveAge(parseFloat(existingData.eventAge) * SECONDS_IN_YEAR);
+        if (existingData.eventDate) {
+            dateStr = existingData.eventDate;
+            timeStr = existingData.eventTime || "";
         }
     } else {
         ageStr = formatSubjectiveAge(worldAge);
@@ -58,13 +58,13 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
             </div>
             <div class="form-group" style="margin-top:10px; border-top:1px solid #444; padding-top:5px;">
                 <label style="color:#aaa;">Constraints (Optional)</label>
-                <p class="notes" style="font-size:0.8em; margin-bottom:5px;">Leave blank to let the event float freely.</p>
+                <p class="eventNotes" style="font-size:0.8em; margin-bottom:5px;">Leave blank to let the event float freely.</p>
             </div>
             <div class="form-group">
                 <label>Locked Age</label>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" name="age" value="${isEdit && existingData.age ? ageStr : ""}" placeholder="${ageStr}" style="flex: 1;"/>
-                    <button type="button" class="use-cursor-age" title="Use Cursor Position" style="flex: 0 0 32px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-crosshairs"></i></button>
+                    <input type="text" name="age" value="${isEdit && existingData.eventAge ? ageStr : ""}" placeholder="${ageStr}" style="flex: 1;"/>
+                    <button type="button" class="use-cursor-age" eventTitle="Use Cursor Position" style="flex: 0 0 32px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-crosshairs"></i></button>
                 </div>
             </div>
             <div class="form-group">
@@ -85,8 +85,8 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
                     <input type="text" name="location" value="${locationStr || ''}" placeholder="Enter location..." style="flex: 1;">
                     <input type="hidden" name="lat" value="${lat || ''}"/>
                     <input type="hidden" name="lng" value="${lng || ''}"/>
-                    <button type="button" class="locate-btn" title="Locate on Map" style="flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; border-radius: 4px; color: #8ecae6; cursor: pointer;"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="grab-btn" title="Grab Map Center" style="flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; border-radius: 4px; color: #8ecae6; cursor: pointer;"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="locate-btn" eventTitle="Locate on Map" style="flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; border-radius: 4px; color: #8ecae6; cursor: pointer;"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="grab-btn" eventTitle="Grab Map Center" style="flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; border-radius: 4px; color: #8ecae6; cursor: pointer;"><i class="fas fa-crosshairs"></i></button>
                 </div>
             </div>
             ${isEdit ? `
@@ -99,7 +99,7 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
     `;
 
     new Dialog({
-        title: isEdit ? "Edit Yet" : "Define Yet",
+        eventTitle: isEdit ? "Edit Yet" : "Define Yet",
         content: content,
         render: (html) => {
             activateDatePickers(html);

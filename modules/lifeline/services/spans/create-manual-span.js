@@ -14,13 +14,13 @@ export function createManualSpan(actor, formData, params) {
     const newId = (mode === 'edit') ? existingData.id : foundry.utils.randomID();
 
     if (mode === 'edit') {
-        // DIAGONAL AUTHORITY (edit): project spanFromDate onto the current rail to derive
+        // DIAGONAL AUTHORITY (edit): project eventSpanFromDate onto the current rail to derive
         // the correct departure age. Do NOT use formData.eventAge here — formatDuration writes
         // 'm' for minutes, but parseAgeString reads 'm' as months, corrupting the age.
         // params.timeRaw = old span's arrival time; params.ageRaw = old span's age.
         // For a span whose destination sits on the original rail: railOffset = dobTs exactly.
-        if (formData.spanFromDate) {
-            const fromDateObj = parseDate(`${normalizeDateInput(formData.spanFromDate)}T${formData.spanFromTime || '12:00:00'}`);
+        if (formData.eventSpanFromDate) {
+            const fromDateObj = parseDate(`${normalizeDateInput(formData.eventSpanFromDate)}T${formData.eventSpanFromTime || '12:00:00'}`);
             if (fromDateObj) {
                 const resolvedFromTime = fromDateObj.getTime();
                 const railOffset = finalTime - (finalAge * 1000);
@@ -38,14 +38,14 @@ export function createManualSpan(actor, formData, params) {
         if (formData.eventAge && formData.eventAge.trim() !== "") {
             finalAge = parseAgeString(formData.eventAge);
         }
-        // For log/insert, finalTime is the arrival (the drag end / spanToDate).
-        const inputDate = normalizeDateInput(formData.spanToDate);
-        const inputTime = formData.spanToTime || "12:00:00";
+        // For log/insert, finalTime is the arrival (the drag end / eventSpanToDate).
+        const inputDate = normalizeDateInput(formData.eventSpanToDate);
+        const inputTime = formData.eventSpanToTime || "12:00:00";
         const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
         if (inputDateObj) {
             finalTime = inputDateObj.getTime();
         }
     }
 
-    return { finalAge, finalTime, newId, isSpan: true };
+    return { finalAge, finalTime, newId, eventIsSpan: true };
 }

@@ -39,32 +39,32 @@
     </div>
     {{/if}}
 
-    <div id="spanFields" {{#unless isSpan}}style="display:none"{{/unless}}>
+    <div id="spanFields" {{#unless eventIsSpan}}style="display:none"{{/unless}}>
         <div class="section-header-compact">Origin (From)</div>
         <div class="form-row">
             <div class="form-col">
                 <label>Date</label>
                 <div class="date-picker-container">
-                    <input type="text" class="date-text-input" name="spanFromDate" value="{{spanFromDate}}" placeholder="YYYY-MM-DD" />
+                    <input type="text" class="date-text-input" name="eventSpanFromDate" value="{{eventSpanFromDate}}" placeholder="YYYY-MM-DD" />
                     <i class="fas fa-calendar-alt date-picker-icon"></i>
                     <input type="date" class="date-picker-hidden" tabindex="-1" />
                 </div>
             </div>
             <div class="form-col">
                 <label>Time</label>
-                <input type="time" step="1" name="spanFromTime" value="{{spanFromTime}}"/>
+                <input type="time" step="1" name="eventSpanFromTime" value="{{eventSpanFromTime}}"/>
             </div>
         </div>
         <div class="form-row">
             <div class="form-col">
                 <label>Origin Location</label>
                 <div class="input-with-btn">
-                    <input type="text" name="spanFromLocation" value="{{spanFromLocation}}" placeholder="e.g. Origin point" />
+                    <input type="text" name="eventSpanFromLocation" value="{{eventSpanFromLocation}}" placeholder="e.g. Origin point" />
                     <input type="hidden" name="spanFromLat" value="{{spanFromLat}}" />
                     <input type="hidden" name="spanFromLng" value="{{spanFromLng}}" />
                     <input type="hidden" name="spanFromZoom" value="{{spanFromZoom}}" />
-                    <button type="button" class="geo-btn locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="geo-btn grab-btn" title="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
                 </div>
             </div>
         </div>
@@ -74,32 +74,32 @@
             <div class="form-col">
                 <label>Date</label>
                 <div class="date-picker-container">
-                    <input type="text" class="date-text-input" name="spanToDate" value="{{spanToDate}}" placeholder="YYYY-MM-DD" />
+                    <input type="text" class="date-text-input" name="eventSpanToDate" value="{{eventSpanToDate}}" placeholder="YYYY-MM-DD" />
                     <i class="fas fa-calendar-alt date-picker-icon"></i>
                     <input type="date" class="date-picker-hidden" tabindex="-1" />
                 </div>
             </div>
             <div class="form-col">
                 <label>Time</label>
-                <input type="time" step="1" name="spanToTime" value="{{spanToTime}}"/>
+                <input type="time" step="1" name="eventSpanToTime" value="{{eventSpanToTime}}"/>
             </div>
         </div>
         <div class="form-row">
             <div class="form-col">
                 <label>Destination Location</label>
                 <div class="input-with-btn">
-                    <input type="text" name="spanToLocation" value="{{spanToLocation}}" placeholder="e.g. Destination point" />
+                    <input type="text" name="eventSpanToLocation" value="{{eventSpanToLocation}}" placeholder="e.g. Destination point" />
                     <input type="hidden" name="spanToLat" value="{{spanToLat}}" />
                     <input type="hidden" name="spanToLng" value="{{spanToLng}}" />
                     <input type="hidden" name="spanToZoom" value="{{spanToZoom}}" />
-                    <button type="button" class="geo-btn locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="geo-btn grab-btn" title="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="eventFields" {{#if isSpan}}style="display:none"{{/if}}>
+    <div id="eventFields" {{#if eventIsSpan}}style="display:none"{{/if}}>
         <div class="form-row">
             <div class="form-col">
                 <label>Objective Date</label>
@@ -123,8 +123,8 @@
                     <input type="hidden" name="eventLat" value="{{lat}}" />
                     <input type="hidden" name="eventLng" value="{{lng}}" />
                     <input type="hidden" name="eventZoom" value="{{zoom}}" />
-                    <button type="button" class="geo-btn locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="geo-btn grab-btn" title="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
                 </div>
             </div>
         </div>
@@ -149,27 +149,27 @@
 
     <div class="form-row">
         <div class="form-col">
-            <label>Title</label>
-            <input type="text" name="title" value="{{title}}" autofocus />
+            <label>eventTitle</label>
+            <input type="text" name="eventTitle" value="{{eventTitle}}" autofocus />
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-col">
-            <label>Description / Notes</label>
-            <textarea name="notes" style="min-height: 80px;">{{notes}}</textarea>
+            <label>Description / eventNotes</label>
+            <textarea name="eventNotes" style="min-height: 80px;">{{eventNotes}}</textarea>
         </div>
     </div>
 
     <div class="form-row" style="align-items: center; gap: 15px;">
         {{#if canSeeSpan}}
         <div style="display: flex; align-items: center; gap: 5px;">
-            <input type="checkbox" name="isSpan" id="editorIsSpan" {{#if isSpan}}checked{{/if}} />
+            <input type="checkbox" name="eventIsSpan" id="editorIsSpan" {{#if eventIsSpan}}checked{{/if}} />
             <label for="editorIsSpan" style="margin-bottom:0; font-weight: bold; color: #ff00ff; cursor: pointer;">Is Span</label>
         </div>
         {{/if}}
         <div style="display: flex; align-items: center; gap: 5px;">
-            <input type="checkbox" name="isRest" id="editorIsRest" {{#if isRest}}checked{{/if}} {{#if isSpan}}disabled{{/if}} />
+            <input type="checkbox" name="eventIsRest" id="editorIsRest" {{#if eventIsRest}}checked{{/if}} {{#if eventIsSpan}}disabled{{/if}} />
             <label for="editorIsRest" style="margin-bottom:0; font-weight: bold; color: #28a745; cursor: pointer;">24h Rest</label>
         </div>
     </div>

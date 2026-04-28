@@ -6,8 +6,8 @@ describe('establishHistoryPhysics', () => {
 
     it('should establish physics for a simple sequence of facts', () => {
         const historyFacts = [
-            { id: 'birth', sort: 1000, isBirth: true, record: { age: 0, date: "2000-01-01", time: "12:00:00" } },
-            { id: 'e1', sort: 2000, record: { age: 10, date: "2000-01-01", time: "12:00:10" } }
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'e1', sort: 2000, record: { eventAge: 10, eventDate: "2000-01-01", eventTime: "12:00:10" } }
         ];
 
         const physicalNodes = establishHistoryPhysics(historyFacts, originTime);
@@ -25,11 +25,11 @@ describe('establishHistoryPhysics', () => {
 
     it('should correctly apply world-offset shifts from Spans', () => {
         const historyFacts = [
-            { id: 'birth', sort: 1000, isBirth: true, record: { age: 0, date: "2000-01-01", time: "12:00:00" } },
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
             // Span departs at age 10, arrives at noon + 20s (skipping 10s of world time)
-            { id: 'span1', sort: 2000, record: { age: 10, isSpan: true, spanFromDate: "2000-01-01", spanFromTime: "12:00:10", spanToDate: "2000-01-01", spanToTime: "12:00:20" } },
+            { id: 'span1', sort: 2000, record: { eventAge: 10, eventIsSpan: true, eventSpanFromDate: "2000-01-01", eventSpanFromTime: "12:00:10", eventSpanToDate: "2000-01-01", eventSpanToTime: "12:00:20" } },
             // Event occurs at age 15 (5s after span arrival)
-            { id: 'e2', sort: 3000, record: { age: 15, date: "2000-01-01", time: "12:00:25" } }
+            { id: 'e2', sort: 3000, record: { eventAge: 15, eventDate: "2000-01-01", eventTime: "12:00:25" } }
         ];
 
         const physicalNodes = establishHistoryPhysics(historyFacts, originTime);

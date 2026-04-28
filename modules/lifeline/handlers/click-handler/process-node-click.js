@@ -43,18 +43,18 @@ export function processNodeClick(target, sheet, isEditRequest, graphData) {
     } else {
         let lat, lng, zoom;
 
-        if (eventData.isSpan) {
+        if (eventData.eventIsSpan) {
             // Determine location based on which span node was clicked.
             // Span-dest nodes pan to the arrival location; span-origin to the departure.
             const isDestNode = node.classList.contains('graph-node-span-dest');
             if (isDestNode) {
-                lat = eventData.spanToLat;
-                lng = eventData.spanToLng;
-                zoom = eventData.spanToZoom || 12;
+                lat = eventData.eventSpanToLat;
+                lng = eventData.eventSpanToLng;
+                zoom = eventData.eventSpanToZoom || 12;
             } else {
-                lat = eventData.spanFromLat;
-                lng = eventData.spanFromLng;
-                zoom = eventData.spanFromZoom || 12;
+                lat = eventData.eventSpanFromLat;
+                lng = eventData.eventSpanFromLng;
+                zoom = eventData.eventSpanFromZoom || 12;
             }
         } else {
             // For level events, pull coords from the processed graph node first.
@@ -76,7 +76,7 @@ export function processNodeClick(target, sheet, isEditRequest, graphData) {
         if (_hasCoord(lat) && _hasCoord(lng)) {
             panToCoordinates(lat, lng, zoom || 12, actorId);
         } else {
-            ui.notifications.info(`Event "${eventData.title || 'Untitled'}" has no location data.`);
+            ui.notifications.info(`Event "${eventData.eventTitle || 'Untitled'}" has no location data.`);
         }
     }
 

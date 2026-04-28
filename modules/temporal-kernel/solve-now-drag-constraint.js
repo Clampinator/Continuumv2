@@ -33,7 +33,7 @@ export function solveNowDragConstraint(current, start, startWorld, screenToWorld
     
     // Check Rank Gate and Level Breath
     const isRankBlocked = (context.spanRank || 0) < 1;
-    const isBreathBlocked = Boolean(context.lastEvent?.record?.isSpan);
+    const isBreathBlocked = Boolean(context.lastEvent?.record?.eventIsSpan);
 
     if (finalMode === 'span' && (isRankBlocked || isBreathBlocked)) {
         // Character is physically incapable of spanning. 
@@ -46,17 +46,17 @@ export function solveNowDragConstraint(current, start, startWorld, screenToWorld
     
     if (finalMode === 'span') {
         return {
-            world: { age: startWorld.age, time: rawWorld.time },
+            world: { eventAge: startWorld.eventAge, eventTime: rawWorld.eventTime },
             mode: 'span'
         };
     }
 
     // Diagonal Leveling
-    const dAge = Math.max(0, rawWorld.age - startWorld.age);
+    const dAge = Math.max(0, rawWorld.eventAge - startWorld.eventAge);
     return {
         world: {
-            age: startWorld.age + dAge,
-            time: startWorld.time + (dAge * 1000)
+            eventAge: startWorld.eventAge + dAge,
+            eventTime: startWorld.eventTime + (dAge * 1000)
         },
         mode: 'level'
     };

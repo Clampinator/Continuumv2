@@ -247,13 +247,13 @@ function buildEvents(foundryJson, wizardData, ages, geoMap, addLog) {
   for (const [expName, exp] of expMap) {
     if (!exp.hasStartEvent && exp.dateFrom) {
       rawEvents.push({
-        title: `${exp.name} (Start)`,
-        notes: exp.description || `Began ${exp.name}`,
+        eventTitle: `${exp.name} (Start)`,
+        eventNotes: exp.description || `Began ${exp.name}`,
         date: exp.dateFrom,
         time: '12:00:00',
         location: exp.location || '',
-        isSpan: false,
-        isRest: false,
+        eventIsSpan: false,
+        eventIsRest: false,
         sort: 0,
         _isExpStart: true,
         _expId: exp.id,
@@ -266,13 +266,13 @@ function buildEvents(foundryJson, wizardData, ages, geoMap, addLog) {
 
     if (!exp.hasEndEvent && exp.dateTo) {
       rawEvents.push({
-        title: `${exp.name} (End)`,
-        notes: `End of ${exp.name}`,
+        eventTitle: `${exp.name} (End)`,
+        eventNotes: `End of ${exp.name}`,
         date: exp.dateTo,
         time: '12:00:00',
         location: exp.location || '',
-        isSpan: false,
-        isRest: false,
+        eventIsSpan: false,
+        eventIsRest: false,
         sort: 0,
         _isExpEnd: true,
         _expId: exp.id,
@@ -373,19 +373,19 @@ function buildEvents(foundryJson, wizardData, ages, geoMap, addLog) {
       }
     }
 
-    if (evt.isSpan && evt.spanFromLocation) {
-      const fromGeo = geoMap.get(evt.spanFromLocation) || geoMap.get(evt.spanFromLocation.toLowerCase());
+    if (evt.eventIsSpan && evt.eventSpanFromLocation) {
+      const fromGeo = geoMap.get(evt.eventSpanFromLocation) || geoMap.get(evt.eventSpanFromLocation.toLowerCase());
       if (fromGeo && fromGeo.lat !== null) {
-        evt.spanFromLat = fromGeo.lat;
-        evt.spanFromLng = fromGeo.lng;
-        evt.spanFromZoom = fromGeo.zoom || 12;
+        evt.eventSpanFromLat = fromGeo.lat;
+        evt.eventSpanFromLng = fromGeo.lng;
+        evt.eventSpanFromZoom = fromGeo.zoom || 12;
       }
-      if (evt.spanToLocation) {
-        const toGeo = geoMap.get(evt.spanToLocation) || geoMap.get(evt.spanToLocation.toLowerCase());
+      if (evt.eventSpanToLocation) {
+        const toGeo = geoMap.get(evt.eventSpanToLocation) || geoMap.get(evt.eventSpanToLocation.toLowerCase());
         if (toGeo && toGeo.lat !== null) {
-          evt.spanToLat = toGeo.lat;
-          evt.spanToLng = toGeo.lng;
-          evt.spanToZoom = toGeo.zoom || 12;
+          evt.eventSpanToLat = toGeo.lat;
+          evt.eventSpanToLng = toGeo.lng;
+          evt.eventSpanToZoom = toGeo.zoom || 12;
         }
       }
     }
@@ -393,41 +393,41 @@ function buildEvents(foundryJson, wizardData, ages, geoMap, addLog) {
     const targetEra = findEraForDate(evt.date, eraEntries);
     const eraId = eraIdForDate(evt.date, eraKeys, eraEntries);
     if (!targetEra || !eraId) {
-      console.warn(`[NPC Lifeline] Could not place event "${evt.title}" @ ${evt.date} in any era. Eras:`, eraEntries.map(a => `${a.name}(${a.dateFrom}-${a.dateTo})`));
+      console.warn(`[NPC Lifeline] Could not place event "${evt.eventTitle}" @ ${evt.date} in any era. Eras:`, eraEntries.map(a => `${a.name}(${a.dateFrom}-${a.dateTo})`));
       continue;
     }
     const eventId = rid();
 
     const eventObj = {
       id: eventId,
-      title: evt.title || 'Event',
-      notes: evt.notes || '',
+      eventTitle: evt.eventTitle || 'Event',
+      eventNotes: evt.eventNotes || '',
       date: evt.date || '',
       time: evt.time || '12:00:00',
       location: evt.location || '',
       lat: evt.lat || null,
       lng: evt.lng || null,
       zoom: evt.zoom || 12,
-      isSpan: evt.isSpan || false,
-      isRest: evt.isRest || false,
+      eventIsSpan: evt.eventIsSpan || false,
+      eventIsRest: evt.eventIsRest || false,
       sort: eventSort,
       createdAt: Date.now(),
       age: 0
     };
 
-    if (evt.isSpan) {
-      eventObj.spanFromDate = evt.spanFromDate || evt.date || '';
-      eventObj.spanFromTime = evt.spanFromTime || '12:00:00';
-      eventObj.spanFromLocation = evt.spanFromLocation || evt.location || '';
-      eventObj.spanFromLat = evt.spanFromLat || evt.lat || null;
-      eventObj.spanFromLng = evt.spanFromLng || evt.lng || null;
-      eventObj.spanFromZoom = evt.spanFromZoom || 12;
-      eventObj.spanToDate = evt.spanToDate || '';
-      eventObj.spanToTime = evt.spanToTime || '12:00:00';
-      eventObj.spanToLocation = evt.spanToLocation || '';
-      eventObj.spanToLat = evt.spanToLat || null;
-      eventObj.spanToLng = evt.spanToLng || null;
-      eventObj.spanToZoom = evt.spanToZoom || 12;
+    if (evt.eventIsSpan) {
+      eventObj.eventSpanFromDate = evt.eventSpanFromDate || evt.date || '';
+      eventObj.eventSpanFromTime = evt.eventSpanFromTime || '12:00:00';
+      eventObj.eventSpanFromLocation = evt.eventSpanFromLocation || evt.location || '';
+      eventObj.eventSpanFromLat = evt.eventSpanFromLat || evt.lat || null;
+      eventObj.eventSpanFromLng = evt.eventSpanFromLng || evt.lng || null;
+      eventObj.eventSpanFromZoom = evt.eventSpanFromZoom || 12;
+      eventObj.eventSpanToDate = evt.eventSpanToDate || '';
+      eventObj.eventSpanToTime = evt.eventSpanToTime || '12:00:00';
+      eventObj.eventSpanToLocation = evt.eventSpanToLocation || '';
+      eventObj.eventSpanToLat = evt.eventSpanToLat || null;
+      eventObj.eventSpanToLng = evt.eventSpanToLng || null;
+      eventObj.eventSpanToZoom = evt.eventSpanToZoom || 12;
     }
 
     if (evt._isExpStart) {
@@ -501,31 +501,31 @@ function buildEvents(foundryJson, wizardData, ages, geoMap, addLog) {
 }
 
 function buildEventFromAI(evt, era) {
-  const isSpan = evt.isSpan || false;
+  const eventIsSpan = evt.eventIsSpan || false;
   const expId = evt.experienceId || evt._expId || null;
   return {
-    title: evt.title || evt.name || 'Event',
-    notes: evt.notes || evt.description || '',
+    eventTitle: evt.eventTitle || evt.name || 'Event',
+    eventNotes: evt.eventNotes || evt.description || '',
     date: evt.date || '',
     time: evt.time || '12:00:00',
     location: evt.location || '',
     lat: null,
     lng: null,
     zoom: 12,
-    isSpan: isSpan,
-    isRest: false,
-    spanFromDate: evt.spanFromDate || '',
-    spanFromTime: evt.spanFromTime || '12:00:00',
-    spanFromLocation: evt.spanFromLocation || '',
-    spanFromLat: null,
-    spanFromLng: null,
-    spanFromZoom: 12,
-    spanToDate: evt.spanToDate || '',
-    spanToTime: evt.spanToTime || '12:00:00',
-    spanToLocation: evt.spanToLocation || '',
-    spanToLat: null,
-    spanToLng: null,
-    spanToZoom: 12,
+    eventIsSpan: eventIsSpan,
+    eventIsRest: false,
+    eventSpanFromDate: evt.eventSpanFromDate || '',
+    eventSpanFromTime: evt.eventSpanFromTime || '12:00:00',
+    eventSpanFromLocation: evt.eventSpanFromLocation || '',
+    eventSpanFromLat: null,
+    eventSpanFromLng: null,
+    eventSpanFromZoom: 12,
+    eventSpanToDate: evt.eventSpanToDate || '',
+    eventSpanToTime: evt.eventSpanToTime || '12:00:00',
+    eventSpanToLocation: evt.eventSpanToLocation || '',
+    eventSpanToLat: null,
+    eventSpanToLng: null,
+    eventSpanToZoom: 12,
     _expId: expId,
     _isExpStart: evt.isExpStart || evt._isExpStart || false,
     _isExpEnd: evt.isExpEnd || evt._isExpEnd || false,
@@ -590,15 +590,15 @@ function enforceSpanPool(processedEras, spanRank, dob) {
   });
 
   for (const evt of allEvents) {
-    if (evt.isRest) {
+    if (evt.eventIsRest) {
       spentInCurrentCycle = 0;
       continue;
     }
 
-    if (!evt.isSpan) continue;
+    if (!evt.eventIsSpan) continue;
 
-    const fromTs = new Date(`${evt.spanFromDate || evt.date}T${evt.spanFromTime || evt.time || '12:00:00'}`).getTime() / 1000;
-    const toTs = new Date(`${evt.spanToDate}T${evt.spanToTime || '12:00:00'}`).getTime() / 1000;
+    const fromTs = new Date(`${evt.eventSpanFromDate || evt.date}T${evt.eventSpanFromTime || evt.time || '12:00:00'}`).getTime() / 1000;
+    const toTs = new Date(`${evt.eventSpanToDate}T${evt.eventSpanToTime || '12:00:00'}`).getTime() / 1000;
 
     if (isNaN(fromTs) || isNaN(toTs)) continue;
 
@@ -628,16 +628,16 @@ if (spanDurationSeconds > 0 && (spentInCurrentCycle + spanDurationSeconds) > max
 
       const restStartEvent = {
         id: rid(),
-        title: restCount === 1 ? 'Recovered After Spanning' : `Recovery Period ${restCount}`,
-        notes: 'Span pool exhausted. 24-hour recovery before next span.',
+        eventTitle: restCount === 1 ? 'Recovered After Spanning' : `Recovery Period ${restCount}`,
+        eventNotes: 'Span pool exhausted. 24-hour recovery before next span.',
         date: restStartStr,
         time: restStartTimeStr,
-        location: evt.spanFromLocation || evt.location || '',
-        lat: evt.spanFromLat || null,
-        lng: evt.spanFromLng || null,
+        location: evt.eventSpanFromLocation || evt.location || '',
+        lat: evt.eventSpanFromLat || null,
+        lng: evt.eventSpanFromLng || null,
         zoom: 12,
-        isSpan: false,
-        isRest: true,
+        eventIsSpan: false,
+        eventIsRest: true,
         sort: (evt.sort || 500) - 50,
         createdAt: Date.now(),
         age: evt.age || 0
@@ -645,16 +645,16 @@ if (spanDurationSeconds > 0 && (spentInCurrentCycle + spanDurationSeconds) > max
 
       const restEndEvent = {
         id: rid(),
-        title: 'End of Rest',
-        notes: 'Rest complete. Span pool refilled.',
+        eventTitle: 'End of Rest',
+        eventNotes: 'Rest complete. Span pool refilled.',
         date: restEndStr,
         time: restEndTimeStr,
-        location: evt.spanFromLocation || evt.location || '',
-        lat: evt.spanFromLat || null,
-        lng: evt.spanFromLng || null,
+        location: evt.eventSpanFromLocation || evt.location || '',
+        lat: evt.eventSpanFromLat || null,
+        lng: evt.eventSpanFromLng || null,
         zoom: 12,
-        isSpan: false,
-        isRest: false,
+        eventIsSpan: false,
+        eventIsRest: false,
         isRestEnd: true,
         sort: (evt.sort || 500) - 10,
         createdAt: Date.now(),
@@ -694,12 +694,12 @@ export function buildLifeline(foundryJson, geoMap, wizardData, addLog) {
   if (wizardData.spanRank && wizardData.spanRank > 0) {
     enforceSpanPool(lifelineWithEvents, wizardData.spanRank, wizardData.dob);
     const restCount = Object.values(lifelineWithEvents).reduce((sum, era) => {
-      return sum + Object.values(era.events || {}).filter(e => e.isRest).length;
+      return sum + Object.values(era.events || {}).filter(e => e.eventIsRest).length;
     }, 0);
     if (addLog && restCount > 0) addLog(`Applied span pool limits: inserted ${restCount} rest event(s).`);
   }
 
-  // createdAt reset removed: the spreadsheet now sorts by subjective age (event.age),
+  // createdAt reset removed: the spreadsheet now sorts by subjective age (event.eventAge),
   // not by createdAt. Events are ordered by their position in the character's
   // life, not by when this record was created.
 
@@ -731,8 +731,8 @@ export function extractLocations(foundryJson, wizardData) {
   if (foundryJson?.lifelineEvents && Array.isArray(foundryJson.lifelineEvents)) {
     for (const evt of foundryJson.lifelineEvents) {
       if (evt.location) locations.add(evt.location);
-      if (evt.spanFromLocation) locations.add(evt.spanFromLocation);
-      if (evt.spanToLocation) locations.add(evt.spanToLocation);
+      if (evt.eventSpanFromLocation) locations.add(evt.eventSpanFromLocation);
+      if (evt.eventSpanToLocation) locations.add(evt.eventSpanToLocation);
     }
   }
 
@@ -743,8 +743,8 @@ if (foundryJson?.experiences) {
       if (exp?.events && Array.isArray(exp.events)) {
         for (const evt of exp.events) {
           if (evt.location) locations.add(evt.location);
-          if (evt.spanFromLocation) locations.add(evt.spanFromLocation);
-          if (evt.spanToLocation) locations.add(evt.spanToLocation);
+          if (evt.eventSpanFromLocation) locations.add(evt.eventSpanFromLocation);
+          if (evt.eventSpanToLocation) locations.add(evt.eventSpanToLocation);
         }
       }
     }
@@ -753,8 +753,8 @@ if (foundryJson?.experiences) {
   if (foundryJson?.events && Array.isArray(foundryJson.events)) {
     for (const evt of foundryJson.events) {
       if (evt.location) locations.add(evt.location);
-      if (evt.spanFromLocation) locations.add(evt.spanFromLocation);
-      if (evt.spanToLocation) locations.add(evt.spanToLocation);
+      if (evt.eventSpanFromLocation) locations.add(evt.eventSpanFromLocation);
+      if (evt.eventSpanToLocation) locations.add(evt.eventSpanToLocation);
     }
   }
 

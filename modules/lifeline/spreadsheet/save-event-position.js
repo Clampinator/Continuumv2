@@ -23,7 +23,7 @@ Returns true on success, false if inputs are invalid or the event is a
 span (span repositioning still requires rebuild due to rail-shift effects).
 */
 export async function saveEventPosition(actor, eraId, expId, eventId, { date, time, age: explicitAge = null }) {
-    // Retrieve the raw event to check for isBirth and isSpan.
+    // Retrieve the raw event to check for isBirth and eventIsSpan.
     const eraData = actor.system.eras?.[eraId];
     if (!eraData) return false;
     const ev = (expId && expId !== 'null')
@@ -32,8 +32,8 @@ export async function saveEventPosition(actor, eraId, expId, eventId, { date, ti
     if (!ev) return false;
 
     // isBirth changes DOB - full rebuild needed (all ages would shift).
-    // isSpan changes rail - full rebuild needed for downstream events.
-    if (ev.isBirth || ev.isSpan) return false;
+    // eventIsSpan changes rail - full rebuild needed for downstream events.
+    if (ev.isBirth || ev.eventIsSpan) return false;
 
     const dobTs = ReferenceResolver.resolveOrigin(actor);
     if (!dobTs || !date) return false;

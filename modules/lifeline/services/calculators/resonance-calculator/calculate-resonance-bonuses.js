@@ -30,7 +30,7 @@ export function calculateResonanceBonuses(actor) {
 
     // 4. Transform metadata into final bonuses
     expMap.forEach((data) => {
-        const diffSeconds = data.isOngoing ? 0 : (nowAge - data.age);
+        const diffSeconds = data.isOngoing ? 0 : (nowAge - data.eventAge);
         const diffYears = diffSeconds / SECONDS_PER_YEAR;
         
         const bonus = mapYearsToBonus(diffYears);

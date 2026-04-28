@@ -27,7 +27,7 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
       window: {
         icon: 'fas fa-file-excel',
         resizable: true,
-        title: 'Lifeline Spreadsheet'
+        eventTitle: 'Lifeline Spreadsheet'
       },
       position: {
         width: 1000,
@@ -50,7 +50,7 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
     const actor = options.actor;
     if (actor) {
         options.uniqueId = `lifeline-spreadsheet-${actor.id}`;
-        options.window.title = `Lifeline Spreadsheet: ${actor.name}`;
+        options.window.eventTitle = `Lifeline Spreadsheet: ${actor.name}`;
     }
     
     return options;

@@ -33,8 +33,8 @@ export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
         // B. Prepare Fulfillment Event
         const newEvent = {
             id: newEventId,
-            title: `Fulfillment: ${yetData.description}`,
-            notes: "Closed the spacetime loop by fulfilling the Yet.",
+            eventTitle: `Fulfillment: ${yetData.description}`,
+            eventNotes: "Closed the spacetime loop by fulfilling the Yet.",
             age: now.age,
             date: dt.date,
             time: dt.time,

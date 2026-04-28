@@ -22,7 +22,7 @@ export function showCreateGoalDialog(sheet) {
     `;
 
     new Dialog({
-        title: "Create New Goal",
+        eventTitle: "Create New Goal",
         content: content,
         render: (html) => {
             html.find("input[type='text'], input[type='number']").on("focus", event => event.currentTarget.select());

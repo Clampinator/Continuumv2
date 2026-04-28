@@ -38,12 +38,12 @@ export function constrainMovement(currentWorld, startWorld, mode) {
     if (mode === 'level') {
         // LOCK TO 30-DEGREE DIAGONAL (Up and Right)
         // Physics: 1 second of Age = 1000ms of Time.
-        const ageDelta = Math.max(0, currentWorld.age - startWorld.age);
+        const ageDelta = Math.max(0, currentWorld.eventAge - startWorld.eventAge);
         const timeDelta = ageDelta * 1000; 
         
         return {
-            age: startWorld.age + ageDelta,
-            time: startWorld.time + timeDelta
+            eventAge: startWorld.eventAge + ageDelta,
+            eventTime: startWorld.eventTime + timeDelta
         };
     }
 
@@ -51,8 +51,8 @@ export function constrainMovement(currentWorld, startWorld, mode) {
         // AUTHORITY: PERFECT VERTICAL LOCK. 
         // Subjective Age remains absolutely identical to the departure point.
         return {
-            age: startWorld.age, 
-            time: currentWorld.time
+            eventAge: startWorld.eventAge, 
+            eventTime: currentWorld.eventTime
         };
     }
 

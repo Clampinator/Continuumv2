@@ -16,7 +16,7 @@ export class NPCWizardApp extends Application {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: 'npc-generator-wizard',
-      title: 'NPC Generator',
+      eventTitle: 'NPC Generator',
       template: 'systems/continuum-v2/templates/npc-generator/npc-wizard.html',
       classes: ['continuum-v2', 'npc-wizard'],
       width: 700,
@@ -185,7 +185,7 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
     html.find('#npc-dob').on('change', (e) => { this.state.data.dob = e.target.value; });
     html.find('#npc-birth-location').on('input', (e) => { this.state.data.birthLocation = e.target.value; });
     html.find('#npc-concept').on('input', (e) => { this.state.data.concept = e.target.value; });
-    html.find('#npc-gm-notes').on('input', (e) => { this.state.data.gmNotes = e.target.value; });
+    html.find('#npc-gm-eventNotes').on('input', (e) => { this.state.data.gmNotes = e.target.value; });
 
     const actorSelect = html.find('#npc-relatedActor');
     game.actors.contents.forEach(actor => {

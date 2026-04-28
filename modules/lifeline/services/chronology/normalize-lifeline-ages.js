@@ -60,22 +60,22 @@ export function normalizeLifelineAges(actor, { pendingSpan = null, excludeNodeId
     // 3. Compensation Walk (The Physics Pass)
     for (const entry of entries) {
         const ev = entry.event;
-        if (ev.isSpan) {
+        if (ev.eventIsSpan) {
             // AUTHORITY: Use stored high-precision timestamps (Physics Layer)
             // Fallback to record strings only for legacy data
             const fromTs = (ev.ts !== undefined && ev.ts !== null) 
                 ? Number(ev.ts) 
-                : (ev.spanFromDate ? parseDate(`${ev.spanFromDate}T${ev.spanFromTime || '12:00:00'}`)?.getTime() : null);
+                : (ev.eventSpanFromDate ? parseDate(`${ev.eventSpanFromDate}T${ev.eventSpanFromTime || '12:00:00'}`)?.getTime() : null);
             
             const toTs = (ev.arrivalTs !== undefined && ev.arrivalTs !== null)
                 ? Number(ev.arrivalTs)
-                : (ev.spanToDate ? parseDate(`${ev.spanToDate}T${ev.spanToTime || '12:00:00'}`)?.getTime() : null);
+                : (ev.eventSpanToDate ? parseDate(`${ev.eventSpanToDate}T${ev.eventSpanToTime || '12:00:00'}`)?.getTime() : null);
 
             if (fromTs !== null && toTs !== null) {
                 const newAge = Math.max(0, (fromTs - objectiveOffset) / 1000);
                 
                 // Only commit if change is significant (> 0.1s to prevent jitter)
-                if (!entry.isPending && Math.abs(newAge - (Number(ev.age) || 0)) > 0.1) {
+                if (!entry.isPending && Math.abs(newAge - (Number(ev.eventAge) || 0)) > 0.1) {
                     updates[`${entry.path}.age`] = newAge;
                 }
                 objectiveOffset = toTs - (newAge * 1000);
@@ -83,11 +83,11 @@ export function normalizeLifelineAges(actor, { pendingSpan = null, excludeNodeId
         } else if (!ev.isBirth) {
             const ts = (ev.ts !== undefined && ev.ts !== null)
                 ? Number(ev.ts)
-                : (ev.date ? parseDate(`${ev.date}T${ev.time || '12:00:00'}`)?.getTime() : null);
+                : (ev.eventDate ? parseDate(`${ev.eventDate}T${ev.eventTime || '12:00:00'}`)?.getTime() : null);
 
             if (ts !== null) {
                 const newAge = Math.max(0, (ts - objectiveOffset) / 1000);
-                if (!entry.isPending && Math.abs(newAge - (Number(ev.age) || 0)) > 0.1) {
+                if (!entry.isPending && Math.abs(newAge - (Number(ev.eventAge) || 0)) > 0.1) {
                     updates[`${entry.path}.age`] = newAge;
                 }
             }

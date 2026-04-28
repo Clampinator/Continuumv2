@@ -10,14 +10,14 @@ export function registerSceneControl() {
     controls['gmtools'] = {
       name: 'gmtools',
       order: 99,
-      title: 'GM Tools',
+      eventTitle: 'GM Tools',
       icon: 'fa-solid fa-gem',
       visible: game.user.isGM,
       tools: {
         'npc-generator': {
           name: 'npc-generator',
           order: 1,
-          title: 'NPC Generator',
+          eventTitle: 'NPC Generator',
           icon: 'fa-solid fa-user-plus',
           visible: game.user.isGM,
           button: true,

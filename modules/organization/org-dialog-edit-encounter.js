@@ -176,7 +176,7 @@ export function openOrgEncounterEditDialog(sheet, engNode, graphData) {
             <div class="form-row">
                 <div class="form-col">
                     <label>Location</label>
-                    <input type="text" name="spanFromLocation" value="${eng.spanFromLocation || ''}" placeholder="Address or place name" />
+                    <input type="text" name="eventSpanFromLocation" value="${eng.eventSpanFromLocation || ''}" placeholder="Address or place name" />
                 </div>
             </div>
 
@@ -191,7 +191,7 @@ export function openOrgEncounterEditDialog(sheet, engNode, graphData) {
 
             <div class="form-row">
                 <div class="form-col">
-                    <label>Notes</label>
+                    <label>eventNotes</label>
                     <textarea name="description" style="min-height: 80px;">${eng.description || ''}</textarea>
                 </div>
             </div>
@@ -199,7 +199,7 @@ export function openOrgEncounterEditDialog(sheet, engNode, graphData) {
     `;
 
     new Dialog({
-        title: 'Edit Encounter',
+        eventTitle: 'Edit Encounter',
         content,
         buttons: {
             save: {
@@ -214,7 +214,7 @@ export function openOrgEncounterEditDialog(sheet, engNode, graphData) {
                     updates[`${basePath}.name`]             = fd.name || '';
                     updates[`${basePath}.date`]             = fd.engDate || '';
                     updates[`${basePath}.time`]             = fd.engTime || '';
-                    updates[`${basePath}.spanFromLocation`] = fd.spanFromLocation || '';
+                    updates[`${basePath}.eventSpanFromLocation`] = fd.eventSpanFromLocation || '';
                     updates[`${basePath}.description`]      = fd.description || '';
 
                     // ── End open operations at this encounter's date ──────────

@@ -20,16 +20,16 @@ export function openEditDialog(type, data, sheet) {
         <form>
             ${dialogStyle}
             <div class="form-group"><label>Name</label><input type="text" name="name" value="${data.name}" autofocus/></div>
-            ${renderDatePicker("date", data.date, "Established")}
-            <div class="form-group"><label>Time</label><input type="time" name="time" step="1" value="${data.time || ''}"/></div>
+            ${renderDatePicker("date", data.eventDate, "Established")}
+            <div class="form-group"><label>Time</label><input type="time" name="time" step="1" value="${data.eventTime || ''}"/></div>
             <div class="form-group"><label>Assigned Unit</label><select name="unitId">${unitOptions}</select></div>
             <div class="form-group"><label>Location</label><div class="input-with-btn">
-                <input type="text" name="eventLocation" value="${data.spanFromLocation || ''}" placeholder="e.g. Paris"/>
-                <input type="hidden" name="eventLat" value="${data.spanFromLat || ''}"/>
-                <input type="hidden" name="eventLng" value="${data.spanFromLng || ''}"/>
-                <input type="hidden" name="eventZoom" value="${data.spanFromZoom || ''}"/>
-                <button type="button" class="geo-btn locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                <button type="button" class="geo-btn grab-btn" title="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                <input type="text" name="eventLocation" value="${data.eventSpanFromLocation || ''}" placeholder="e.g. Paris"/>
+                <input type="hidden" name="eventLat" value="${data.eventSpanFromLat || ''}"/>
+                <input type="hidden" name="eventLng" value="${data.eventSpanFromLng || ''}"/>
+                <input type="hidden" name="eventZoom" value="${data.eventSpanFromZoom || ''}"/>
+                <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
             </div></div>
             ${renderDatePicker("dateTo", data.dateTo || '', "Departed (optional)")}
             <div class="form-group"><label>Departure Time</label><input type="time" name="timeTo" step="1" value="${data.timeTo || ''}"/></div>
@@ -38,7 +38,7 @@ export function openEditDialog(type, data, sheet) {
     `;
 
     new Dialog({
-        title: "Edit Engagement",
+        eventTitle: "Edit Engagement",
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -76,10 +76,10 @@ export function openEditDialog(type, data, sheet) {
                         [`${path}.time`]: formData.time,
                         [`${path}.description`]: formData.description,
                         [`${path}.unitId`]: formData.unitId,
-                        [`${path}.spanFromLocation`]: formData.eventLocation,
-                        [`${path}.spanFromLat`]: safeFloat(formData.eventLat),
-                        [`${path}.spanFromLng`]: safeFloat(formData.eventLng),
-                        [`${path}.spanFromZoom`]: safeFloat(formData.eventZoom),
+                        [`${path}.eventSpanFromLocation`]: formData.eventLocation,
+                        [`${path}.eventSpanFromLat`]: safeFloat(formData.eventLat),
+                        [`${path}.eventSpanFromLng`]: safeFloat(formData.eventLng),
+                        [`${path}.eventSpanFromZoom`]: safeFloat(formData.eventZoom),
                         [`${path}.dateTo`]: normalizeDateInput(formData.dateTo) || null,
                         [`${path}.timeTo`]: formData.timeTo || null,
                     });

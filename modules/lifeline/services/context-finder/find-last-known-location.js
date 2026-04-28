@@ -20,16 +20,16 @@ export function findLastKnownLocation(history, startAge) {
 
     for (const event of pastEvents) {
         // Check for normal event location
-        if (event.location && event.location.trim() !== "") {
-            return event.location.trim();
+        if (event.eventLocation && event.eventLocation.trim() !== "") {
+            return event.eventLocation.trim();
         }
         // Check for span destination location
-        if (event.isSpan && event.spanToLocation && event.spanToLocation.trim() !== "") {
-            return event.spanToLocation.trim();
+        if (event.eventIsSpan && event.eventSpanToLocation && event.eventSpanToLocation.trim() !== "") {
+            return event.eventSpanToLocation.trim();
         }
         // Check for span origin location
-        if (event.isSpan && event.spanFromLocation && event.spanFromLocation.trim() !== "") {
-            return event.spanFromLocation.trim();
+        if (event.eventIsSpan && event.eventSpanFromLocation && event.eventSpanFromLocation.trim() !== "") {
+            return event.eventSpanFromLocation.trim();
         }
     }
 

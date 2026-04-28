@@ -30,21 +30,21 @@ function _collectLocations(actor) {
     const color   = _colorForActor(actor.id);
     const name    = actor.name;
 
-    function push(key, lat, lng, title) {
+    function push(key, lat, lng, eventTitle) {
         if (_ok(lat) && _ok(lng))
             locs.push({ key, lat: Number(lat), lng: Number(lng),
-                label: `${name}: ${title}`, tokenSrc, color });
+                label: `${name}: ${eventTitle}`, tokenSrc, color });
     }
 
     function scanEvents(events, prefix) {
         for (const [id, evt] of Object.entries(events || {})) {
-            if (!evt.isSpan) {
-                push(`${prefix}:${id}`, evt.lat, evt.lng, evt.title || 'Event');
+            if (!evt.eventIsSpan) {
+                push(`${prefix}:${id}`, evt.lat, evt.lng, evt.eventTitle || 'Event');
             } else {
-                push(`${prefix}:${id}:from`, evt.spanFromLat, evt.spanFromLng,
-                    (evt.title || 'Span') + ' - origin');
-                push(`${prefix}:${id}:to`, evt.spanToLat, evt.spanToLng,
-                    (evt.title || 'Span') + ' - destination');
+                push(`${prefix}:${id}:from`, evt.eventSpanFromLat, evt.eventSpanFromLng,
+                    (evt.eventTitle || 'Span') + ' - origin');
+                push(`${prefix}:${id}:to`, evt.eventSpanToLat, evt.eventSpanToLng,
+                    (evt.eventTitle || 'Span') + ' - destination');
             }
         }
     }

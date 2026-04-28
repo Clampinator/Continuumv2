@@ -20,7 +20,9 @@ export function calculateSegments(history, originTime) {
     const node = nodes[i];
     if (node.id === 'now') continue;
 
-    if (node.record?.isSpan) {
+    const eventIsSpan = Boolean(node.record?.eventIsSpan || node.isSpanOrigin);
+
+    if (eventIsSpan) {
         const exitPoint = {
             id: node.id, x: Number(node.x), y: Number(node.y), record: node.record
         };

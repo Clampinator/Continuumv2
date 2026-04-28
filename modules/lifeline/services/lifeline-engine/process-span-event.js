@@ -6,26 +6,26 @@ Maps a Span event into a vertical discontinuity (Origin -> Destination).
 */
 export function processSpanEvent(event, currentOffset) {
     // 1. Calculate Origin (where the Spanner departed from)
-    // Derive departure age from spanFromDate and the current rail offset.
-    // Stored event.age is a stale cache and is NOT authoritative.
+    // Derive departure age from eventSpanFromDate and the current rail offset.
+    // Stored event.eventAge is a stale cache and is NOT authoritative.
     let originTime;
     let age;
-    if (event.spanFromDate) {
-        const fromTimeStr = event.spanFromTime || '12:00:00';
-        const fromDateObj = parseDate(`${event.spanFromDate}T${fromTimeStr}`);
+    if (event.eventSpanFromDate) {
+        const fromTimeStr = event.eventSpanFromTime || '12:00:00';
+        const fromDateObj = parseDate(`${event.eventSpanFromDate}T${fromTimeStr}`);
         if (fromDateObj) {
             originTime = fromDateObj.getTime();
             age = Math.max(0, (originTime - currentOffset) / 1000);
         }
     }
     if (!Number.isFinite(age)) {
-        age = Math.max(0, Number(event.age) || 0);
+        age = Math.max(0, Number(event.eventAge) || 0);
         originTime = currentOffset + (age * 1000);
     }
     
     // 2. Calculate Destination (where they landed)
-    const destDateStr = event.spanToDate || event.date;
-    const destTimeStr = event.spanToTime || event.time || '00:00:00';
+    const destDateStr = event.eventSpanToDate || event.eventDate;
+    const destTimeStr = event.eventSpanToTime || event.eventTime || '00:00:00';
     const destDateObj = parseDate(`${destDateStr}T${destTimeStr}`);
     const destTime = destDateObj ? destDateObj.getTime() : originTime;
 
@@ -40,11 +40,11 @@ export function processSpanEvent(event, currentOffset) {
         outgoingType: 'span', 
         eventId: event.id, eraId: event.eraId, expId: event.expId,
         eraSort: event.eraSort, expSort: event.expSort, sort: event.sort,
-        eventTitle: event.title || "Span Start",
+        eventTitle: event.eventTitle || "Span Start",
         linkedGoalIds: uniqueGoalIds,
-        lat: event.spanFromLat,
-        lng: event.spanFromLng,
-        zoom: event.spanFromZoom
+        lat: event.eventSpanFromLat,
+        lng: event.eventSpanFromLng,
+        zoom: event.eventSpanFromZoom
     });
 
     // Destination Node (The point of arrival)
@@ -58,9 +58,9 @@ export function processSpanEvent(event, currentOffset) {
         eraSort: event.eraSort, expSort: event.expSort, sort: event.sort + 1,
         eventTitle: "Span Arrival", 
         linkedGoalIds: uniqueGoalIds,
-        lat: event.spanToLat,
-        lng: event.spanToLng,
-        zoom: event.spanToZoom
+        lat: event.eventSpanToLat,
+        lng: event.eventSpanToLng,
+        zoom: event.eventSpanToZoom
     });
 
     // Calculate new offset: NewTime = newOffset + (age * 1000)

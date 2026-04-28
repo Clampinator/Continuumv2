@@ -29,11 +29,11 @@ export function activateCharacterListeners(sheet, html) {
     html.find("input[type='text'], input[type='number']").on("focus", event => event.currentTarget.select());
 
     // --- CHARACTER SPECIFIC TOOLTIPS ---
-    html.on('mouseenter', '.experience-title', (event) => {
+    html.on('mouseenter', '.experience-eventTitle', (event) => {
         ExperienceTooltipService.show(sheet.actor, event.currentTarget, event);
-    }).on('mousemove', '.experience-title', (event) => {
+    }).on('mousemove', '.experience-eventTitle', (event) => {
         ExperienceTooltipService.updatePosition(event);
-    }).on('mouseleave', '.experience-title', () => {
+    }).on('mouseleave', '.experience-eventTitle', () => {
         ExperienceTooltipService.hide();
     });
 
@@ -135,7 +135,7 @@ export function activateCharacterListeners(sheet, html) {
     });
 
     // Rest Handling
-    html.on('change', 'input[name*=".isRest"]', (event) => handleRestToggle(sheet, event));
+    html.on('change', 'input[name*=".eventIsRest"]', (event) => handleRestToggle(sheet, event));
 
     // Gear Handling
     html.on('click', '.gear-use-btn', (ev) => handleGearUse(sheet, ev));

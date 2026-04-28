@@ -6,7 +6,8 @@ import { EraRenderer } from './renderers/era-renderer.js';
 import { AxisRenderer } from './renderers/axis-renderer.js';
 import { ExperienceRenderer } from './renderers/experience-renderer.js';
 import { TooltipManager } from './ui/tooltips.js';
-import { parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
+import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
 import { getActorHistory } from '../state/get-actor-history.js';
 import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
@@ -83,9 +84,9 @@ export class SpanGraphViewport {
 
   _getOriginTime() {
       if (!this.actor) return 0;
-      const dobStr = this.actor.system.personal?.dob || "";
-      const dobDate = parseDate(normalizeDateInput(dobStr) + "T12:00:00");
-      return dobDate ? dobDate.getTime() : 0;
+      const dobStr = this.actor.system.personal?.dob || "1970-01-01";
+      const birthCtx = resolveLocationContext([], 0, this.actor);
+      return parseObjectiveTime(dobStr, "12:00:00", birthCtx);
   }
 
   autoFocus() {
@@ -108,25 +109,28 @@ export class SpanGraphViewport {
       // 1. STATE (Database Pass)
       this.latestHistory = getActorHistory(this.actor);
 
-      // HANDSHAKE: Inject Live Drag coordinates into the virtual history array
-      // This ensures the blue rail remains connected to the node during dragging and dialog display.
-      if (isDraggingNow && interaction.activeNodeId === 'now') {
+      // HANDSHAKE: Inject Live Drag facts into the virtual history array
+      // AUTHORITY: We update the 'objectiveNow' Fact, allowing the Kernel to derive physics.
+      if (isDraggingNow && interaction.activeNodeId === 'now' && interaction.currentWorld) {
           const nowNode = this.latestHistory.find(n => n.id === 'now');
-          if (nowNode && interaction.currentWorld) {
-              nowNode.x = interaction.currentWorld.age;
-              nowNode.y = interaction.currentWorld.time;
+          if (nowNode) {
+              nowNode.record.objectiveNow = interaction.currentWorld.eventTime;
           }
       }
 
       const originTime = this._getOriginTime();
       
-      // AUTHORITY: Use the injected virtual history for the entire render pass
+      // AUTHORITY: Use the injected virtual history for the entire render pass.
+      // If we are NOT dragging the NOW node, we pass null so the Kernel calculates its physical Age.
+      // WE HAVE REMOVED THE FALLBACK TO subjectiveNow FROM THE DATABASE.
       const subjectiveNow = (isDraggingNow && interaction.activeNodeId === 'now') 
-          ? interaction.currentWorld.age 
-          : (Number(this.actor.system.personal?.subjectiveNow) || 0);
+          ? interaction.currentWorld.eventAge 
+          : null;
+
+      const isSpanIntent = (isDraggingNow && interaction.activeNodeId === 'now' && interaction.mode === 'span');
 
       // 2. KERNEL (Physics Pass)
-      this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor);
+      this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor, isSpanIntent);
 
       // 3. PROJECTOR (UI Pass)
       this.latestManifest = generateManifest(this.latestState, this, interaction);
@@ -142,7 +146,7 @@ export class SpanGraphViewport {
 
   screenToWorld(x, y) {
     const { panX, panY, zoom } = this.viewState;
-    return { age: (x - panX) / zoom, time: (y - panY) / (TARGET_RATIO * zoom) };
+    return { eventAge: (x - panX) / zoom, eventTime: (y - panY) / (TARGET_RATIO * zoom) };
   }
 
   _createSVG() {

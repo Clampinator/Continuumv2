@@ -26,15 +26,15 @@ export function updateAxisLabels(group, width, height, viewState) {
             group.appendChild(text);
         }
     }
-    if (!group.querySelector('.x-title')) {
+    if (!group.querySelector('.x-eventTitle')) {
         const xTitle = document.createElementNS(svgNS, 'text');
-        xTitle.classList.add('graph-axis-title', 'x-title');
+        xTitle.classList.add('graph-axis-eventTitle', 'x-eventTitle');
         xTitle.textContent = "SUBJECTIVE AGE";
         group.appendChild(xTitle);
     }
-    if (!group.querySelector('.y-title')) {
+    if (!group.querySelector('.y-eventTitle')) {
         const yTitle = document.createElementNS(svgNS, 'text');
-        yTitle.classList.add('graph-axis-title', 'y-title');
+        yTitle.classList.add('graph-axis-eventTitle', 'y-eventTitle');
         yTitle.textContent = "OBJECTIVE DATE";
         group.appendChild(yTitle);
     }
@@ -67,12 +67,12 @@ export function updateAxisLabels(group, width, height, viewState) {
         });
     });
 
-    const xTitle = group.querySelector('.x-title');
+    const xTitle = group.querySelector('.x-eventTitle');
     if (xTitle) {
         xTitle.setAttribute('x', width / 2);
         xTitle.setAttribute('y', height - 33);
     }
-    const yTitle = group.querySelector('.y-title');
+    const yTitle = group.querySelector('.y-eventTitle');
     if (yTitle) {
         yTitle.setAttribute('transform', `translate(10, ${height / 2}) rotate(-90)`);
     }

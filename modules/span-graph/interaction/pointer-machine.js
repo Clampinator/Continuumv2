@@ -21,8 +21,8 @@ export class PointerMachine {
         return {
             isDown: false, isDragging: false, isPending: false,
             startScreen: { x: 0, y: 0 },
-            startWorld: { age: 0, time: 0 },
-            currentWorld: { age: 0, time: 0 },
+            startWorld: { eventAge: 0, eventTime: 0 },
+            currentWorld: { eventAge: 0, eventTime: 0 },
             mode: null, activeNodeId: null, ghostSnap: null
         };
     }
@@ -38,9 +38,9 @@ export class PointerMachine {
 
         // RULE: Snapping to Origin
         if (this.state.activeNodeId) {
-            const node = this.viewport.latestHistory.find(n => n.id === this.state.activeNodeId);
+            const node = (this.viewport.latestState?.nodes || []).find(n => n.id === this.state.activeNodeId);
             if (node) {
-                this.state.startWorld = { age: node.x, time: node.y };
+                this.state.startWorld = { eventAge: node.x, eventTime: node.y };
             } else {
                 this.state.startWorld = this.viewport.screenToWorld(screenPos.x, screenPos.y);
             }
@@ -77,10 +77,10 @@ export class PointerMachine {
             this.viewport._interaction.ghostSnap = this.state.ghostSnap;
 
             if (this.state.ghostSnap) {
-                const dt = convertTimestampToDateString(this.state.ghostSnap.world.time);
+                const dt = convertTimestampToDateString(this.state.ghostSnap.world.eventTime);
                 this.viewport.tooltipManager.show([
                     { label: 'INSERT', value: 'CLICK TO ADD', color: '#ffd700' },
-                    { label: 'AGE', value: formatSubjectiveAge(this.state.ghostSnap.world.age) },
+                    { label: 'AGE', value: formatSubjectiveAge(this.state.ghostSnap.world.eventAge) },
                     { label: 'DATE', value: dt.date }
                 ], screenPos);
             } else {
@@ -133,7 +133,7 @@ export class PointerMachine {
 
     async onUp(event, screenPos) {
         if (!this.state.isDown || this.state.isPending) return;
-        
+
         this.state.isDown = false;
         const wasDragging = this.state.isDragging;
         this.state.isDragging = false;
@@ -141,15 +141,26 @@ export class PointerMachine {
 
         if (!wasDragging) {
             if (this.state.ghostSnap) {
-                await this._openDialog('insert', this.state.ghostSnap.world.age, this.state.ghostSnap.world.time);
+                await this._openDialog('insert', this.state.ghostSnap.world.eventAge, this.state.ghostSnap.world.eventTime);
             }
             return;
         }
 
         if (this.state.activeNodeId === 'now' && this.state.mode) {
+            if (this.state.mode === 'span') {
+                console.group('SPAN DEBUG | STEP 1 | POINTER MACHINE onUp');
+                console.log('departure (startWorld):', JSON.stringify(this.state.startWorld));
+                console.log('  departure.eventAge:', this.state.startWorld.eventAge, '(subjective age at drag start)');
+                console.log('  departure.eventTime:', this.state.startWorld.eventTime, '(objective ts at drag start)');
+                console.log('arrival (currentWorld):', JSON.stringify(this.state.currentWorld));
+                console.log('  arrival.eventAge:', this.state.currentWorld.eventAge, '(should equal departure age - no aging during span)');
+                console.log('  arrival.eventTime:', this.state.currentWorld.eventTime, '(objective ts at drop point)');
+                console.log('displacement (arrival - departure):', this.state.currentWorld.eventTime - this.state.startWorld.eventTime, 'ms');
+                console.groupEnd();
+            }
             this.state.isPending = true;
             this.viewport._interaction.isPending = true;
-            await this._openDialog('log', this.state.currentWorld.age, this.state.currentWorld.time, this.state.mode === 'span');
+            await this._openDialog('log', this.state.currentWorld.eventAge, this.state.currentWorld.eventTime, this.state.mode === 'span');
         } else {
             this._resetInteraction();
         }
@@ -161,22 +172,22 @@ export class PointerMachine {
         const targetNodeId = event.target.dataset.eventId;
         if (!targetNodeId || targetNodeId === 'now') return;
 
-        const node = this.viewport.latestHistory.find(n => n.id === targetNodeId);
+        const node = (this.viewport.latestState?.nodes || []).find(n => n.id === targetNodeId);
         if (!node) return;
 
         this.state.isPending = true;
         this.viewport._interaction.isPending = true;
         
-        await this._openDialog('edit', node.x, node.y, node.record.isSpan, node);
+        await this._openDialog('edit', node.x, node.y, node.record.eventIsSpan, node);
     }
 
-    async _openDialog(mode, age, time, isSpan = false, existingData = null) {
+    async _openDialog(mode, age, time, eventIsSpan = false, existingData = null) {
         const { openEventNodeDialog } = await import('../../span-graph-ui-dialogs.js');
         const dt = convertTimestampToDateString(time);
         
         await openEventNodeDialog(this.actor.sheet, {
-            mode, ageRaw: age, timeRaw: time, date: dt.date, time: dt.time, isSpan,
-            startWorld: this.state.startWorld,
+            mode, ageRaw: age, timeRaw: time, date: dt.date, time: dt.time, eventIsSpan,
+            departure: this.state.startWorld,
             existingData,
             onClose: (confirmed) => {
                 this._resetInteraction();
@@ -194,15 +205,15 @@ export class PointerMachine {
     }
 
     _generateHUD(world, mode, lore) {
-        const dt = convertTimestampToDateString(world.time);
+        const dt = convertTimestampToDateString(world.eventTime);
         const rows = [
             { label: 'ACTION', value: mode === 'level' ? 'LEVELING' : 'SPANNING', color: mode === 'level' ? '#00e5ff' : '#ff00ff' },
-            { label: 'AGE', value: formatSubjectiveAge(world.age) },
+            { label: 'AGE', value: formatSubjectiveAge(world.eventAge) },
             { label: 'DATE', value: dt.date }
         ];
 
         if (mode === 'span') {
-            const validation = validateSpanPhysics({ y: this.state.startWorld.time, arrivalY: world.time, record: { isSpan: true } }, lore);
+            const validation = validateSpanPhysics({ y: this.state.startWorld.eventTime, arrivalY: world.eventTime, record: { eventIsSpan: true } }, lore);
             if (!validation.isValid) {
                 rows[0] = { label: 'ILLEGAL', value: 'LEVEL BREATH', color: '#ff0000' };
                 rows.push({ label: 'ERROR', value: 'SPAN AFTER SPAN', color: '#ff0000' });
@@ -223,11 +234,11 @@ export class PointerMachine {
     _updateStaticHover(event, screenPos) {
         const nodeId = event.target.dataset.eventId;
         if (!nodeId) { this.viewport.tooltipManager.hide(); return; }
-        const node = this.viewport.latestHistory.find(n => n.id === nodeId);
+        const node = (this.viewport.latestState?.nodes || []).find(n => n.id === nodeId);
         if (!node) return;
         const dt = convertTimestampToDateString(node.y);
         this.viewport.tooltipManager.show([
-            { label: 'EVENT', value: node.record.title || 'Unknown', color: '#00e5ff' },
+            { label: 'EVENT', value: node.record.eventTitle || 'Unknown', color: '#00e5ff' },
             { label: 'AGE', value: formatSubjectiveAge(node.x) },
             { label: 'DATE', value: dt.date }
         ], screenPos);

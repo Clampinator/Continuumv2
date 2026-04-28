@@ -49,8 +49,8 @@ export async function handleItemAdd(sheet, event) {
                 ...reindex,
                 [`system.eras.${targetEraId}.events.${newId}`]: {
                     id: newId,
-                    title: "New Event",
-                    notes: "",
+                    eventTitle: "New Event",
+                    eventNotes: "",
                     date: actor.system.eras[targetEraId]?.dateFrom || "",
                     time: "12:00",
                     sort: reindex.targetSortValue
@@ -215,7 +215,7 @@ export async function handleEventAdd(sheet, event) {
         ...reindex,
         [path]: {
             id: newId,
-            title: "New Event",
+            eventTitle: "New Event",
             date: sheet.actor.system.eras[eraId]?.dateFrom || "",
             time: "12:00",
             sort: sort

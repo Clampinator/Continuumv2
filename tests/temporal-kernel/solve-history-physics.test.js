@@ -7,11 +7,10 @@ describe('solveHistoryPhysics (Orchestrator)', () => {
         // Age should be (5000 - 0) / 1000 = 5.
         // Since saved age is 10, shift should be 5.
         const history = [
-            { id: 'ev1', x: 10, y: 5000, sort: 1000, record: { isSpan: false } }
+            { id: 'ev1', x: 10, y: 5000, sort: 1000, record: { eventIsSpan: false } }
         ];
-        const dobTime = 0;
-
-        const shifts = solveHistoryPhysics(history, dobTime);
+        const originTime = 0;
+        const shifts = solveHistoryPhysics(history, originTime);
 
         expect(shifts['ev1']).toBe(5);
     });
@@ -22,12 +21,11 @@ describe('solveHistoryPhysics (Orchestrator)', () => {
         // New Offset = 15000 - (5 * 1000) = 10000.
         // Event 2: Time 10000. Age should be (10000 - 10000) / 1000 = 0.
         const history = [
-            { id: 'span1', x: 5, y: 5000, arrivalY: 15000, sort: 1000, record: { isSpan: true } },
-            { id: 'ev2', x: 10, y: 10000, sort: 2000, record: { isSpan: false } }
+            { id: 'span1', x: 5, y: 5000, arrivalY: 15000, sort: 1000, record: { eventIsSpan: true } },
+            { id: 'ev2', x: 10, y: 10000, sort: 2000, record: { eventIsSpan: false } }
         ];
-        const dobTime = 0;
-
-        const shifts = solveHistoryPhysics(history, dobTime);
+        const originTime = 0;
+        const shifts = solveHistoryPhysics(history, originTime);
 
         // ev2 saved age was 10, should now be 0.
         expect(shifts['ev2']).toBe(0);

@@ -70,8 +70,8 @@ export function attachTooltipListeners(svg, graphData, actor) {
 
             // A. High Fidelity Chronology (Header)
             if (data) {
-                const ageStr = formatSubjectiveAge(data.age);
-                const dt = convertTimestampToDateString(data.time);
+                const ageStr = formatSubjectiveAge(data.eventAge);
+                const dt = convertTimestampToDateString(data.eventTime);
                 const dateFull = `${dt.date} ${dt.time}`;
                 
                 lines.push({ 
@@ -82,9 +82,9 @@ export function attachTooltipListeners(svg, graphData, actor) {
                 });
                 
                 // B. Tactical Information (Body)
-                const title = data.eventTitle || (data.type?.startsWith('span') ? 'Span Segment' : 'Lifeline Node');
+                const eventTitle = data.eventTitle || (data.type?.startsWith('span') ? 'Span Segment' : 'Lifeline Node');
                 lines.push({ 
-                    text: `${ageStr} — ${title}`, 
+                    text: `${ageStr} — ${eventTitle}`, 
                     fill: '#fff', 
                     weight: 'bold', 
                     size: '12px' 

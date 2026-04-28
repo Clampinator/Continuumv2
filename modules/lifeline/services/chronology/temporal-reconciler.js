@@ -11,7 +11,7 @@ export const TemporalReconciler = {
     /**
      * Reconciles an edit or insertion.
      * @param {Actor} actor - The character actor.
-     * @param {Object} proposedNode - The new/edited node data {id, age, ts, isSpan, ...}.
+     * @param {Object} proposedNode - The new/edited node data {id, age, ts, eventIsSpan, ...}.
      * @param {Object} options - { mode: 'edit'|'insert'|'log' }
      * @returns {Object} updates - Dot-path updates for the database.
      */
@@ -78,7 +78,7 @@ export const TemporalReconciler = {
             }
 
             // Update parameters for next node
-            if (node.isSpan) {
+            if (node.eventIsSpan) {
                 const arrivalTs = Number(node.arrivalTs || node.arrivalTime || node.time);
                 currentOffset = arrivalTs - (trueAge * 1000);
             }

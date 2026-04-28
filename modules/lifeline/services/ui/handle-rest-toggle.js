@@ -25,19 +25,19 @@ export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
     const reindex = reindexLifelineNodes(actor, newId, -1, { 
         age: endAge,
         time: endDate.getTime(),
-        isSpan: false 
+        eventIsSpan: false 
     });
 
     const newEventData = {
         id: newId,
-        title: "End of Rest",
-        notes: "Automatic rest completion.",
+        eventTitle: "End of Rest",
+        eventNotes: "Automatic rest completion.",
         date: endDateStr,
         time: endTimeStr,
         age: endAge, // Canonical age calculated above
         sort: reindex.targetSortValue, // Canonical sort from reindex
-        isSpan: false,
-        isRest: false,
+        eventIsSpan: false,
+        eventIsRest: false,
         isRestEnd: true
     };
     
@@ -66,7 +66,7 @@ export async function handleRestToggle(sheet, event) {
     if (!checkbox.checked) return;
 
     const namePath = checkbox.name;
-    const matches = namePath.match(/^system\.eras\.([a-zA-Z0-9]+)\.(?:experiences\.([a-zA-Z0-9]+)\.)?events\.([a-zA-Z0-9]+)\.isRest$/);
+    const matches = namePath.match(/^system\.eras\.([a-zA-Z0-9]+)\.(?:experiences\.([a-zA-Z0-9]+)\.)?events\.([a-zA-Z0-9]+)\.eventIsRest$/);
 
     if (!matches) return;
     const [_, eraId, expId, eventId] = matches;

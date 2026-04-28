@@ -52,13 +52,13 @@ export async function showResolveEngagementDialog(sheet, engagement) {
         </div>
 
         <div class="form-group">
-            <label>Resolution Notes</label>
-            <textarea name="notes" placeholder="Record what happened…" style="height:80px;">${currentNotes}</textarea>
+            <label>Resolution eventNotes</label>
+            <textarea name="eventNotes" placeholder="Record what happened…" style="height:80px;">${currentNotes}</textarea>
         </div>
     </form>`;
 
     new Dialog({
-        title: `Resolve: ${engagement.name}`,
+        eventTitle: `Resolve: ${engagement.name}`,
         content,
         buttons: {
             resolve: {
@@ -69,7 +69,7 @@ export async function showResolveEngagementDialog(sheet, engagement) {
                     const outcome      = fd.outcome;
                     const drainCap     = Math.max(0, Number(fd.capitalDrain)  || 0);
                     const drainMom     = Math.max(0, Number(fd.momentumDrain) || 0);
-                    const notes        = fd.notes ?? currentNotes;
+                    const eventNotes        = fd.eventNotes ?? currentNotes;
 
                     // Apply pool drain to the location actor
                     const locationUpdates = {};
@@ -82,7 +82,7 @@ export async function showResolveEngagementDialog(sheet, engagement) {
                     await sheet.actor.update({
                         [`${base}.outcome`]:     outcome,
                         [`${base}.resolved`]:    outcome !== 'ongoing',
-                        [`${base}.description`]: notes
+                        [`${base}.description`]: eventNotes
                     });
 
                     // Notify

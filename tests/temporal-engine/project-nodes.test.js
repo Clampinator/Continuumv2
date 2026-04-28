@@ -9,13 +9,13 @@ vi.mock('../../modules/temporal-engine/resolve-coordinates.js', () => ({
 describe('projectNodes', () => {
     it('should calculate physical coordinates and displacement', () => {
         const history = [
-            { id: 'birth', x: 0, y: 1000, sort: 1000 },
+            { id: 'birth', x: 0, y: 0, sort: 1000 },
             { id: 'e1', x: 10, sort: 2000 },
-            { id: 'span1', x: 20, arrivalY: 5000, record: { isSpan: true }, sort: 3000 },
-            { id: 'now', x: 30, y: 8000 }
+            { id: 'span1', x: 20, y: 2000, arrivalY: 5000, record: { eventIsSpan: true }, sort: 3000 },
+            { id: 'now', x: 30, y: 8000, isSpanOrigin: true } // Mocked as spanning
         ];
         const segments = [
-            { startX: 0, startY: 1000, nodes: [history[1]], exitPoint: history[2] },
+            { startX: 0, startY: 0, nodes: [history[1]], exitPoint: history[2] },
             { startX: 20, startY: 5000, nodes: [history[3]], exitPoint: null }
         ];
 
@@ -25,8 +25,7 @@ describe('projectNodes', () => {
         
         // e1 projection
         expect(nodes[1].x).toBe(10);
-        expect(nodes[1].y).toBe(1000); // resolveCoordinates(10, seg0) -> mocked to 1000? 
-        // Wait, resolveCoordinates was mocked to x * 100. So 10 * 100 = 1000.
+        expect(nodes[1].y).toBe(1000); // resolveCoordinates(10, seg0) -> mocked to 1000
         
         // span1 projection
         expect(nodes[2].isSpanOrigin).toBe(true);
@@ -37,6 +36,6 @@ describe('projectNodes', () => {
         
         // now node
         expect(nodes[3].id).toBe('now');
-        expect(nodes[3].y).toBe(8000);
+        expect(nodes[3].y).toBe(8000); // Should respect vertical position if spanning
     });
 });

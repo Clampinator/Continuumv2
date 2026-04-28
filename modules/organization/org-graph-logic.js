@@ -195,8 +195,8 @@ function processOrgGraphData(sheet, graphData) {
                             eventId: task.id,
                             eraId: op.id,
                             expId: mId,
-                            eventTitle: task.title || "Task",
-                            eventNotes: task.notes || ""
+                            eventTitle: task.eventTitle || "Task",
+                            eventNotes: task.eventNotes || ""
                         });
                     }
                 }

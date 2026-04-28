@@ -12,8 +12,7 @@ describe('Temporal Constants', () => {
   });
 
   it('should define TARGET_RATIO for 30-degree visual sweep', () => {
-    // tan(30) ≈ 0.577. But the system uses a specific TARGET_RATIO ≈ -0.00045 
-    // to account for MS scale vs Seconds scale.
-    expect(TARGET_RATIO).toBeCloseTo(-0.00045, 5);
-  });
-});
+    // tan(30) ≈ 0.57735. The system uses this ratio for the visual sweep.
+    expect(TARGET_RATIO).toBeCloseTo(-0.00057735, 5);
+    });
+    });

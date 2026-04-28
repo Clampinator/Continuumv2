@@ -21,7 +21,7 @@ export async function handleCharacterItemAdd(sheet, event) {
         case 'event':
             const targetEraId = button.dataset.eraId;
             const reindex = reindexLifelineNodes(actor, newId, -1);
-            updates = { ...reindex, [`system.eras.${targetEraId}.events.${newId}`]: { id: newId, title: "New Event", date: actor.system.eras[targetEraId]?.dateFrom || "", time: "12:00", sort: reindex.targetSortValue } };
+            updates = { ...reindex, [`system.eras.${targetEraId}.events.${newId}`]: { id: newId, eventTitle: "New Event", date: actor.system.eras[targetEraId]?.dateFrom || "", time: "12:00", sort: reindex.targetSortValue } };
             delete updates.targetSortValue;
             break;
         case 'goal':

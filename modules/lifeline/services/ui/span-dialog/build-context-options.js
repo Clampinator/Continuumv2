@@ -63,7 +63,7 @@ export function buildContextOptions(actor, currentEraId = null, currentExpId = n
             html += `<div class="context-item">
                 <input type="checkbox" name="closeExperiences" value="${val}" id="${id}" ${isCurrent ? 'data-is-current="true"' : ''}>
                 <label for="${id}" ${isCurrent ? 'style="color: #4da6ff; font-weight: bold;"' : ''}>
-                    Close "${e.name}" at this Date ${isCurrent ? '<i class="fas fa-map-pin" title="Node currently resides here"></i>' : ''}
+                    Close "${e.name}" at this Date ${isCurrent ? '<i class="fas fa-map-pin" eventTitle="Node currently resides here"></i>' : ''}
                 </label>
             </div>`;
         });

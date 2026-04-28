@@ -1,0 +1,53 @@
+  1. Error Overview
+   * Module: Temporal Kernel / Span Graph Projection
+   * Interaction: Vertical Span Drag (NOW Node)
+   * Failure Point: Step 5 (Post-Confirmation Synchronization)
+   * Summary: Upon confirming a "Log Span Result" dialog, the character's NOW node (the yellow terminal anchor) fails to
+     honor the new objective baseline established by the Span. Instead of remaining at the arrival coordinate, the node
+     "pops back" to the original rail originating from the Date of Birth (DoB).
+
+  ---
+
+  2. Detailed Behavioral Description
+  When a user performs a vertical drag to initiate a Span, the system correctly enters Span Interaction Mode. The UI
+  provides high-fidelity feedback via a dotted pink line trailing the cursor, indicating the intended "jump" through
+  objective time.
+
+  However, a critical failure occurs during the Database-to-Kernel Handshake immediately after the "Commit to Lifeline"
+  button is clicked:
+
+   1. The Drag (Success): The user drags the NOW handle from Timestamp A to Timestamp B.
+   2. The Dialog (Success): The dialog opens, correctly identifying the departure at A and the arrival at B.
+   3. The Commit (Trigger): The user clicks "Save". The Span event is successfully written to the Actor's JSON data.
+   4. The Snapback (Failure): As the Temporal Engine triggers a re-render to reflect the new history, the physics "walk"
+      through the timeline fails to recognize the World Offset shift. Because the kernel does not correctly anchor the
+      subsequent segment to the Span's arrival point, the mathematical projection for the NOW node reverts to the
+      default Offset = 0 (Date of Birth).
+   5. Visual Result: The pink span markers may appear, but the yellow NOW handle is rendered at its original diagonal
+      position on the first rail, making it appear as if the character never spanned at all, or as if the span was
+      "instantaneously reverted."
+
+  ---
+
+  3. Root Cause Analysis (Technical)
+
+  The failure is caused by a discontinuity in the Physics Walk within establish-history-physics.js and
+  solve-history-physics.js:
+
+   * Coordinate Standard Mismatch: The interaction machine was producing coordinates using the eventAge and eventTime
+     schema, but the state-saving logic in insert-history-row.js and the mapping in get-actor-history.js were
+     occasionally falling back to legacy age and time properties. This resulted in NaN values or 0 being passed to the
+     physics solver.
+   * Timestamp Re-parsing Drift: The system was attempting to reconstruct mathematical coordinates by re-parsing the
+     human-readable eventDate and eventTime strings every frame. Any slight variation in ISO format or timezone handling
+     caused the Kernel to lose track of the "World Offset," defaulting the character back to the DoB track.
+   * Offset Propagation Failure: In the kernel's sequential loop, the "Arrival Y" of a span is supposed to update the
+     currentOffset for all subsequent nodes. If the eventIsSpan flag or the arrivalTs property is missing from the
+     "Fact" layer, the walk continues as if the character is still on the original Level rail.
+
+  ---
+
+  4. Impact
+  This defect renders the Spanning mechanic non-functional for character progression. While the data is saved in the
+  background, the user cannot visually verify their position in time, cannot anchor new events to the spanned location,
+  and the "Diagonal Authority" of the 1:1 age-to-time ratio is broken for all history following the failed span.

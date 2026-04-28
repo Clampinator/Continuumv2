@@ -5,7 +5,7 @@
 export function getDefaultOptions() {
     return foundry.utils.mergeObject(Application.defaultOptions, {
         id: "all-lifelines-app",
-        title: "Continuum: All Lifelines",
+        eventTitle: "Continuum: All Lifelines",
         template: "systems/continuum-v2/templates/apps/all-lifelines.html",
         width: 1000,
         height: 800,

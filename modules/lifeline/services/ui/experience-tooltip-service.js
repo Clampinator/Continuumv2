@@ -1,5 +1,5 @@
 /*
-Service to manage the experience title hover tooltip.
+Service to manage the experience eventTitle hover tooltip.
 Handles DOM lifecycle, mouse tracking, and data aggregation for locations.
 */
 export const ExperienceTooltipService = {
@@ -30,7 +30,7 @@ export const ExperienceTooltipService = {
         // 2. Calculate Most Common Location from Events
         const events = Object.values(expData.events || {});
         const locations = events
-            .map(e => e.isSpan ? e.spanFromLocation : e.location)
+            .map(e => e.eventIsSpan ? e.eventSpanFromLocation : e.location)
             .filter(l => typeof l === 'string' && l.trim() !== "");
         
         let primaryLocation = "Unknown";

@@ -1,4 +1,4 @@
-import { formatObjectiveTime } from '../temporal-translator/coordinate-converter.js';
+;import { formatObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 
 /**
  * LEGACY WRAPPER: Use temporal-translator/coordinate-converter.js instead.

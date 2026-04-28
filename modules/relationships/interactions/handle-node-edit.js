@@ -16,7 +16,7 @@ export function handleNodeEdit(nodeSel, sheet) {
         let autoNote = "";
         if (isAuto) {
             const rel = Object.values(sheet.actor.system.relationships || {}).find(r => r.name === d.name);
-            autoNote = rel?.notes || "";
+            autoNote = rel?.eventNotes || "";
         }
 
         const networkGroups = Object.values(sheet.actor.system.networkGroups || {});
@@ -32,7 +32,7 @@ export function handleNodeEdit(nodeSel, sheet) {
             : `<p style="font-size:11px; color:#aaa; margin:0;">No groups yet — right-click empty canvas to create groups.</p>`;
 
         new Dialog({
-            title: `Edit ${d.name}`,
+            eventTitle: `Edit ${d.name}`,
             content: `
                 <style>
                     .rel-node-edit { display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; width: 100%; }
@@ -73,8 +73,8 @@ export function handleNodeEdit(nodeSel, sheet) {
                         <input type="text" id="node-favor" value="${d.favor || ''}" placeholder="e.g. Owed a trip to 1920"/>
                     </div>
                     <div class="field-row">
-                        <label>Notes</label>
-                        <textarea id="node-notes">${isAuto ? autoNote : (d.notes || "")}</textarea>
+                        <label>eventNotes</label>
+                        <textarea id="node-eventNotes">${isAuto ? autoNote : (d.eventNotes || "")}</textarea>
                     </div>
                 </div>
             `,
@@ -93,7 +93,7 @@ export function handleNodeEdit(nodeSel, sheet) {
                         };
                         if (!isAuto) {
                             updates[`system.network.${d.id}.name`]  = html.find("#node-name").val();
-                            updates[`system.network.${d.id}.notes`] = html.find("#node-notes").val();
+                            updates[`system.network.${d.id}.eventNotes`] = html.find("#node-eventNotes").val();
                         }
                         await sheet.actor.update(updates);
                     }

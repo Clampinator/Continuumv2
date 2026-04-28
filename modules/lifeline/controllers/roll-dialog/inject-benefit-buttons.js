@@ -24,7 +24,7 @@ export function injectBenefitButtons(html, actor, benefitRef) {
 
     container.show();
     active.forEach(b => {
-        const btn = $(`<button type="button" class="benefit-roll-btn" title="${b.description}">${b.name} (+${b.bonusAmount})</button>`);
+        const btn = $(`<button type="button" class="benefit-roll-btn" eventTitle="${b.description}">${b.name} (+${b.bonusAmount})</button>`);
         btn.data('bonus', b.bonusAmount);
         btn.on('click', (e) => {
             e.preventDefault();

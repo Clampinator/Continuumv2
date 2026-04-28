@@ -27,18 +27,18 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
             <div class="form-row">
                 <div class="form-col">
                     <label>Subjective Age</label>
-                    <input type="text" name="eventAge" value="${formatSubjectiveAge(data.age)}">
+                    <input type="text" name="eventAge" value="${formatSubjectiveAge(data.eventAge)}">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-col">
                     <label>Date</label>
-                    ${renderDatePickerInput("eventDate", data.isSpan ? data.spanFromDate : data.date)}
+                    ${renderDatePickerInput("eventDate", data.eventIsSpan ? data.eventSpanFromDate : data.eventDate)}
                 </div>
                 <div class="form-col">
                     <label>Time</label>
-                    <input type="time" step="1" name="eventTime" value="${data.isSpan ? data.spanFromTime : data.time}"/>
+                    <input type="time" step="1" name="eventTime" value="${data.eventIsSpan ? data.eventSpanFromTime : data.eventTime}"/>
                 </div>
             </div>
 
@@ -53,27 +53,27 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
 
             <div class="form-row">
                 <div class="form-col">
-                    <label>Title</label>
-                    <input type="text" name="title" value="${data.title || ''}" autofocus />
+                    <label>eventTitle</label>
+                    <input type="text" name="eventTitle" value="${data.eventTitle || ''}" autofocus />
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-col">
-                    <label>Notes</label>
-                    <textarea name="notes" style="min-height: 80px;">${data.notes || ''}</textarea>
+                    <label>eventNotes</label>
+                    <textarea name="eventNotes" style="min-height: 80px;">${data.eventNotes || ''}</textarea>
                 </div>
             </div>
 
             <div class="form-row" style="align-items: center; gap: 8px;">
-                <input type="checkbox" name="isRest" id="editIsRest" ${data.isRest ? 'checked' : ''} ${data.isSpan ? 'disabled' : ''} />
+                <input type="checkbox" name="eventIsRest" id="editIsRest" ${data.eventIsRest ? 'checked' : ''} ${data.eventIsSpan ? 'disabled' : ''} />
                 <label for="editIsRest" style="margin-bottom:0; font-weight: bold; color: #28a745; cursor: pointer;">Rest (24h)</label>
             </div>
         </form>
     `;
 
     const dialog = new Dialog({
-        title: data.isSpan ? "Edit Span" : "Edit Event",
+        eventTitle: data.eventIsSpan ? "Edit Span" : "Edit Event",
         content: content,
         render: (html) => activateDatePickers(html),
         buttons: {
@@ -103,17 +103,17 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
 
                     const updatedEvent = {
                         ...data,
-                        title: formData.title,
-                        notes: formData.notes,
+                        eventTitle: formData.eventTitle,
+                        eventNotes: formData.eventNotes,
                         age: parseAgeString(formData.eventAge),
-                        isRest: !data.isSpan && formData.isRest,
+                        eventIsRest: !data.eventIsSpan && formData.eventIsRest,
                         eraId: targetEraId,
                         expId: targetExpId
                     };
 
-                    if (data.isSpan) {
-                        updatedEvent.spanFromDate = eventDate;
-                        updatedEvent.spanFromTime = formData.eventTime;
+                    if (data.eventIsSpan) {
+                        updatedEvent.eventSpanFromDate = eventDate;
+                        updatedEvent.eventSpanFromTime = formData.eventTime;
                     } else {
                         updatedEvent.date = eventDate;
                         updatedEvent.time = formData.eventTime;

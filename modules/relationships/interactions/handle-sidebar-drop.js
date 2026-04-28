@@ -53,7 +53,7 @@ export function handleSidebarDrop(container, sheet) {
                 name: droppedActor.name,
                 img: (() => { const t = droppedActor.prototypeToken?.texture?.src; return (t && t !== droppedActor.img) ? t : (droppedActor.img || "icons/svg/mystery-man.svg"); })(),
                 groups: [],
-                notes: "",
+                eventNotes: "",
                 favor: "",
                 x,
                 y

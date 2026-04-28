@@ -15,9 +15,9 @@ export async function openEventDialog(sheet, params) {
     const templateData = getTemplateData(actor, params);
 
     const dialogTitle = {
-        'edit': templateData.isSpan ? "Edit Span" : "Edit Event",
+        'edit': templateData.eventIsSpan ? "Edit Span" : "Edit Event",
         'insert': "Insert Event into History",
-        'log': templateData.isSpan ? "Log Span Result" : "Log Normal Leveling"
+        'log': templateData.eventIsSpan ? "Log Span Result" : "Log Normal Leveling"
     }[params.mode];
 
     const content = await foundry.applications.handlebars.renderTemplate(
@@ -57,7 +57,7 @@ export async function openEventDialog(sheet, params) {
     };
 
     const dialog = new Dialog({
-        title: dialogTitle,
+        eventTitle: dialogTitle,
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -101,12 +101,12 @@ function _activateInternalListeners(html, dialog) {
     updateNewExpVisibility();
 
     // 2. Type Switching
-    const spanToggle = html.find('input[name="isSpan"]');
+    const spanToggle = html.find('input[name="eventIsSpan"]');
     spanToggle.on('change', () => {
         const isChecked = spanToggle.is(':checked');
         html.find('#spanFields').toggle(isChecked);
         html.find('#eventFields').toggle(!isChecked);
-        html.find('input[name="isRest"]').prop('disabled', isChecked);
+        html.find('input[name="eventIsRest"]').prop('disabled', isChecked);
         dialog.setPosition({ height: "auto" });
     });
 

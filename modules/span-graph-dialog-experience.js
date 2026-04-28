@@ -60,7 +60,7 @@ export function openExperienceEditDialog(data, sheet, viewState) {
     `;
 
     new Dialog({
-        title: "Edit Experience",
+        eventTitle: "Edit Experience",
         content: content,
         render: (html) => {
             activateDatePickers(html);

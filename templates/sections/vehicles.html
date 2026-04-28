@@ -9,7 +9,7 @@
       <h2 class="section-heading">Vehicles</h2>
     </label>
     <div class="vehicles-controls">
-      <button type="button" class="vehicles-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="vehicles-help" eventTitle="Help"><i class="fas fa-question"></i></button>
       <button type="button" class="item-add" data-type="vehicle" data-tooltip="Add Vehicle"><i class="fas fa-plus"></i> Add</button>
     </div>
   </div>
@@ -66,7 +66,7 @@
       <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.armor}}</span></div>
       <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.passengers}}</span></div>
       <div class="vehicle-controls">
-        <a class="item-delete {{#unless (isDeletable vehicle 'vehicle')}}disabled{{/unless}}" title="{{#unless (isDeletable vehicle 'vehicle')}}Cannot delete an element with content{{else}}Delete Vehicle{{/unless}}" data-type="{{vehicle.type}}" data-id="{{vehicle.id}}"><i class="fas fa-trash"></i></a>
+        <a class="item-delete {{#unless (isDeletable vehicle 'vehicle')}}disabled{{/unless}}" eventTitle="{{#unless (isDeletable vehicle 'vehicle')}}Cannot delete an element with content{{else}}Delete Vehicle{{/unless}}" data-type="{{vehicle.type}}" data-id="{{vehicle.id}}"><i class="fas fa-trash"></i></a>
       </div>
     </div>
     {{/each}}

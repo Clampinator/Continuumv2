@@ -17,9 +17,9 @@ export async function openEventDialog(sheet, params) {
     const templateData = getTemplateData(actor, { ...params, viewState, graphData });
 
     const dialogTitle = {
-        'edit': templateData.isSpan ? "Edit Span" : "Edit Event",
+        'edit': templateData.eventIsSpan ? "Edit Span" : "Edit Event",
         'insert': "Insert Event into History",
-        'log': templateData.isSpan ? "Log Span Result" : "Log Normal Leveling"
+        'log': templateData.eventIsSpan ? "Log Span Result" : "Log Normal Leveling"
     }[params.mode];
 
     const content = await foundry.applications.handlebars.renderTemplate("systems/continuum-v2/templates/dialogs/event-node-editor.html", templateData);
@@ -73,7 +73,7 @@ export async function openEventDialog(sheet, params) {
     };
 
     const dialog = new Dialog({
-        title: dialogTitle,
+        eventTitle: dialogTitle,
         content: content,
         render: (html) => {
             activateDatePickers(html);

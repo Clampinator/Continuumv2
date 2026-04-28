@@ -20,7 +20,7 @@ export async function handleCharacterEventAdd(sheet, event) {
         ...reindex,
         [path]: {
             id: newId,
-            title: "New Event",
+            eventTitle: "New Event",
             date: sheet.actor.system.eras[eraId]?.dateFrom || "",
             time: "12:00",
             sort: sort

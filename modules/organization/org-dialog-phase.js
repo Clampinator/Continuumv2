@@ -24,7 +24,7 @@ export function showCreatePhaseDialog(viewState, graphData, sheet, svg, duration
     `;
 
     new Dialog({
-        title: "Create New Phase",
+        eventTitle: "Create New Phase",
         content: content,
         render: (html) => {
             activateDatePickers(html);

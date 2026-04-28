@@ -9,7 +9,7 @@
       <h2 class="section-heading">Personal Information</h2>
     </label>
     <div class="personal-controls">
-      <button type="button" class="personal-info-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="personal-info-help" eventTitle="Help"><i class="fas fa-question"></i></button>
       {{#if isGM}}
       <button type="button" class="sheet-settings-button" data-tooltip="Sheet Settings"><i class="fas fa-cogs"></i></button>
       {{/if}}
@@ -67,8 +67,8 @@
             <input type="text" id="birth-location" name="system.personal.birthLocation" value="{{system.personal.birthLocation}}" placeholder="City, Country" />
             <input type="hidden" name="system.personal.birthLat" value="{{system.personal.birthLat}}"/>
             <input type="hidden" name="system.personal.birthLng" value="{{system.personal.birthLng}}"/>
-            <button type="button" class="personal-geo-btn personal-locate-btn" title="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
-            <button type="button" class="personal-geo-btn personal-grab-btn" title="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
+            <button type="button" class="personal-geo-btn personal-locate-btn" eventTitle="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
+            <button type="button" class="personal-geo-btn personal-grab-btn" eventTitle="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
           </div>
         </div>
         <div class="form-row">

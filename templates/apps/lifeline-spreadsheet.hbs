@@ -2,13 +2,13 @@
 
   <!-- TOOLBAR -->
   <div class="lss-toolbar">
-    <button class="lss-sort-toggle" title="Toggle age sort direction">
+    <button class="lss-sort-toggle" eventTitle="Toggle age sort direction">
       {{#if sortNewestFirst}}<i class="fas fa-arrow-down"></i> Age: Newest First{{else}}<i class="fas fa-arrow-up"></i> Age: Oldest First{{/if}}
     </button>
-    <button class="lss-bulk-shift-btn" title="Shift objective time for selected events"><i class="fas fa-clock"></i> Bulk Shift</button>
-    <button class="lss-import-btn"   title="Import events from a CSV file"><i class="fas fa-file-import"></i> Import CSV</button>
-    <button class="lss-export-btn"   title="Export all events as a CSV file"><i class="fas fa-file-export"></i> Export CSV</button>
-    <button class="lss-template-btn" title="Download a blank CSV template to fill in"><i class="fas fa-file-download"></i> Get Template</button>
+    <button class="lss-bulk-shift-btn" eventTitle="Shift objective time for selected events"><i class="fas fa-clock"></i> Bulk Shift</button>
+    <button class="lss-import-btn"   eventTitle="Import events from a CSV file"><i class="fas fa-file-import"></i> Import CSV</button>
+    <button class="lss-export-btn"   eventTitle="Export all events as a CSV file"><i class="fas fa-file-export"></i> Export CSV</button>
+    <button class="lss-template-btn" eventTitle="Download a blank CSV template to fill in"><i class="fas fa-file-download"></i> Get Template</button>
     <span class="lss-count">{{rows.length}} event{{#unless (eq rows.length 1)}}s{{/unless}}</span>
   </div>
 
@@ -17,12 +17,12 @@
     <table>
       <thead>
         <tr>
-          <th style="width:24px"><input type="checkbox" class="lss-select-all" title="Select all events"/></th>
+          <th style="width:24px"><input type="checkbox" class="lss-select-all" eventTitle="Select all events"/></th>
           <th style="width:24px"></th>
           <th style="width:95px">Date</th>
           <th style="width:65px">Time</th>
-          <th style="min-width:180px">Title</th>
-          <th style="min-width:240px">Notes</th>
+          <th style="min-width:180px">eventTitle</th>
+          <th style="min-width:240px">eventNotes</th>
           <th style="min-width:150px">Location</th>
           <th style="width:100px">Era</th>
           <th style="width:120px">Experience</th>
@@ -37,13 +37,13 @@
           <td colspan="11">
             <form class="lss-new-form" autocomplete="off">
               <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
-                <input class="lss-field lss-n-date"     style="width:95px"  placeholder="YYYY-MM-DD" title="Date (required)"/>
-                <input class="lss-field lss-n-time"     style="width:65px"  placeholder="HH:MM"      title="Time (optional)"/>
-                <input class="lss-field lss-n-title"    style="min-width:180px; flex:1;" placeholder="Title" title="Title"/>
-                <input class="lss-field lss-n-notes"    style="min-width:240px; flex:2;" placeholder="Notes" title="Notes"/>
-                <input class="lss-field lss-n-location" style="min-width:150px; flex:1;" placeholder="Location" title="Location"/>
-                <button type="button" class="lss-map-pin-btn" title="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
-                <label class="lss-check-label" title="Expand for span and experience options">
+                <input class="lss-field lss-n-date"     style="width:95px"  placeholder="YYYY-MM-DD" eventTitle="Date (required)"/>
+                <input class="lss-field lss-n-time"     style="width:65px"  placeholder="HH:MM"      eventTitle="Time (optional)"/>
+                <input class="lss-field lss-n-eventTitle"    style="min-width:180px; flex:1;" placeholder="eventTitle" eventTitle="eventTitle"/>
+                <input class="lss-field lss-n-eventNotes"    style="min-width:240px; flex:2;" placeholder="eventNotes" eventTitle="eventNotes"/>
+                <input class="lss-field lss-n-location" style="min-width:150px; flex:1;" placeholder="Location" eventTitle="Location"/>
+                <button type="button" class="lss-map-pin-btn" eventTitle="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
+                <label class="lss-check-label" eventTitle="Expand for span and experience options">
                   <input type="checkbox" class="lss-n-is-span"/> Span
                 </label>
                 <button type="button" class="lss-add-btn"><i class="fas fa-plus"></i> Add</button>
@@ -107,7 +107,7 @@
 
         <!-- EXISTING EVENT ROWS -->
         {{#each rows}}
-        <tr class="lss-event-row{{#if isSpan}} is-span{{/if}}"
+        <tr class="lss-event-row{{#if eventIsSpan}} is-span{{/if}}"
             data-event-id="{{eventId}}"
             data-era-id="{{eraId}}"
             data-exp-id="{{expId}}">
@@ -115,20 +115,20 @@
            <td><i class="fas fa-grip-vertical lss-drag-handle"></i></td>
            <td><input class="lss-field lss-field-date" data-field="date" value="{{date}}" placeholder="YYYY-MM-DD"/></td>
           <td><input class="lss-field lss-field-time" data-field="time" value="{{time}}" placeholder="HH:MM"/></td>
-          <td><input class="lss-field lss-field-title" data-field="title" value="{{title}}" placeholder="Title"/></td>
-          <td><input class="lss-field lss-field-notes" data-field="notes" value="{{notes}}" placeholder="Notes"/></td>
+          <td><input class="lss-field lss-field-eventTitle" data-field="eventTitle" value="{{eventTitle}}" placeholder="eventTitle"/></td>
+          <td><input class="lss-field lss-field-eventNotes" data-field="eventNotes" value="{{eventNotes}}" placeholder="eventNotes"/></td>
            <td style="display:flex; align-items:center; gap:2px;">
              <input class="lss-field lss-field-location" data-field="location" value="{{location}}" placeholder="Location" style="flex:1;"/>
-             <button type="button" class="lss-map-pin-btn lss-row-map-pin-btn" title="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
+             <button type="button" class="lss-map-pin-btn lss-row-map-pin-btn" eventTitle="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
            </td>
           <td><span class="lss-era-badge">{{eraName}}</span></td>
           <td><span class="lss-exp-badge">{{#if expName}}{{expName}}{{else}}--{{/if}}</span></td>
           <td><span class="lss-type-label">{{typeLabel}}</span></td>
           <td style="white-space:nowrap;">
-            <button class="lss-action-btn lss-expand-btn" title="More options">
+            <button class="lss-action-btn lss-expand-btn" eventTitle="More options">
               <i class="fas fa-chevron-{{#if isExpanded}}up{{else}}down{{/if}}"></i>
             </button>
-            <button class="lss-action-btn lss-delete-btn" title="Delete event"><i class="fas fa-trash"></i></button>
+            <button class="lss-action-btn lss-delete-btn" eventTitle="Delete event"><i class="fas fa-trash"></i></button>
           </td>
         </tr>
 
@@ -140,22 +140,22 @@
 
               <!-- Span toggle + fields -->
               <label class="lss-check-label">
-                <input type="checkbox" class="lss-is-span" {{#if isSpan}}checked{{/if}}/>
+                <input type="checkbox" class="lss-is-span" {{#if eventIsSpan}}checked{{/if}}/>
                 This event is a Span (journey with departure and arrival)
               </label>
 
-              <div class="lss-span-section lss-span-fields-section{{#unless isSpan}} hidden{{/unless}}">
+              <div class="lss-span-section lss-span-fields-section{{#unless eventIsSpan}} hidden{{/unless}}">
                 <div class="lss-span-row">
                   <span class="lss-span-label">From:</span>
-                  <input class="lss-field lss-sf-date" value="{{spanFromDate}}" style="width:95px" placeholder="YYYY-MM-DD"/>
-                  <input class="lss-field lss-sf-time" value="{{spanFromTime}}" style="width:65px" placeholder="HH:MM"/>
-                  <input class="lss-field lss-sf-loc"  value="{{spanFromLocation}}" style="min-width:160px; flex:1" placeholder="Departure location"/>
+                  <input class="lss-field lss-sf-date" value="{{eventSpanFromDate}}" style="width:95px" placeholder="YYYY-MM-DD"/>
+                  <input class="lss-field lss-sf-time" value="{{eventSpanFromTime}}" style="width:65px" placeholder="HH:MM"/>
+                  <input class="lss-field lss-sf-loc"  value="{{eventSpanFromLocation}}" style="min-width:160px; flex:1" placeholder="Departure location"/>
                 </div>
                 <div class="lss-span-row">
                   <span class="lss-span-label">To:</span>
-                  <input class="lss-field lss-st-date" value="{{spanToDate}}" style="width:95px" placeholder="YYYY-MM-DD"/>
-                  <input class="lss-field lss-st-time" value="{{spanToTime}}" style="width:65px" placeholder="HH:MM"/>
-                  <input class="lss-field lss-st-loc"  value="{{spanToLocation}}" style="min-width:160px; flex:1" placeholder="Arrival location"/>
+                  <input class="lss-field lss-st-date" value="{{eventSpanToDate}}" style="width:95px" placeholder="YYYY-MM-DD"/>
+                  <input class="lss-field lss-st-time" value="{{eventSpanToTime}}" style="width:65px" placeholder="HH:MM"/>
+                  <input class="lss-field lss-st-loc"  value="{{eventSpanToLocation}}" style="min-width:160px; flex:1" placeholder="Arrival location"/>
                 </div>
               </div>
 

@@ -104,23 +104,23 @@ function _updateHoverTooltips(viewport, event, x, y) {
             const record = targetNode.record || targetNode;
             const dt = convertTimestampToDateString(targetNode.y);
             
-            if (record.isSpan) {
+            if (record.eventIsSpan) {
                 const arrDT = convertTimestampToDateString(targetNode.arrivalY);
                 const cost = Math.abs(targetNode.arrivalY - targetNode.y) / 1000;
                 
-                content.push({ label: 'SPAN', value: record.title || 'Span', color: '#ff00ff' });
+                content.push({ label: 'SPAN', value: record.eventTitle || 'Span', color: '#ff00ff' });
                 content.push({ label: 'DEPART', value: `${dt.date} ${dt.time}` });
                 content.push({ label: 'ARRIVE', value: `${arrDT.date} ${arrDT.time}` });
                 content.push({ label: 'SPENT', value: formatDuration(cost), color: '#ff6b6b' });
                 content.push({ label: 'AGE', value: formatSubjectiveAge(targetNode.x) });
-                if (record.spanFromLocation) content.push({ label: 'FROM', value: record.spanFromLocation });
-                if (record.spanToLocation) content.push({ label: 'TO', value: record.spanToLocation });
+                if (record.eventSpanFromLocation) content.push({ label: 'FROM', value: record.eventSpanFromLocation });
+                if (record.eventSpanToLocation) content.push({ label: 'TO', value: record.eventSpanToLocation });
             } else {
-                content.push({ label: 'EVENT', value: record.title || 'Unknown', color: '#4da6ff' });
+                content.push({ label: 'EVENT', value: record.eventTitle || 'Unknown', color: '#4da6ff' });
                 content.push({ label: 'DATE', value: dt.date });
                 content.push({ label: 'TIME', value: dt.time });
                 content.push({ label: 'AGE', value: formatSubjectiveAge(targetNode.x) });
-                if (record.location) content.push({ label: 'LOCATION', value: record.location, color: '#8ecae6' });
+                if (record.eventLocation) content.push({ label: 'LOCATION', value: record.eventLocation, color: '#8ecae6' });
             }
         }
     }
@@ -139,24 +139,24 @@ function _updateDragTooltip(viewport, x, y) {
     const content = [];
 
     if (viewport._interaction.mode === 'level') {
-        const dt = convertTimestampToDateString(world.time);
+        const dt = convertTimestampToDateString(world.eventTime);
         content.push({ label: 'ACTION', value: 'LEVELING...', color: '#4da6ff' });
         content.push({ label: 'DATE', value: dt.date });
         content.push({ label: 'TIME', value: dt.time });
-        content.push({ label: 'AGE', value: formatSubjectiveAge(world.age) });
+        content.push({ label: 'AGE', value: formatSubjectiveAge(world.eventAge) });
     } 
     else if (viewport._interaction.mode === 'span') {
-        const depDT = convertTimestampToDateString(viewport._interaction.startWorld.time);
-        const arrDT = convertTimestampToDateString(world.time);
-        const spent = Math.abs(world.time - viewport._interaction.startWorld.time) / 1000;
+        const depDT = convertTimestampToDateString(viewport._interaction.startWorld.eventTime);
+        const arrDT = convertTimestampToDateString(world.eventTime);
+        const spent = Math.abs(world.eventTime - viewport._interaction.startWorld.eventTime) / 1000;
         
         const pool = calculateSpanPool(viewport.actor, history, { 
-            departureTime: viewport._interaction.startWorld.time,
-            arrivalTime: world.time
+            departureTime: viewport._interaction.startWorld.eventTime,
+            arrivalTime: world.eventTime
         });
 
         content.push({ label: 'ACTION', value: 'SPANNING...', color: '#ff00ff' });
-        content.push({ label: 'AGE', value: formatSubjectiveAge(world.age) });
+        content.push({ label: 'AGE', value: formatSubjectiveAge(world.eventAge) });
         content.push({ label: 'DEPART', value: depDT.date });
         content.push({ label: 'NOW', value: arrDT.date });
         content.push({ label: 'SPENT', value: formatDuration(spent) });

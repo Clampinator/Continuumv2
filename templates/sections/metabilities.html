@@ -9,7 +9,7 @@
       <h2 class="section-heading">Metabilites</h2>
     </label>
     <div class="metabilities-controls">
-      <button type="button" class="metabilities-help" title="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="metabilities-help" eventTitle="Help"><i class="fas fa-question"></i></button>
       <button type="button" class="item-add" data-type="metabilityApplication" data-tooltip="Add Application"><i class="fas fa-plus"></i> Application</button>
     </div>
   </div>
@@ -23,7 +23,7 @@
              data-metability="coercion"
              data-potential="{{system.metabilities.coercion.potential}}">
           <!-- Draggable background showing operant potential level -->
-          <div class="potential-background" data-potential-for="coercion" title="Drag to set Operant Potential">
+          <div class="potential-background" data-potential-for="coercion" eventTitle="Drag to set Operant Potential">
             <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
                  class="potential-bg-image" 
                  alt="Coercion Operant Potential"
@@ -44,7 +44,7 @@
         <div class="metability-potential-frame {{#if (eq system.metabilities.creativity.value system.metabilities.creativity.potential)}}at-potential{{/if}}" 
              data-metability="creativity"
              data-potential="{{system.metabilities.creativity.potential}}">
-          <div class="potential-background" data-potential-for="creativity" title="Drag to set Operant Potential">
+          <div class="potential-background" data-potential-for="creativity" eventTitle="Drag to set Operant Potential">
             <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
                  class="potential-bg-image" 
                  alt="Creativity Operant Potential"
@@ -64,7 +64,7 @@
         <div class="metability-potential-frame {{#if (eq system.metabilities.farsense.value system.metabilities.farsense.potential)}}at-potential{{/if}}" 
              data-metability="farsense"
              data-potential="{{system.metabilities.farsense.potential}}">
-          <div class="potential-background" data-potential-for="farsense" title="Drag to set Operant Potential">
+          <div class="potential-background" data-potential-for="farsense" eventTitle="Drag to set Operant Potential">
             <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
                  class="potential-bg-image" 
                  alt="Farsense Operant Potential"
@@ -84,7 +84,7 @@
         <div class="metability-potential-frame {{#if (eq system.metabilities.pk.value system.metabilities.pk.potential)}}at-potential{{/if}}" 
              data-metability="pk"
              data-potential="{{system.metabilities.pk.potential}}">
-          <div class="potential-background" data-potential-for="pk" title="Drag to set Operant Potential">
+          <div class="potential-background" data-potential-for="pk" eventTitle="Drag to set Operant Potential">
             <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
                  class="potential-bg-image" 
                  alt="PK Operant Potential"
@@ -104,7 +104,7 @@
         <div class="metability-potential-frame {{#if (eq system.metabilities.redaction.value system.metabilities.redaction.potential)}}at-potential{{/if}}" 
              data-metability="redaction"
              data-potential="{{system.metabilities.redaction.potential}}">
-          <div class="potential-background" data-potential-for="redaction" title="Drag to set Operant Potential">
+          <div class="potential-background" data-potential-for="redaction" eventTitle="Drag to set Operant Potential">
             <img src="systems/continuum-v2/assets/metability-potential-spinner.png" 
                  class="potential-bg-image" 
                  alt="Redaction Operant Potential"
@@ -169,14 +169,14 @@
                     <span class="app-volume-used">0</span>/<span class="app-volume-max">0</span>
                   </div>
                 </div>
-                <div class="metability-application-level-container" title="Application Level (1-3)">
+                <div class="metability-application-level-container" eventTitle="Application Level (1-3)">
                     <label>Lvl</label>
                     <div class="attribute-spinner-viewport app-level-spinner" data-applevel="{{app.id}}">
                         <img src="assets/Continuum%20UI/AttributesCounter.png" class="attribute-spinner-image" alt="Level">
                     </div>
                     <input type="hidden" name="system.metabilities.applications.{{app.id}}.level" value="{{#if app.level}}{{app.level}}{{else}}1{{/if}}" />
                 </div>
-                <label class="metability-application-running" title="Running in background (-1 to Mind rolls)">
+                <label class="metability-application-running" eventTitle="Running in background (-1 to Mind rolls)">
                     <input type="checkbox" name="system.metabilities.applications.{{app.id}}.running" {{#if app.running}}checked{{/if}} />
                     <span>Running</span>
                 </label>

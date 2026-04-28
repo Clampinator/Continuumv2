@@ -177,9 +177,9 @@ export function processOrgData(sheet, graphData, viewState) {
                 eventNotes: eng.description,
                 trackId: trackId,
                 // Location data
-                lat: eng.spanFromLat || null,
-                lng: eng.spanFromLng || null,
-                zoom: eng.spanFromZoom || null
+                lat: eng.eventSpanFromLat || null,
+                lng: eng.eventSpanFromLng || null,
+                zoom: eng.eventSpanFromZoom || null
             };
 
             graphData.levelNodes.push(node);

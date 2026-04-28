@@ -10,17 +10,17 @@
     </label>
     <!-- Controls for the graph -->
     <div class="span-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
-        <button type="button" class="toggle-map-mode" title="Toggle Map Interaction (Spacebar)"><i class="fas fa-map-marked-alt"></i></button>
+        <button type="button" class="toggle-map-mode" eventTitle="Toggle Map Interaction (Spacebar)"><i class="fas fa-map-marked-alt"></i></button>
         <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div>
-        <button type="button" class="lifeline-spreadsheet-btn" title="Lifeline Spreadsheet"><i class="fas fa-table"></i></button>
+        <button type="button" class="lifeline-spreadsheet-btn" eventTitle="Lifeline Spreadsheet"><i class="fas fa-table"></i></button>
         <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div>
-        <button type="button" class="export-lifeline" title="Export Lifeline (JSON)"><i class="fas fa-file-export"></i></button>
-        <button type="button" class="import-lifeline" title="Import Lifeline (JSON)"><i class="fas fa-file-import"></i></button>
-        <button type="button" class="debug-graph-data" title="Copy Debug Data"><i class="fas fa-bug"></i></button>
-        <button type="button" class="reset-graph-view" title="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
-        <button type="button" class="fix-rail-offsets" title="Fix Rail Offsets (clear corrupt Reconciliation Loops)"><i class="fas fa-wrench"></i></button>
-        <button type="button" class="toggle-archived-goals" title="Show Archived Goals"><i class="fas fa-eye"></i></button>
-        <button type="button" class="span-graph-help" title="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="export-lifeline" eventTitle="Export Lifeline (JSON)"><i class="fas fa-file-export"></i></button>
+        <button type="button" class="import-lifeline" eventTitle="Import Lifeline (JSON)"><i class="fas fa-file-import"></i></button>
+        <button type="button" class="debug-graph-data" eventTitle="Copy Debug Data"><i class="fas fa-bug"></i></button>
+        <button type="button" class="reset-graph-view" eventTitle="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="fix-rail-offsets" eventTitle="Fix Rail Offsets (clear corrupt Reconciliation Loops)"><i class="fas fa-wrench"></i></button>
+        <button type="button" class="toggle-archived-goals" eventTitle="Show Archived Goals"><i class="fas fa-eye"></i></button>
+        <button type="button" class="span-graph-help" eventTitle="Help"><i class="fas fa-question"></i></button>
     </div>
   </div>
   
@@ -41,7 +41,7 @@
       {{#if (eq actor.type "organization")}}
         <span style="font-size:0.8em; font-weight:bold; color:#aaa; margin-right:5px;">UNITS:</span>
       {{else}}
-        <button type="button" class="goal-hud-add" title="Create New Goal"><i class="fas fa-plus"></i> Goal</button>
+        <button type="button" class="goal-hud-add" eventTitle="Create New Goal"><i class="fas fa-plus"></i> Goal</button>
         {{#each goals as |goal|}}
             {{#unless (eq goal.importance "Achieved")}}
             <div class="goal-hud-chip" data-id="{{goal.id}}" data-importance="{{goal.importance}}">

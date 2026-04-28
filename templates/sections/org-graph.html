@@ -10,13 +10,13 @@
     </label>
     <!-- Controls for the graph -->
     <div class="org-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
-        <button type="button" class="toggle-map-mode" title="Toggle Map Interaction (Spacebar)"><i class="fas fa-map-marked-alt"></i></button>
+        <button type="button" class="toggle-map-mode" eventTitle="Toggle Map Interaction (Spacebar)"><i class="fas fa-map-marked-alt"></i></button>
         <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div>
-        <button type="button" class="export-lifeline" title="Export Lifeline (JSON)"><i class="fas fa-file-export"></i></button>
-        <button type="button" class="import-lifeline" title="Import Lifeline (JSON)"><i class="fas fa-file-import"></i></button>
-        <button type="button" class="debug-graph-data" title="Copy Debug Data"><i class="fas fa-bug"></i></button>
-        <button type="button" class="reset-graph-view" title="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
-        <button type="button" class="org-graph-help" title="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="export-lifeline" eventTitle="Export Lifeline (JSON)"><i class="fas fa-file-export"></i></button>
+        <button type="button" class="import-lifeline" eventTitle="Import Lifeline (JSON)"><i class="fas fa-file-import"></i></button>
+        <button type="button" class="debug-graph-data" eventTitle="Copy Debug Data"><i class="fas fa-bug"></i></button>
+        <button type="button" class="reset-graph-view" eventTitle="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="org-graph-help" eventTitle="Help"><i class="fas fa-question"></i></button>
     </div>
   </div>
   
@@ -34,7 +34,7 @@
 
     <!-- HTML MANDATE HUD (The Bank) -->
     <div class="graph-goal-hud-container {{#unless system.structure.inceptionDate}}blurred-content{{/unless}}">
-      <button type="button" class="goal-hud-add" title="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
+      <button type="button" class="goal-hud-add" eventTitle="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
       {{#each mandates as |mandate|}}
         {{#unless (eq mandate.importance "Achieved")}}
         <div class="goal-hud-chip" data-id="{{mandate.id}}" data-importance="{{mandate.importance}}">

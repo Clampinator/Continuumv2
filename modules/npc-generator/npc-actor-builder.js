@@ -101,7 +101,7 @@ export async function buildActorFromAIResponse(aiResponse, wizardData, addLog) {
   if (!actor) return { actor: null, foundryJson };
 
   if (secret) {
-    await actor.update({ 'system.notes': secret });
+    await actor.update({ 'system.eventNotes': secret });
   }
 
   return { actor, foundryJson };
@@ -182,7 +182,7 @@ export async function linkToPC(npcActor, pcActor, relationshipType) {
       importance: 'Personal',
       when: '',
       where: '',
-      notes: `Connected to ${pcActor.name}`
+      eventNotes: `Connected to ${pcActor.name}`
     }
   });
 
@@ -204,7 +204,7 @@ export async function linkToPC(npcActor, pcActor, relationshipType) {
       importance: 'Personal',
       when: '',
       where: '',
-      notes: `Connected to ${npcActor.name} via NPC generator`
+      eventNotes: `Connected to ${npcActor.name} via NPC generator`
     }
   });
 
@@ -221,7 +221,7 @@ export async function linkToPC(npcActor, pcActor, relationshipType) {
       importance: 'Personal',
       groups: [],
       favor: '',
-      notes: '',
+      eventNotes: '',
       dateFrom: '',
       dateTo: '',
       x: 0,
@@ -239,7 +239,7 @@ export async function linkToPC(npcActor, pcActor, relationshipType) {
       importance: 'Personal',
       groups: [],
       favor: '',
-      notes: '',
+      eventNotes: '',
       dateFrom: '',
       dateTo: '',
       x: 100,
@@ -255,7 +255,7 @@ export async function linkToPC(npcActor, pcActor, relationshipType) {
       target: pcNodeId,
       relationshipType: type,
       importance: 'Personal',
-      notes: '',
+      eventNotes: '',
       dateFrom: '',
       dateTo: '',
       strength: 3
@@ -321,7 +321,7 @@ function buildRelationships(aiRelationships, wizardData) {
       importance: 'Social',
       when: relData.when || '',
       where: relData.where || '',
-      notes: relData.notes || ''
+      eventNotes: relData.eventNotes || ''
     };
   }
 
@@ -338,7 +338,7 @@ function buildFavors(aiFavors) {
     favors[id] = {
       id: id,
       name: favData.name,
-      description: favData.notes || favData.description || '',
+      description: favData.eventNotes || favData.description || '',
       importance: favData.importance || 'Important',
       when: favData.when || '',
       createdAt: Date.now()

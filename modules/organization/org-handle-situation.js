@@ -37,8 +37,8 @@ function getUnitDeployment(actor, unitId) {
             if (!op) continue;
             for (const [engId, eng] of Object.entries(op.engagements || {})) {
                 if (eng?.unitId !== unitId || eng.resolved) continue;
-                const lat = parseFloat(eng.spanFromLat);
-                const lng = parseFloat(eng.spanFromLng);
+                const lat = parseFloat(eng.eventSpanFromLat);
+                const lng = parseFloat(eng.eventSpanFromLng);
                 if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
                 const t = new Date((eng.date || '1970-01-01') + 'T' + (eng.time || '00:00')).getTime();
                 deployments.push({ lat, lng, t, phaseId, opId, engId });
@@ -86,7 +86,7 @@ function pickEngagement(engagements) {
     return new Promise((resolve) => {
         const options = engagements.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
         new Dialog({
-            title: "Choose Engagement",
+            eventTitle: "Choose Engagement",
             content: `<form><div class="form-group"><label>Active Engagements</label><select name="engId">${options}</select></div></form>`,
             buttons: {
                 ok: {
@@ -115,7 +115,7 @@ function pickNearbyLocation(locations, unitName) {
             return `<option value="${l.id}">${l.name} (${lat}, ${lng})</option>`;
         }).join('');
         new Dialog({
-            title: "Select Target",
+            eventTitle: "Select Target",
             content: `<form>
                 <p><strong>${unitName}</strong> is within operational range of the following locations. Select a target:</p>
                 <div class="form-group">

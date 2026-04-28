@@ -52,21 +52,24 @@ export const Translator = {
      */
     toAtomic(strings, history, actor) {
         const age = parseSubjectiveAge(strings.eventAge);
+        const isSpan = Boolean(strings.eventIsSpan);
         
         // Resolve location context to ensure parsing is aware of the character's local rules
         const context = resolveLocationContext(history, age, actor);
 
-        const ts = parseObjectiveTime(
-            strings.eventDate || strings.eventSpanFromDate, 
-            strings.eventTime || strings.eventSpanFromTime, 
-            context
-        );
+        // 1. Resolve Departure (ts)
+        // If it's a Span, we strictly look at SpanFrom fields to avoid collisions with Level fields.
+        const dateStr = isSpan ? strings.eventSpanFromDate : strings.eventDate;
+        const timeStr = isSpan ? strings.eventSpanFromTime : strings.eventTime;
 
+        const ts = parseObjectiveTime(dateStr, timeStr, context);
+
+        // 2. Resolve Arrival (arrivalTs)
         let arrivalTs = ts;
-        if (strings.eventIsSpan) {
+        if (isSpan) {
             arrivalTs = parseObjectiveTime(
-                strings.eventSpanToDate || strings.eventDate,
-                strings.eventSpanToTime || strings.eventTime,
+                strings.eventSpanToDate,
+                strings.eventSpanToTime,
                 context
             );
         }

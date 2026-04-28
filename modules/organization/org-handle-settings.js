@@ -4,7 +4,7 @@ export async function handleOrgSettingsClick(sheet, event) {
     const { actor } = sheet;
     
     new Dialog({
-      title: "Organization Sheet Settings",
+      eventTitle: "Organization Sheet Settings",
       content: `<p>No specific organization-only settings available at this version.</p>`,
       buttons: { ok: { label: "Close" } },
       default: "ok"

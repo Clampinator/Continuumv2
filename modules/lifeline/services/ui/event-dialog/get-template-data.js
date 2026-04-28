@@ -24,8 +24,8 @@ export function getTemplateData(actor, params) {
     // AUTHORITY: Favor physical coordinates (x, y) if they exist, as they are the Engine's source of truth.
     const rawFacts = {
         eventAge: (existingData?.x !== undefined) ? existingData.x : (params.ageRaw || 0),
-        ts: (existingData?.y !== undefined) ? existingData.y : (record.ts || params.timeRaw || params.time || 0),
-        arrivalTs: (existingData?.arrivalY !== undefined) ? existingData.arrivalY : (record.arrivalTs || (eventIsSpan ? (params.arrival?.eventTime || params.timeRaw) : (record.ts || params.timeRaw))),
+        ts: (existingData?.y !== undefined) ? existingData.y : (record.ts || (eventIsSpan ? params.departure?.eventTime : null) || params.timeRaw || params.time || 0),
+        arrivalTs: (existingData?.arrivalY !== undefined) ? existingData.arrivalY : (record.arrivalTs || (eventIsSpan ? params.timeRaw : (record.ts || params.timeRaw))),
         eventIsSpan,
         eventTitle: record.eventTitle || (eventIsSpan ? "Span" : "Event")
     };
@@ -33,7 +33,28 @@ export function getTemplateData(actor, params) {
     // 4. TRANSLATION GATEWAY
     // The UI does not know how to format strings. It asks the Translator.
     const history = getActorHistory(actor);
+
+    if (eventIsSpan && mode !== 'edit') {
+        console.group('SPAN DEBUG | STEP 2 | GET TEMPLATE DATA - rawFacts before toHuman');
+        console.log('params.departure:', JSON.stringify(params.departure));
+        console.log('params.timeRaw (arrival ts):', params.timeRaw);
+        console.log('rawFacts.ts (fed to toHuman as departure):', rawFacts.ts);
+        console.log('rawFacts.arrivalTs (fed to toHuman as arrival):', rawFacts.arrivalTs);
+        console.log('EXPECT: ts != arrivalTs. If equal, departure is wrong.');
+        console.groupEnd();
+    }
+
     const humanStrings = Translator.toHuman(rawFacts, history, actor);
+
+    if (eventIsSpan && mode !== 'edit') {
+        console.group('SPAN DEBUG | STEP 3 | GET TEMPLATE DATA - humanStrings after toHuman');
+        console.log('eventSpanFromDate:', humanStrings.eventSpanFromDate);
+        console.log('eventSpanFromTime:', humanStrings.eventSpanFromTime);
+        console.log('eventSpanToDate:', humanStrings.eventSpanToDate);
+        console.log('eventSpanToTime:', humanStrings.eventSpanToTime);
+        console.log('EXPECT: From != To. If equal, toHuman received ts == arrivalTs.');
+        console.groupEnd();
+    }
 
     // 5. Fact Assembly
     const data = {

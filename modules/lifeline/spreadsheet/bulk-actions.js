@@ -29,8 +29,8 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
         const newAge = currentAge + secondsDelta;
 
         // 2. SHIFT OBJECTIVE AXIS (Date/Time)
-        const dateStr = rawEvent.isSpan ? rawEvent.spanFromDate : rawEvent.date;
-        const timeStr = (rawEvent.isSpan ? rawEvent.spanFromTime : rawEvent.time) || "12:00:00";
+        const dateStr = rawEvent.eventIsSpan ? rawEvent.eventSpanFromDate : rawEvent.date;
+        const timeStr = (rawEvent.eventIsSpan ? rawEvent.eventSpanFromTime : rawEvent.time) || "12:00:00";
         
         if (!dateStr) {
             updates[`${path}.age`] = newAge;
@@ -64,9 +64,9 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
             updates[`${path}.age`] = newAge;
             updates[`${path}.sort`] = newAge;
 
-            if (rawEvent.isSpan) {
-                updates[`${path}.spanFromDate`] = newDateStr;
-                updates[`${path}.spanFromTime`] = newTimeStr;
+            if (rawEvent.eventIsSpan) {
+                updates[`${path}.eventSpanFromDate`] = newDateStr;
+                updates[`${path}.eventSpanFromTime`] = newTimeStr;
             } else {
                 updates[`${path}.date`] = newDateStr;
                 updates[`${path}.time`] = newTimeStr;

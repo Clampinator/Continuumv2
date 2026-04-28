@@ -6,19 +6,19 @@ import { normalizeDateInput, parseDate } from '/systems/continuum-v2/modules/spa
  * REBUILT: ADI-compliant narrative sequencing.
  */
 export function processReindexing(actor, newId, mode, intent, params, updates) {
-    const { finalAge, finalTime, isSpan, ageChanged, timeChanged } = intent;
+    const { finalAge, finalTime, eventIsSpan, ageChanged, timeChanged } = intent;
     const { existingData, graphData } = params;
 
     // 1. Detect if physical position changed (The Trigger)
     let positionChanged = true;
     if (mode === 'edit') {
-        if (!isSpan) {
+        if (!eventIsSpan) {
             positionChanged = ageChanged || timeChanged;
         } else {
-            const oldFrom = `${existingData?.spanFromDate || ''}|${existingData?.spanFromTime || '12:00:00'}`;
-            const oldTo = `${existingData?.spanToDate || ''}|${existingData?.spanToTime || '12:00:00'}`;
-            const newFrom = `${normalizeDateInput(params.formData.spanFromDate || '')}|${params.formData.spanFromTime || '12:00:00'}`;
-            const newTo = `${normalizeDateInput(params.formData.spanToDate || '')}|${params.formData.spanToTime || '12:00:00'}`;
+            const oldFrom = `${existingData?.eventSpanFromDate || ''}|${existingData?.eventSpanFromTime || '12:00:00'}`;
+            const oldTo = `${existingData?.eventSpanToDate || ''}|${existingData?.eventSpanToTime || '12:00:00'}`;
+            const newFrom = `${normalizeDateInput(params.formData.eventSpanFromDate || '')}|${params.formData.eventSpanFromTime || '12:00:00'}`;
+            const newTo = `${normalizeDateInput(params.formData.eventSpanToDate || '')}|${params.formData.eventSpanToTime || '12:00:00'}`;
             positionChanged = (oldFrom !== newFrom || oldTo !== newTo);
         }
     }
@@ -46,9 +46,9 @@ export function processReindexing(actor, newId, mode, intent, params, updates) {
 
     // 3. Resolve Target coordinates
     let sortTime = finalTime;
-    if (isSpan) {
-        const depDate = normalizeDateInput(params.formData.spanFromDate);
-        const depTimeStr = params.formData.spanFromTime || "12:00:00";
+    if (eventIsSpan) {
+        const depDate = normalizeDateInput(params.formData.eventSpanFromDate);
+        const depTimeStr = params.formData.eventSpanFromTime || "12:00:00";
         const depDateObj = parseDate(`${depDate}T${depTimeStr}`);
         sortTime = depDateObj ? depDateObj.getTime() : finalTime;
     }

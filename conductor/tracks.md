@@ -4,33 +4,35 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [~] Combined Track 1: The Umbilical Cord & Precision Handshake
-*Link: [./tracks/data_layer_purification_20260426/](./tracks/data_layer_purification_20260426/)*
+## [ ] Track: Spanning Core Physics Fix
+*Link: [./tracks/spanning_core_physics_fix_20260428/](./tracks/spanning_core_physics_fix_20260428/)*
 
-## [ ] Combined Track 2: Manifest Engine & Interaction Machine
-*Link: [./tracks/manifest_engine_20260426/](./tracks/manifest_engine_20260426/)*
+## [ ] Track: Experiences Management & Rendering
+*Description: Implement logic and visuals for Experiences as containers, grouping events with bounding boxes.*
 
-## [ ] Combined Track 3: Spinner Kernelization & Mass Decimation
-*Link: [./tracks/spinner_kernelization_20260426/](./tracks/spinner_kernelization_20260426/)*
+## [ ] Track: Eras Structural Refinement
+*Description: Solidify Era layer, enforcing duration rules and propagation.*
 
-## [ ] Combined Track 4: Visual Fidelity & Stress Audit
-*Link: [./tracks/visual_fidelity_audit_20260426/](./tracks/visual_fidelity_audit_20260426/)*
+## [ ] Track: The "Yet" (Future Events) Implementation
+*Description: System for tracking and rendering unlived events.*
 
-## [x] Track: Temporal Translation Layer (Task 3: Location Resolver)
-*Link: [./tracks/temporal_translation_layer_task3_20260427/](./tracks/temporal_translation_layer_task3_20260427/)*
+## [ ] Track: Historical Span Insertion
+*Description: Logic for inserting spans into the past and calculating downstream impact.*
 
-## [~] Track: Span Drawing Fix (Multi-Rail Rendering)
-*Link: [./tracks/span_drawing_fix_20260427/](./tracks/span_drawing_fix_20260427/)*
+## [ ] Track: Space-Time Map Integration
+*Description: Bidirectional link between Lifeline and interactive map.*
 
-- [x] **Track: Temporal Translation Layer (Task 6: The Great Purge)** [./archive/temporal_translation_layer_task6_20260427/](./archive/temporal_translation_layer_task6_20260427/)
-- [x] **Track: Temporal Translation Layer (Task 5: Refactor State/Submit)** [./archive/temporal_translation_layer_task5_20260427/](./archive/temporal_translation_layer_task5_20260427/)
-- [x] **Track: Temporal Translation Layer (Task 4: Refactor UI Services)** [./archive/temporal_translation_layer_task4_20260427/](./archive/temporal_translation_layer_task4_20260427/)
-- [x] **Track: Temporal Translation Layer (Task 3: Location Resolver)** [./archive/temporal_translation_layer_task3_20260427/](./archive/temporal_translation_layer_task3_20260427/)
-- [x] **Track: Temporal Translation Layer (Task 2: Coordinate Converter)** [./archive/temporal_translation_layer_task2_20260427/](./archive/temporal_translation_layer_task2_20260427/)
-- [x] **Track: Temporal Translation Layer (Task 1: Age Converter)** [./archive/temporal_translation_layer_task1_20260427/](./archive/temporal_translation_layer_task1_20260427/)
-- [x] **Track: Kernel Fuzzy Collision Law** [./archive/kernel_fuzzy_collision_law_20260425/](./archive/kernel_fuzzy_collision_law_20260425/)
-- [x] **Track: Temporal Engine Unit Fragmentation** [./archive/temporal_engine_unit_fragmentation_20260425/](./archive/temporal_engine_unit_fragmentation_20260425/)
-- [x] **Track: Authoritative Data Isolation & Project Atomization** [./archive/architectural_atomization_20260423/](./archive/architectural_atomization_20260423/)
-- [x] **Track: Deep Decimation** [./archive/deep_decimation_20260423/](./archive/deep_decimation_20260423/)
-- [-] **Track: Historical Event Insertion** (Superseded) [./archive/event_insertion_20260423/](./archive/event_insertion_20260423/)
-- [-] **Track: Codebase Stabilization & Architectural Integrity** (Superseded) [./archive/codebase_stabilization_20260422/](./archive/codebase_stabilization_20260422/)
+## [ ] Track: Main Character Sheet Integration
+*Description: Migrate Lifeline into primary character sheet.*
+
+## [ ] Track: UI/UX Fidelity & Readability Audit
+*Description: Refine aesthetic, tooltips, and contrast.*
+
+## [ ] Track: Era Navigation & Drag Bar
+*Description: Interactive macro-navigation bar at graph bottom.*
+
+---
+
+### Archived Tracks
+- [x] **Track: Temporal Translation Layer (TTL)** [./archive/temporal_translation_layer_task6_20260427/](./archive/temporal_translation_layer_task6_20260427/)
+- [x] **Track: Span Drawing Fix (Multi-Rail Rendering)** [./archive/span_drawing_fix_20260427/](./archive/span_drawing_fix_20260427/)

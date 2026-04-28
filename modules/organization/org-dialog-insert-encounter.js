@@ -13,8 +13,8 @@ import { safeFloat } from './org-dialog-helpers.js';
 
 function buildGeoButtons() {
     return `
-        <button type="button" class="geo-btn locate-btn" title="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
-        <button type="button" class="geo-btn grab-btn" title="Grab Map Centre"><i class="fas fa-crosshairs"></i></button>
+        <button type="button" class="geo-btn locate-btn" eventTitle="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
+        <button type="button" class="geo-btn grab-btn" eventTitle="Grab Map Centre"><i class="fas fa-crosshairs"></i></button>
     `;
 }
 
@@ -123,7 +123,7 @@ export function showOrgInsertEncounterDialog(segmentInfo, sheet, graphData, onCl
     `;
 
     const dialog = new Dialog({
-        title: 'Insert Encounter',
+        eventTitle: 'Insert Encounter',
         content,
         render: (html) => {
             activateDatePickers(html);
@@ -195,10 +195,10 @@ export function showOrgInsertEncounterDialog(segmentInfo, sheet, graphData, onCl
                         description:      formData.description || '',
                         date:             eventDate,
                         time:             formData.time || '00:00',
-                        spanFromLocation: formData.eventLocation || '',
-                        spanFromLat:      safeFloat(formData.eventLat),
-                        spanFromLng:      safeFloat(formData.eventLng),
-                        spanFromZoom:     safeFloat(formData.eventZoom),
+                        eventSpanFromLocation: formData.eventLocation || '',
+                        eventSpanFromLat:      safeFloat(formData.eventLat),
+                        eventSpanFromLng:      safeFloat(formData.eventLng),
+                        eventSpanFromZoom:     safeFloat(formData.eventZoom),
                         linkedMandateIds: [],
                     };
 

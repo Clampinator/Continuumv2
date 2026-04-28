@@ -87,7 +87,7 @@ export function activateLocationListeners(sheet, html) {
         await sheet.actor.setFlag('continuum-v2', 'revealedOnOrgMap', revealed);
         const icon = $(this).siblings('i');
         icon.toggleClass('fa-eye', revealed).toggleClass('fa-eye-slash', !revealed);
-        $(this).closest('.location-reveal-toggle').attr('title',
+        $(this).closest('.location-reveal-toggle').attr('eventTitle',
             revealed ? 'Hide from player Org Maps' : 'Reveal on player Org Maps'
         );
         ui.notifications.info(`${sheet.actor.name} is now ${revealed ? 'visible on' : 'hidden from'} Org Maps.`);

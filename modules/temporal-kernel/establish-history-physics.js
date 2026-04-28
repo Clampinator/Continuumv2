@@ -34,6 +34,13 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
         if (fact.isNow || fact.id === 'now') {
             const y = Number(record.objectiveNow || record.ts) || Date.now();
             const calculatedAge = projectSubjectiveAge(y, currentOffset);
+            console.group('SPAN DEBUG | STEP 5 | ESTABLISH HISTORY PHYSICS - NOW node placement');
+            console.log('objectiveNow (y):', y);
+            console.log('currentOffset at time of NOW node:', currentOffset);
+            console.log('calculatedAge from offset:', calculatedAge);
+            console.log('subjectiveNow override:', subjectiveNow);
+            console.log('EXPECT: currentOffset != originTime if a span preceded this node.');
+            console.groupEnd();
             
             // AUTHORITY: Detect if the character is currently Spanning.
             const isSpanningNow = subjectiveNow !== null && Math.abs(subjectiveNow - calculatedAge) > 0.1;

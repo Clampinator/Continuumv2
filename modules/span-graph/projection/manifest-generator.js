@@ -36,13 +36,19 @@ export function generateManifest(state, viewport, interaction = null) {
         const railNodes = [seg.arrivalNode, ...seg.nodes];
         if (seg.exitPoint) railNodes.push(seg.exitPoint);
 
+        // AUTHORITY: Only extend the blue Level Rail to the 'NOW' node if we are LEVELING.
+        // If we are SPANNING, the pink line takes authority and the level rail ends at history.
         if (isLastSegment && isInteracting && isNowNode && liveMode === 'level') {
-            railNodes.push({ x: liveWorld.age, y: liveWorld.time });
+            railNodes.push({ x: liveWorld.eventAge, y: liveWorld.eventTime });
+        } else if (isLastSegment) {
+            // Remove 'now' node from rail if it's not a level drag (to prevent ghost lines)
+            const index = railNodes.findIndex(n => n.id === 'now');
+            if (index !== -1) railNodes.splice(index, 1);
         }
 
         const points = railNodes.map(n => ({
             screen: viewport.worldToScreen(n.x, n.y),
-            world: { age: n.x, time: n.y }
+            world: { eventAge: n.x, eventTime: n.y }
         }));
 
         manifest.rails.push({
@@ -64,18 +70,18 @@ export function generateManifest(state, viewport, interaction = null) {
     });
 
     if (isInteracting && isNowNode && liveMode === 'span') {
-        const p1 = viewport.worldToScreen(interaction.startWorld.age, interaction.startWorld.time);
-        const p2 = viewport.worldToScreen(liveWorld.age, liveWorld.time);
+        const p1 = viewport.worldToScreen(interaction.startWorld.eventAge, interaction.startWorld.eventTime);
+        const p2 = viewport.worldToScreen(liveWorld.eventAge, liveWorld.eventTime);
         manifest.rails.push({
-            type: 'span', p1, p2, isFuture: liveWorld.time > interaction.startWorld.time
+            type: 'span', p1, p2, isFuture: liveWorld.eventTime > interaction.startWorld.eventTime
         });
     }
 
     // 3. PROJECT NODES
     manifest.nodes = state.nodes.map(node => {
         const isTarget = node.id === interaction?.activeNodeId;
-        const x = (isTarget && liveWorld) ? liveWorld.age : node.x;
-        const y = (isTarget && liveWorld) ? liveWorld.time : node.y;
+        const x = (isTarget && liveWorld) ? liveWorld.eventAge : node.x;
+        const y = (isTarget && liveWorld) ? liveWorld.eventTime : node.y;
         const screen = viewport.worldToScreen(x, y);
         
         return {
@@ -88,12 +94,12 @@ export function generateManifest(state, viewport, interaction = null) {
 
     // 4. PROJECT PENDING NODE
     if (interaction?.isPending && liveWorld) {
-        const screen = viewport.worldToScreen(liveWorld.age, liveWorld.time);
+        const screen = viewport.worldToScreen(liveWorld.eventAge, liveWorld.eventTime);
         manifest.nodes.push({
             id: 'pending-node', x: screen.x, y: screen.y,
             type: liveMode === 'span' ? 'span-dest' : 'level',
-            spanDirection: liveWorld.time > interaction.startWorld.time ? 'up' : 'down',
-            record: { title: "Creating..." }
+            spanDirection: liveWorld.eventTime > interaction.startWorld.eventTime ? 'up' : 'down',
+            record: { eventTitle: "Creating..." }
         });
     }
 
@@ -124,6 +130,6 @@ function _resolveNodeType(node) {
     if (node.isBirth) return 'birth';
     if (node.id === 'now') return 'now';
     if (node.isSpanDest) return 'span-dest';
-    if (node.record?.isSpan || node.isSpanOrigin) return 'span-origin';
+    if (node.record?.eventIsSpan || node.isSpanOrigin) return 'span-origin';
     return 'level';
 }

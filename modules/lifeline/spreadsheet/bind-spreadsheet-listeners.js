@@ -52,7 +52,7 @@ export function bindSpreadsheetListeners(app, html) {
         try {
             // Prompt for years delta
             const yearsStr = await Dialog.prompt({
-                title: "Bulk Time Shift",
+                eventTitle: "Bulk Time Shift",
                 content: `
                     <p>Shift ${selectedIds.length} selected events by how many years?</p>
                     <input type="number" id="years-delta" value="0" step="1" style="width: 100%; margin-bottom: 10px;"/>

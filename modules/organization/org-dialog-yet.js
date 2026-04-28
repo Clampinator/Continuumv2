@@ -22,17 +22,17 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
             </div>
             <div class="form-group">
                 <label>Locked Date</label>
-                ${renderDatePickerInput("date", isEdit ? existingData.date : dt.date)}
+                ${renderDatePickerInput("date", isEdit ? existingData.eventDate : dt.date)}
             </div>
             <div class="form-group">
                 <label>Locked Time</label>
-                <input type="time" name="time" step="1" value="${isEdit ? existingData.time : dt.time}"/>
+                <input type="time" name="time" step="1" value="${isEdit ? existingData.eventTime : dt.time}"/>
             </div>
         </form>
     `;
 
     new Dialog({
-        title: isEdit ? "Edit Yet" : "Define Yet",
+        eventTitle: isEdit ? "Edit Yet" : "Define Yet",
         content: content,
         render: (html) => activateDatePickers(html),
         buttons: {

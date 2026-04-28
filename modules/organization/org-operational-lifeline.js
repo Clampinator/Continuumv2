@@ -146,9 +146,9 @@ function buildTracks(actor) {
                     engId:   eng.id,
                     phaseId: eng.phaseId,
                     opId:    eng.opId,
-                    lat: parseFloat(eng.spanFromLat),
-                    lng: parseFloat(eng.spanFromLng),
-                    label: eng.name || eng.spanFromLocation || '',
+                    lat: parseFloat(eng.eventSpanFromLat),
+                    lng: parseFloat(eng.eventSpanFromLng),
+                    label: eng.name || eng.eventSpanFromLocation || '',
                     linkedMandateIds: Array.isArray(eng.linkedMandateIds) ? eng.linkedMandateIds : [],
                 });
             }
@@ -529,9 +529,9 @@ async function saveNewEngagement(sheet, unitId, dateStr, timeStr, location = nul
         id: eid, unitId,
         name:             location?.name || `Deployment ${dateStr}`,
         date: dateStr,    time: timeStr,
-        spanFromLat:      location?.lat  ?? null,
-        spanFromLng:      location?.lng  ?? null,
-        spanFromLocation: location?.name ?? '',
+        eventSpanFromLat:      location?.lat  ?? null,
+        eventSpanFromLng:      location?.lng  ?? null,
+        eventSpanFromLocation: location?.name ?? '',
         description: '',
     };
 
@@ -550,7 +550,7 @@ function showOrgAgeDialog(sheet, graphData, startAgeSecs, endAgeSecs) {
     const endDate   = toISO(inceptionTs + endAgeSecs   * 1000);
 
     new Dialog({
-        title: 'Create Phase Period',
+        eventTitle: 'Create Phase Period',
         content: `
             <form autocomplete="off" style="display:grid; grid-template-columns:100px 1fr; align-items:center; gap:8px 12px; padding:4px 0;">
                 <label style="text-align:right;">Name</label>
@@ -631,7 +631,7 @@ function showOrgOperationCreateDialog(sheet, eraId, startAgeSecs, endAgeSecs, in
     const endDate   = toISO(inceptionTs + endAgeSecs   * 1000);
 
     new Dialog({
-        title: 'Create Operation',
+        eventTitle: 'Create Operation',
         content: `
             <form autocomplete="off" style="display:grid; grid-template-columns:100px 1fr; align-items:center; gap:8px 12px; padding:4px 0;">
                 <label style="text-align:right;">Name</label>
@@ -672,7 +672,7 @@ function showOrgOperationCreateDialog(sheet, eraId, startAgeSecs, endAgeSecs, in
 
 function openOrgOperationEditDialog(sheet, eraId, expId, exp) {
     new Dialog({
-        title: 'Edit Operation',
+        eventTitle: 'Edit Operation',
         content: `
             <form autocomplete="off" style="display:grid; grid-template-columns:100px 1fr; align-items:center; gap:8px 12px; padding:4px 0;">
                 <label style="text-align:right;">Name</label>
@@ -1215,7 +1215,7 @@ function refreshUnitMarkers(mapActorKey, graphData, context, sheet, svg, viewSta
         const marker = new window.google.maps.Marker({
             position: pos,
             map,
-            title:     track.name + (isPending ? ' — drag to set location' : ''),
+            eventTitle:     track.name + (isPending ? ' — drag to set location' : ''),
             icon:      baseIcon,
             draggable: true,
             zIndex:    200,
@@ -1256,9 +1256,9 @@ function refreshUnitMarkers(mapActorKey, graphData, context, sheet, svg, viewSta
             if (targetNode) {
                 // Update existing engagement's location
                 await sheet.actor.update({
-                    [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.spanFromLat`]:      newLat,
-                    [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.spanFromLng`]:      newLng,
-                    [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.spanFromLocation`]: locationName,
+                    [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.eventSpanFromLat`]:      newLat,
+                    [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.eventSpanFromLng`]:      newLng,
+                    [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.eventSpanFromLocation`]: locationName,
                     [`system.phases.${targetNode.phaseId}.operations.${targetNode.opId}.engagements.${targetNode.engId}.name`]:             locationName,
                 });
             } else {

@@ -153,7 +153,7 @@ export async function initializeOrgMap(html, sheet) {
             hqMarkerRef = new window.google.maps.Marker({
                 position: hqLocation,
                 map: mapInstance,
-                title: "Headquarters",
+                eventTitle: "Headquarters",
                 icon: {
                     path: PATH_STAR,
                     scale: 10,
@@ -184,8 +184,8 @@ export async function initializeOrgMap(html, sheet) {
             }
 
             history.forEach(eng => {
-                const lat = parseFloat(eng.spanFromLat);
-                const lng = parseFloat(eng.spanFromLng);
+                const lat = parseFloat(eng.eventSpanFromLat);
+                const lng = parseFloat(eng.eventSpanFromLng);
                 if (Number.isFinite(lat) && Number.isFinite(lng)) {
                     const t = new Date(eng.date + "T" + (eng.time || "00:00")).getTime();
                     let dateTo = null;
@@ -205,7 +205,7 @@ export async function initializeOrgMap(html, sheet) {
                 const marker = new window.google.maps.Marker({
                     position: { lat: p.lat, lng: p.lng },
                     map: null,
-                    title: eng?.name || unit.name,
+                    eventTitle: eng?.name || unit.name,
                     draggable: true,
                     icon: {
                         path: PATH_CIRCLE,
@@ -222,8 +222,8 @@ export async function initializeOrgMap(html, sheet) {
                     marker.addListener('dragend', async (event) => {
                         const path = `system.phases.${eng.phaseId}.operations.${eng.opId}.engagements.${eng.id}`;
                         await sheet.actor.update({
-                            [`${path}.spanFromLat`]: event.latLng.lat(),
-                            [`${path}.spanFromLng`]: event.latLng.lng()
+                            [`${path}.eventSpanFromLat`]: event.latLng.lat(),
+                            [`${path}.eventSpanFromLng`]: event.latLng.lng()
                         });
                     });
                 }
@@ -235,7 +235,7 @@ export async function initializeOrgMap(html, sheet) {
             const currentMarker = new window.google.maps.Marker({
                 position: { lat: startPos.lat, lng: startPos.lng },
                 map: null,
-                title: unit.name,
+                eventTitle: unit.name,
                 draggable: true,
                 icon: {
                     path: PATH_CIRCLE,
@@ -289,7 +289,7 @@ export async function initializeOrgMap(html, sheet) {
                 if (exactMatch?.data) {
                     const eng = exactMatch.data;
                     const path = `system.phases.${eng.phaseId}.operations.${eng.opId}.engagements.${eng.id}`;
-                    await sheet.actor.update({ [`${path}.spanFromLat`]: newLat, [`${path}.spanFromLng`]: newLng });
+                    await sheet.actor.update({ [`${path}.eventSpanFromLat`]: newLat, [`${path}.eventSpanFromLng`]: newLng });
                     return;
                 }
 
@@ -313,9 +313,9 @@ export async function initializeOrgMap(html, sheet) {
                         dateTo: null,
                         timeTo: null,
                         unitId: unit.id,
-                        spanFromLat: newLat,
-                        spanFromLng: newLng,
-                        spanFromLocation: '',
+                        eventSpanFromLat: newLat,
+                        eventSpanFromLng: newLng,
+                        eventSpanFromLocation: '',
                         description: ''
                     }
                 });
@@ -471,7 +471,7 @@ function setupTimeSlider(html, actorId, minTime, maxTime, phaseTimes, hasDeploym
     const toISODate = (ts) => new Date(ts).toISOString().split('T')[0];
 
     if (!hasDeployments || minTime === maxTime) {
-        slider.prop('disabled', true).attr('title', 'No deployments recorded');
+        slider.prop('disabled', true).attr('eventTitle', 'No deployments recorded');
         currentLabel.text('No deployments');
         return;
     }
@@ -567,7 +567,7 @@ function renderKeyframeDots(container, keyframes, rangeMin, rangeMax) {
         if (kf.time < rangeMin || kf.time > rangeMax) return;
         const pct = ((kf.time - rangeMin) / span) * 100;
         container.append(
-            `<div class="slider-keyframe-dot" style="left:${pct}%;background:${kf.color};" title="${kf.unitName ? kf.unitName + ' — ' : ''}${formatSliderDate(kf.time)}"></div>`
+            `<div class="slider-keyframe-dot" style="left:${pct}%;background:${kf.color};" eventTitle="${kf.unitName ? kf.unitName + ' — ' : ''}${formatSliderDate(kf.time)}"></div>`
         );
     });
 }
@@ -626,7 +626,7 @@ function buildLocationMarkers(html) {
         const marker = new window.google.maps.Marker({
             position: { lat, lng },
             map: isHidden ? null : mapInstance,
-            title: loc.name,
+            eventTitle: loc.name,
             icon: {
                 path: PATH_DIAMOND,
                 scale: markerScale,
@@ -879,12 +879,12 @@ async function showInitiateConflictDialog(sheet, unitData, locationActor, lat, l
                 <label>Operation Name</label>
                 <input type="text" name="newOpName" value="Operation: ${locationActor.name}"/>
             </div>
-            <div class="form-group"><label>Notes</label><textarea name="description"></textarea></div>
+            <div class="form-group"><label>eventNotes</label><textarea name="description"></textarea></div>
         </form>
     `;
 
     new Dialog({
-        title: `Engage: ${locationActor.name}`,
+        eventTitle: `Engage: ${locationActor.name}`,
         content,
         render: (dialogHtml) => {
             activateDatePickers(dialogHtml);
@@ -925,9 +925,9 @@ async function showInitiateConflictDialog(sheet, unitData, locationActor, lat, l
                         dateTo: null,
                         timeTo: null,
                         unitId: unitData.unitId,
-                        spanFromLocation: locationActor.name,
-                        spanFromLat: locLat,
-                        spanFromLng: locLng,
+                        eventSpanFromLocation: locationActor.name,
+                        eventSpanFromLat: locLat,
+                        eventSpanFromLng: locLng,
                         description: fd.description || '',
                         targetLocationId: locationActor.id,
                         conflictType: unitData.unitType
@@ -1001,7 +1001,7 @@ async function showEstablishDeploymentDialog(sheet, unitData, lat, lng) {
                     <input type="text" name="location" value="${locationName}" style="flex:1;"/>
                     <input type="hidden" name="lat" value="${lat}"/>
                     <input type="hidden" name="lng" value="${lng}"/>
-                    <button type="button" class="geo-btn locate-btn" title="Geocode"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Geocode"><i class="fas fa-map-marker-alt"></i></button>
                 </div>
             </div>
             ${renderDatePicker("dateFrom", dateStr, "Date Established")}
@@ -1015,12 +1015,12 @@ async function showEstablishDeploymentDialog(sheet, unitData, lat, lng) {
                 <label>Operation Name</label>
                 <input type="text" name="newOpName" value="Deployment"/>
             </div>
-            <div class="form-group"><label>Notes</label><textarea name="description"></textarea></div>
+            <div class="form-group"><label>eventNotes</label><textarea name="description"></textarea></div>
         </form>
     `;
 
     new Dialog({
-        title: `Deploy: ${unitData.unitName}`,
+        eventTitle: `Deploy: ${unitData.unitName}`,
         content,
         render: (dialogHtml) => {
             activateDatePickers(dialogHtml);
@@ -1073,9 +1073,9 @@ async function showEstablishDeploymentDialog(sheet, unitData, lat, lng) {
                         dateTo: normalizeDateInput(fd.dateTo) || null,
                         timeTo: null,
                         unitId: fd.unitId,
-                        spanFromLocation: fd.location,
-                        spanFromLat: parseFloat(fd.lat),
-                        spanFromLng: parseFloat(fd.lng),
+                        eventSpanFromLocation: fd.location,
+                        eventSpanFromLat: parseFloat(fd.lat),
+                        eventSpanFromLng: parseFloat(fd.lng),
                         description: fd.description || ''
                     };
                     await sheet.actor.update(updates);
@@ -1188,7 +1188,7 @@ async function showInsertNodeDialog(sheet, unit, p1, p2, lat, lng) {
                     <input type="text" name="location" value="${lat.toFixed(4)}, ${lng.toFixed(4)}" style="flex: 1;"/>
                     <input type="hidden" name="lat" value="${lat}"/>
                     <input type="hidden" name="lng" value="${lng}"/>
-                    <button type="button" class="locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
                 </div>
             </div>
             <div class="form-group"><label>Date</label><input type="date" name="date" value="${dateStr}" /></div>
@@ -1198,7 +1198,7 @@ async function showInsertNodeDialog(sheet, unit, p1, p2, lat, lng) {
     `;
 
     new Dialog({
-        title: "Insert Engagement",
+        eventTitle: "Insert Engagement",
         content,
         render: (html) => { activateDatePickers(html); attachMapLocationListeners(html); },
         buttons: {
@@ -1211,7 +1211,7 @@ async function showInsertNodeDialog(sheet, unit, p1, p2, lat, lng) {
                         [`system.phases.${phaseId}.operations.${opId}.engagements.${id}`]: {
                             id, name: `Stop: ${fd.location}`, date: normalizeDateInput(fd.date),
                             time: fd.time, description: fd.description, unitId: unit.id,
-                            spanFromLocation: fd.location, spanFromLat: parseFloat(fd.lat), spanFromLng: parseFloat(fd.lng)
+                            eventSpanFromLocation: fd.location, eventSpanFromLat: parseFloat(fd.lat), eventSpanFromLng: parseFloat(fd.lng)
                         }
                     });
                 }
@@ -1245,7 +1245,7 @@ async function showDeploymentDialog(sheet, unit, lat, lng) {
                     <input type="text" name="location" value="${lat.toFixed(4)}, ${lng.toFixed(4)}" style="flex: 1;"/>
                     <input type="hidden" name="lat" value="${lat}"/>
                     <input type="hidden" name="lng" value="${lng}"/>
-                    <button type="button" class="locate-btn" title="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
                 </div>
             </div>
             <div class="form-group"><label>Date</label><input type="date" name="date" value="${dateStr}" /></div>
@@ -1257,7 +1257,7 @@ async function showDeploymentDialog(sheet, unit, lat, lng) {
     `;
 
     new Dialog({
-        title: `Deploy Unit`,
+        eventTitle: `Deploy Unit`,
         content,
         render: (html) => {
             activateDatePickers(html); attachMapLocationListeners(html);
@@ -1282,7 +1282,7 @@ async function showDeploymentDialog(sheet, unit, lat, lng) {
                     updates[`system.phases.${phaseId}.operations.${opId}.engagements.${eid}`] = {
                         id: eid, name: `Deployment: ${unit.name}`, date: normalizeDateInput(fd.date),
                         time: fd.time, description: fd.description, unitId: unit.id,
-                        spanFromLocation: fd.location, spanFromLat: parseFloat(fd.lat), spanFromLng: parseFloat(fd.lng)
+                        eventSpanFromLocation: fd.location, eventSpanFromLat: parseFloat(fd.lat), eventSpanFromLng: parseFloat(fd.lng)
                     };
                     await sheet.actor.update(updates);
                 }

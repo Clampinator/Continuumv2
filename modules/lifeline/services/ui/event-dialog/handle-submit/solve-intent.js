@@ -8,7 +8,7 @@ import { createInsertedSpan } from '/systems/continuum-v2/modules/lifeline/servi
  */
 export function solveIntent(actor, formData, params) {
     const { mode, existingData } = params;
-    const isSpan = Boolean(formData.isSpan);
+    const eventIsSpan = Boolean(formData.eventIsSpan);
 
     let finalAge = Number(params.ageRaw);
     let finalTime = Number(params.timeRaw);
@@ -16,14 +16,14 @@ export function solveIntent(actor, formData, params) {
     let timeChanged = false;
     let spanResult = null;
 
-    if (!isSpan) {
+    if (!eventIsSpan) {
         const inputAge = (formData.eventAge && formData.eventAge.trim() !== "") ? parseAgeString(formData.eventAge) : Number(params.ageRaw);
         const inputDate = normalizeDateInput(formData.eventDate);
         const inputTime = formData.eventTime || "12:00:00";
         const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
         const inputTs = inputDateObj ? inputDateObj.getTime() : finalTime;
         
-        const baseAge = (mode === 'edit') ? (existingData.age || 0) : Number(params.ageRaw);
+        const baseAge = (mode === 'edit') ? (existingData.eventAge || 0) : Number(params.ageRaw);
         const baseTime = (mode === 'edit') ? finalTime : Number(params.timeRaw);
 
         const expectedAgeStr = formatSubjectiveAge(baseAge);
@@ -55,5 +55,5 @@ export function solveIntent(actor, formData, params) {
         }
     }
 
-    return { finalAge, finalTime, ageChanged, timeChanged, isSpan };
+    return { finalAge, finalTime, ageChanged, timeChanged, eventIsSpan };
 }

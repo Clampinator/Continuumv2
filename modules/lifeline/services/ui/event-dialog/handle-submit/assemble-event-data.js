@@ -7,7 +7,7 @@ import { normalizeDateInput, convertTimestampToDateString } from '../../../../..
  * @returns {object}
  */
 export function assembleEventData(formData, params) {
-    const { newId, isSpan, authoritativeAge, authoritativeSort, existingData, finalTime, viewState, mode } = params;
+    const { newId, eventIsSpan, authoritativeAge, authoritativeSort, existingData, finalTime, viewState, mode } = params;
 
     // AUTHORITY: Departure time is the node's ORIGINAL position in history.
     // We only use viewState.dragStartWorld for 'log' mode (dragging the Now node).
@@ -21,30 +21,30 @@ export function assembleEventData(formData, params) {
 
     const eventData = {
         id: newId,
-        title: formData.title,
-        notes: formData.notes,
-        isRest: Boolean(formData.isRest && !isSpan),
-        isSpan: isSpan,
+        eventTitle: formData.eventTitle,
+        eventNotes: formData.eventNotes,
+        eventIsRest: Boolean(formData.eventIsRest && !eventIsSpan),
+        eventIsSpan: eventIsSpan,
         age: authoritativeAge,
         sort: authoritativeSort,
         createdAt: existingData?.createdAt || Date.now(),
         startsExpId: existingData?.startsExpId || null
     };
 
-    if (isSpan) {
-        eventData.spanFromDate = normalizeDateInput(formData.spanFromDate || departureDT.date);
-        eventData.spanFromTime = formData.spanFromTime || departureDT.time;
-        eventData.spanFromLocation = formData.spanFromLocation || "";
-        eventData.spanFromLat = parseFloat(formData.spanFromLat) || null;
-        eventData.spanFromLng = parseFloat(formData.spanFromLng) || null;
-        eventData.spanFromZoom = parseInt(formData.spanFromZoom) || null;
+    if (eventIsSpan) {
+        eventData.eventSpanFromDate = normalizeDateInput(formData.eventSpanFromDate || departureDT.date);
+        eventData.eventSpanFromTime = formData.eventSpanFromTime || departureDT.time;
+        eventData.eventSpanFromLocation = formData.eventSpanFromLocation || "";
+        eventData.eventSpanFromLat = parseFloat(formData.eventSpanFromLat) || null;
+        eventData.eventSpanFromLng = parseFloat(formData.eventSpanFromLng) || null;
+        eventData.eventSpanFromZoom = parseInt(formData.eventSpanFromZoom) || null;
 
-        eventData.spanToDate = normalizeDateInput(formData.spanToDate || resolvedDT.date);
-        eventData.spanToTime = formData.spanToTime || resolvedDT.time;
-        eventData.spanToLocation = formData.spanToLocation || "";
-        eventData.spanToLat = parseFloat(formData.spanToLat) || null;
-        eventData.spanToLng = parseFloat(formData.spanToLng) || null;
-        eventData.spanToZoom = parseInt(formData.spanToZoom) || null;
+        eventData.eventSpanToDate = normalizeDateInput(formData.eventSpanToDate || resolvedDT.date);
+        eventData.eventSpanToTime = formData.eventSpanToTime || resolvedDT.time;
+        eventData.eventSpanToLocation = formData.eventSpanToLocation || "";
+        eventData.eventSpanToLat = parseFloat(formData.eventSpanToLat) || null;
+        eventData.eventSpanToLng = parseFloat(formData.eventSpanToLng) || null;
+        eventData.eventSpanToZoom = parseInt(formData.eventSpanToZoom) || null;
     } else {
         eventData.date = resolvedDT.date;
         eventData.time = resolvedDT.time;
