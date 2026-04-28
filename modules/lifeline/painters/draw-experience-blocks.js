@@ -38,12 +38,9 @@ export function drawExperienceBlocks(svgLayer, viewState, graphData) {
         // NaN Guard
         if (isNaN(x1) || isNaN(rectY) || isNaN(w) || isNaN(rectH)) continue;
 
-        // Subjective fading
-        const subjectiveDistance = Math.max(0, nowAge - seg.endAge);
-        let opacity = 1.0;
-        if (seg.isClosed && !seg.isOngoing) {
-            opacity = Math.max(0, 1 - (subjectiveDistance / FADE_LIMIT));
-        }
+        // Single-authority opacity: use pre-computed value from generateExperiences.
+        // The Forgetting formula lives in one place (generate-experiences.js), not here.
+        const opacity = seg.opacity !== undefined ? seg.opacity : 1.0;
         if (opacity <= 0) continue;
 
         const name = seg.name || "Experience";
