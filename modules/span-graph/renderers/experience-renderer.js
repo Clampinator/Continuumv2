@@ -1,6 +1,15 @@
 /**
  * DUMB RENDERER: EXPERIENCE RENDERER
  * Performs pure SVG drawing of experience boxes and labels.
+ *
+ * Receives a pre-calculated manifest with screen coordinates (x, y, width, height)
+ * and domain properties (isOngoing, opacity, bonus). The renderer applies no
+ * domain logic - it draws pixels based on what the manifest provides.
+ *
+ * Click interaction: Labels carry data-id and data-era-id attributes so the
+ * Pointer Machine can route clicks to the experience edit dialog. Rects have
+ * pointer-events disabled (they're visual containers) while labels have
+ * pointer-events enabled so users can click through to the experience.
  */
 export class ExperienceRenderer {
   constructor(viewport, parentGroup) {
@@ -10,8 +19,8 @@ export class ExperienceRenderer {
 
   /**
    * Renders experiences from a pre-calculated manifest.
-   * 
-   * @param {Object} manifest - The RenderManifest.
+   *
+   * @param {Object} manifest - The RenderManifest containing experiences array.
    */
   render(manifest) {
     if (!this.group || !manifest.experiences) return;
@@ -20,17 +29,17 @@ export class ExperienceRenderer {
     const labelSlots = {};
 
     manifest.experiences.forEach(exp => {
-        const { x, y, width, height, isOngoing, opacity, name } = exp;
+        const { x, y, width, height, isOngoing, opacity, name, id, eraId } = exp;
 
-        // 1. Draw Box
+        // 1. Draw Box (visual container - no pointer events so clicks pass through)
         const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         box.setAttribute('x', x);
         box.setAttribute('y', y);
         box.setAttribute('width', width);
         box.setAttribute('height', height);
-        
+
         if (isOngoing) {
-            const gradId = `grad-${exp.id}`;
+            const gradId = `grad-${id}`;
             this._createGradient(gradId);
             box.style.fill = `url(#${gradId})`;
         } else {
@@ -38,12 +47,17 @@ export class ExperienceRenderer {
         }
 
         box.style.opacity = opacity;
+        // Rects are visual containers only - labels handle click interaction
         box.style.pointerEvents = 'none';
         box.style.stroke = 'rgba(255, 255, 0, 0.4)';
         box.style.strokeWidth = '1px';
+        // Data attributes for click routing (even though pointer-events are none,
+        // these serve as fallback identifiers for debugging and future use)
+        box.setAttribute('data-id', id);
+        box.setAttribute('data-era-id', eraId);
         this.group.appendChild(box);
 
-        // 2. Draw Label
+        // 2. Draw Label (clickable - routes to experience edit dialog)
         if (width > 20 || isOngoing) {
             let slot = 0;
             while (this._isSlotOccupied(slot, x, x + width, labelSlots)) {
@@ -59,7 +73,11 @@ export class ExperienceRenderer {
             label.style.fontFamily = 'monospace';
             label.style.fontWeight = 'bold';
             label.style.opacity = opacity;
-            label.style.pointerEvents = 'none';
+            // Labels are interactive so users can click to edit the experience
+            label.style.pointerEvents = 'auto';
+            label.setAttribute('data-id', id);
+            label.setAttribute('data-era-id', eraId);
+            label.classList.add('graph-exp-label');
             label.textContent = name;
             this.group.appendChild(label);
         }
@@ -107,7 +125,8 @@ export class ExperienceRenderer {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-experiences');
-    g.style.pointerEvents = 'none'; 
+    // Allow pointer events so experience labels can receive clicks
+    g.style.pointerEvents = 'auto';
     parent.appendChild(g);
     return g;
   }
