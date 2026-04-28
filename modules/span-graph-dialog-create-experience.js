@@ -35,6 +35,7 @@ export function showCreateExperienceDialog(viewState, graphData, sheet, svg, dur
             </style>
             <div class="continuum-dialog-compact">
                 <div class="form-group"><label>Experience Name</label><input type="text" name="name" value="New Experience" autofocus/></div>
+                <div class="form-group"><label>Description</label><input type="text" name="description" value="" placeholder="Optional description" /></div>
                 ${renderDatePicker("dateFrom", startStr, "Start Date")}
                 ${renderDatePicker("dateTo", endStr, "End Date")}
                 <div class="ongoing-row">
@@ -86,6 +87,7 @@ export function showCreateExperienceDialog(viewState, graphData, sheet, svg, dur
                         [`system.eras.${eraId}.experiences.${newId}`]: {
                             id: newId,
                             name: formData.name,
+                            description: formData.description || '',
                             dateFrom: normalizeDateInput(formData.dateFrom),
                             dateTo: normalizeDateInput(formData.dateTo),
                             isOngoing: !!formData.isOngoing,
