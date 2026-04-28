@@ -70,8 +70,11 @@ export async function insertHistoryRow(actor, data, options = {}) {
         ...atomic,
         id: newId,
         sort,
-        // Cached coordinates for initial fetch pass
-        eventAge: physicsShifts[newId] !== undefined ? physicsShifts[newId] : atomic.eventAge,
+        // AUTHORITY: The user's click position is authoritative for new events.
+        // The compensation wave adjusts EXISTING downstream nodes, never the
+        // newly inserted node itself. The user placed this event at a specific
+        // age - physics must not override that intent.
+        eventAge: atomic.eventAge,
         ts: atomic.ts,
         arrivalTs: atomic.arrivalTs,
         createdAt: Date.now()

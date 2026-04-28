@@ -22,9 +22,17 @@ export function resolveNarrativeOrder(history, targetNode, options = {}) {
     }
 
     // 2. STANDARD INSERTION (For inserting into the middle of the history)
+    // AUTHORITY: History facts use record.eventAge and record.ts, not x/y.
+    // The targetNode uses x/y from the physics conversion. We must compare
+    // using the correct property paths for each side.
+    const targetAge = targetNode.x;
+    const targetTime = targetNode.y;
+
     let insertAt = others.findIndex(e => {
-        if (e.x > targetNode.x) return true;
-        if (e.x === targetNode.x && e.y > targetNode.y) return true;
+        const eAge = Number(e.record?.eventAge ?? e.x ?? 0);
+        const eTime = Number(e.record?.ts ?? e.y ?? 0);
+        if (eAge > targetAge) return true;
+        if (eAge === targetAge && eTime > targetTime) return true;
         return false;
     });
 
