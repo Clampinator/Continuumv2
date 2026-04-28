@@ -69,4 +69,81 @@ describe('Experience Box Geometry Engine', () => {
       const resC = generateExperiences(sortedEras, levelNodes, nowNodeC);
       expect(resC[0].opacity).toBe(0.1);
   });
+
+  it('should output startAge/endAge/startTime/endTime field names', () => {
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Test Exp', dateFrom: '2020-01-01', dateTo: '2022-01-01' }
+          }
+      }];
+      const levelNodes = [
+          { age: 0, time: new Date('2020-01-01T12:00:00Z').getTime(), expId: 'exp1' },
+          { age: SECONDS_IN_YEAR * 2, time: new Date('2022-01-01T12:00:00Z').getTime(), expId: 'exp1' }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 5, time: new Date('2025-01-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      const exp1 = results[0];
+
+      expect(exp1.startAge).toBeDefined();
+      expect(exp1.endAge).toBeDefined();
+      expect(exp1.startTime).toBeDefined();
+      expect(exp1.endTime).toBeDefined();
+      expect(exp1.isClosed).toBe(true);
+      expect(exp1.startX).toBeUndefined();
+      expect(exp1.endX).toBeUndefined();
+  });
+
+  it('should include bonus field on each experience', () => {
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Recent Exp', dateFrom: '2023-01-01', dateTo: '2024-01-01' }
+          }
+      }];
+      const levelNodes = [
+          { age: 0, time: new Date('2023-01-01T12:00:00Z').getTime(), expId: 'exp1' },
+          { age: SECONDS_IN_YEAR, time: new Date('2024-01-01T12:00:00Z').getTime(), expId: 'exp1' }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 2, time: new Date('2025-01-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      expect(results[0].bonus).toBeDefined();
+      expect(typeof results[0].bonus).toBe('number');
+  });
+
+  it('should cap bonus at 3 even when duration and distance both contribute', () => {
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Long Recent', dateFrom: '2020-01-01', dateTo: '2025-01-01' }
+          }
+      }];
+      const levelNodes = [
+          { age: 0, time: new Date('2020-01-01T12:00:00Z').getTime(), expId: 'exp1' },
+          { age: SECONDS_IN_YEAR * 5, time: new Date('2025-01-01T12:00:00Z').getTime(), expId: 'exp1' }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 5.5, time: new Date('2025-06-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      expect(results[0].bonus).toBeLessThanOrEqual(3);
+  });
+
+  it('should support .x/.y node format (legacy engine output)', () => {
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Legacy Exp', dateFrom: '2020-01-01', dateTo: '' }
+          }
+      }];
+      const legacyNodes = [
+          { x: 0, y: new Date('2020-01-01T12:00:00Z').getTime(), expId: 'exp1' }
+      ];
+      const nowNode = { x: SECONDS_IN_YEAR * 5, y: new Date('2025-01-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, legacyNodes, nowNode);
+      expect(results).toHaveLength(1);
+      expect(results[0].isOngoing).toBe(true);
+  });
 });
