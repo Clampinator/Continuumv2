@@ -161,9 +161,11 @@ function _calculateBonus(isOngoing, endAge, startAge, nowAge) {
     const durationSeconds = endAge - startAge;
     const durationYears = durationSeconds / SECONDS_PER_YEAR;
 
+    // Inclusive upper bounds to match the spec's range convention
+    // (e.g., "6mo-2yr" includes 2yr in the +1 tier, "2-4yr" starts after 2yr)
     const durationBonus = durationYears < 0.5 ? 0
-        : durationYears < 2 ? 1
-        : durationYears < 4 ? 2
+        : durationYears <= 2 ? 1
+        : durationYears <= 4 ? 2
         : 3;
 
     // DISTANCE AXIS: How far in the subjective past the experience ended.

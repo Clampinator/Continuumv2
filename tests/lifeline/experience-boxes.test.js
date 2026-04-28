@@ -130,6 +130,46 @@ describe('Experience Box Geometry Engine', () => {
       expect(results[0].bonus).toBeLessThanOrEqual(3);
   });
 
+  it('should apply duration bonus +1 at exactly 2 years boundary (inclusive)', () => {
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Two Year Exp', dateFrom: '2020-01-01', dateTo: '2022-01-01' }
+          }
+      }];
+      // Duration is exactly 2 years (2 * SECONDS_IN_YEAR)
+      const levelNodes = [
+          { age: 0, time: new Date('2020-01-01T12:00:00Z').getTime(), expId: 'exp1' },
+          { age: SECONDS_IN_YEAR * 2, time: new Date('2022-01-01T12:00:00Z').getTime(), expId: 'exp1' }
+      ];
+      // NOW is far enough that distance bonus = 0
+      const nowNode = { age: SECONDS_IN_YEAR * 15, time: new Date('2035-01-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      // Duration <= 2 years -> duration bonus = +1
+      // Distance > 10 years -> distance bonus = 0
+      expect(results[0].bonus).toBe(1);
+  });
+
+  it('should apply duration bonus +2 just above 2 years', () => {
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Over Two Year', dateFrom: '2020-01-01', dateTo: '2022-06-01' }
+          }
+      }];
+      const levelNodes = [
+          { age: 0, time: new Date('2020-01-01T12:00:00Z').getTime(), expId: 'exp1' },
+          { age: SECONDS_IN_YEAR * 2.5, time: new Date('2022-06-01T12:00:00Z').getTime(), expId: 'exp1' }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 15, time: new Date('2035-01-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      // Duration > 2, <= 4 -> duration bonus = +2
+      // Distance > 10 -> distance bonus = 0
+      expect(results[0].bonus).toBe(2);
+  });
+
   it('should support .x/.y node format (legacy engine output)', () => {
       const sortedEras = [{
           id: 'era1',
