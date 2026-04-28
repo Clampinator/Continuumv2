@@ -34,10 +34,8 @@ describe('mapYearsToBonus: Distance Bonus Thresholds', () => {
         expect(mapYearsToBonus(50)).toBe(0);
     });
 
-    it('should return +3 at boundary of exactly 2 years', () => {
-        // This was the bug: old code used <=7yr for +2, meaning
-        // 2yr incorrectly got +2 instead of +3. Now 2yr is correctly +2
-        // because it falls in the 2-5 range.
+    it('should return +2 at boundary of exactly 2 years', () => {
+        // Exactly 2yr falls in the 2-5yr range: +2
         expect(mapYearsToBonus(2)).toBe(2);
     });
 
