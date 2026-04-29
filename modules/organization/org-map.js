@@ -1027,6 +1027,16 @@ async function showEstablishDeploymentDialog(sheet, unitData, lat, lng) {
             dialogHtml.find('#establishContextSelect').on('change', (e) => {
                 dialogHtml.find('#newOpGroup').toggle(e.target.value === 'new');
             });
+            // ENTER on location input triggers Locate button
+            dialogHtml.on('keydown', '.input-with-btn input[type="text"]', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const container = $(event.currentTarget).closest('.input-with-btn');
+                    const locateBtn = container.find('.locate-btn');
+                    if (locateBtn.length) locateBtn.click();
+                }
+            });
             dialogHtml.find('.locate-btn').on('click', async (e) => {
                 const btn = $(e.currentTarget);
                 const wrap = btn.closest('.input-with-btn');
@@ -1151,6 +1161,16 @@ function getAllEngagements(actor) {
 }
 
 function attachMapLocationListeners(html) {
+    // ENTER on location input triggers Locate button
+    html.on('keydown', 'input[name="location"]', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const locateBtn = $(event.currentTarget).siblings('.locate-btn');
+            if (locateBtn.length) locateBtn.click();
+        }
+    });
+
     html.find('.locate-btn').on('click', async (event) => {
         const button = $(event.currentTarget);
         const input = button.prevAll('input[type="text"]');

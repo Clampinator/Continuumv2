@@ -1,4 +1,4 @@
-import { projectSubjectiveAge } from './project-subjective-age.js';
+import { projectSubjectiveAge, computeOffsetFromArrival } from './project-subjective-age.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 
@@ -17,7 +17,7 @@ import { resolveLocationContext } from '../temporal-translator/location-resolver
  * @param {Object} [actor] - character actor for context fallback
  * @returns {Array} Array of physical nodes with { x, y, arrivalY }.
  */
-export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow = null, actor = null) {
+export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow = null, actor = null, isSpanIntent = false) {
     const physicalNodes = [];
     
     // 1. Resolve Origin
@@ -32,18 +32,17 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
         const record = fact.record || {};
         
         if (fact.isNow || fact.id === 'now') {
-            const y = Number(record.objectiveNow || record.ts) || Date.now();
+            // When objectiveNow is unset, fall back to originTime (birth)
+            // so that a brand new character's NOW node sits at birth coordinates
+            // rather than at the player's wall-clock time
+            const y = Number(record.objectiveNow || record.ts) || originTime;
             const calculatedAge = projectSubjectiveAge(y, currentOffset);
-            console.group('SPAN DEBUG | STEP 5 | ESTABLISH HISTORY PHYSICS - NOW node placement');
-            console.log('objectiveNow (y):', y);
-            console.log('currentOffset at time of NOW node:', currentOffset);
-            console.log('calculatedAge from offset:', calculatedAge);
-            console.log('subjectiveNow override:', subjectiveNow);
-            console.log('EXPECT: currentOffset != originTime if a span preceded this node.');
-            console.groupEnd();
-            
-            // AUTHORITY: Detect if the character is currently Spanning.
-            const isSpanningNow = subjectiveNow !== null && Math.abs(subjectiveNow - calculatedAge) > 0.1;
+
+            // AUTHORITY: Use explicit isSpanIntent from interaction state.
+            // The old heuristic (age delta > 0.1) was unreliable - during a level
+            // drag, subjectiveNow diverges from calculatedAge too, causing NOW
+            // to be falsely flagged as a span origin.
+            const isSpanningNow = isSpanIntent;
             
             const x = isSpanningNow ? subjectiveNow : calculatedAge;
 
@@ -81,7 +80,7 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
             ) || y);
 
             // 6. Update World Offset for subsequent nodes
-            currentOffset = arrivalY - (x * 1000);
+            currentOffset = computeOffsetFromArrival(arrivalY, x);
         }
 
         physicalNodes.push({

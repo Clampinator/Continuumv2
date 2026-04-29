@@ -23,6 +23,39 @@ describe('establishHistoryPhysics', () => {
         expect(e1.y).toBe(originTime + 10000); // 10 seconds later
     });
 
+    it('should position NOW node at originTime when objectiveNow is null', () => {
+        // A brand new character has no objectiveNow set
+        const historyFacts = [
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'now', sort: 999999999, isNow: true, record: { eventTitle: "NOW", eventIsSpan: false, objectiveNow: null } }
+        ];
+
+        const physicalNodes = establishHistoryPhysics(historyFacts, originTime);
+
+        const birth = physicalNodes.find(n => n.id === 'birth');
+        const nowNode = physicalNodes.find(n => n.id === 'now');
+
+        // NOW should sit at the same coordinates as birth when objectiveNow is unset
+        expect(nowNode.y).toBe(originTime);
+        expect(nowNode.x).toBe(0);
+        expect(nowNode.y).toBe(birth.y);
+        expect(nowNode.x).toBe(birth.x);
+    });
+
+    it('should position NOW node at specified objectiveNow when set', () => {
+        const objectiveNow = originTime + 31536000000; // 1 year later in ms
+        const historyFacts = [
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'now', sort: 999999999, isNow: true, record: { eventTitle: "NOW", eventIsSpan: false, objectiveNow } }
+        ];
+
+        const physicalNodes = establishHistoryPhysics(historyFacts, originTime);
+        const nowNode = physicalNodes.find(n => n.id === 'now');
+
+        expect(nowNode.y).toBe(objectiveNow);
+        expect(nowNode.x).toBeCloseTo(31536000, 0); // ~1 year in seconds
+    });
+
     it('should correctly apply world-offset shifts from Spans', () => {
         const historyFacts = [
             { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },

@@ -1,3 +1,6 @@
+import { projectPointToSegment } from '/systems/continuum-v2/modules/temporal-kernel/project-point-to-segment.js';
+import { interpolateWorldCoordinates } from '/systems/continuum-v2/modules/temporal-kernel/interpolate-world-coordinates.js';
+
 /**
  * INTERACTION: CALCULATE GHOST SNAP
  * Projects a screen point onto the nearest LEVEL rail segment.
@@ -19,19 +22,25 @@ export function calculateGhostSnap(pointer, rails) {
         for (let i = 0; i < rail.points.length - 1; i++) {
             const p1 = rail.points[i];
             const p2 = rail.points[i + 1];
-            
-            const proj = projectPointToSegment(pointer, p1.screen, p2.screen);
-            
+
+            const proj = projectPointToSegment(
+                pointer.x, pointer.y,
+                p1.screen.x, p1.screen.y,
+                p2.screen.x, p2.screen.y
+            );
+
             if (proj.dist < minDist) {
                 minDist = proj.dist;
-                
-                // Interpolate world coordinates based on the projection factor 't'
-                const worldAge = p1.world.eventAge + proj.t * (p2.world.eventAge - p1.world.eventAge);
-                const worldTime = p1.world.eventTime + proj.t * (p2.world.eventTime - p1.world.eventTime);
+
+                const interp = interpolateWorldCoordinates(
+                    { age: p1.world.eventAge, time: p1.world.eventTime },
+                    { age: p2.world.eventAge, time: p2.world.eventTime },
+                    proj.t
+                );
 
                 nearest = {
-                    screen: proj.point,
-                    world: { eventAge: worldAge, eventTime: worldTime },
+                    screen: { x: proj.x, y: proj.y },
+                    world: { eventAge: interp.age, eventTime: interp.time },
                     t: proj.t
                 };
             }
@@ -39,16 +48,4 @@ export function calculateGhostSnap(pointer, rails) {
     }
 
     return nearest;
-}
-
-/**
- * Pure math: Project point onto line segment.
- */
-function projectPointToSegment(p, v, w) {
-    const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
-    if (l2 === 0) return { dist: Math.hypot(p.x - v.x, p.y - v.y), t: 0, point: v };
-    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
-    return { dist: Math.hypot(p.x - proj.x, p.y - proj.y), t: t, point: proj };
 }

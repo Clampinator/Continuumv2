@@ -1,4 +1,4 @@
-/* Existing styles... */
+﻿/* Existing styles... */
 
 /* NPC Generator Utilities */
 .npc-gen-container {
@@ -44,7 +44,7 @@
 /*===GENERIC STYLES===*/
 /*====================*/
 
-.continuum .window-content {
+.continuum-v2 .window-content {
   padding: 10px;
   font-family: 'Segoe UI', sans-serif;
   height: 100%; /* Ensure content fills the window */
@@ -53,18 +53,18 @@
 }
 
 /* --- REVISED: Simplified Character Sheet Layout to match Org Sheet scroll stability --- */
-.continuum.sheet.character .window-content {
+.continuum-v2.sheet.character .window-content {
   /* We no longer force overflow: hidden here; we let the generic rule handle it. */
   padding: 10px; 
 }
 
-.continuum.sheet.character form {
+.continuum-v2.sheet.character form {
     height: auto; /* Let the form grow so window-content handles the scrollbar */
     overflow: visible;
 }
 
 /* --- NEW: Styling for the semi-transparent section headers --- */
-.continuum.sheet .section-header-row {
+.continuum-v2.sheet .section-header-row {
   background-color: rgba(42, 42, 42, var(--section-header-opacity));
   padding: 10px;
   border-radius: 10px;
@@ -72,7 +72,7 @@
 }
 
 /* --- NEW: Styling for the opaque content area of expanded sections --- */
-.continuum.sheet .section-container > :is(.columns, .attributes-container, .section-content, .goals-list, .spanning-content, .eras-list, .experiences-list, .combat-grid, .yet-list, .favors-list, .relationships-list, .vehicles-list, .timelines-panel, .gear-list, .yet-floating-list) {
+.continuum-v2.sheet .section-container > :is(.columns, .attributes-container, .section-content, .goals-list, .spanning-content, .eras-list, .experiences-list, .combat-grid, .yet-list, .favors-list, .relationships-list, .vehicles-list, .timelines-panel, .gear-list, .yet-floating-list) {
   position: relative;
   overflow: hidden;
   background-color: rgba(42, 42, 42, var(--section-content-opacity));
@@ -82,7 +82,7 @@
 }
 
 /* --- POLISH: Makes the header blend into the content when expanded --- */
-.continuum.sheet .section-container:has(> .event-toggle-checkbox:checked) .section-header-row {
+.continuum-v2.sheet .section-container:has(> .event-toggle-checkbox:checked) .section-header-row {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -164,20 +164,20 @@ input[type="text"], input[type="number"], input[type="date"], input[type="time"]
 }
 
 /* --- DROPDOWN STYLING --- */
-.continuum select {
+.continuum-v2 select {
   background-color: #222 !important;
   color: #fff !important;
   border: 1px solid #555;
   cursor: pointer;
 }
 
-.continuum select option, 
-.continuum select optgroup {
+.continuum-v2 select option, 
+.continuum-v2 select optgroup {
   background-color: #222 !important;
   color: #fff !important;
 }
 
-.continuum select optgroup {
+.continuum-v2 select optgroup {
   font-weight: bold;
   color: #4da6ff !important;
   font-style: normal;
@@ -197,7 +197,7 @@ textarea.js-auto-expand {
 }
 
 /* --- Buttons --- */
-.continuum button,
+.continuum-v2 button,
 .resonance-buttons label {
   padding: 8px;
   border: 1px solid #555;
@@ -211,7 +211,7 @@ textarea.js-auto-expand {
   line-height: 1;
 }
 
-.continuum button:hover,
+.continuum-v2 button:hover,
 .resonance-buttons label:hover {
   background-color: #4f4f4f;
   border-color: #777;
@@ -252,8 +252,8 @@ input[type="checkbox"]:checked {
 /* ================================== */
 /* CONSISTENT TRASHCAN (DELETE) BTNS  */
 /* ================================== */
-.continuum a.item-delete,
-.continuum a.event-delete {
+.continuum-v2 a.item-delete,
+.continuum-v2 a.event-delete {
   color: #888;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -266,16 +266,16 @@ input[type="checkbox"]:checked {
   text-decoration: none;
 }
 
-.continuum a.item-delete:hover,
-.continuum a.event-delete:hover {
+.continuum-v2 a.item-delete:hover,
+.continuum-v2 a.event-delete:hover {
   color: #ff5252;
   transform: scale(1.15);
   text-shadow: 0 0 5px rgba(255, 82, 82, 0.3);
 }
 
 /* REVISED: Hides trashcan instead of graying it out when elements contain data */
-.continuum a.item-delete.disabled,
-.continuum a.event-delete.disabled {
+.continuum-v2 a.item-delete.disabled,
+.continuum-v2 a.event-delete.disabled {
   display: none !important;
 }
 
@@ -387,7 +387,7 @@ input[type="checkbox"]:checked {
 }
 
 /* --- PREVENT ANIMATION ON RE-RENDER --- */
-.continuum.sheet.no-transitions .section-heading-toggle::before {
+.continuum-v2.sheet.no-transitions .section-heading-toggle::before {
   transition: none !important;
 }
 

@@ -79,7 +79,7 @@ export async function applyBulkTimeShift(actor, eventIds, yearsDelta) {
     }
 
     if (Object.keys(updates).length > 0) {
-        console.log(`[LSS] Pure Delta Shift: Moving ${Object.keys(updates).length} events by ${yearsDelta} years.`);
+
         return await actor.update(updates);
     }
 }

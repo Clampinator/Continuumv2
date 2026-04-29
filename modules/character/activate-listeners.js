@@ -112,6 +112,17 @@ export function activateCharacterListeners(sheet, html) {
     html.on('click', '.timeline-sort-toggle', (event) => handleTimelineSortToggle(sheet, event));
     
     // Map Interaction
+    // ENTER on birthplace input triggers Locate button
+    html.on('keydown', 'input[name*="Location"], input[name*="location"]', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const input = $(event.currentTarget);
+            const btn = input.closest('div').find('.personal-locate-btn, .locate-btn');
+            if (btn.length) btn.click();
+        }
+    });
+
     html.on('click', '.personal-locate-btn', (event) => handlePersonalLocateClick(sheet, event));
     html.on('click', '.personal-grab-btn', (event) => handlePersonalGrabClick(sheet, event));
     // If the player types a new birthplace text directly, clear stale lat/lng so the

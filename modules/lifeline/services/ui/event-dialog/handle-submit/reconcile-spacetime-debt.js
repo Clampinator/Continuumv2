@@ -1,6 +1,7 @@
 import { ReferenceResolver } from '../../../reference-resolver.js';
 import { convertTimestampToDateString } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
 import { findNextNode } from './find-next-node.js';
+import { computeOffsetFromArrival, projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * Automatically generates a reconciliation loop if a span introduces a spacetime fracture.
@@ -16,7 +17,7 @@ export function reconcileSpacetimeDebt(actor, params, updates) {
     if (!eventIsSpan || mode === 'log') return;
 
     const dobTs = ReferenceResolver.resolveOrigin(actor);
-    const currentOffset = finalTime - (finalAge * 1000);
+    const currentOffset = computeOffsetFromArrival(finalTime, finalAge);
     
     const nextNode = findNextNode(authoritativeAge, graphData.levelNodes, newId);
     const targetNode = nextNode || graphData.nowNode;
@@ -26,12 +27,12 @@ export function reconcileSpacetimeDebt(actor, params, updates) {
     let nextSort;
 
     if (targetNode) {
-        targetOffset = targetNode.time - (targetNode.age * 1000);
+        targetOffset = computeOffsetFromArrival(targetNode.time, targetNode.age);
         nextAge = targetNode.age;
         nextSort = Number(targetNode.sort) || (authoritativeSort + 2000);
         
         if (!nextNode) {
-            console.log("Continuum | Blip Protocol | No future historical node found. Using 'Now' node as target anchor.");
+
         }
     } else {
         // Fallback to birth rail if no target exists at all
@@ -56,8 +57,8 @@ export function reconcileSpacetimeDebt(actor, params, updates) {
         const reconcileSort = Math.floor((authoritativeSort + nextSort) / 2);
         const reconcileId = foundry.utils.randomID();
         
-        const reconcileOriginTime = currentOffset + (reconcileAge * 1000);
-        const reconcileDestTime = targetOffset + (reconcileAge * 1000);
+        const reconcileOriginTime = projectObjectiveTime(reconcileAge, currentOffset);
+        const reconcileDestTime = projectObjectiveTime(reconcileAge, targetOffset);
         const rOriginDT = convertTimestampToDateString(reconcileOriginTime);
         const rDestDT = convertTimestampToDateString(reconcileDestTime);
 
@@ -76,6 +77,6 @@ export function reconcileSpacetimeDebt(actor, params, updates) {
         };
 
         updates[`${parentPath}.events.${reconcileId}`] = reconcileEvent;
-        console.log(`Continuum | Blip Protocol | Settle Debt: ${fracture}ms | Target: ${nextNode ? 'Node' : 'Now'} | Age: ${reconcileAge} | Sort: ${reconcileSort}`, reconcileEvent);
+
     }
 }

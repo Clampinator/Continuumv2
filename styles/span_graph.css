@@ -690,7 +690,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    pointer-events: auto;
+    pointer-events: none;
 }
 
 .warning-message-box {
@@ -701,6 +701,7 @@
     max-width: 400px;
     text-align: center;
     box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+    pointer-events: auto;
 }
 
 .warning-message-box h3 {

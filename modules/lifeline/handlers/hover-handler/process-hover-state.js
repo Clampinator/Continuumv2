@@ -1,6 +1,7 @@
 import { renderGraph } from '../../../span-graph-render.js';
 import { projectPointOntoSegment } from './project-point-onto-segment.js';
 import { SegmentHoverTooltip } from './segment-hover-tooltip.js';
+import { interpolateWorldCoordinates } from '/systems/continuum-v2/modules/temporal-kernel/interpolate-world-coordinates.js';
 
 /**
  * RETROSPECTIVE DISCOVERY: Precision Path Hover.
@@ -48,14 +49,17 @@ export function processHoverState(event, svg, viewState, graphData) {
             minDist = projection.dist;
             bestP1 = p1;
             bestP2 = p2;
-            // Calculate interpolated World Coordinates (Precision Discovery)
-            const worldAge = p1.age + (projection.t * (p2.age - p1.age));
-            const worldTime = p1.time + (projection.t * (p2.time - p1.time));
+
+            const interp = interpolateWorldCoordinates(
+                { age: p1.age, time: p1.time },
+                { age: p2.age, time: p2.time },
+                projection.t
+            );
 
             bestSegment = {
                 precedingEventId: p1.eventId,
-                worldAge,
-                worldTime,
+                worldAge: interp.age,
+                worldTime: interp.time,
                 screenX: projection.x,
                 screenY: projection.y
             };

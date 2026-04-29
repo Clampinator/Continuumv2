@@ -1,6 +1,7 @@
 import { ReferenceResolver } from './reference-resolver.js';
 import { parseDate } from '../../span-graph-utils/provide-span-graph-utils.js';
 import { computeRailOffset } from './chronology/compute-rail-offset.js';
+import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 Service to prepare actor data for the coordinate mapping engine.
@@ -34,9 +35,9 @@ export const ChronologyAssembler = {
         if (dobTs && dateStr) {
             const dateObj = parseDate(`${dateStr}T${timeStr || '12:00:00'}`);
             if (dateObj) {
-                const roughAge = Math.max(0, (dateObj.getTime() - dobTs) / 1000);
+                const roughAge = projectSubjectiveAge(dateObj.getTime(), dobTs);
                 const railBase = computeRailOffset(actor, roughAge);
-                event.eventAge = Math.max(0, (dateObj.getTime() - railBase) / 1000);
+                event.eventAge = projectSubjectiveAge(dateObj.getTime(), railBase);
                 return event;
             }
         }

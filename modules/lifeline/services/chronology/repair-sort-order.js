@@ -1,6 +1,7 @@
 
 import { ReferenceResolver } from '../reference-resolver.js';
 import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { projectSubjectiveAge, projectObjectiveTime, computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 Detects and corrects sort values that conflict with the age-based chronological order.
@@ -82,7 +83,7 @@ export function repairSortOrder(actor) {
         if (Math.abs(subjectiveNow - oldLastAge) < 1.0) {
             let objectiveOffset = dobTs;
             let correctedAge = oldLastAge;
-            let correctedTs = dobTs + (oldLastAge * 1000);
+            let correctedTs = projectObjectiveTime(oldLastAge, dobTs);
 
             for (const entry of byAge) {
                 const ev = entry.event;
@@ -95,15 +96,15 @@ export function repairSortOrder(actor) {
                         ? parseDate(`${ev.eventSpanToDate}T${ev.eventSpanToTime || '12:00:00'}`)?.getTime()
                         : null;
                     if (fromTs && toTs) {
-                        const newAge = Math.max(0, (fromTs - objectiveOffset) / 1000);
-                        objectiveOffset = toTs - (newAge * 1000);
+                        const newAge = projectSubjectiveAge(fromTs, objectiveOffset);
+                        objectiveOffset = computeOffsetFromArrival(toTs, newAge);
                         correctedAge = newAge;
                         correctedTs = toTs;
                     }
                 } else if (ev.eventDate) {
                     const ts = parseDate(`${ev.eventDate}T${ev.eventTime || '12:00:00'}`)?.getTime();
                     if (ts) {
-                        correctedAge = Math.max(0, (ts - objectiveOffset) / 1000);
+                        correctedAge = projectSubjectiveAge(ts, objectiveOffset);
                         correctedTs = ts;
                     }
                 }

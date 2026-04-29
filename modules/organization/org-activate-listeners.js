@@ -32,6 +32,17 @@ export function activateOrgListeners(sheet, html) {
     });
 
     // Map Interaction (Headquarters)
+    // ENTER on headquarters input triggers Locate button
+    html.on('keydown', 'input[name*="headquarters"], input[name*="Location"], input[name*="location"]', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const input = $(event.currentTarget);
+            const btn = input.closest('div').find('.personal-locate-btn, .locate-btn');
+            if (btn.length) btn.click();
+        }
+    });
+
     html.on('click', '.personal-locate-btn', (event) => handleOrgLocateClick(sheet, event));
     html.on('click', '.personal-grab-btn', (event) => handleOrgGrabClick(sheet, event));
 

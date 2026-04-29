@@ -1,3 +1,6 @@
+import { MS_PER_SECOND } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+import { calculateGridStep } from '/systems/continuum-v2/modules/temporal-engine/projection.js';
+
 /**
  * DUMB RENDERER: GRID RENDERER
  * Performs pure SVG drawing of the background grid.
@@ -19,7 +22,7 @@ export class GridRenderer {
     // 1. AGE GRID (Vertical)
     const worldLeft = this.viewport.screenToWorld(0, 0).eventAge;
     const worldRight = this.viewport.screenToWorld(width, 0).eventAge;
-    const ageStep = this._calculateGridStep(viewState.zoom);
+    const ageStep = calculateGridStep(viewState.zoom);
     const startAge = Math.floor(worldLeft / ageStep) * ageStep;
 
     for (let age = startAge; age <= worldRight; age += ageStep) {
@@ -31,7 +34,7 @@ export class GridRenderer {
     // 2. TIME GRID (Horizontal)
     const worldTop = this.viewport.screenToWorld(0, 0).eventTime;
     const worldBottom = this.viewport.screenToWorld(0, height).eventTime;
-    const timeStep = ageStep * 1000;
+    const timeStep = ageStep * MS_PER_SECOND;
     const startTs = Math.floor(Math.min(worldTop, worldBottom) / timeStep) * timeStep;
     const endTs = Math.max(worldTop, worldBottom);
 
@@ -40,13 +43,6 @@ export class GridRenderer {
         const line = this._createLine(0, screenY, width, screenY, 'grid-line-time');
         this.group.appendChild(line);
     }
-  }
-
-  _calculateGridStep(zoom) {
-      if (zoom > 0.001) return 3600; 
-      if (zoom > 0.0001) return 86400; 
-      if (zoom > 0.00001) return 2592000; 
-      return 31536000; 
   }
 
   _createLine(x1, y1, x2, y2, className) {
@@ -62,7 +58,7 @@ export class GridRenderer {
   _createGridGroup(parent) {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('class', 'span-graph-grid');
+    g.setAttribute('class', 'graph-grid-lines');
     parent.appendChild(g);
     return g;
   }

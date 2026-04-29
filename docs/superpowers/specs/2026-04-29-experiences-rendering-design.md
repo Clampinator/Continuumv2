@@ -116,7 +116,7 @@ Line 19 references `eventDate` without `event.` prefix -- causes `ReferenceError
 - `eventDate` -> `event.eventDate || event.date`
 - Add short-name fallbacks for all fields (`event.date || event.eventDate`, `event.time || event.eventTime`, etc.)
 
-## Three User-Facing Fixes
+## User-Facing Fixes
 
 ### UF1: Default experience name in event dialog
 
@@ -124,15 +124,16 @@ Line 19 references `eventDate` without `event.` prefix -- causes `ReferenceError
 
 Add `defaultNewExpName: eventIsSpan ? "Parallel Project" : "New Experience"` to template data. The HTML template already has `{{defaultNewExpName}}` -- just the data provider was missing it.
 
-### UF2: Experience click routing on rects
+### UF2: Merge experience edit into event dialog (remove separate dialog)
 
-**File:** `modules/lifeline/painters/draw-experience-blocks.js`
+The separate `span-graph-dialog-experience.js` is removed. Right-clicking an experience rect/label now opens the **event dialog** in edit mode for the opener event, with the experience section expanded.
 
-Add `data-id` and `data-era-id` attributes to rect elements (currently only labels have them). Also fix `seg.expId` references to `seg.id`.
-
-**File:** `modules/lifeline/handlers/click-handler/process-experience-click.js`
-
-Update to also check for `graph-experience-rect` class (currently only checks `graph-exp-label`).
+Changes:
+- **`process-experience-click.js`**: Route to `openEventDialog()` instead of `openExperienceEditDialog()`. Pass the opener event's data as `existingData`.
+- **`draw-experience-blocks.js`**: Add `data-id` and `data-era-id` attributes to rect elements (currently only labels have them). Fix `seg.expId` references to `seg.id`. Store the opener event ID as `data-opener-id` so the click handler knows which event to edit.
+- **`span-graph-dialogs-edit.js`**: Remove the `case 'experience'` branch from `openEditDialog()`.
+- **`span-graph-dialog-experience.js`**: Delete this file (or mark deprecated). Its fields (name, description, dateFrom, dateTo, isOngoing) are already available from within the event dialog's experience lifecycle controls.
+- **`event-node-editor.html`**: Add an "Experience Name" and "Description" field to the `#newExpGroup` section that appears when `startNewExp` is checked. Also add these fields in a read/edit section for the current experience when editing an opener event.
 
 ### UF3: Opacity fading rule
 
@@ -153,8 +154,10 @@ Single authority: `generateExperiences` computes opacity, `drawExperienceBlocks`
 | `chronology-assembler.js` | Add `_ensureTime()`, fix `_ensureAge()` field priorities and fallbacks |
 | `span-graph-data-processor.js` | Fix `flattenEvents()` crash bug, populate `experienceSegments` in `processGraphData()` |
 | `generate-experiences.js` | Fix output field names, closed experience bounds, two-axis bonus, opacity |
-| `draw-experience-blocks.js` | Add `data-id`/`data-era-id` to rects, fix field name refs |
-| `process-experience-click.js` | Check `graph-experience-rect` class |
+| `draw-experience-blocks.js` | Add `data-id`/`data-era-id`/`data-opener-id` to rects, fix field name refs |
+| `process-experience-click.js` | Route to `openEventDialog()` instead of `openExperienceEditDialog()` |
+| `span-graph-dialogs-edit.js` | Remove `case 'experience'` branch |
+| `span-graph-dialog-experience.js` | Remove or deprecate |
 | `update-nodes.js` | Field fallback pattern for age/time |
 | `update-now-node.js` | Field fallback pattern |
 | `update-yet-nodes.js` | Field fallback pattern |
@@ -163,7 +166,7 @@ Single authority: `generateExperiences` computes opacity, `drawExperienceBlocks`
 | `draw-debug-node-labels.js` | Field fallback pattern |
 | `subway-painter.js` | Field fallback pattern |
 | `path-painter.js` | Update priority to `.age` before `.eventAge`, fix `isSpan` check |
-| `get-template-data.js` (event dialog) | Add `defaultNewExpName` |
+| `get-template-data.js` (event dialog) | Add `defaultNewExpName`; add experience name/description fields for opener events |
 | `get-actor-history.js` | Fix field fallbacks for legacy events |
 | `calculate-resonance-bonuses.js` | Fix `data.age` vs `data.eventAge` |
 | `map-years-to-bonus.js` | Implement two-axis bonus system |

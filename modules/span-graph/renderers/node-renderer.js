@@ -116,6 +116,12 @@ export class NodeRenderer {
     shape.style.cursor = 'pointer';
     shape.style.pointerEvents = 'auto';
 
+    // INSERT-SPAN: Mark pending insertion nodes with dashed outline
+    if (node.id === 'insert-departure' || node.id === 'insert-arrival') {
+        shape.style.strokeDasharray = '3, 2';
+        shape.style.opacity = '0.85';
+    }
+
     return shape;
   }
 

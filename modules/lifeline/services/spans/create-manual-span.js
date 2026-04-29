@@ -1,4 +1,5 @@
 import { normalizeDateInput, parseAgeString, parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { computeOffsetFromArrival, projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * Handles the creation of a single, monodirectional span.
@@ -23,8 +24,8 @@ export function createManualSpan(actor, formData, params) {
             const fromDateObj = parseDate(`${normalizeDateInput(formData.eventSpanFromDate)}T${formData.eventSpanFromTime || '12:00:00'}`);
             if (fromDateObj) {
                 const resolvedFromTime = fromDateObj.getTime();
-                const railOffset = finalTime - (finalAge * 1000);
-                const projectedAge = (resolvedFromTime - railOffset) / 1000;
+                const railOffset = computeOffsetFromArrival(finalTime, finalAge);
+                const projectedAge = projectSubjectiveAge(resolvedFromTime, railOffset);
                 if (projectedAge > 0) {
                     finalAge = projectedAge;
                     finalTime = resolvedFromTime;

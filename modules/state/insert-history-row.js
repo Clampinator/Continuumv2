@@ -28,19 +28,21 @@ export async function insertHistoryRow(actor, data, options = {}) {
     // AUTHORITY: The Translator is the only authorized way to turn UI strings into integers.
     const atomic = Translator.toAtomic(data, history, actor);
 
+    // DEBUG: Final atomic coordinates after TTL translation
     if (data.eventIsSpan) {
-        console.group('SPAN DEBUG | STEP 4 | INSERT HISTORY ROW - after toAtomic');
-        console.log('data.eventSpanFromDate (form string):', data.eventSpanFromDate);
-        console.log('data.eventSpanFromTime (form string):', data.eventSpanFromTime);
-        console.log('data.eventSpanToDate (form string):', data.eventSpanToDate);
-        console.log('data.eventSpanToTime (form string):', data.eventSpanToTime);
-        console.log('atomic.ts (departure ts after parse):', atomic.ts);
-        console.log('atomic.arrivalTs (arrival ts after parse):', atomic.arrivalTs);
-        console.log('atomic.eventAge:', atomic.eventAge);
-        console.log('displacement:', atomic.arrivalTs - atomic.ts, 'ms');
-        console.log('EXPECT: displacement > 0. If 0, toAtomic got identical From/To strings.');
-        console.groupEnd();
+        console.warn('[INSERT-SPAN] 5-ATOMIC (DB write)', JSON.stringify({
+            eventAge: atomic.eventAge,
+            ts: atomic.ts,
+            arrivalTs: atomic.arrivalTs,
+            eventIsSpan: atomic.eventIsSpan,
+            departureMinusArrival: Number(atomic.ts) - Number(atomic.arrivalTs),
+            inputEventSpanFromDate: data.eventSpanFromDate,
+            inputEventSpanFromTime: data.eventSpanFromTime,
+            inputEventSpanToDate: data.eventSpanToDate,
+            inputEventSpanToTime: data.eventSpanToTime
+        }));
     }
+
 
     const targetNode = { 
         id: newId, 
@@ -63,6 +65,20 @@ export async function insertHistoryRow(actor, data, options = {}) {
     // 5. Compensation Wave (Propagate physical changes)
     const virtualHistory = [...history, { ...targetNode, sort }];
     const physicsShifts = solveHistoryPhysics(virtualHistory, originTime);
+
+    // DEBUG: Final node positioned in history sequence
+    if (data.eventIsSpan) {
+        console.warn('[INSERT-SPAN] 7-FINAL (DB record)', JSON.stringify({
+            id: newId,
+            sort,
+            eventAge: atomic.eventAge,
+            ts: atomic.ts,
+            arrivalTs: atomic.arrivalTs,
+            eventIsSpan: atomic.eventIsSpan,
+            departureMinusArrival: Number(atomic.ts) - Number(atomic.arrivalTs),
+            physicsShifts: Object.keys(physicsShifts).length > 0 ? physicsShifts : 'none'
+        }));
+    }
 
     // 6. Database Commit
     const updates = {};
@@ -108,7 +124,7 @@ export async function insertHistoryRow(actor, data, options = {}) {
         if (id === newId) continue; 
         const node = history.find(n => n.id === id);
         if (node && node.path) {
-            updates[`${node.path}.age`] = newAge;
+            updates[`${node.path}.eventAge`] = newAge;
         }
     }
 

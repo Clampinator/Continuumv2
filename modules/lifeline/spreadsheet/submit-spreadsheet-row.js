@@ -17,7 +17,7 @@ export async function submitSpreadsheetRow(actor, eventId, field, value) {
     }
 
     const targetPath = `${path}.${field}`;
-    console.log(`[LSS] Updating ${actor.name} path: ${targetPath} = ${value}`);
+
     
     return await actor.update({ [targetPath]: value });
 }

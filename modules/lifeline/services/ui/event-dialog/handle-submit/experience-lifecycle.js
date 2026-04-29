@@ -1,7 +1,11 @@
 /**
  * Handles the opening, closing, and movement of experiences.
+ * Returns an array of { eraId, expId } objects that were closed, so the caller
+ * can stamp endsExpId on the closing event and clear the event's expId.
  */
 export function processExperienceLifecycle(actor, formData, updates, anchorFull) {
+    const closedExpIds = [];
+
     // 1. Handle Closures
     let closeExps = formData.closeExperiences || [];
     if (typeof closeExps === 'string') closeExps = [closeExps];
@@ -11,6 +15,8 @@ export function processExperienceLifecycle(actor, formData, updates, anchorFull)
         const [eraId, expId] = val.split(':');
         updates[`system.eras.${eraId}.experiences.${expId}.dateTo`] = anchorFull;
         updates[`system.eras.${eraId}.experiences.${expId}.isOngoing`] = false;
+        // Return full identifiers so the caller can stamp endsExpId
+        closedExpIds.push({ eraId, expId });
     });
 
     // 2. Handle Re-opening
@@ -23,6 +29,8 @@ export function processExperienceLifecycle(actor, formData, updates, anchorFull)
         updates[`system.eras.${eraId}.experiences.${expId}.dateTo`] = "";
         updates[`system.eras.${eraId}.experiences.${expId}.isOngoing`] = true;
     });
+
+    return closedExpIds;
 }
 
 /**

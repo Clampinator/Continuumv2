@@ -2,6 +2,7 @@ import { SECONDS_IN_YEAR, parseDate } from './span-graph-utils/provide-span-grap
 import { ChronologyAssembler } from './lifeline/services/chronology-assembler.js';
 import { ReferenceResolver } from './lifeline/services/reference-resolver.js';
 import { computeRailOffset } from './lifeline/services/chronology/compute-rail-offset.js';
+import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * Flattens nested character history into authoritative RenderNode objects.
@@ -76,9 +77,9 @@ export function flattenEvents(eras, actor = null) {
   const dobTs = actor ? ReferenceResolver.resolveOrigin(actor) : 0;
   allNodes.forEach(node => {
       if (node.x === null) {
-          const roughAge = Math.max(0, (node.y - dobTs) / 1000);
+          const roughAge = projectSubjectiveAge(node.y, dobTs);
           const railBase = actor ? computeRailOffset(actor, roughAge) : dobTs;
-          node.x = Math.max(0, (node.y - railBase) / 1000);
+          node.x = projectSubjectiveAge(node.y, railBase);
       }
   });
 

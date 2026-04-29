@@ -1,4 +1,4 @@
-
+﻿
 /* Organization Sheet Specific Styles */
 
 /* --- Layout --- */
@@ -348,7 +348,7 @@ option.size-over-cap {
 }
 
 /* --- Background for Organization Sheet --- */
-.continuum.sheet.organization .window-content {
+.continuum-v2.sheet.organization .window-content {
     background: radial-gradient(circle at center, #2c2c2c 0%, #1a1a1a 100%);
     background-color: #1a1a1a;
     
@@ -366,7 +366,7 @@ option.size-over-cap {
 }
 
 /* --- Structural Panel Styling --- */
-.continuum.sheet.organization .section-header-row {
+.continuum-v2.sheet.organization .section-header-row {
     background-color: rgba(42, 42, 42, var(--section-header-opacity));
     padding: 10px;
     border-radius: 10px;
@@ -374,7 +374,7 @@ option.size-over-cap {
     color: #eee;
 }
 
-.continuum.sheet.organization .section-heading {
+.continuum-v2.sheet.organization .section-heading {
     color: #d0d0d0;
     font-size: 1.3em;
     font-weight: bold;
@@ -383,7 +383,7 @@ option.size-over-cap {
     padding-bottom: 0;
 }
 
-.continuum.sheet.organization .section-container > .section-content {
+.continuum-v2.sheet.organization .section-container > .section-content {
     position: relative;
     overflow: hidden;
     background-color: rgba(42, 42, 42, var(--section-content-opacity));
@@ -393,12 +393,12 @@ option.size-over-cap {
     color: #eee;
 }
 
-.continuum.sheet.organization .section-container:has(> .event-toggle-checkbox:checked) .section-header-row {
+.continuum-v2.sheet.organization .section-container:has(> .event-toggle-checkbox:checked) .section-header-row {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.continuum.sheet.organization .section-container > .section-content::before {
+.continuum-v2.sheet.organization .section-container > .section-content::before {
     content: '';
     position: absolute;
     top: 0;
@@ -413,10 +413,10 @@ option.size-over-cap {
     mix-blend-mode: overlay;
 }
 
-.continuum.sheet.organization input[type="text"],
-.continuum.sheet.organization input[type="number"],
-.continuum.sheet.organization select,
-.continuum.sheet.organization textarea {
+.continuum-v2.sheet.organization input[type="text"],
+.continuum-v2.sheet.organization input[type="number"],
+.continuum-v2.sheet.organization select,
+.continuum-v2.sheet.organization textarea {
     background-color: #222;
     color: #fff;
     border: 1px solid #555;

@@ -1,4 +1,4 @@
-/*==========================*/
+﻿/*==========================*/
 /* COMBAT SECTION - RANGED  */
 /*==========================*/
 
@@ -11,8 +11,8 @@
 }
 
 /* Help button styling */
-/* Added .continuum parent selector and !important to override generic button styles */
-.continuum .combat-help {
+/* Added .continuum-v2 parent selector and !important to override generic button styles */
+.continuum-v2 .combat-help {
     width: 22px;
     height: 22px;
     border-radius: 4px !important; /* Changed from 50% to 4px to match other buttons */
@@ -30,7 +30,7 @@
     box-shadow: none !important;
 }
 
-.continuum .combat-help:hover {
+.continuum-v2 .combat-help:hover {
     color: #fff !important;
     border-color: #888 !important;
     background-color: #555 !important;

@@ -110,6 +110,17 @@ function _activateInternalListeners(html, dialog) {
         dialog.setPosition({ height: "auto" });
     });
 
+    // ENTER on location inputs triggers Locate button
+    html.on('keydown', '.input-with-btn input[type="text"]', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const container = $(event.currentTarget).closest('.input-with-btn');
+            const locateBtn = container.find('.locate-btn');
+            if (locateBtn.length) locateBtn.click();
+        }
+    });
+
     // 3. Location Tools
     html.find('.locate-btn, .grab-btn').on('click', async (e) => {
         const btn = $(e.currentTarget);

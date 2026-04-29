@@ -19,7 +19,7 @@ import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
 import { renderViewport } from './viewport/actions/handle-rendering.js';
 
 // ATOMIZED LISTENERS
-import { activateListeners } from './viewport/listeners/activate-listeners.js';
+import { activateListeners, deactivateListeners } from './viewport/listeners/activate-listeners.js';
 
 /**
  * Manages the SVG viewport for the Span Graph.
@@ -90,6 +90,14 @@ export class SpanGraphViewport {
   }
 
   autoFocus() {
+      if (!this.actor) return null;
+      // GATE: No origin data means autofocus has no meaningful center.
+      const personal = this.actor.system.personal || {};
+      const structure = this.actor.system.structure || {};
+      const hasCharOrigin = personal.dob && personal.birthLocation;
+      const hasOrgOrigin = structure.inceptionDate && structure.locality;
+      if (!hasCharOrigin && !hasOrgOrigin) return null;
+
       const updates = calculateAutofocus(this.actor, this.container, () => this._getOriginTime());
       if (updates) this.setViewState(updates);
   }
@@ -103,8 +111,30 @@ export class SpanGraphViewport {
   _render() { 
       if (!this.actor || !this.container) return;
 
+      // GATE: Skip render when the character has no birth or inception data.
+      // Without an origin timestamp all coordinates are meaningless, and the
+      // render pass would produce an empty or broken graph.
+      const personal = this.actor.system.personal || {};
+      const structure = this.actor.system.structure || {};
+      const hasCharOrigin = personal.dob && personal.birthLocation;
+      const hasOrgOrigin = structure.inceptionDate && structure.locality;
+      if (!hasCharOrigin && !hasOrgOrigin) return;
+
       const interaction = this._interaction;
       const isDraggingNow = interaction.isDragging || interaction.isPending;
+
+      // DEBUG: Viewport render trace for insert-span
+      const isInsertSpanRender = interaction.mode === 'insert-span' && interaction.isDragging;
+      if (isInsertSpanRender) {
+          console.warn('[VIEWPORT-RENDER] insert-span render', JSON.stringify({
+              isDragging: interaction.isDragging,
+              mode: interaction.mode,
+              hasCtx: !!interaction.insertionContext,
+              hasResult: !!interaction.displacementResult,
+              displacement: interaction.displacementResult?.displacement,
+              departureAge: interaction.insertionContext?.departureAge
+          }));
+      }
       
       // 1. STATE (Database Pass)
       this.latestHistory = getActorHistory(this.actor);
@@ -162,6 +192,23 @@ export class SpanGraphViewport {
       g.setAttribute('class', className);
       this.svg.appendChild(g);
       return g;
+  }
+
+  destroy() {
+    // Remove all event listeners to prevent window-level leak.
+    // The window pointermove/pointerup listeners would otherwise fire
+    // on every mouse event even after the viewport is gone, causing
+    // performance degradation on every re-render cycle.
+    deactivateListeners(this);
+
+    // Remove SVG from DOM if still attached
+    if (this.svg && this.svg.parentNode) {
+      this.svg.parentNode.removeChild(this.svg);
+    }
+
+    // Null out references so any stale calls bail fast
+    this.container = null;
+    this.actor = null;
   }
 
   // REWIRED TO INTERACTION MACHINE

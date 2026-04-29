@@ -37,7 +37,7 @@ export function activateSheetListeners(sheet, html) {
     });
 
     // --- RESOLVE LOCATION ON ENTER ---
-    html.on('keydown', 'input[name*="Location"]', (event) => {
+    html.on('keydown', 'input[name*="Location"], input[name*="location"], input[name*="headquarters"]', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();

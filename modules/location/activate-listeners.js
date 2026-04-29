@@ -46,6 +46,15 @@ export function activateLocationListeners(sheet, html) {
         // Map logic will go here
     });
 
+    // ENTER on location name/locality inputs triggers geocode
+    html.on('keydown', 'input[name="system.details.name"], input[name="system.details.locality"]', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            html.find('.geocode-location-btn').click();
+        }
+    });
+
     // Geocode button: fill lat/lng from location name using Maps JS SDK
     html.find('.geocode-location-btn').click(async ev => {
         const name = sheet.actor.system.details.name || sheet.actor.name;

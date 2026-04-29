@@ -1,5 +1,7 @@
 import { ReferenceResolver } from '../reference-resolver.js';
 import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
+import { computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * REINDEX LIFELINE AGES (Dynamic Compensation Wave)
@@ -72,13 +74,13 @@ export function normalizeLifelineAges(actor, { pendingSpan = null, excludeNodeId
                 : (ev.eventSpanToDate ? parseDate(`${ev.eventSpanToDate}T${ev.eventSpanToTime || '12:00:00'}`)?.getTime() : null);
 
             if (fromTs !== null && toTs !== null) {
-                const newAge = Math.max(0, (fromTs - objectiveOffset) / 1000);
+                const newAge = projectSubjectiveAge(fromTs, objectiveOffset);
                 
                 // Only commit if change is significant (> 0.1s to prevent jitter)
                 if (!entry.isPending && Math.abs(newAge - (Number(ev.eventAge) || 0)) > 0.1) {
                     updates[`${entry.path}.age`] = newAge;
                 }
-                objectiveOffset = toTs - (newAge * 1000);
+                objectiveOffset = computeOffsetFromArrival(toTs, newAge);
             }
         } else if (!ev.isBirth) {
             const ts = (ev.ts !== undefined && ev.ts !== null)
@@ -86,7 +88,7 @@ export function normalizeLifelineAges(actor, { pendingSpan = null, excludeNodeId
                 : (ev.eventDate ? parseDate(`${ev.eventDate}T${ev.eventTime || '12:00:00'}`)?.getTime() : null);
 
             if (ts !== null) {
-                const newAge = Math.max(0, (ts - objectiveOffset) / 1000);
+                const newAge = projectSubjectiveAge(ts, objectiveOffset);
                 if (!entry.isPending && Math.abs(newAge - (Number(ev.eventAge) || 0)) > 0.1) {
                     updates[`${entry.path}.age`] = newAge;
                 }

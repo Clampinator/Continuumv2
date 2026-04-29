@@ -6,6 +6,17 @@ import { panToLocation, getMapCenterLocation } from '../map-manager.js';
 import { buildUnitOptions, safeFloat } from './org-dialog-helpers.js';
 
 function attachGeoButtonListeners(html) {
+    // ENTER on location inputs triggers Locate button
+    html.on('keydown', '.input-with-btn input[type="text"]', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const container = $(event.currentTarget).closest('.input-with-btn');
+            const locateBtn = container.find('.locate-btn');
+            if (locateBtn.length) locateBtn.click();
+        }
+    });
+
     html.find('.locate-btn, .grab-btn').on('click', async (e) => {
         const btn = $(e.currentTarget);
         const isGrab = btn.hasClass('grab-btn');

@@ -1,6 +1,7 @@
 
 import { NodeGenerator } from '../../factory/node-generator.js';
 import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { projectSubjectiveAge, projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 Maps a normal event into a standardized graph node forced onto the diagonal.
@@ -13,23 +14,17 @@ export function processLevelEvent(event, objectiveOffset) {
     let age;
     if (event.eventDate) {
         const dateObj = parseDate(`${event.eventDate}T${event.eventTime || '12:00:00'}`);
-        if (dateObj) age = Math.max(0, (dateObj.getTime() - objectiveOffset) / 1000);
+        if (dateObj) age = projectSubjectiveAge(dateObj.getTime(), objectiveOffset);
     }
     if (!Number.isFinite(age)) age = Math.max(0, Number(event.eventAge) || 0);
 
     // THE DIAGONAL AUTHORITY: 1s subjective age = 1000ms objective time on the current rail.
-    const time = objectiveOffset + (age * 1000);
+    const time = projectObjectiveTime(age, objectiveOffset);
 
     const goalIds = (event.linkedGoalIds || []).concat(event.linkedGoalId ? [event.linkedGoalId] : []);
     const uniqueGoalIds = [...new Set(goalIds)];
 
-    if (event.eventIsRest || event.isRestEnd) {
-        console.log("Continuum | processLevelEvent Rest Node:", {
-            id: event.id,
-            eventIsRest: event.eventIsRest,
-            isRestEnd: event.isRestEnd
-        });
-    }
+
 
     return NodeGenerator.createNode({
         age: age,

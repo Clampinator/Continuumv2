@@ -2,6 +2,7 @@
 import { ReferenceResolver } from '../reference-resolver.js';
 import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
 import { computeRailOffset } from './compute-rail-offset.js';
+import { projectSubjectiveAge, projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 REINDEX LIFELINE NODES (Chronology Authority)
@@ -30,9 +31,9 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
       const timeStr = event.eventIsSpan ? event.eventSpanFromTime : event.eventTime;
       const dateObj = parseDate(`${dateStr}T${timeStr || "12:00:00"}`);
       if (dateObj) {
-        const roughAge = Math.max(0, (dateObj.getTime() - dobTs) / 1000);
+        const roughAge = projectSubjectiveAge(dateObj.getTime(), dobTs);
         const railBase = computeRailOffset(actor, roughAge);
-        return Math.max(0, (dateObj.getTime() - railBase) / 1000);
+        return projectSubjectiveAge(dateObj.getTime(), railBase);
       }
     }
     return 0;
@@ -107,10 +108,10 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
       effectiveNowTime = visualNow.time;
   } else if (dbNowAge !== undefined && dbNowAge !== null && dbNowAge !== "") {
       effectiveNowAge = Number(dbNowAge);
-      effectiveNowTime = Number(dbNowTime) || (dobTs + (effectiveNowAge * 1000));
+      effectiveNowTime = Number(dbNowTime) || projectObjectiveTime(effectiveNowAge, dobTs);
   } else {
       effectiveNowAge = lastEventAge;
-      effectiveNowTime = dobTs + (effectiveNowAge * 1000);
+      effectiveNowTime = projectObjectiveTime(effectiveNowAge, dobTs);
   }
 
   stream.push({

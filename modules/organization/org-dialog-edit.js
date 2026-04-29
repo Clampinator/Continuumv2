@@ -44,6 +44,17 @@ export function openEditDialog(type, data, sheet) {
             activateDatePickers(html);
             if (data.unitId) html.find('select[name="unitId"]').val(data.unitId);
 
+            // ENTER on location inputs triggers Locate button
+            html.on('keydown', '.input-with-btn input[type="text"]', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const container = $(event.currentTarget).closest('.input-with-btn');
+                    const locateBtn = container.find('.locate-btn');
+                    if (locateBtn.length) locateBtn.click();
+                }
+            });
+
             html.find('.locate-btn, .grab-btn').on('click', async (e) => {
                 const btn = $(e.currentTarget);
                 const isGrab = btn.hasClass('grab-btn');

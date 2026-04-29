@@ -55,7 +55,7 @@ async function preloadHandlebarsTemplates() {
 }
 
 Hooks.once('init', async () => {
-  console.log('Continuum | Initializing System');
+
 
   game.settings.register('continuum-v2', 'googleMapsApiKey_v3', {
     name: "Google Maps API Key",
@@ -208,6 +208,6 @@ async function _migrateAgesToEras() {
       updates[`system.ages.-=${ageId}`] = null;
     }
     await actor.update(updates);
-    console.log(`Continuum | Migration | Migrated ages -> eras for actor: ${actor.name}`);
+
   }
 }

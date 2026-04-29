@@ -105,6 +105,16 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
             activateDatePickers(html);
             html.find("input[type='text']").on("focus", event => event.currentTarget.select());
             
+            // ENTER on location input triggers Locate button
+            html.on('keydown', 'input[name="location"]', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const locateBtn = $(event.currentTarget).siblings('.locate-btn');
+                    if (locateBtn.length) locateBtn.click();
+                }
+            });
+
             html.find('.use-cursor-age').on('click', () => {
                 html.find('input[name="age"]').val(ageStr);
             });

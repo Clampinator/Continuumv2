@@ -86,7 +86,7 @@ export async function updateHistoryRow(actor, recordId, data) {
     for (const [id, newAge] of Object.entries(physicsShifts)) {
         if (id === recordId) continue;
         const node = history.find(n => n.id === id);
-        if (node && node.path) updates[`${node.path}.age`] = newAge;
+        if (node && node.path) updates[`${node.path}.eventAge`] = newAge;
     }
 
     await actor.update(updates);

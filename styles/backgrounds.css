@@ -1,10 +1,10 @@
-
+﻿
 /*==========================*/
 /* CUSTOM BACKGROUNDS       */
 /*==========================*/
 
 /* --- 1. BASE STYLING (Applies to ALL backgrounds) --- */
-.continuum.sheet.character .window-content {
+.continuum-v2.sheet.character .window-content {
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center center;
@@ -18,57 +18,57 @@
 
 /* --- 2. FRATERNITY-SPECIFIC IMAGES --- */
 /* DEFAULT Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="default-fraternity"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="default-fraternity"]) {
   background-image: url('../assets/ChrSheetBG-02.png');
 }
 
 /* ANTEQUARIANS Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="antequarians"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="antequarians"]) {
   background-image: url('../assets/Fraternities/Antequarians.jpg');
 }
 
 /* ENGINEERS Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="engineers"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="engineers"]) {
   background-image: url('../assets/Fraternities/Engineers.jpg');
 }
 
 /* FOXHORN Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="foxhorn"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="foxhorn"]) {
   background-image: url('../assets/Fraternities/Foxhorn.jpg');
 }
 
 /* MIDWIVES Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="midwives"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="midwives"]) {
   background-image: url('../assets/Fraternities/Midwives.jpg');
 }
 
 /* MONEYCHANGERS Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="moneychangers"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="moneychangers"]) {
   background-image: url('../assets/Fraternities/Moneychangers.jpg');
 }
 
 /* PHYSICIANS Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="physicians"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="physicians"]) {
   background-image: url('../assets/Fraternities/Physicians.jpg');
 }
 
 /* QUICKER Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="quicker"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="quicker"]) {
   background-image: url('../assets/Fraternities/Quicker.jpg');
 }
 
 /* SCRIBES Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="scribes"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="scribes"]) {
   background-image: url('../assets/Fraternities/Scribes.jpg');
 }
 
 /* THESBIANS Background */
-.continuum.sheet.character .window-content:has(form[data-fraternity="thesbians"]) {
+.continuum-v2.sheet.character .window-content:has(form[data-fraternity="thesbians"]) {
   background-image: url('../assets/Fraternities/Thespians.jpg');
 }
 
 /* --- ERA BACKGROUNDS (Inside content blocks) --- */
-.continuum.sheet.character .section-container > :is(.columns, .attributes-container, .section-content, .goals-list, .spanning-content, .eras-list, .combat-grid, .yet-list, .favors-list, .relationships-list, .vehicles-list, .gear-list, .yet-floating-list)::before {
+.continuum-v2.sheet.character .section-container > :is(.columns, .attributes-container, .section-content, .goals-list, .spanning-content, .eras-list, .combat-grid, .yet-list, .favors-list, .relationships-list, .vehicles-list, .gear-list, .yet-floating-list)::before {
   content: '';
   position: absolute;
   top: 0;

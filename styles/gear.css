@@ -1,4 +1,4 @@
-
+﻿
 /* Gear Section Styles */
 
 /* Updated header controls container */
@@ -238,20 +238,20 @@
 /* ========================== */
 
 /* Main Window Content */
-.continuum.sheet.item .window-content {
+.continuum-v2.sheet.item .window-content {
     background-color: #2c2c2c;
     color: #eee;
     padding: 10px;
     font-family: 'Segoe UI', sans-serif;
 }
 
-.continuum.sheet.item form {
+.continuum-v2.sheet.item form {
     height: 100%;
     overflow-y: auto;
 }
 
 /* Header Section */
-.continuum.sheet.item .sheet-header {
+.continuum-v2.sheet.item .sheet-header {
     background-color: #3a3a3a;
     border: 1px solid #555;
     border-radius: 8px;
@@ -264,7 +264,7 @@
     margin-bottom: 10px;
 }
 
-.continuum.sheet.item .profile-img {
+.continuum-v2.sheet.item .profile-img {
     flex: 0 0 100px;
     height: 100px;
     object-fit: cover;
@@ -273,7 +273,7 @@
     background-color: #222;
 }
 
-.continuum.sheet.item .header-fields {
+.continuum-v2.sheet.item .header-fields {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -281,13 +281,13 @@
 }
 
 /* Character Name Input */
-.continuum.sheet.item h1.charname {
+.continuum-v2.sheet.item h1.charname {
     margin: 0;
     padding: 0;
     border: none;
 }
 
-.continuum.sheet.item h1.charname input {
+.continuum-v2.sheet.item h1.charname input {
     width: 100%;
     background-color: #222;
     border: 1px solid #555;
@@ -298,33 +298,33 @@
 }
 
 /* Grid Layouts */
-.continuum.sheet.item .grid {
+.continuum-v2.sheet.item .grid {
     display: grid;
     gap: 10px;
     margin: 5px 0;
 }
 
-.continuum.sheet.item .grid-2col {
+.continuum-v2.sheet.item .grid-2col {
     grid-template-columns: repeat(2, 1fr);
 }
 
 /* Resource Fields */
-.continuum.sheet.item .resource {
+.continuum-v2.sheet.item .resource {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.continuum.sheet.item .resource-label {
+.continuum-v2.sheet.item .resource-label {
     font-size: 0.8em;
     font-weight: bold;
     color: #aaa;
     text-transform: uppercase;
 }
 
-.continuum.sheet.item input[type="text"],
-.continuum.sheet.item input[type="number"],
-.continuum.sheet.item select {
+.continuum-v2.sheet.item input[type="text"],
+.continuum-v2.sheet.item input[type="number"],
+.continuum-v2.sheet.item select {
     background-color: #222;
     color: #fff;
     border: 1px solid #555;
@@ -334,19 +334,19 @@
     box-sizing: border-box;
 }
 
-.continuum.sheet.item input:focus,
-.continuum.sheet.item select:focus {
+.continuum-v2.sheet.item input:focus,
+.continuum-v2.sheet.item select:focus {
     border-color: #4a90e2;
     outline: none;
 }
 
 /* Description / Body */
-.continuum.sheet.item .sheet-body {
+.continuum-v2.sheet.item .sheet-body {
     padding: 0;
 }
 
 /* Add a panel look to the description area */
-.continuum.sheet.item .description {
+.continuum-v2.sheet.item .description {
     background-color: #3a3a3a;
     border: 1px solid #555;
     border-radius: 8px;
@@ -354,7 +354,7 @@
     margin-top: 10px;
 }
 
-.continuum.sheet.item .description h3 {
+.continuum-v2.sheet.item .description h3 {
     margin-top: 0;
     margin-bottom: 10px;
     padding-bottom: 5px;
@@ -364,7 +364,7 @@
 }
 
 /* Editor Styling */
-.continuum.sheet.item .editor {
+.continuum-v2.sheet.item .editor {
     background-color: #222;
     border: 1px solid #555;
     border-radius: 4px;
@@ -373,11 +373,11 @@
     color: #eee;
 }
 
-.continuum.sheet.item .editor-content {
+.continuum-v2.sheet.item .editor-content {
     min-height: 180px;
 }
 
-.continuum.sheet.item .tox-edit-area__iframe {
+.continuum-v2.sheet.item .tox-edit-area__iframe {
     background-color: #222;
 }
 

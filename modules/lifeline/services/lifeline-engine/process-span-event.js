@@ -1,5 +1,6 @@
 import { NodeGenerator } from '../../factory/node-generator.js';
 import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { projectSubjectiveAge, projectObjectiveTime, computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 Maps a Span event into a vertical discontinuity (Origin -> Destination).
@@ -15,12 +16,12 @@ export function processSpanEvent(event, currentOffset) {
         const fromDateObj = parseDate(`${event.eventSpanFromDate}T${fromTimeStr}`);
         if (fromDateObj) {
             originTime = fromDateObj.getTime();
-            age = Math.max(0, (originTime - currentOffset) / 1000);
+            age = projectSubjectiveAge(originTime, currentOffset);
         }
     }
     if (!Number.isFinite(age)) {
         age = Math.max(0, Number(event.eventAge) || 0);
-        originTime = currentOffset + (age * 1000);
+        originTime = projectObjectiveTime(age, currentOffset);
     }
     
     // 2. Calculate Destination (where they landed)
@@ -63,9 +64,8 @@ export function processSpanEvent(event, currentOffset) {
         zoom: event.eventSpanToZoom
     });
 
-    // Calculate new offset: NewTime = newOffset + (age * 1000)
-    // => newOffset = NewTime - (age * 1000)
-    const newOffset = destTime - (age * 1000);
+    // Calculate new offset: arrival time and age define the new rail base
+    const newOffset = computeOffsetFromArrival(destTime, age);
 
     return {
         nodes: [originNode, destNode],

@@ -70,10 +70,6 @@ export function runLifelineAudit() {
     }
 
     if (!issues.length) {
-        console.log(
-            `Continuum | Lifeline Audit | ${totalEvents} event(s) across ` +
-            `${actors.length} actor(s) - no issues found.`
-        );
         return;
     }
 

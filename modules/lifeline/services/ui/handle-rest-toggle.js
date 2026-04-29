@@ -41,8 +41,7 @@ export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
         isRestEnd: true
     };
     
-    console.log("Continuum | Creating End of Rest Event:", newEventData);
-    
+
     // 5. Construct the update path
     const updatePath = expId
         ? `system.eras.${eraId}.experiences.${expId}.events.${newId}`

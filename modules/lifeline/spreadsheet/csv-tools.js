@@ -72,7 +72,7 @@ export async function importSpreadsheetCSV(actor) {
         reader.onload = async readerEvent => {
             const content = readerEvent.target.result;
             const rows = _parseCSV(content);
-            console.log(`[LSS] Imported ${rows.length} rows for ${actor.name}`);
+
             // TODO: Batch update actor data in Phase 3
             ui.notifications.info(`Imported ${rows.length} events from CSV. Implementation of data commit pending.`);
         };

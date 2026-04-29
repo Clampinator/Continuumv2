@@ -171,6 +171,76 @@ Test paths alias `/systems/continuum-v2` to project root. Tests exist for:
 - `tests/temporal-engine/` - Engine pipeline (commands, projection, segments)
 - `tests/temporal-translator/` - TTL conversion functions
 
+### Testing Policy
+
+#### Boundary-Trace Testing (Mandatory)
+
+Every function that transforms data across a layer boundary MUST have tests verifying all
+valid input paths produce correct output. A "boundary" is any point where data passes from
+one module to another (Kernel -> State, TTL -> Kernel, PointerMachine -> Dialog, etc.).
+
+The bugs this system has suffered share a common pattern: **data crosses a boundary and
+loses its semantic meaning**. Example: a level drag produces `eventIsSpan: false` at the
+interaction layer, but by the time it reaches the state layer, `hasSpanFacts` re-derives
+`eventIsSpan: true` from stale span field values in the dialog template. The boolean intent
+was overruled by derived facts that should have been identical for level events.
+
+**Rule: If a function's output can change the meaning of the data (level vs span, origin
+vs arrival, departure vs endpoint), test that every semantic path produces the correct
+Boolean flag or enum value at the output.**
+
+Specific requirements:
+
+1. **Every Kernel output function MUST have a test** for each distinct physical mode:
+   - `establishHistoryPhysics` - test with `isSpanIntent: true` vs `false`, verify
+     `isSpanOrigin` is set correctly on the NOW node in both cases
+   - `solveNowDragConstraint` - test with level-drag coordinates vs span-drag
+     coordinates, verify mode and world coordinates match the correct diagonal/vertical
+   - `resolvePointerMode` - test with 30-degree diagonal, near-vertical, and
+     near-horizontal pointer movements
+
+2. **Every TTL toHuman/toAtomic round-trip MUST preserve semantic identity**:
+   - A level event's `toHuman` output, fed into `toAtomic`, MUST produce
+     `eventIsSpan: false` and `arrivalTs === ts`
+   - A span event's round-trip MUST produce `eventIsSpan: true` and
+     `arrivalTs !== ts`
+   - Test both directions (human -> atomic -> human, atomic -> human -> atomic)
+
+3. **Dialog template data preparation MUST be tested for each mode**:
+   - `getTemplateData` for `mode: 'log'` with `eventIsSpan: false` MUST produce
+     `arrivalTs === ts` (departure equals arrival)
+   - `getTemplateData` for `mode: 'log'` with `eventIsSpan: true` MUST produce
+     `arrivalTs !== ts` when departure and arrival differ
+   - `getTemplateData` for `mode: 'edit'` with existing span data MUST preserve
+     the span's `arrivalTs`
+
+4. **handle-submit MUST be tested for the hasSpanFacts edge case**:
+   - Level event with identical From/To fields -> `eventIsSpan: false`
+   - Level event with populated but identical span fields -> `eventIsSpan: false`
+   - Span event with different To/From fields -> `eventIsSpan: true`
+
+5. **Nullable/optional parameter chains MUST have explicit null-path tests**:
+   - Every function that reads `params.something?.subproperty` MUST have a test
+     where the optional chain evaluates to `null`/`undefined`, verifying the
+     fallback value is correct AND the semantic meaning is preserved
+   - Example: `params.departure?.eventTime` falling through to `params.timeRaw`
+     MUST place the event at the drop position, not the drag start
+
+#### Mode-Coverage Standard
+
+Any function with a mode switch (level/span/insert-span, edit/log) must have at least
+one test per mode. Missing a mode in tests means missing a bug class.
+
+#### Regression Tests for Known Bug Classes
+
+When fixing a bug, add a regression test that would have caught it. The test should
+assert the specific semantic invariant that was violated:
+
+- "level drag MUST NOT produce `isSpanOrigin: true` on the NOW node"
+- "level event template data MUST have `arrivalTs === departureTime`"
+- "`hasSpanFacts` MUST be false when departure and arrival are identical"
+- "`departure?.eventTime` null path MUST fall through to `timeRaw` for level events"
+
 ---
 
 ## Reminders
@@ -213,6 +283,13 @@ Test paths alias `/systems/continuum-v2` to project root. Tests exist for:
 - SVG for all interactive timeline visualization
 - `system.json` declares esmodules, styles, actor types, item types
 - `template.json` defines the data schema
+
+### Image Analysis
+Use `MiniMax_understand_image` for analyzing images (screenshots, diagrams, UI states).
+- Input: `image_source` (file path or URL) and `prompt` describing what to extract
+- Supports JPEG, PNG, WebP formats
+- Returns text description of image content
+- When an image is received as a filename only, check `C:\Users\Tuck\Pictures\Screenshots` for the full path
 
 ### Data Flow
 - User action -> Projector converts pixel coordinates -> Kernel validates physics -> DB updates -> DB broadcasts change -> Projector redraws from new DB state
@@ -261,3 +338,17 @@ See **`TRACKS.md`** for full specs and implementation plans.
 - `conductor/product-guidelines.md` - Product-level UX principles
 - `conductor/tech-stack.md` - Technology stack documentation
 - `conductor/code_styleguides/javascript.md` - Google JS style guide summary
+
+---
+
+## MiniMax MCP Tools
+
+This project has a MiniMax MCP relay configured via `opencode.json`. Available tools:
+
+| Tool | Description |
+|------|-------------|
+| `web_search` | Web search via MiniMax |
+| `understand_image` | Analyze images (JPEG, PNG, WebP) |
+
+The MCP is enabled and runs via `uvx minimax-coding-plan-mcp`. API key is configured in `opencode.json`.
+Do not commit `opencode.json` to version control - it contains a live API key.

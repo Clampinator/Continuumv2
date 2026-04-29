@@ -9,6 +9,4 @@ import { initializeOverlaySystem } from './interactive-image-overlay/initialize-
  * 2. Define custom Overlay class.
  * 3. Listen for keyframe show requests.
  */
-initializeOverlaySystem().catch(err => {
-    console.debug("Continuum | Interactive Overlay load status:", err);
-});
+initializeOverlaySystem().catch(() => {});

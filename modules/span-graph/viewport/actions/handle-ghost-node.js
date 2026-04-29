@@ -1,5 +1,7 @@
 import { flattenEvents } from '../../../span-graph-data-processor.js';
 import { getTemporalState } from '../../../temporal-engine/get-temporal-state.js';
+import { projectPointToSegment } from '/systems/continuum-v2/modules/temporal-kernel/project-point-to-segment.js';
+import { interpolateWorldCoordinates } from '/systems/continuum-v2/modules/temporal-kernel/interpolate-world-coordinates.js';
 
 /**
  * Updates the ghost node position based on the nearest rail segment.
@@ -25,30 +27,20 @@ export function updateGhostNodeHover(viewport, mouseX, mouseY) {
         const p1 = viewport.worldToScreen(w1.age, w1.time);
         const p2 = viewport.worldToScreen(w2.age, w2.time);
         
-        const proj = getProjectionOnSegment({x: mouseX, y: mouseY}, p1, p2);
+        const proj = projectPointToSegment(mouseX, mouseY, p1.x, p1.y, p2.x, p2.y);
         if (proj.dist < minDist) {
             minDist = proj.dist;
-            nearest = {
-                age: w1.age + proj.t * (w2.age - w1.age),
-                time: w1.time + proj.t * (w2.time - w1.time)
-            };
+            const interp = interpolateWorldCoordinates(
+                { age: w1.age, time: w1.time },
+                { age: w2.age, time: w2.time },
+                proj.t
+            );
+            nearest = { age: interp.age, time: interp.time };
         }
     }
 
     viewport._interaction.hoverWorldPos = nearest;
     viewport.nodeRenderer.renderGhostNode(nearest);
-}
-
-/**
- * Helper: Project point onto line segment.
- */
-function getProjectionOnSegment(p, v, w) {
-    const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
-    if (l2 === 0) return { dist: Math.hypot(p.x - v.x, p.y - v.y), t: 0 };
-    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
-    return { dist: Math.hypot(p.x - proj.x, p.y - proj.y), t: t };
 }
 
 /**

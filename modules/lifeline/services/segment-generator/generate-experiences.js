@@ -2,29 +2,42 @@ import { parseDate } from '../../../span-graph-utils/parse-date.js';
 import { mapDateToSubjective } from '../../../span-graph-utils/map-date-to-subjective.js';
 
 /**
- * ELASTIC RESONANCE FIELDS: Dynamic Experience Segment Generator.
+ * NODE-ANCHORED EXPERIENCE GENERATOR
  *
- * Reads the nested era/experience structure from actor data and produces a flat
- * array of experience bounding boxes with screen-independent coordinates. Each
- * output object describes the experience's extent in subjective age (seconds
- * since birth) and objective time (epoch ms), plus computed opacity ("The
- * Forgetting") and mechanical bonus (two-axis Duration + Distance).
+ * Produces a flat array of experience bounding boxes. Each box's corners are
+ * anchored to the Event nodes that open and close the experience, not to
+ * independent date strings. This guarantees pixel-perfect alignment between
+ * experience boxes and the event nodes on the span graph.
+ *
+ * Anchoring strategy (priority order):
+ *   1. OPENER node: record.startsExpId === expId OR record.isExpStart === true
+ *      matched to this experience. Fallback: first node in the chain.
+ *   2. CLOSER node: record.endsExpId === expId (era-level event that closed
+ *      this experience). Fallback: record.isExpEnd === true. Legacy fallback:
+ *      date-matching (event timestamp matches exp.dateTo). Final fallback:
+ *      dateTo string interpolation.
+ *   3. If no chain nodes exist at all, fall back to mapDateToSubjective
+ *      using the experience's dateFrom/dateTo strings.
+ *
+ * Ongoing experiences anchor their end corner to the NOW node.
+ *
+ * SPAN DECOUPLING: The Forgetting opacity and experience bonus use the
+ * character's LEVELING AGE (subjective age without span displacement)
+ * rather than the NOW node's raw age. Spans do not age the character,
+ * so spanning up/down should not affect how "far away" an experience feels.
  *
  * Field name convention: startAge/endAge (seconds), startTime/endTime (epoch ms).
- * This aligns with the 2026-04-29 spec and matches what the span-graph
- * manifest-generator and experience-renderer consume.
- *
- * Node format compatibility: the engine pipeline produces nodes with .x/.y
- * (age/time) while tests and some legacy code use .age/.time. Accessors
- * (_age, _time) read both with .age preferred.
+ * Dual-format accessors handle both .age/.time (new) and .x/.y (legacy) nodes.
  *
  * @param {Array} sortedEras - Eras sorted by subjective age, each with .experiences
  * @param {Array} nodes - Flat history nodes (may be .age/.time or .x/.y format)
  * @param {Object} nowNode - The NOW anchor node
+ * @param {number|null} levelingAge - Subjective age without span displacement.
+ *   If null, falls back to nowNode's age (which may include span displacement).
  * @returns {Array} Experience objects with startAge, endAge, startTime, endTime,
  *   isOngoing, isClosed, opacity, bonus
  */
-export function generateExperiences(sortedEras, nodes, nowNode) {
+export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = null) {
     const experiences = [];
     if (!nodes || nodes.length === 0) return experiences;
 
@@ -34,9 +47,20 @@ export function generateExperiences(sortedEras, nodes, nowNode) {
     const _age = (n) => n ? (n.age !== undefined ? n.age : n.x) : null;
     const _time = (n) => n ? (n.time !== undefined ? n.time : n.y) : null;
 
-    // Current subjective age of NOW - used for The Forgetting opacity decay
-    // and for ongoing experience boundary projection
-    const nowAge = _age(nowNode);
+    // LEVELING AGE: The character's subjective age WITHOUT span displacement.
+    // Spans move the character in objective time but do NOT age them. For game
+    // mechanics (The Forgetting opacity, experience bonus distance), what
+    // matters is how long ago the character subjectively experienced something,
+    // not where they are in objective time. If levelingAge is not provided
+    // (legacy callers), fall back to the NOW node's raw age.
+    const nowAge = levelingAge !== null ? levelingAge : _age(nowNode);
+
+    // SPAN-AWARE END TIME: Used for the visual bounding box of ongoing
+    // experiences. This is the NOW node's raw Y coordinate (objective time),
+    // which DOES move when spanning. The box visually extends to where the
+    // character is NOW, even mid-span. Separate from nowAge (leveling age)
+    // because the box corner needs screen coordinates for rendering.
+    const nowTime = _time(nowNode);
 
     // Birth timestamp derived from first node - fallback for mapDateToSubjective
     const dobTs = _time(nodes[0]);
@@ -46,28 +70,26 @@ export function generateExperiences(sortedEras, nodes, nowNode) {
             // Skip experiences that lack a name (malformed or placeholder data)
             if (!exp.name) return;
 
-            const startD = parseDate(exp.dateFrom);
-            if (!startD) return;
+            // CHAIN ASSEMBLY: Gather all nodes that belong to this experience.
+            // Membership criteria (in order of specificity):
+            //   - n.expId === expId (top-level property from getActorHistory)
+            //   - n.record.startsExpId === expId (opener event link)
+            //   - n.record.isExpStart === true with matching expId on the node
+            // The chain determines which event nodes anchor the box corners.
+            const chain = nodes.filter(n =>
+                n.expId === expId ||
+                n.record?.startsExpId === expId ||
+                (n.record?.isExpStart && n.expId === expId)
+            );
+            chain.sort((a, b) => (Number(_age(a)) || 0) - (Number(_age(b)) || 0));
 
-            // BASELINE: Derive from the experience's declared start date.
-            // mapDateToSubjective walks the lifeline path to find the correct
-            // subjective age along the 1:1 diagonal, accounting for spans.
-            let startAge = mapDateToSubjective(exp.dateFrom, nodes, dobTs);
-            let startTime = startD.getTime();
-
-            // ELASTICITY: If any events belong to this experience, expand the
-            // bounding box to include them. This handles re-opened experiences
-            // where a new event extends the box beyond dateFrom.
-            // Chain includes nodes that reference this expId directly, plus
-            // nodes whose record has startsExpId (the "opener" event link).
-            const chain = nodes.filter(n => n.expId === expId || n.record?.startsExpId === expId);
+            // OPENER: The event node that starts this experience.
+            // Prefer nodes explicitly marked as starters, then the first chain node.
+            let openerNode = null;
             if (chain.length > 0) {
-                // Sort by subjective age so firstNode/lastNode are deterministic
-                chain.sort((a, b) => (Number(_age(a)) || 0) - (Number(_age(b)) || 0));
-                const firstNode = chain[0];
-                // Expand start backward if an event precedes the declared dateFrom
-                startAge = Math.min(startAge ?? Infinity, _age(firstNode));
-                startTime = Math.min(startTime, _time(firstNode));
+                openerNode = chain.find(n =>
+                    n.record?.startsExpId === expId || n.record?.isExpStart === true
+                ) || chain[0];
             }
 
             // CLOSED vs ONGOING: isClosed is data-driven (dateTo is non-empty).
@@ -75,32 +97,104 @@ export function generateExperiences(sortedEras, nodes, nowNode) {
             const isClosed = !!(exp.dateTo && String(exp.dateTo).trim() !== "");
             const isOngoing = !!exp.isOngoing || !isClosed;
 
+            // CLOSER: The event node that ends this experience.
+            // Search priority:
+            //   1. endsExpId === expId (explicit back-link from closing event)
+            //   2. isExpEnd flag (NPC-generated data or chain-internal closers)
+            //   3. DATE MATCH: For legacy data closed before endsExpId existed,
+            //      find an era-level node whose combined date+time matches exp.dateTo.
+            //      This recovers the closing event for existing saved data.
+            let closerNode = null;
+            if (isClosed) {
+                closerNode = nodes.find(n => n.record?.endsExpId === expId) || null;
+                if (!closerNode) {
+                    closerNode = nodes.find(n => n.record?.isExpEnd === true) || null;
+                }
+                if (!closerNode) {
+                    closerNode = _findCloserByDate(nodes, exp.dateTo) || null;
+                }
+            }
+
+            let startAge;
+            let startTime;
+
+            if (openerNode && _age(openerNode) !== null) {
+                // ANCHOR START: Use the opener event node's exact coordinates.
+                // This guarantees the experience box corner aligns with the
+                // rendered event node on the span graph.
+                startAge = _age(openerNode);
+                startTime = _time(openerNode);
+            } else if (chain.length > 0) {
+                // CHAIN FALLBACK: First chain node as opener.
+                startAge = _age(chain[0]);
+                startTime = _time(chain[0]);
+            } else {
+                // DATE FALLBACK: No events belong to this experience yet.
+                // Fall back to date-string interpolation via mapDateToSubjective.
+                const startD = parseDate(exp.dateFrom);
+                if (!startD) return;
+                startAge = mapDateToSubjective(exp.dateFrom, nodes, dobTs);
+                startTime = startD.getTime();
+            }
+
             let endAge;
             let endTime;
 
             if (isOngoing) {
                 // Ongoing experiences extend to the NOW node - the character is
                 // still living through them, so the box grows with time.
-                endAge = nowAge;
-                endTime = _time(nowNode);
+                // Use NOW node's raw coordinates for the visual bounding box,
+                // NOT the leveling age. The box must reach the character's
+                // actual position on the graph, even mid-span.
+                const nowRawAge = _age(nowNode);
+                endAge = nowRawAge !== null ? nowRawAge : nowAge;
+                endTime = nowTime;
+            } else if (closerNode && _age(closerNode) !== null) {
+                // ANCHOR END: Use the closer event node's exact coordinates.
+                // This node carries isExpEnd, marking it as the definitive end.
+                endAge = _age(closerNode);
+                endTime = _time(closerNode);
             } else {
-                // CLOSED: End comes from dateTo, but elasticity may push it
-                // further if the last chain event is beyond the declared date.
+                // CLOSED EXPERIENCE without explicit closer node: Use the
+                // experience's dateTo as the authoritative end boundary. The
+                // dateTo was set by the user when they closed the experience,
+                // so it's the correct closing point even if no chain node
+                // marks that exact moment. Chain nodes are interior events
+                // that should NOT define the experience's outer boundary.
                 const endD = parseDate(exp.dateTo);
-                let projectedEndAge = mapDateToSubjective(exp.dateTo, nodes, dobTs);
-                let projectedEndTime = endD ? endD.getTime() : startTime;
-
-                if (chain.length > 0) {
+                if (endD) {
+                    endAge = mapDateToSubjective(exp.dateTo, nodes, dobTs) || startAge;
+                    endTime = endD.getTime();
+                } else if (chain.length > 0) {
+                    // No dateTo and no closer: fall back to last chain node.
                     const lastNode = chain[chain.length - 1];
-                    // Take whichever is further: the date-derived end or the
-                    // last event in the chain. This ensures the bounding box
-                    // encompasses all content even if dateTo is conservative.
-                    endAge = Math.max(projectedEndAge || 0, _age(lastNode));
-                    endTime = projectedEndTime;
+                    endAge = _age(lastNode);
+                    endTime = _time(lastNode);
                 } else {
-                    // No chain events: fall back to date-derived projection
-                    endAge = projectedEndAge || startAge;
-                    endTime = projectedEndTime;
+                    // Last resort: collapse to start.
+                    endAge = startAge;
+                    endTime = startTime;
+                }
+            }
+
+            // ELASTIC EXPANSION: Chain events can push the start boundary earlier
+            // than the opener node (e.g. a re-opened experience where a mid-chain
+            // event predates the opener). However, for CLOSED experiences the end
+            // boundary is authoritative (dateTo or closer node) and must NOT be
+            // shrunk by chain events that end before it. Ongoing experiences can
+            // still be expanded by chain events since they extend to NOW.
+            if (chain.length > 0) {
+                const firstAge = _age(chain[0]);
+                const firstTime = _time(chain[0]);
+                if (firstAge !== null) startAge = Math.min(startAge, firstAge);
+                if (firstTime !== null) startTime = Math.min(startTime, firstTime);
+                // Only expand the end boundary if the experience is ongoing.
+                // Closed experiences have an authoritative end from dateTo/closer.
+                if (isOngoing) {
+                    const lastAge = _age(chain[chain.length - 1]);
+                    const lastTime = _time(chain[chain.length - 1]);
+                    if (lastAge !== null) endAge = Math.max(endAge, lastAge);
+                    if (lastTime !== null) endTime = Math.max(endTime, lastTime);
                 }
             }
 
@@ -111,11 +205,22 @@ export function generateExperiences(sortedEras, nodes, nowNode) {
             // 15 subjective years after the experience ends, then lingers at
             // 10%. This models the Continuum RPG mechanic where old skills
             // fade but never fully vanish.
+            // SPAN DECOUPLING: Uses nowAge (leveling age) not the raw NOW node
+            // age, because spanning does not age the character. A character who
+            // spans to 2050 at subjective age 10 is still only 10 years old
+            // for purposes of The Forgetting.
             const yearsSince = Math.max(0, (nowAge - endAge) / 31536000);
             let opacity = 1.0;
             if (yearsSince > 0) {
                 opacity = Math.max(0.1, 1.0 - (yearsSince / 15) * 0.9);
             }
+
+            // MECHANICAL VALUES: Duration and distance for the Two-Axis Bonus
+            // must use the leveling age, not the span-inflated visual age.
+            // For ongoing experiences, the effective duration is how long the
+            // character has subjectively been in the experience, not where the
+            // visual box ends on the graph.
+            const mechanicalEndAge = isOngoing ? nowAge : endAge;
 
             experiences.push({
                 id: expId,
@@ -128,7 +233,7 @@ export function generateExperiences(sortedEras, nodes, nowNode) {
                 isOngoing,
                 isClosed,
                 opacity,
-                bonus: _calculateBonus(isOngoing, endAge, startAge, nowAge)
+                bonus: _calculateBonus(isOngoing, mechanicalEndAge, startAge, nowAge)
             });
         });
     });
@@ -179,4 +284,32 @@ function _calculateBonus(isOngoing, endAge, startAge, nowAge) {
 
     // Hard cap: no skill check bonus can exceed +3 in Continuum
     return Math.min(durationBonus + distanceBonus, 3);
+}
+
+/**
+ * DATE-MATCH CLOSER FINDER
+ * For legacy data closed before endsExpId existed, attempts to find the
+ * closing event by matching the event's combined date+time against the
+ * experience's dateTo string. The dateTo was set to the closing event's
+ * departure timestamp when the user closed the experience, so a level
+ * event whose eventDate + " " + eventTime matches dateTo is very likely
+ * the closer. For span events, checks eventSpanFromDate + " " + eventSpanFromTime.
+ *
+ * @param {Array} nodes - All history nodes
+ * @param {string} dateTo - The experience's dateTo string (e.g. "2022-06-15 12:00:00")
+ * @returns {Object|null} The matching node, or null
+ */
+function _findCloserByDate(nodes, dateTo) {
+    if (!dateTo || !dateTo.trim()) return null;
+    const normalized = dateTo.trim();
+    return nodes.find(n => {
+        if (!n.record) return false;
+        // Level events: eventDate + " " + eventTime
+        const levelDT = `${n.record.eventDate || ''} ${n.record.eventTime || ''}`.trim();
+        if (levelDT === normalized) return true;
+        // Span events: departure timestamp
+        const spanDT = `${n.record.eventSpanFromDate || ''} ${n.record.eventSpanFromTime || ''}`.trim();
+        if (spanDT === normalized) return true;
+        return false;
+    }) || null;
 }

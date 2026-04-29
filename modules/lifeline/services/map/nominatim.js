@@ -28,24 +28,19 @@ Returns null if nothing is found or on network error.
 */
 export async function geocodeAddress(address) {
     if (!address?.trim()) return null;
-    console.log(`[LSS] Geocoding address: "${address}"`);
     const cleaned = _stripPlusCode(address.trim());
     if (!cleaned) {
-        console.log(`[LSS] Geocoding FAILED - bare Plus Code without place name: "${address}"`);
         ui.notifications?.warn(`Cannot geocode a bare Plus Code without a place name. Add a city name after the code.`);
         return null;
     }
     const url = `${BASE}/search?format=json&q=${encodeURIComponent(cleaned)}&limit=1`;
-    console.log(`[LSS] Searching Nominatim for: "${cleaned}"`);
     try {
         const res  = await fetch(url, { headers: HEADERS });
         const data = await res.json();
         if (!Array.isArray(data) || !data.length) {
-            console.log(`[LSS] Geocoding FAILED - no results for: "${cleaned}"`);
             ui.notifications?.warn(`No location found for "${cleaned}". Try a more specific address.`);
             return null;
         }
-        console.log(`[LSS] Geocoding SUCCESS for "${cleaned}" -> "${data[0].display_name}" at (${data[0].lat}, ${data[0].lon})`);
         return {
             lat: parseFloat(data[0].lat),
             lng: parseFloat(data[0].lon),

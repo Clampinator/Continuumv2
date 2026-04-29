@@ -1,4 +1,4 @@
-/*==========================*/
+﻿/*==========================*/
 /* LOCATION SHEET STYLING   */
 /*==========================*/
 
@@ -29,7 +29,7 @@
     border-color: #F5A623;
 }
 
-.continuum.sheet.location .window-content {
+.continuum-v2.sheet.location .window-content {
   background-color: #1a1c20;
   background-image: radial-gradient(circle at center, #2a2d33 0%, #1a1c20 100%);
 }

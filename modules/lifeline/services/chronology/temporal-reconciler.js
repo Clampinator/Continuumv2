@@ -1,6 +1,8 @@
 import { calculateSegments } from '../../../temporal-engine/calculate-segments.js';
 import { resolveCoordinates } from '../../../temporal-engine/resolve-coordinates.js';
 import { ReferenceResolver } from '../reference-resolver.js';
+import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
+import { computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * TEMPORAL RECONCILER (The Ultimate Authority)
@@ -60,7 +62,7 @@ export const TemporalReconciler = {
             const nodeTime = Number(node.ts || node.time || 0);
             
             // Derive true Subjective Age from fixed Objective Time and current rail offset
-            const trueAge = Math.max(0, (nodeTime - currentOffset) / 1000);
+            const trueAge = projectSubjectiveAge(nodeTime, currentOffset);
             const trueSort = runningSort;
 
             // Generate database updates if the derivation differs from stored data
@@ -80,7 +82,7 @@ export const TemporalReconciler = {
             // Update parameters for next node
             if (node.eventIsSpan) {
                 const arrivalTs = Number(node.arrivalTs || node.arrivalTime || node.time);
-                currentOffset = arrivalTs - (trueAge * 1000);
+                currentOffset = computeOffsetFromArrival(arrivalTs, trueAge);
             }
             runningSort += DEFAULT_STEP;
         });

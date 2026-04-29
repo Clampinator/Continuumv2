@@ -135,6 +135,17 @@ export async function openEventDialog(sheet, params) {
             contextList.find('input').on('change', updateNewExpVisibility);
             updateNewExpVisibility();
 
+            // ENTER on location inputs triggers Locate button
+            html.on('keydown', '.input-with-btn input[type="text"]', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const container = $(event.currentTarget).closest('.input-with-btn');
+                    const locateBtn = container.find('.locate-btn');
+                    if (locateBtn.length) locateBtn.click();
+                }
+            });
+
             // Map Integration: Locate and Grab buttons
             html.find('.locate-btn, .grab-btn').on('click', async (e) => {
                 const btn = $(e.currentTarget);

@@ -3,6 +3,8 @@ import { SpanPool } from '../../calculators/span-pool.js';
 import { getNodeLocation } from '../node-location-master.js';
 import { processSpanEvent } from './process-span-event.js';
 import { processLevelEvent } from './process-level-event.js';
+import { MS_PER_SECOND } from '../../../temporal-engine/constants.js';
+import { projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 THE DIAGONAL AUTHORITY: Core Mapping Engine.
@@ -52,7 +54,7 @@ export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, ac
             // Span cost = absolute time jump in seconds
             const originTime = result.nodes[0].time;
             const destTime   = result.nodes[1].time;
-            spentInCurrentCycle += Math.abs(destTime - originTime) / 1000;
+            spentInCurrentCycle += Math.abs(destTime - originTime) / MS_PER_SECOND;
             // Spans reset the rail's objective starting point
             objectiveOffset = result.newOffset;
         } else {
@@ -81,7 +83,7 @@ export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, ac
     }
 
     // DIAGONAL AUTHORITY: Final projection of the NOW cursor
-    const nowTime = objectiveOffset + (nowAge * 1000);
+    const nowTime = projectObjectiveTime(nowAge, objectiveOffset);
 
     return {
         levelNodes,

@@ -13,13 +13,13 @@ import { establishHistoryPhysics } from '../temporal-kernel/establish-history-ph
  * ENFORCES: Singular Identity (No overlapping nodes).
  * ENFORCES: Umbilical Cord (Establishes physics from raw facts).
  */
-export function getTemporalState(historyFacts, subjectiveNow = null, originTime = 0, actor = null) {
+export function getTemporalState(historyFacts, subjectiveNow = null, originTime = 0, actor = null, isSpanIntent = false) {
     // 1. DATA PREPARATION (ADI Enforcement)
     const eras = extractEras(actor);
     
     // 2. PHYSICS ESTABLISHMENT (The Umbilical Cord)
     // AUTHORITY: The Engine establishes x, y, and arrivalY from raw database facts.
-    const physicalNodes = establishHistoryPhysics(historyFacts, originTime, subjectiveNow);
+    const physicalNodes = establishHistoryPhysics(historyFacts, originTime, subjectiveNow, actor, isSpanIntent);
 
     const segments = calculateSegments(physicalNodes, originTime);
 

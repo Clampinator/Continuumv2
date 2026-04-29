@@ -24,7 +24,7 @@ export class ContinuumLocationSheet extends BaseActorSheet {
   async getData(options) {
     const context = await super.getData(options);
     const prepared = await prepareLocationData(this, context);
-    console.log("Continuum | Location Sheet Context:", prepared);
+
     return prepared;
   }
 

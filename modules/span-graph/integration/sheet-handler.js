@@ -2,12 +2,40 @@ import { SpanGraphViewport } from '../viewport.js';
 
 const viewports = new Map();
 
+// GATE: Check if the actor has birth/inc data required to render the lifeline.
+// Without a birth date and location, the graph has no origin point and cannot
+// display meaningful coordinates. Prevents viewport initialization and the
+// associated window-level event listeners that would fire on every mouse move.
+function hasOriginData(actor) {
+  if (!actor) return false;
+  const personal = actor.system.personal || {};
+  const structure = actor.system.structure || {};
+  const hasCharOrigin = personal.dob && personal.birthLocation;
+  const hasOrgOrigin = structure.inceptionDate && structure.locality;
+  return !!(hasCharOrigin || hasOrgOrigin);
+}
+
 /**
  * Initializes or updates the Span Graph for a given actor and sheet.
+ * GATED: Will not create or update the viewport if the actor lacks birth
+ * or inception data. When data is missing, any existing viewport is torn
+ * down so it does not hold stale listeners.
  */
 export function initializeSpanGraph(actor, html, sheet) {
   const container = html.find('.span-graph-container').get(0);
   if (!container) return;
+
+  // GATE: No origin data means the graph cannot render. Tear down any
+  // existing viewport so stale window listeners do not leak.
+  if (!hasOriginData(actor)) {
+    const existing = viewports.get(actor.id);
+    if (existing) {
+      existing.destroy();
+      viewports.delete(actor.id);
+    }
+    sheet._spanGraphViewport = null;
+    return;
+  }
 
   let viewport = viewports.get(actor.id);
 

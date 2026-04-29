@@ -27,7 +27,8 @@ export class RailRenderer {
             const pathData = `M ${rail.p1.x} ${rail.p1.y} L ${rail.p2.x} ${rail.p2.y}`;
             const el = this._createPathElement(pathData, 'span-graph-span-line');
             
-            if (rail.isFuture) el.classList.add('future');
+            if (rail.isInserting) el.classList.add('inserting');
+            else if (rail.isFuture) el.classList.add('future');
             else el.classList.add('past');
 
             this.group.appendChild(el);
@@ -70,6 +71,13 @@ export class RailRenderer {
           }
           .span-graph-span-line.past {
               animation-direction: reverse;
+          }
+          .span-graph-span-line.inserting {
+              stroke: #ff00ff;
+              stroke-width: 3;
+              stroke-dasharray: 4, 4;
+              opacity: 0.85;
+              animation: span-flow 0.3s linear infinite;
           }
           @keyframes span-flow {
               from { stroke-dashoffset: 20; }

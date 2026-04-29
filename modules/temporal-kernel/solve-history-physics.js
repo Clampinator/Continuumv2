@@ -1,4 +1,4 @@
-import { projectSubjectiveAge } from './project-subjective-age.js';
+import { projectSubjectiveAge, computeOffsetFromArrival } from './project-subjective-age.js';
 import { calculateSpanDisplacement } from './calculate-span-displacement.js';
 
 /**
@@ -51,8 +51,9 @@ export function solveHistoryPhysics(history, originTime) {
             const displacement = calculateSpanDisplacement(fromTs, arrivalTs);
             
             // Shift the world clock for the next segment
+            // DELEGATE: Compute new offset from arrival physics
             const ageAtJump = shifts[node.id] !== undefined ? shifts[node.id] : savedAge;
-            objectiveOffset = arrivalTs - (ageAtJump * 1000);
+            objectiveOffset = computeOffsetFromArrival(arrivalTs, ageAtJump);
         }
     }
 

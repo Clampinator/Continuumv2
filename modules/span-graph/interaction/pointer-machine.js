@@ -1,14 +1,19 @@
 import { resolvePointerMode } from './resolve-pointer-mode.js';
 import { calculateGhostSnap } from './calculate-ghost-snap.js';
-import { insertHistoryRow } from '../../state/insert-history-row.js';
+import { computeSplicePoint } from '../../state/compute-splice-point.js';
+import { calculateInsertionDisplacement } from '../../temporal-kernel/calculate-insertion-displacement.js';
+import { constrainInsertionMovement } from '/systems/continuum-v2/modules/temporal-kernel/drag-physics.js';
 import { getLoreContext } from '../../state/get-lore-context.js';
 import { solveNowDragConstraint } from '../../temporal-kernel/solve-now-drag-constraint.js';
 import { validateSpanPhysics } from '../../temporal-kernel/validate-span-physics.js';
-import { convertTimestampToDateString, formatSubjectiveAge } from '../../span-graph-utils/provide-span-graph-utils.js';
+import { formatSubjectiveAge } from '../../span-graph-utils/provide-span-graph-utils.js';
+import { convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
+import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
 
 /**
  * INTERACTION: POINTER MACHINE
  * Authoritative controller for the Chain of Life.
+ * Supports three drag modes: level, span (NOW drag), and insert-span (rail drag).
  */
 export class PointerMachine {
     constructor(viewport) {
@@ -23,7 +28,9 @@ export class PointerMachine {
             startScreen: { x: 0, y: 0 },
             startWorld: { eventAge: 0, eventTime: 0 },
             currentWorld: { eventAge: 0, eventTime: 0 },
-            mode: null, activeNodeId: null, ghostSnap: null
+            mode: null, activeNodeId: null, ghostSnap: null,
+            // INSERT-SPAN: Context for interactive span insertion from rail click
+            insertionContext: null
         };
     }
 
@@ -46,6 +53,21 @@ export class PointerMachine {
             }
         } else {
             this.state.startWorld = this.viewport.screenToWorld(screenPos.x, screenPos.y);
+
+            // INSERT-SPAN: If ghost-snap exists at pointer down, initiate span insertion.
+            // The ghost-snap already identified the exact point on the rail.
+            const snap = this.viewport._interaction?.ghostSnap;
+            if (snap && snap.world) {
+                const history = this.viewport.latestState?.nodes || [];
+                const originTime = this.viewport._getOriginTime();
+                const splicePoint = computeSplicePoint(snap.world, history, originTime);
+                this.state.insertionContext = splicePoint;
+                // Override startWorld to the rail-projected point for perfect vertical lock
+                this.state.startWorld = {
+                    eventAge: splicePoint.departureAge,
+                    eventTime: splicePoint.departureTime
+                };
+            }
         }
         
         this.state.currentWorld = { ...this.state.startWorld };
@@ -65,7 +87,7 @@ export class PointerMachine {
                 return;
             }
 
-            // RULE: Ghost Node Preview (Empty Blue Lines Only)
+            // RULE: Ghost Node Preview (Level Rails Only)
             if (!this.viewport.latestManifest?.rails) {
                 this.viewport._interaction.ghostSnap = null;
                 this.viewport.tooltipManager.hide();
@@ -87,7 +109,7 @@ export class PointerMachine {
                 this.viewport.tooltipManager.hide();
             }
             
-            this.viewport._render(); // Trigger authoritative render pass
+            this.viewport._render();
             return;
         }
 
@@ -99,12 +121,105 @@ export class PointerMachine {
         }
 
         if (this.state.isDragging) {
-            if (this.state.activeNodeId === 'now') {
+            // INSERT-SPAN: Interactive span insertion from rail drag
+            if (this.state.insertionContext) {
+                this._handleInsertSpanDrag(screenPos);
+            } else if (this.state.activeNodeId === 'now') {
                 this._handleNowDrag(screenPos);
             } else {
                 this._handlePanning(screenPos);
             }
         }
+    }
+
+    /**
+     * INSERT-SPAN DRAG: Handles live span insertion during vertical drag.
+     * Age is locked to departure. Arrival time is clamped by physics constraints.
+     * Displacement is computed and propagated to viewport for live rendering.
+     */
+    _handleInsertSpanDrag(screenPos) {
+        const rawWorld = this.viewport.screenToWorld(screenPos.x, screenPos.y);
+        const constrainedWorld = constrainInsertionMovement(
+            rawWorld, this.state.insertionContext
+        );
+
+        // KERNEL: Compute displacement for live rendering
+        const history = this.viewport.latestState?.nodes || [];
+        const displacementResult = calculateInsertionDisplacement(
+            this.state.insertionContext.departureAge,
+            this.state.insertionContext.departureTime,
+            constrainedWorld.eventTime,
+            history
+        );
+
+        // DEBUG: Live displacement data flow trace (Phase 1)
+        console.warn('[INSERT-SPAN-DRAG]', JSON.stringify({
+            departureAge: this.state.insertionContext.departureAge,
+            departureTime: this.state.insertionContext.departureTime,
+            arrivalTime: displacementResult.arrivalTime,
+            displacement: displacementResult.displacement,
+            isUpSpan: displacementResult.isUpSpan,
+            isDownSpan: displacementResult.isDownSpan,
+            historyNodeCount: history.length,
+            historyNodeIds: history.slice(0, 5).map(n => ({ id: n.id, x: n.x, y: n.y }))
+        }));
+
+        this.state.mode = 'insert-span';
+        this.state.currentWorld = {
+            eventAge: displacementResult.departureAge,
+            eventTime: displacementResult.arrivalTime
+        };
+
+        // SYNC VIEWPORT: Provide displacement data for live rendering
+        this.viewport._interaction = {
+            isDragging: true,
+            mode: 'insert-span',
+            activeNodeId: null,
+            currentWorld: this.state.currentWorld,
+            startWorld: this.state.startWorld,
+            insertionContext: this.state.insertionContext,
+            displacementResult: displacementResult
+        };
+
+        // HUD: Show displacement info during insertion drag
+        const lore = getLoreContext(this.actor);
+        this.viewport.tooltipManager.show(
+            this._generateInsertionHUD(displacementResult, lore),
+            screenPos
+        );
+
+        this.viewport._render();
+    }
+
+    /**
+     * Generates HUD content for live span insertion drag.
+     */
+    _generateInsertionHUD(result, lore) {
+        const depDT = convertTimestampToDateString(result.departureTime);
+        const arrDT = convertTimestampToDateString(result.arrivalTime);
+        const durationMs = Math.abs(result.arrivalTime - result.departureTime);
+        const direction = result.isUpSpan ? 'UP' : result.isDownSpan ? 'DOWN' : 'ZERO';
+        const directionColor = result.isUpSpan ? '#00ff00' : result.isDownSpan ? '#ff00ff' : '#888888';
+
+        const rows = [
+            { label: 'INSERTING', value: `${direction} SPAN`, color: directionColor },
+            { label: 'AGE', value: formatSubjectiveAge(result.departureAge) },
+            { label: 'DEPART', value: depDT.date },
+            { label: 'ARRIVE', value: arrDT.date },
+            { label: 'SHIFT', value: `${(Math.abs(result.displacement) / 1000).toFixed(1)}s` }
+        ];
+
+        // Physics validation for insertion spans.
+        // The Level Breath check must use the event at the insertion point,
+        // not the chronologically last event in the character's history.
+        // An insertion into a level rail is always valid by definition:
+        // the click point IS on a level segment (ghost-snap only targets level rails).
+        // We still check Span Rank (Rank 0 cannot span).
+        if (lore.spanRank < 1) {
+            rows.push({ label: 'ILLEGAL', value: 'SPAN RANK 0', color: '#ff0000' });
+        }
+
+        return rows;
     }
 
     _handleNowDrag(screenPos) {
@@ -139,6 +254,12 @@ export class PointerMachine {
         this.state.isDragging = false;
         this.viewport.tooltipManager.hide();
 
+        // INSERT-SPAN: Commit or cancel span insertion
+        if (wasDragging && this.state.insertionContext && this.state.mode === 'insert-span') {
+            await this._commitInsertSpan();
+            return;
+        }
+
         if (!wasDragging) {
             if (this.state.ghostSnap) {
                 await this._openDialog('insert', this.state.ghostSnap.world.eventAge, this.state.ghostSnap.world.eventTime);
@@ -147,17 +268,7 @@ export class PointerMachine {
         }
 
         if (this.state.activeNodeId === 'now' && this.state.mode) {
-            if (this.state.mode === 'span') {
-                console.group('SPAN DEBUG | STEP 1 | POINTER MACHINE onUp');
-                console.log('departure (startWorld):', JSON.stringify(this.state.startWorld));
-                console.log('  departure.eventAge:', this.state.startWorld.eventAge, '(subjective age at drag start)');
-                console.log('  departure.eventTime:', this.state.startWorld.eventTime, '(objective ts at drag start)');
-                console.log('arrival (currentWorld):', JSON.stringify(this.state.currentWorld));
-                console.log('  arrival.eventAge:', this.state.currentWorld.eventAge, '(should equal departure age - no aging during span)');
-                console.log('  arrival.eventTime:', this.state.currentWorld.eventTime, '(objective ts at drop point)');
-                console.log('displacement (arrival - departure):', this.state.currentWorld.eventTime - this.state.startWorld.eventTime, 'ms');
-                console.groupEnd();
-            }
+
             this.state.isPending = true;
             this.viewport._interaction.isPending = true;
             await this._openDialog('log', this.state.currentWorld.eventAge, this.state.currentWorld.eventTime, this.state.mode === 'span');
@@ -166,8 +277,71 @@ export class PointerMachine {
         }
     }
 
+    /**
+     * COMMIT INSERT-SPAN: Opens the span dialog pre-populated with drag data.
+     * If displacement is near-zero (< 1 minute), cancels the insertion.
+     */
+    async _commitInsertSpan() {
+        const ctx = this.state.insertionContext;
+        const arrival = this.state.currentWorld;
+        const displacement = Math.abs(arrival.eventTime - ctx.departureTime);
+
+        // DEBUG: Span insert initiated - capture drag coordinates
+        console.warn('[INSERT-SPAN] 1-INITIATED (drag end)', JSON.stringify({
+            departureAge: ctx.departureAge,
+            departureTime: ctx.departureTime,
+            arrivalAge: arrival.eventAge,
+            arrivalTime: arrival.eventTime,
+            displacement,
+            departureMinusArrival: ctx.departureTime - arrival.eventTime,
+            beforeNode: ctx.beforeNode
+                ? { id: ctx.beforeNode.id, age: ctx.beforeNode.age, isSpanOrigin: ctx.beforeNode.isSpanOrigin }
+                : null
+        }));
+
+        // Near-zero displacement: user clicked without meaningful drag. Cancel.
+        if (displacement < 60000) {
+            this._resetInteraction();
+            return;
+        }
+
+        this.state.isPending = true;
+        this.viewport._interaction.isPending = true;
+
+        // Open the span dialog with pre-populated departure/arrival data.
+        // Pass the ARRIVAL time as timeRaw (the dialog uses this as the
+        // default arrival time for spans), and the DEPARTURE time as
+        // a separate parameter so the dialog can set both dates correctly.
+        await this._openDialog(
+            'insert',
+            ctx.departureAge,
+            arrival.eventTime,
+            true  // eventIsSpan
+        );
+    }
+
     async onRightClick(event, screenPos) {
         if (this.state.isPending) return;
+
+        // EXPERIENCE LABEL: Right-click on an experience label opens
+        // the experience edit dialog with name, description, and event list.
+        const expTarget = event.target.closest('.graph-exp-label');
+        if (expTarget) {
+            const expId = expTarget.getAttribute('data-id');
+            const eraId = expTarget.getAttribute('data-era-id');
+            const exp = this.actor.system.eras[eraId]?.experiences[expId];
+            if (exp) {
+                this.state.isPending = true;
+                this.viewport._interaction.isPending = true;
+                openExperienceEditDialog(
+                    { id: expId, eraId, ...exp },
+                    this.actor.sheet,
+                    this.viewport.viewState,
+                    () => this._resetInteraction()
+                );
+            }
+            return;
+        }
 
         const targetNodeId = event.target.dataset.eventId;
         if (!targetNodeId || targetNodeId === 'now') return;
@@ -185,10 +359,55 @@ export class PointerMachine {
         const { openEventNodeDialog } = await import('../../span-graph-ui-dialogs.js');
         const dt = convertTimestampToDateString(time);
         
+        // HIERARCHY GATE: When spanning is physically impossible (Level Breath
+        // or Rank 0), pass a veto flag so the dialog can disable the span
+        // checkbox and prevent the user from attempting an illegal action.
+        //
+        // INSERT-SPAN BREATH CHECK: For insert-span, the relevant predecessor
+        // is the event immediately before the insertion point, NOT the globally
+        // last event. Ghost-snap only targets level rails, so beforeNode is
+        // always a level event or birth. But lore.lastEvent could be a span
+        // later in the history, which would falsely block the insertion.
+        const lore = getLoreContext(this.actor);
+        const isInsertMode = mode === 'insert' && this.state.insertionContext;
+        const predecessor = isInsertMode ? this.state.insertionContext.beforeNode : lore.lastEvent;
+        // INSERT-SPAN: Level Breath is impossible in insert mode. Ghost-snap
+        // only targets level rails, so the insertion point is always on a
+        // level segment - even if the beforeNode in sort order is a span
+        // origin. The beforeNode is the span's DEPARTURE, but the click is
+        // on the level rail AFTER the span's arrival.
+        const isBreathBlocked = isInsertMode ? false : Boolean(predecessor?.isSpanOrigin || predecessor?.record?.eventIsSpan);
+        const isRankBlocked = (lore.spanRank || 0) < 1;
+
+        // INSERT-SPAN: Pass departure/arrival context for pre-population
+        const departure = this.state.startWorld;
+        const arrival = this.state.mode === 'insert-span' ? this.state.currentWorld : null;
+
+        // DEBUG: Span insert dialog opening
+        if (mode === 'insert') {
+            console.warn('[INSERT-SPAN] 2-DIALOG OPENING', JSON.stringify({
+                mode,
+                ageRaw: age,
+                timeRaw: time,
+                eventIsSpan,
+                spanDisabled: isBreathBlocked || isRankBlocked,
+                isBreathBlocked,
+                predecessorIsSpan: predecessor?.isSpanOrigin || predecessor?.record?.eventIsSpan,
+                predecessorId: predecessor?.id,
+                departure: departure ? { eventAge: departure.eventAge, eventTime: departure.eventTime } : null,
+                arrival: arrival ? { eventAge: arrival.eventAge, eventTime: arrival.eventTime } : null,
+                departureMinusArrival: departure && arrival ? departure.eventTime - arrival.eventTime : null
+            }));
+        }
+
         await openEventNodeDialog(this.actor.sheet, {
             mode, ageRaw: age, timeRaw: time, date: dt.date, time: dt.time, eventIsSpan,
-            departure: this.state.startWorld,
+            departure,
+            arrival,
+            insertionContext: this.state.insertionContext,
             existingData,
+            // PHYSICS VETO: Span checkbox is disabled when spanning is blocked.
+            spanDisabled: isBreathBlocked || isRankBlocked,
             onClose: (confirmed) => {
                 this._resetInteraction();
                 this.viewport._render();
@@ -200,7 +419,8 @@ export class PointerMachine {
         this.state = this._getInitialState();
         this.viewport._interaction = {
             isDragging: false, isPending: false, mode: null, 
-            activeNodeId: null, currentWorld: null, startWorld: null
+            activeNodeId: null, currentWorld: null, startWorld: null,
+            insertionContext: null, displacementResult: null
         };
     }
 
@@ -215,10 +435,25 @@ export class PointerMachine {
         if (mode === 'span') {
             const validation = validateSpanPhysics({ y: this.state.startWorld.eventTime, arrivalY: world.eventTime, record: { eventIsSpan: true } }, lore);
             if (!validation.isValid) {
-                rows[0] = { label: 'ILLEGAL', value: 'LEVEL BREATH', color: '#ff0000' };
-                rows.push({ label: 'ERROR', value: 'SPAN AFTER SPAN', color: '#ff0000' });
+                rows[0] = { label: 'ILLEGAL', value: validation.error, color: '#ff0000' };
+            } else if (validation.warning) {
+                rows.push({ label: 'WARNING', value: validation.warning, color: '#ffd700' });
             }
         }
+
+        // PHYSICS VETO HUD: When spanning is blocked, explain WHY the drag
+        // is forced to level mode. This prevents user confusion when they
+        // try to span but the system forces leveling.
+        if (mode === 'level') {
+            const isBreathBlocked = Boolean(lore.lastEvent?.record?.eventIsSpan);
+            const isRankBlocked = (lore.spanRank || 0) < 1;
+            if (isBreathBlocked) {
+                rows.push({ label: 'BLOCKED', value: 'LEVEL BREATH - Span follows span', color: '#ff4444' });
+            } else if (isRankBlocked) {
+                rows.push({ label: 'BLOCKED', value: 'SPAN RANK 0 - Cannot span', color: '#ff4444' });
+            }
+        }
+
         return rows;
     }
 

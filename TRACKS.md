@@ -63,7 +63,7 @@ System for tracking and rendering scheduled-but-unlived events beyond the NOW no
 
 ---
 
-### [ ] Spanning Core Physics
+### [~] Spanning Core Physics
 **ID:** `spanning_core_physics_20260428` | **Type:** feature
 
 Definitive span implementation. NOW node must persist at arrival point without snapback. Enforce standard property names (`eventAge`, `ts`, `arrivalTs`), world offset calculation, and new diagonal rail establishment after span arrival.
@@ -75,15 +75,16 @@ Definitive span implementation. NOW node must persist at arrival point without s
 - Vertical lock during span drag (constant subjective age)
 - Live preview with dotted pink span line
 - Atomic sync of objectiveNow and subjectiveNow on save
+- Interactive span insertion: click rail -> drag vertically -> live displacement propagation
 
 **Plan:**
-- Phase 1: Engine Purity - Audit property names, refactor establishHistoryPhysics for span authority
-- Phase 2: Interaction Logic - Standardize PointerMachine span calculation through TTL
+- Phase 1: Engine Purity - Audit property names, refactor establishHistoryPhysics for span authority [DONE]
+- Phase 2: Interaction Logic - Standardize PointerMachine span calculation through TTL [DONE - insert-span mode with ghost-snap initiation, vertical drag, live displacement preview]
 - Phase 3: Validation - Post-save handshake ensuring DB integers match visual coordinates
 
 ---
 
-### [ ] Historical Span Insertion
+### [~] Historical Span Insertion
 **ID:** `historical_span_insertion_20260428` | **Type:** feature
 
 Insert spans into the character's past and propagate downstream time shifts. Every event after the insertion point gets its objective time shifted by the span's displacement magnitude.
@@ -95,10 +96,12 @@ Insert spans into the character's past and propagate downstream time shifts. Eve
 - Ghost snapping along existing rail for departure age selection
 - Vertical drag defines span magnitude
 - Live preview of downstream shift during drag
+- Floor constraint for up-spans: arrival cannot exceed next event's time
+- Birth boundary for down-spans: arrival cannot precede origin time
 
 **Plan:**
-- Phase 1: Kernel Hardening - Propagation logic, compensation wave for downstream ts updates, insert-history-row for historical context
-- Phase 2: Interaction Machine - Two-step historical span drag (choose age, choose magnitude), live propagation preview in manifest
+- Phase 1: Kernel Hardening - Propagation logic, compensation wave for downstream ts updates, insert-history-row for historical context [DONE]
+- Phase 2: Interaction Machine - Two-step historical span drag (choose age via ghost-snap, choose magnitude via vertical drag), live propagation preview in manifest [DONE]
 - Phase 3: UI - Refactor Insert Span dialog showing before/after objective times
 
 ---

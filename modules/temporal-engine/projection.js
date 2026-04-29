@@ -59,3 +59,17 @@ export function screenToWorld(x, y, viewState) {
     time: Number.isFinite(time) ? time : 0
   };
 }
+
+/**
+ * Determines the appropriate grid step (in seconds) for the Age axis,
+ * based on the current zoom level. Finer zoom = smaller steps.
+ *
+ * @param {number} zoom - The current zoom factor from the view state.
+ * @returns {number} Age grid step in seconds (3600, 86400, 2592000, or 31536000).
+ */
+export function calculateGridStep(zoom) {
+    if (zoom > 0.001) return 3600;
+    if (zoom > 0.0001) return 86400;
+    if (zoom > 0.00001) return 2592000;
+    return 31536000;
+}

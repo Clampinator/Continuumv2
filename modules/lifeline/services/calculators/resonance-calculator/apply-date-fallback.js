@@ -1,3 +1,5 @@
+import { MS_PER_SECOND } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+
 /*
 Heuristic fallback for experiences that have dates but no child events.
 */
@@ -23,12 +25,12 @@ export function applyDateFallback(expMap, actor, nodes) {
                 if (eraNodes.length > 0) {
                     // Use the first available node in the era as a temporal anchor (1s subjective = 1000ms objective)
                     const refNode = eraNodes[0];
-                    subjectiveAgeAtExpEnd = refNode.age + ((expEndTs - refNode.time) / 1000);
+                    subjectiveAgeAtExpEnd = refNode.age + ((expEndTs - refNode.time) / MS_PER_SECOND);
                 } else {
                     // Fallback to era start date if no nodes exist yet
                     const eraStartTs = new Date((eraData.dateFrom || "") + "T12:00:00").getTime();
                     if (!isNaN(eraStartTs)) {
-                        subjectiveAgeAtExpEnd = (expEndTs - eraStartTs) / 1000;
+                        subjectiveAgeAtExpEnd = (expEndTs - eraStartTs) / MS_PER_SECOND;
                     }
                 }
             }

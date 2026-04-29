@@ -28,7 +28,8 @@ export function assembleEventData(formData, params) {
         age: authoritativeAge,
         sort: authoritativeSort,
         createdAt: existingData?.createdAt || Date.now(),
-        startsExpId: existingData?.startsExpId || null
+        startsExpId: existingData?.startsExpId || null,
+        endsExpId: existingData?.endsExpId || null
     };
 
     if (eventIsSpan) {

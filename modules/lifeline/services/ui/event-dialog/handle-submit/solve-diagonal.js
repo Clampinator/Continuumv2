@@ -1,5 +1,6 @@
 import { normalizeDateInput, parseAgeString, parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
 import { calculateRailOffset } from './calculate-rail-offset.js';
+import { projectObjectiveTime, projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * Solves the Bidirectional Diagonal for Leveling or Spanning events.
@@ -32,11 +33,11 @@ export function solveDiagonal(actor, formData, params) {
         if (ageChanged && !timeChanged) {
             // Age was edited: Solve for Time
             finalAge = inputAge;
-            finalTime = currentRailOffset + (finalAge * 1000);
+            finalTime = projectObjectiveTime(finalAge, currentRailOffset);
         } else if (timeChanged) {
             // Date/Time was edited: Solve for Age
             finalTime = inputTs;
-            finalAge = (finalTime - currentRailOffset) / 1000;
+            finalAge = projectSubjectiveAge(finalTime, currentRailOffset);
         }
     } else if (mode === 'log') {
         // AUTHORITY: In Log Mode, the dragged coordinates ARE the truth.

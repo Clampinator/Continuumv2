@@ -1,6 +1,7 @@
 import { normalizeDateInput, parseAgeString, parseDate, formatSubjectiveAge } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
 import { createManualSpan } from '/systems/continuum-v2/modules/lifeline/services/spans/create-manual-span.js';
 import { createInsertedSpan } from '/systems/continuum-v2/modules/lifeline/services/spans/create-inserted-span.js';
+import { computeOffsetFromArrival, projectObjectiveTime, projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
  * Solves the user's intent from the form data to derive high-precision coordinates.
@@ -30,14 +31,14 @@ export function solveIntent(actor, formData, params) {
         ageChanged = (formData.eventAge || "").trim() !== expectedAgeStr;
         timeChanged = Math.abs(inputTs - baseTime) > 1000;
 
-        const currentRailOffset = baseTime - (baseAge * 1000);
+        const currentRailOffset = computeOffsetFromArrival(baseTime, baseAge);
 
         if (ageChanged && !timeChanged) {
             finalAge = inputAge;
-            finalTime = currentRailOffset + (finalAge * 1000);
+            finalTime = projectObjectiveTime(finalAge, currentRailOffset);
         } else if (timeChanged) {
             finalTime = inputTs;
-            finalAge = (finalTime - currentRailOffset) / 1000;
+            finalAge = projectSubjectiveAge(finalTime, currentRailOffset);
         } else if (mode === 'insert') {
             finalAge = Number(params.ageRaw);
             finalTime = Number(params.timeRaw);

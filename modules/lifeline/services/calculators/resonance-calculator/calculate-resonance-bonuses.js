@@ -3,6 +3,7 @@ import { assembleLifelineCoordinates } from './assemble-lifeline-coordinates.js'
 import { aggregateActiveExperiences } from './aggregate-active-experiences.js';
 import { applyDateFallback } from './apply-date-fallback.js';
 import { mapYearsToBonus } from './map-years-to-bonus.js';
+import { SECONDS_IN_YEAR_STRICT } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 /**
  * Calculates current resonance bonuses for all experiences on an actor.
@@ -25,7 +26,6 @@ export function calculateResonanceBonuses(actor) {
     // 3. Apply fallback for event-less experiences
     applyDateFallback(expMap, actor, nodes);
 
-    const SECONDS_PER_YEAR = 31536000;
     const results = [];
 
     // 4. Transform metadata into final bonuses
@@ -34,7 +34,7 @@ export function calculateResonanceBonuses(actor) {
     expMap.forEach((data) => {
         const age = data.age !== undefined ? data.age : data.eventAge;
         const diffSeconds = data.isOngoing ? 0 : (nowAge - age);
-        const diffYears = diffSeconds / SECONDS_PER_YEAR;
+        const diffYears = diffSeconds / SECONDS_IN_YEAR_STRICT;
         
         const bonus = mapYearsToBonus(diffYears);
         

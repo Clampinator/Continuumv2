@@ -1,4 +1,4 @@
-import { getDragMode, constrainMovement } from '../../actions/drag-physics.js';
+import { getDragMode, constrainMovement } from '/systems/continuum-v2/modules/temporal-kernel/drag-physics.js';
 import { convertTimestampToDateString, formatSubjectiveAge, formatDuration } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
 import { calculateSpanPool } from '/systems/continuum-v2/modules/lifeline/services/calculators/calculate-span-pool.js';
 import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/services/context-finder/find-last-known-location.js';

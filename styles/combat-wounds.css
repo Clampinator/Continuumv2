@@ -1,4 +1,4 @@
-/*==========================*/
+﻿/*==========================*/
 /* WOUNDS SECTION           */
 /*==========================*/
 .wounds-stuff-container {
@@ -59,7 +59,7 @@
 
 /* --- NORMALIZED WOUND SPINNER --- */
 /* High specificity used here to ensure 35px override against normalization classes */
-.continuum .wounds-row .attribute-spinner-viewport.wound-spinner {
+.continuum-v2 .wounds-row .attribute-spinner-viewport.wound-spinner {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -77,7 +77,7 @@
 }
 
 /* Adjust image strip scaling for the small box */
-.continuum .wounds-row .wound-spinner .attribute-spinner-image {
+.continuum-v2 .wounds-row .wound-spinner .attribute-spinner-image {
     width: 100% !important;
     height: 1100% !important;
 }

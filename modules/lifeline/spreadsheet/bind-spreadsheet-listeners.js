@@ -72,6 +72,21 @@ export function bindSpreadsheetListeners(app, html) {
         }
     });
 
+    // ENTER on location inputs triggers adjacent map-pin button
+    html.on('keydown', '.lss-n-location, .lss-field-location', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const input = $(event.currentTarget);
+            // New row: pin btn is a sibling after the input
+            const rowPin = input.siblings('.lss-map-pin-btn');
+            // Existing row: pin btn is inside the same <td> wrapper
+            const cellPin = input.closest('td').find('.lss-map-pin-btn');
+            const btn = rowPin.length ? rowPin : cellPin;
+            if (btn.length) btn.click();
+        }
+    });
+
     // 3. Selection Handlers
     html.on('change', '.lss-select-all', (event) => {
         const checked = event.currentTarget.checked;
