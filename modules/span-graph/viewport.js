@@ -44,7 +44,8 @@ export class SpanGraphViewport {
         mode: null,
         currentWorld: null,
         startWorld: null,
-        nodeElement: null
+        nodeElement: null,
+        previewHistory: null
     };
 
     this.viewState = {
@@ -122,22 +123,18 @@ export class SpanGraphViewport {
 
       const interaction = this._interaction;
       const isDraggingNow = interaction.isDragging || interaction.isPending;
-
-      // DEBUG: Viewport render trace for insert-span
-      const isInsertSpanRender = interaction.mode === 'insert-span' && interaction.isDragging;
-      if (isInsertSpanRender) {
-          console.warn('[VIEWPORT-RENDER] insert-span render', JSON.stringify({
-              isDragging: interaction.isDragging,
-              mode: interaction.mode,
-              hasCtx: !!interaction.insertionContext,
-              hasResult: !!interaction.displacementResult,
-              displacement: interaction.displacementResult?.displacement,
-              departureAge: interaction.insertionContext?.departureAge
-          }));
-      }
       
       // 1. STATE (Database Pass)
-      this.latestHistory = getActorHistory(this.actor);
+      // PREVIEW STATE: When inserting a span, use the preview history
+      // (which contains the virtual span entry) instead of the raw DB history.
+      // This runs the full temporal engine pipeline on the virtual state,
+      // producing correct upstream node shifts without a separate overlay.
+      const isInsertSpan = interaction.mode === 'insert-span' && interaction.isDragging;
+      if (isInsertSpan && interaction.previewHistory) {
+          this.latestHistory = interaction.previewHistory;
+      } else {
+          this.latestHistory = getActorHistory(this.actor);
+      }
 
       // HANDSHAKE: Inject Live Drag facts into the virtual history array
       // AUTHORITY: We update the 'objectiveNow' Fact, allowing the Kernel to derive physics.
