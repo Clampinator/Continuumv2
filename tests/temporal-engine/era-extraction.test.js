@@ -9,8 +9,8 @@ describe('getTemporalState: Era Extraction', () => {
         const actor = {
             system: {
                 eras: {
-                    'era1': { name: 'Childhood', duration: 10, sort: 1, color: '#ff0000' },
-                    'era2': { name: 'Adulthood', duration: 20, sort: 2, color: '#00ff00' }
+                    'era1': { name: 'Childhood', age: 0, sort: 1, color: '#ff0000' },
+                    'era2': { name: 'Adulthood', age: 315360000, sort: 2, color: '#00ff00' }
                 }
             }
         };
@@ -20,19 +20,23 @@ describe('getTemporalState: Era Extraction', () => {
         expect(state.eras).toBeDefined();
         expect(state.eras).toHaveLength(2);
         
-        // Era 1: Start 0, Duration 10
+        // Era 1: Start 0, bounded by era2 start
         expect(state.eras[0]).toEqual({
+            id: 'era1',
             name: 'Childhood',
             startAge: 0,
-            duration: 10,
+            endAge: 315360000,
+            duration: 315360000,
             color: '#ff0000'
         });
 
-        // Era 2: Start 10, Duration 20
+        // Era 2: Last era, endAge = Infinity
         expect(state.eras[1]).toEqual({
+            id: 'era2',
             name: 'Adulthood',
-            startAge: 10,
-            duration: 20,
+            startAge: 315360000,
+            endAge: Infinity,
+            duration: 0,
             color: '#00ff00'
         });
     });

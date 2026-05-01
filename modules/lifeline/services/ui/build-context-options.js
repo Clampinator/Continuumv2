@@ -1,67 +1,83 @@
 /*
 build-context-options.js
-Generates the HTML for the Context action list used in the Event Node editor.
-Includes Primary Location (Parentage) and Lifecycle Controls (End Open/Re-open Closed).
+Generates the HTML for the Context section of the Event Node editor.
+Since events belong to exactly one Era (or none), we only show:
+- A read-only era name label
+- Experiences within that era (radio selection)
+- Lifecycle controls scoped to that era
 */
-export function buildContextOptions(actor, currentEraId = null, currentExpId = null) {
+
+import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
+
+export function buildContextOptions(actor, currentEraId = null, currentExpId = null, targetAge = 0) {
     const allEras = actor.system.eras || {};
-    const openExps = [];
-    const closedExps = [];
 
-    // 1. Audit current experience status
-    Object.entries(allEras).forEach(([aId, era]) => {
-        Object.entries(era.experiences || {}).forEach(([eId, exp]) => {
-            if (!exp.name) return;
-            const data = { id: eId, eraId: aId, name: exp.name };
-            if (!exp.dateTo || exp.dateTo.trim() === "") openExps.push(data);
-            else closedExps.push(data);
-        });
-    });
+    // Re-resolve stale era IDs ('default' from before eras existed)
+    let eraId = currentEraId;
+    if (!eraId || eraId === 'default' || !allEras[eraId]) {
+        if (targetAge !== undefined && targetAge !== null) {
+            const boundaries = computeEraBoundaries(allEras);
+            if (boundaries.length > 0) {
+                for (const era of boundaries) {
+                    if (targetAge <= era.endAge) {
+                        eraId = era.id;
+                        break;
+                    }
+                }
+                if (!eraId || !allEras[eraId]) {
+                    eraId = boundaries[boundaries.length - 1].id;
+                }
+            }
+        }
+    }
 
-    let html = '';
+    // If the event has no era, show minimal context
+    if (!eraId || !allEras[eraId]) {
+        return { eraName: 'No Era', eraId: null, experienceOptions: '', lifecycleHtml: '', defaultNewExpName: 'New Experience' };
+    }
 
-    // SECTION A: PRIMARY LOCATION (Radios)
-    html += `<div class="context-item optgroup-header">Primary Location</div>`;
+    const era = allEras[eraId];
+    const eraName = era.name || era.label || eraId;
 
-    const sortedEras = Object.entries(allEras)
-        .map(([id, era]) => ({ ...era, id }))
+    // EXPERIENCE RADIOS: Only experiences within this era
+    const eraExps = Object.entries(era.experiences || {})
+        .map(([id, exp]) => ({ ...exp, id }))
         .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 
-    sortedEras.forEach(era => {
-        const isCurrentlyAtEraLevel = currentEraId === era.id && (!currentExpId || currentExpId === "null");
-        const eraOnlyValue = `move:${era.id}:null`;
-        const eraOnlyId = `ctx-${era.id}-null`;
+    let experienceOptions = '';
+    const isCurrentlyAtEraLevel = !currentExpId || currentExpId === "null";
+    const eraOnlyValue = `move:${eraId}:null`;
+    const eraOnlyId = `ctx-${eraId}-null`;
 
-        html += `<div class="context-item">
-            <input type="radio" name="experienceAction" value="${eraOnlyValue}" id="${eraOnlyId}" ${isCurrentlyAtEraLevel ? 'checked' : ''}>
-            <label for="${eraOnlyId}">Era: ${era.name || 'Untitled'}</label>
+    experienceOptions += `<div class="context-item">
+        <input type="radio" name="experienceAction" value="${eraOnlyValue}" id="${eraOnlyId}" ${isCurrentlyAtEraLevel ? 'checked' : ''}>
+        <label for="${eraOnlyId}">Era Level (no experience)</label>
+    </div>`;
+
+    eraExps.forEach(exp => {
+        const isCurrent = currentExpId === exp.id;
+        const mValue = `move:${eraId}:${exp.id}`;
+        const mId = `ctx-m-${exp.id}`;
+        const status = (!exp.dateTo || exp.dateTo.trim() === "") ? "" : " [Closed]";
+        experienceOptions += `<div class="context-item sub-item">
+            <input type="radio" name="experienceAction" value="${mValue}" id="${mId}" ${isCurrent ? 'checked' : ''}>
+            <label for="${mId}">Exp: ${exp.name}${status}</label>
         </div>`;
-
-        const eraExps = Object.entries(era.experiences || {})
-            .map(([id, exp]) => ({ ...exp, id }))
-            .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
-
-        eraExps.forEach(exp => {
-            const isCurrent = currentEraId === era.id && currentExpId === exp.id;
-            const mValue = `move:${era.id}:${exp.id}`;
-            const mId = `ctx-m-${exp.id}`;
-            const status = (!exp.dateTo || exp.dateTo.trim() === "") ? "" : " [Closed]";
-            html += `<div class="context-item sub-item">
-                <input type="radio" name="experienceAction" value="${mValue}" id="${mId}" ${isCurrent ? 'checked' : ''}>
-                <label for="${mId}">Exp: ${exp.name}${status}</label>
-            </div>`;
-        });
     });
 
-    // SECTION B: END OPEN LOOPS (Checkboxes)
+    // LIFECYCLE CONTROLS: Close/reopen experiences, start new
+    let lifecycleHtml = '';
+
+    const openExps = eraExps.filter(exp => !exp.dateTo || exp.dateTo.trim() === "");
+    const closedExps = eraExps.filter(exp => exp.dateTo && exp.dateTo.trim() !== "");
+
     if (openExps.length > 0) {
-        html += `<div class="context-item optgroup-header">End Open Experiences</div>`;
+        lifecycleHtml += `<div class="context-item optgroup-header">End Open Experiences</div>`;
         openExps.forEach(e => {
-            const val = `${e.eraId}:${e.id}`;
+            const val = `${eraId}:${e.id}`;
             const id = `ce-${e.id}`;
             const isCurrent = currentExpId === e.id;
-
-            html += `<div class="context-item">
+            lifecycleHtml += `<div class="context-item">
                 <input type="checkbox" name="closeExperiences" value="${val}" id="${id}" ${isCurrent ? 'data-is-current="true"' : ''}>
                 <label for="${id}" ${isCurrent ? 'style="color: #4da6ff; font-weight: bold;"' : ''}>
                     Close "${e.name}" at this Date ${isCurrent ? '<i class="fas fa-map-pin" eventTitle="Node currently resides here"></i>' : ''}
@@ -70,25 +86,25 @@ export function buildContextOptions(actor, currentEraId = null, currentExpId = n
         });
     }
 
-    // SECTION C: RE-OPEN CLOSED LOOPS (Checkboxes)
     if (closedExps.length > 0) {
-        html += `<div class="context-item optgroup-header">Re-open Closed Experiences</div>`;
+        lifecycleHtml += `<div class="context-item optgroup-header">Re-open Closed Experiences</div>`;
         closedExps.forEach(e => {
-            const val = `${e.eraId}:${e.id}`;
+            const val = `${eraId}:${e.id}`;
             const id = `re-${e.id}`;
-            html += `<div class="context-item">
+            lifecycleHtml += `<div class="context-item">
                 <input type="checkbox" name="reopenExperiences" value="${val}" id="${id}">
                 <label for="${id}">Re-open "${e.name}"</label>
             </div>`;
         });
     }
 
-    // SECTION D: ACTION ITEMS
-    html += `<div class="context-item optgroup-header">Action Items</div>`;
-    html += `<div class="context-item">
+    lifecycleHtml += `<div class="context-item optgroup-header">Action Items</div>`;
+    lifecycleHtml += `<div class="context-item">
         <input type="checkbox" name="startNewExp" value="true" id="ctx-new">
         <label for="ctx-new" style="color: #28a745; font-weight: bold;">+ Start a New Experience here</label>
     </div>`;
 
-    return html;
+    const defaultNewExpName = `In ${eraName}`;
+
+    return { eraName, eraId, experienceOptions, lifecycleHtml, defaultNewExpName };
 }

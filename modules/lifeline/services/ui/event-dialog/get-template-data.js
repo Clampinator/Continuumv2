@@ -2,6 +2,7 @@ import { Translator } from '../../../../temporal-translator/temporal-translator.
 import { buildContextOptions } from '../build-context-options.js';
 import { getActorHistory } from '../../../../state/get-actor-history.js';
 import { getLoreContext } from '../../../../state/get-lore-context.js';
+import { resolveEventEra } from '../../../../temporal-kernel/resolve-event-era.js';
 
 /**
  * TEMPLATE DATA PROVIDER
@@ -35,9 +36,17 @@ export function getTemplateData(actor, params) {
     const effectiveEventIsSpan = spanDisabled ? false : eventIsSpan;
 
     // 2. Resolve Narrative Context
-    const eraId = existingData?.eraId || params.eraId;
+    // Events belong to exactly one Era (or none). We resolve the era
+    // from the event's position and show its name as read-only.
+    // For new events (log/insert), resolve era from the event's age position.
+    let eraId = existingData?.eraId || params.eraId;
+    if (!eraId || eraId === 'default') {
+        const ageForEra = (existingData?.x !== undefined) ? existingData.x : (params.ageRaw !== undefined ? params.ageRaw : 0);
+        eraId = resolveEventEra(actor.system.eras, ageForEra);
+    }
     const expId = existingData?.expId || params.expId;
-    const contextOptions = buildContextOptions(actor, eraId, expId);
+    const ageForContext = (existingData?.x !== undefined) ? existingData.x : (params.ageRaw !== undefined ? params.ageRaw : 0);
+    const contextResult = buildContextOptions(actor, eraId, expId, ageForContext);
 
     // 3. Prepare Raw Facts for Translation
     // We normalize different input types into a single "Bag of Facts"
@@ -114,7 +123,12 @@ export function getTemplateData(actor, params) {
         eventSpanToLat: record.eventSpanToLat, eventSpanToLng: record.eventSpanToLng, eventSpanToZoom: record.eventSpanToZoom,
 
         // UI Helpers
-        contextOptions,
+        eraName: contextResult.eraName,
+        experienceOptions: contextResult.experienceOptions,
+        lifecycleHtml: contextResult.lifecycleHtml,
+        defaultNewExpName: contextResult.defaultNewExpName,
+        eraId: contextResult.eraId || eraId,
+        expId,
         isEdit: mode === 'edit',
         isLogMode: mode === 'log',
         isInsert: mode === 'insert',

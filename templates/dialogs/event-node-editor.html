@@ -133,13 +133,33 @@
 
     <div class="form-row">
         <div class="form-col">
-            <label>Context (Historical Perspective)</label>
-            <p class="multi-hint">Choose where this event sits in your timeline.</p>
+            <label>Era</label>
+            <span class="era-name-display" style="font-size: 0.95em; color: #4da6ff; font-weight: bold;">{{eraName}}</span>
+            <input type="hidden" name="eraId" value="{{eraId}}" />
+        </div>
+    </div>
+
+    {{#if experienceOptions}}
+    <div class="form-row">
+        <div class="form-col">
+            <label>Experience</label>
+            <p class="multi-hint">Which experience within this era?</p>
             <div class="context-list-scroll">
-                {{{contextOptions}}}
+                {{{experienceOptions}}}
             </div>
         </div>
     </div>
+    {{/if}}
+
+    {{#if lifecycleHtml}}
+    <div class="form-row">
+        <div class="form-col">
+            <div class="context-list-scroll">
+                {{{lifecycleHtml}}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
 
     <div class="form-row" id="newExpGroup" style="display:none;">
         <div class="form-col">

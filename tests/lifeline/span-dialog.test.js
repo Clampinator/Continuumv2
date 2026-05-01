@@ -49,7 +49,7 @@ describe('openSpanDialog Service', () => {
     
     expect(foundry.applications.handlebars.renderTemplate).toHaveBeenCalledWith(
         "systems/continuum-v2/templates/dialogs/span-result-dialog.html",
-        expect.objectContaining({ isSpan: true })
+        expect.objectContaining({ eventIsSpan: true })
     );
   });
 });

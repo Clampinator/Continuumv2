@@ -2,6 +2,7 @@ import { normalizeDateInput, convertTimestampToDateString, formatSubjectiveAge, 
 import { renderDatePickerInput } from './span-graph-ui-helpers.js';
 import { activateDatePickers } from './date-picker.js';
 import { buildContextOptions } from './lifeline/services/ui/build-context-options.js';
+import { resolveEventEra } from '../temporal-kernel/resolve-event-era.js';
 import { Sound } from './sound-manager.js';
 import { getMaxSortValue } from './sheet-item-handlers.js';
 
@@ -12,7 +13,30 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
         ? `system.eras.${data.eraId}.events.${data.id}`
         : `system.eras.${data.eraId}.experiences.${data.expId}.events.${data.id}`;
 
-    const optionsHtml = buildContextOptions(actor, data.eraId, isEraLevel ? null : data.expId);
+    // Resolve era from age if not provided
+    let eraId = data.eraId;
+    if (!eraId || eraId === 'default') {
+        eraId = resolveEventEra(actor.system.eras, data.eventAge || 0);
+    }
+    const ageForContext = data.eventAge || 0;
+    const context = buildContextOptions(actor, eraId, isEraLevel ? null : data.expId, ageForContext);
+
+    const eraNameHtml = `<span style="font-size: 0.95em; color: #4da6ff; font-weight: bold;">${context.eraName}</span>
+        <input type="hidden" name="eraId" value="${context.eraId || eraId}" />`;
+    const experienceSection = context.experienceOptions
+        ? `<div class="form-row"><div class="form-col">
+            <label>Experience</label>
+            <p class="multi-hint" style="font-size:0.75em;color:#8ecae6;font-style:italic;">Which experience within this era?</p>
+            <div class="context-list-scroll" style="max-height:220px;overflow-y:auto;background:#111;border:1px solid #444;padding:5px;border-radius:4px;">
+                ${context.experienceOptions}
+            </div></div></div>`
+        : '';
+    const lifecycleSection = context.lifecycleHtml
+        ? `<div class="form-row"><div class="form-col">
+            <div class="context-list-scroll" style="max-height:220px;overflow-y:auto;background:#111;border:1px solid #444;padding:5px;border-radius:4px;">
+                ${context.lifecycleHtml}
+            </div></div></div>`
+        : '';
 
     const content = `
         <form class="continuum-dialog-form" autocomplete="off">
@@ -22,6 +46,10 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
                 .form-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
                 .form-col label { font-size: 0.8em; font-weight: bold; color: #ccc; }
                 .context-select { min-height: 32px; width: 100%; }
+                .context-item { display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 3px; transition: background 0.15s; }
+                .context-item:hover { background: rgba(255, 255, 255, 0.05); }
+                .context-item input[type="radio"], .context-item input[type="checkbox"] { margin: 0; width: 16px; height: 16px; flex-shrink: 0; }
+                .context-item label { cursor: pointer; flex: 1; font-size: 0.9em; color: #eee; margin: 0; user-select: none; }
             </style>
 
             <div class="form-row">
@@ -44,12 +72,13 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
 
             <div class="form-row">
                 <div class="form-col">
-                    <label>Context (Historical Experience)</label>
-                    <select name="experienceAction" class="context-select" size="8">
-                        ${optionsHtml}
-                    </select>
+                    <label>Era</label>
+                    ${eraNameHtml}
                 </div>
             </div>
+
+            ${experienceSection}
+            ${lifecycleSection}
 
             <div class="form-row">
                 <div class="form-col">

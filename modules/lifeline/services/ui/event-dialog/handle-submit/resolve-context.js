@@ -1,9 +1,15 @@
+import { resolveEventEra } from '../../../../../temporal-kernel/resolve-event-era.js';
+
 export function resolveContext(actor, formData, params) {
     const { existingData, eraId, expId } = params;
     const contextAction = formData.experienceAction;
 
-    // AUTHORITY: Prioritize explicit context from params (hover data) over existing data
-    let targetEraId = eraId || existingData?.eraId || Object.keys(actor.system.eras || {})[0];
+    // Prioritize explicit era from params, then resolve from age
+    let targetEraId = eraId || existingData?.eraId;
+    if (!targetEraId || targetEraId === 'default') {
+        const age = existingData?.eventAge || existingData?.x || params.ageRaw || 0;
+        targetEraId = resolveEventEra(actor.system.eras, age);
+    }
     let targetExpId = expId || existingData?.expId || null;
 
     if (contextAction) {

@@ -1,6 +1,7 @@
 import { Translator } from '../../../../temporal-translator/temporal-translator.js';
 import { buildContextOptions } from './build-context-options.js';
 import { getActorHistory } from '../../../../state/get-actor-history.js';
+import { resolveEventEra } from '../../../../temporal-kernel/resolve-event-era.js';
 
 /**
  * SPAN TEMPLATE DATA PROVIDER
@@ -39,8 +40,15 @@ export function getTemplateData(actor, params) {
     }
 
     // 5. Narrative Context
-    const eraId = existingData?.eraId || params.eraId;
+    // Events belong to exactly one Era (or none). Resolve era from age if not given.
+    let eraId = existingData?.eraId || params.eraId;
+    if (!eraId || eraId === 'default') {
+        const ageForEra = (existingData?.x !== undefined) ? existingData.x : (params.ageRaw !== undefined ? params.ageRaw : 0);
+        eraId = resolveEventEra(actor.system.eras, ageForEra);
+    }
     const expId = existingData?.expId || params.expId;
+    const ageForContext = (existingData?.x !== undefined) ? existingData.x : (params.ageRaw !== undefined ? params.ageRaw : 0);
+    const contextResult = buildContextOptions(actor, eraId, expId, ageForContext);
 
     // 6. Fact Assembly
     const data = {
@@ -51,9 +59,11 @@ export function getTemplateData(actor, params) {
         isLogMode: mode === 'log',
         eventNotes: record.eventNotes || record.description || "",
         eventIsRest: !!record.eventIsRest,
-        defaultNewExpName: eventIsSpan ? "Parallel Project" : "New Experience",
-        contextOptions: buildContextOptions(actor, eraId, expId),
-        eraId,
+        eraName: contextResult.eraName,
+        experienceOptions: contextResult.experienceOptions,
+        lifecycleHtml: contextResult.lifecycleHtml,
+        defaultNewExpName: contextResult.defaultNewExpName,
+        eraId: contextResult.eraId || eraId,
         expId,
         ageRaw: rawFacts.eventAge,
         timeRaw: rawFacts.ts,
