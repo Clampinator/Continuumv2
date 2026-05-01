@@ -46,7 +46,7 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
         bonus = res === 'strong' ? 3 : (res === 'firm' ? 2 : (res === 'slight' ? 1 : 0));
     }
 
-    // Gear bonus calculation
+    // Gear bonus calculation (aspect average only; slider goes through sitMod)
     let gearBonus = 0;
     let gearName = null;
     const gearId = content.data('gearId');
@@ -57,9 +57,7 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
             const a1 = Number(gearItem.system.aspects?.aspect1) || 0;
             const a2 = Number(gearItem.system.aspects?.aspect2) || 0;
             const a3 = Number(gearItem.system.aspects?.aspect3) || 0;
-            const computedBonus = Math.floor((a1 + a2 + a3) / 3);
-            const gearSliderAdj = Number(content.data('gearSliderValue')) || 0;
-            gearBonus = computedBonus + gearSliderAdj;
+            gearBonus = Math.floor((a1 + a2 + a3) / 3);
         }
     }
 

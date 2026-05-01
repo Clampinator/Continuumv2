@@ -96,36 +96,57 @@ export function initializeDiceRoller(html, sheet) {
         });
     });
 
-    // Gear modifier slider drag (-3 to +3)
+    // Bonus modifier slider drag (-4 to +4, 9 steps)
+    // Writes the selected value directly into the situational_modifier input.
+    const bonusPositions = {
+        '-4': 5, '-3': 16.25, '-2': 27.5, '-1': 38.75,
+        '0': 50,
+        '1': 61.25, '2': 72.5, '3': 83.75, '4': 95
+    };
+
     html.find('.gear-slider-container').on('pointerdown', (event) => {
         event.preventDefault();
         const container = $(event.currentTarget);
         container.addClass('active');
-        const gearRankPositions = { '-3': 7, '-2': 21, '-1': 36, '0': 50, '1': 64, '2': 79, '3': 93 };
 
-        const updateGearSlider = (moveEvent) => {
+        const updateBonusSlider = (moveEvent) => {
             const rect = container[0].getBoundingClientRect();
             const x = moveEvent.clientX - rect.left;
             const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
             let closestRank = 0;
             let minDistance = Infinity;
-            for (const [rank, pos] of Object.entries(gearRankPositions)) {
+            for (const [rank, pos] of Object.entries(bonusPositions)) {
                 const dist = Math.abs(percentage - pos);
                 if (dist < minDistance) { minDistance = dist; closestRank = parseInt(rank); }
             }
-            content.data('gearSliderValue', closestRank);
             const pointer = container.find('.push-slider-pointer');
-            pointer.css({ 'left': `${gearRankPositions[String(closestRank)]}%` });
+            pointer.css({ 'left': `${bonusPositions[String(closestRank)]}%` });
+            // Write slider value into the situational modifier input
+            html.find('input[name="situational_modifier"]').val(closestRank);
             html.find('.gear-slider-value').text(closestRank >= 0 ? `+${closestRank}` : `${closestRank}`);
         };
 
-        updateGearSlider(event);
-        $(document).on('pointermove.gearSliderDrag', updateGearSlider);
+        updateBonusSlider(event);
+        $(document).on('pointermove.gearSliderDrag', updateBonusSlider);
         $(document).on('pointerup.gearSliderDrag', () => {
             container.removeClass('active');
             $(document).off('.gearSliderDrag');
         });
     });
+
+    // Sync bonus slider pointer when situational_modifier input changes externally
+    const syncBonusSliderToInput = () => {
+        const val = parseInt(html.find('input[name="situational_modifier"]').val()) || 0;
+        const clamped = Math.max(-4, Math.min(4, val));
+        const pointer = html.find('.dialog-gear-section .push-slider-pointer');
+        if (pointer.length && bonusPositions[String(clamped)] !== undefined) {
+            pointer.css({ 'left': `${bonusPositions[String(clamped)]}%` });
+        }
+        html.find('.gear-slider-value').text(clamped >= 0 ? `+${clamped}` : `${clamped}`);
+    };
+
+    // Watch for external changes to the situational modifier input
+    html.find('input[name="situational_modifier"]').on('input change', syncBonusSliderToInput);
 
     setupRollButtons(html, sheet, content, setVisible, benefitRef);
 

@@ -86,14 +86,14 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
         html.find('.dialog-resonance-section').toggle(!isMeta && !isVehicle);
         html.find('.dialog-push-section').toggle(!!isMeta || !!isVehicle);
         html.find('.dialog-gear-section').show();
-        html.find('input[name="situational_modifier"]').val(0);
         html.find('input[name="resonance_choice"][value="none"]').prop('checked', true);
 
-        // Reset gear slider to 0
-        content.data({ gearId: null, gearSliderValue: 0 });
-        const gearSliderPointer = html.find('.dialog-gear-section .push-slider-pointer');
-        gearSliderPointer.css({ 'left': '50%', '--vibration-intensity': '0px' });
-        html.find('.gear-slider-value').text('0');
+        // Reset situational modifier input and bonus slider to 0
+        content.data({ gearId: null });
+        html.find('input[name="situational_modifier"]').val(0);
+        const bonusSliderPointer = html.find('.dialog-gear-section .push-slider-pointer');
+        bonusSliderPointer.css({ 'left': '50%' });
+        html.find('.gear-slider-value').text('+0');
 
         populateGearDropdown(html, sheet, isMeta);
 
