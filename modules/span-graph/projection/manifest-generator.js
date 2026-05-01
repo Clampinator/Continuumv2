@@ -206,6 +206,36 @@ export function generateManifest(state, viewport, interaction = null) {
         };
     }
 
+    // 9. PROJECT YET NODES
+    // Yets are resolved by the Kernel and projected to screen coordinates here.
+    // The YetRenderer consumes this data to draw floating/violated/locked nodes.
+    manifest.yetNodes = [];
+    if (state.yetNodes && state.yetNodes.length > 0) {
+        manifest.yetNodes = state.yetNodes.map(yet => {
+            // Is this Yet currently being dragged? Override position from interaction.
+            const isDragging = interaction?.yetDrag?.id === yet.id;
+            let screen;
+
+            if (isDragging) {
+                screen = { x: interaction.yetDrag.screenX, y: interaction.yetDrag.screenY };
+            } else {
+                screen = viewport.worldToScreen(yet.worldAge, yet.worldTime);
+            }
+
+            return {
+                id: yet.id,
+                description: yet.description,
+                hasAge: yet.hasAge,
+                hasDate: yet.hasDate,
+                x: screen.x,
+                y: screen.y,
+                isViolated: yet.isViolated,
+                frag: yet.frag,
+                isDragging
+            };
+        });
+    }
+
     return manifest;
 }
 

@@ -44,6 +44,27 @@ export class PointerMachine {
     onDown(event, screenPos) {
         if (this.state.isPending) return;
 
+        // YET NODE DRAG: Left-click on a Yet node starts drag
+        const yetTarget = event.target.closest('.graph-node-yet');
+        if (yetTarget) {
+            const yetId = yetTarget.getAttribute('data-yet-id');
+            if (yetId) {
+                this.state.isDown = true;
+                this.state.isDragging = false;
+                this.state.mode = 'drag-yet';
+                this.state.activeNodeId = null;
+                this.state.startScreen = screenPos;
+                this.state.startWorld = this.viewport.screenToWorld(screenPos.x, screenPos.y);
+                this.state.currentWorld = { ...this.state.startWorld };
+                // Store Yet drag state in interaction for manifest projection
+                this.viewport._interaction.yetDrag = { id: yetId, screenX: screenPos.x, screenY: screenPos.y };
+                if (this.viewport.svg.setPointerCapture) {
+                    this.viewport.svg.setPointerCapture(event.pointerId);
+                }
+                return;
+            }
+        }
+
         // ERA CREATION BAR: Start era drag on click
         const creationBar = event.target.closest('.creation-bar-era');
         if (creationBar || event.target.closest('.span-graph-creation')) {
@@ -185,6 +206,14 @@ export class PointerMachine {
                     this.viewport._interaction.isDragging = true;
                     this.viewport._render();
                 }
+            } else if (this.state.mode === 'drag-yet') {
+                // YET DRAG: Update Yet node position for manifest projection
+                this.viewport._interaction.yetDrag = {
+                    id: this.viewport._interaction.yetDrag?.id,
+                    screenX: screenPos.x,
+                    screenY: screenPos.y
+                };
+                this.viewport._render();
             } else if (this.state.activeNodeId === 'now') {
                 this._handleNowDrag(screenPos);
             } else {
@@ -325,6 +354,12 @@ export class PointerMachine {
             return;
         }
 
+        // YET DRAG: Check for fulfillment (dropped on NOW) or edit
+        if (this.state.mode === 'drag-yet') {
+            await this._completeYetDrag(screenPos, wasDragging);
+            return;
+        }
+
         if (!wasDragging) {
             if (this.state.ghostSnap) {
                 await this._openDialog('insert', this.state.ghostSnap.world.eventAge, this.state.ghostSnap.world.eventTime);
@@ -385,6 +420,49 @@ export class PointerMachine {
         );
     }
 
+    /**
+     * YET DRAG COMPLETION: Handles both fulfillment (dropped on NOW)
+     * and edit (click without drag). When a Yet is dragged onto the NOW node,
+     * it fulfills the loop - marking the Yet as done and creating a history event.
+     * When a Yet is clicked without significant drag, it opens the edit dialog.
+     */
+    async _completeYetDrag(screenPos, wasDragging) {
+        const yetId = this.viewport._interaction?.yetDrag?.id;
+        if (!yetId) {
+            this._resetInteraction();
+            return;
+        }
+
+        // FULFILLMENT CHECK: Was the Yet dragged close to the NOW node?
+        if (wasDragging) {
+            const nowNode = this.viewport.latestState?.nowNode;
+            if (nowNode) {
+                const nowScreen = this.viewport.worldToScreen(nowNode.x, nowNode.y);
+                const dist = Math.hypot(screenPos.x - nowScreen.x, screenPos.y - nowScreen.y);
+                // Threshold: 25px from NOW center counts as a drop
+                if (dist < 25) {
+                    await this._fulfillYet(yetId);
+                    return;
+                }
+            }
+        }
+
+        // No fulfillment: reset drag state
+        this._resetInteraction();
+        this.viewport._render();
+    }
+
+    /**
+     * FULFILL A YET: Marks the Yet as done and creates a fulfillment event
+     * at the NOW position, closing the spacetime loop.
+     */
+    async _fulfillYet(yetId) {
+        const { fulfillYet } = await import('./yet-fulfillment.js');
+        await fulfillYet(this.actor, yetId, this.viewport);
+        this._resetInteraction();
+        this.viewport._render();
+    }
+
     async onRightClick(event, screenPos) {
         if (this.state.isPending) return;
 
@@ -406,6 +484,53 @@ export class PointerMachine {
                 );
             }
             return;
+        }
+
+        // YET NODE: Right-click on a Yet node opens edit dialog
+        const yetTarget = event.target.closest('.graph-node-yet');
+        if (yetTarget) {
+            const yetId = yetTarget.getAttribute('data-yet-id');
+            if (yetId) {
+                const yetData = this.actor.system.theYet?.[yetId];
+                if (yetData) {
+                    this.state.isPending = true;
+                    this.viewport._interaction.isPending = true;
+                    const { showYetDialog } = await import('../../span-graph-dialog-create-yet.js');
+                    showYetDialog({
+                        sheet: this.actor.sheet,
+                        svg: this.viewport.svg,
+                        existingData: { id: yetId, ...yetData },
+                        viewport: this.viewport,
+                        screenPos
+                    });
+                    this._resetInteraction();
+                    this.viewport._render();
+                }
+            }
+            return;
+        }
+
+        // YET CREATION: Right-click on empty space to the right of NOW
+        // creates a new Yet. The click must be in the future (worldAge > nowAge).
+        const nowNode = this.viewport.latestState?.nowNode;
+        if (nowNode) {
+            const world = this.viewport.screenToWorld(screenPos.x, screenPos.y);
+            if (world.eventAge > nowNode.x + 0.5) {
+                this.state.isPending = true;
+                this.viewport._interaction.isPending = true;
+                const { showYetDialog } = await import('../../span-graph-dialog-create-yet.js');
+                showYetDialog({
+                    sheet: this.actor.sheet,
+                    svg: this.viewport.svg,
+                    worldAge: world.eventAge,
+                    worldTime: world.eventTime,
+                    viewport: this.viewport,
+                    screenPos
+                });
+                this._resetInteraction();
+                this.viewport._render();
+                return;
+            }
         }
 
         const targetNodeId = event.target.dataset.eventId;
@@ -492,7 +617,7 @@ export class PointerMachine {
             isDragging: false, isPending: false, mode: null, 
             activeNodeId: null, currentWorld: null, startWorld: null,
             insertionContext: null, displacementResult: null,
-            previewHistory: null
+            previewHistory: null, yetDrag: null
         };
     }
 
@@ -596,6 +721,28 @@ export class PointerMachine {
     }
 
     _updateStaticHover(event, screenPos) {
+        // YET NODE HOVER: Show tooltip for Yet nodes
+        const yetTarget = event.target.closest('.graph-node-yet');
+        if (yetTarget) {
+            const yetId = yetTarget.getAttribute('data-yet-id');
+            const yetDesc = yetTarget.getAttribute('data-yet-desc') || '';
+            const yetNodes = this.viewport.latestManifest?.yetNodes || [];
+            const yet = yetNodes.find(n => n.id === yetId);
+            if (yet) {
+                const tooltipRows = [
+                    { label: 'YET', value: yetDesc || 'Unknown Yet', color: '#ff9f43' }
+                ];
+                if (yet.hasAge) tooltipRows.push({ label: 'AGE', value: 'LOCKED', color: '#ffd700' });
+                if (yet.hasDate) tooltipRows.push({ label: 'DATE', value: 'LOCKED', color: '#ffd700' });
+                if (!yet.hasAge && !yet.hasDate) tooltipRows.push({ label: 'DRIFTING', value: 'Nebulous', color: '#888' });
+                if (yet.isViolated) tooltipRows.push({ label: 'VIOLATED', value: 'Loop broken!', color: '#ff2222' });
+                this.viewport.tooltipManager.show(tooltipRows, screenPos);
+            } else {
+                this.viewport.tooltipManager.hide();
+            }
+            return;
+        }
+
         const nodeId = event.target.dataset.eventId;
         if (!nodeId) { this.viewport.tooltipManager.hide(); return; }
         const node = (this.viewport.latestState?.nodes || []).find(n => n.id === nodeId);

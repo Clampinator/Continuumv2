@@ -6,6 +6,7 @@ import { EraRenderer } from './renderers/era-renderer.js';
 import { AxisRenderer } from './renderers/axis-renderer.js';
 import { ExperienceRenderer } from './renderers/experience-renderer.js';
 import { GoalRenderer } from './renderers/goal-renderer.js';
+import { YetRenderer } from './renderers/yet-renderer.js';
 import { TooltipManager } from './ui/tooltips.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
@@ -55,7 +56,8 @@ export class SpanGraphViewport {
         currentWorld: null,
         startWorld: null,
         nodeElement: null,
-        previewHistory: null
+        previewHistory: null,
+        yetDrag: null
     };
 
     this.viewState = {
@@ -82,6 +84,7 @@ export class SpanGraphViewport {
       this.creationRenderer = new CreationRenderer(this, this.hudLayer);   
       this.tooltipManager = new TooltipManager(this, this.hudLayer);
       this.goalRenderer = new GoalRenderer(this, this.contentLayer);
+      this.yetRenderer = new YetRenderer(this, this.contentLayer);
 
       activateListeners(this);
       

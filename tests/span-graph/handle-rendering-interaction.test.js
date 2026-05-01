@@ -20,6 +20,7 @@ describe('renderViewport: Interaction Rendering', () => {
             axisRenderer: { render: vi.fn() },
             creationRenderer: { render: vi.fn() },
             goalRenderer: { render: vi.fn() },
+            yetRenderer: { render: vi.fn() },
             _goalState: { goalId: null, goalScreenPos: null, goalImportance: null, isFading: false }
         };
         mockState = {};

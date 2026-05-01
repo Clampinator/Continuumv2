@@ -26,6 +26,9 @@ export function renderViewport(viewport, state, manifest) {
     // Only drawn when a goal chip is hovered in the HUD.
     viewport.goalRenderer.render(manifest, viewport._goalState);
 
+    // 2.6. Yet Layer (Floating future events - rendered on top of rails but below HUD)
+    viewport.yetRenderer.render(manifest);
+
     // 3. HUD Layer (Interface)
     viewport.axisRenderer.render();
     

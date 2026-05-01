@@ -6,26 +6,63 @@ import { panToLocation, getMapCenterLocation } from './span-graph-map.js';
 
 /**
  * Dialog to create or edit a "Yet" event.
+ *
+ * Supports two calling conventions:
+ *   NEW (v2 span-graph): showYetDialog({ sheet, svg, viewport, screenPos, existingData, worldAge, worldTime })
+ *   LEGACY (lifeline):   showYetDialog(viewState, graphData, sheet, svg, existingData)
+ *
+ * @param {Object} optionsOrViewState - Configuration object (v2) or legacy viewState
+ * @param {Object} [graphData] - Legacy graph data (unused in v2)
+ * @param {Object} [sheet] - Legacy ActorSheet
+ * @param {Object} [svg] - Legacy SVG element
+ * @param {Object} [existingData] - Legacy existing Yet data
  */
-export function showYetDialog(viewState, graphData, sheet, svg, existingData = null) {
-    const isEdit = !!existingData;
-    let description = isEdit ? existingData.description : "";
+export function showYetDialog(optionsOrViewState, graphData, sheet, svg, existingData = null) {
+    // Detect legacy positional argument pattern
+    let options;
+    if (optionsOrViewState && typeof optionsOrViewState === 'object' && !optionsOrViewState.pointerDownX && !optionsOrViewState.interactionMode) {
+        // New options object pattern
+        options = optionsOrViewState;
+    } else {
+        // Legacy positional pattern: (viewState, graphData, sheet, svg, existingData)
+        options = { viewState: optionsOrViewState, graphData, sheet, svg, existingData };
+    }
+    const { viewState, graphData: gd, sheet: actorSheet, svg: svgEl, existingData: editData = null, worldAge: precomputedAge, worldTime: precomputedTime, viewport, screenPos } = options;
+    const usedSheet = actorSheet || sheet;
+    const usedSvg = svgEl || svg;
+    const usedExistingData = editData || existingData;
+    const isEdit = !!usedExistingData;
+    let description = isEdit ? usedExistingData.description : "";
     
-    // Calculate defaults from pointer position
-    const rect = svg.getBoundingClientRect();
-    const pX = viewState.pointerDownX - rect.left;
-    const pY = viewState.pointerDownY - rect.top;
-    
-    const worldAge = (pX - viewState.x) / viewState.scaleX;
-    const worldTime = (pY - viewState.y) / viewState.scaleY;
+    // Calculate defaults from world coordinates (v2 span-graph path)
+    // or fall back to legacy pixel-to-world conversion
+    let worldAge, worldTime;
+    if (precomputedAge !== undefined && precomputedTime !== undefined) {
+        worldAge = precomputedAge;
+        worldTime = precomputedTime;
+    } else if (viewport && screenPos) {
+        const worldCoords = viewport.screenToWorld(screenPos.x, screenPos.y);
+        worldAge = worldCoords.eventAge;
+        worldTime = worldCoords.eventTime;
+    } else if (viewState && usedSvg) {
+        // Legacy lifeline path: compute from pixel coordinates
+        const rect = usedSvg.getBoundingClientRect();
+        const pX = viewState.pointerDownX - rect.left;
+        const pY = viewState.pointerDownY - rect.top;
+        worldAge = (pX - viewState.x) / viewState.scaleX;
+        worldTime = (pY - viewState.y) / viewState.scaleY;
+    } else {
+        worldAge = 0;
+        worldTime = Date.now();
+    }
     
     let ageStr = "";
     let dateStr = "";
     let timeStr = "";
-    let locationStr = isEdit ? existingData.eventLocation : "";
-    let lat = isEdit ? existingData.lat : null;
-    let lng = isEdit ? existingData.lng : null;
-    let isFragSuppressed = isEdit ? !!existingData.isFragSuppressed : false;
+    let locationStr = isEdit ? usedExistingData.eventLocation || usedExistingData.location || "" : "";
+       let lat = isEdit ? (usedExistingData.lat || null) : null;
+    let lng = isEdit ? (usedExistingData.lng || null) : null;
+    let isFragSuppressed = isEdit ? !!usedExistingData.isFragSuppressed : false;
 
     const dateObj = new Date(worldTime);
     const yyyy = dateObj.getFullYear();
@@ -39,10 +76,10 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
     const calculatedTime = `${hh}:${min}:${ss}`;
 
     if (isEdit) {
-        if (existingData.eventAge) ageStr = formatSubjectiveAge(parseFloat(existingData.eventAge) * SECONDS_IN_YEAR);
-        if (existingData.eventDate) {
-            dateStr = existingData.eventDate;
-            timeStr = existingData.eventTime || "";
+        if (usedExistingData.age) ageStr = formatSubjectiveAge(parseFloat(usedExistingData.age) * SECONDS_IN_YEAR);
+        if (usedExistingData.date) {
+            dateStr = usedExistingData.date;
+            timeStr = usedExistingData.time || "";
         }
     } else {
         ageStr = formatSubjectiveAge(worldAge);
@@ -63,7 +100,7 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
             <div class="form-group">
                 <label>Locked Age</label>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" name="age" value="${isEdit && existingData.eventAge ? ageStr : ""}" placeholder="${ageStr}" style="flex: 1;"/>
+                    <input type="text" name="age" value="${isEdit && usedExistingData.age ? ageStr : ""}" placeholder="${ageStr}" style="flex: 1;"/>
                     <button type="button" class="use-cursor-age" eventTitle="Use Cursor Position" style="flex: 0 0 32px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-crosshairs"></i></button>
                 </div>
             </div>
@@ -99,7 +136,7 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
     `;
 
     new Dialog({
-        eventTitle: isEdit ? "Edit Yet" : "Define Yet",
+        title: isEdit ? "Edit Yet" : "Define Yet",
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -153,7 +190,7 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
                 icon: '<i class="fas fa-save"></i>',
                 callback: async (html) => {
                     const formData = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
-                    const id = isEdit ? existingData.id : foundry.utils.randomID();
+                    const id = isEdit ? usedExistingData.id : foundry.utils.randomID();
                     
                     const updates = {
                         [`system.theYet.${id}.description`]: formData.description,
@@ -183,10 +220,14 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
                         updates[`system.theYet.${id}.frag`] = 0;
                     }
 
-                    await sheet.actor.update(updates);
+                    await usedSheet.actor.update(updates);
                     Sound.confirm();
-                    viewState.interactionMode = 'pan';
-                    renderGraph(svg, viewState, graphData);
+                    if (viewport) {
+                        viewport._render();
+                    } else {
+                        viewState.interactionMode = 'pan';
+                        renderGraph(svg, viewState, graphData);
+                    }
                 }
             },
             ...(isEdit ? {
@@ -194,10 +235,14 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
                     label: "Delete",
                     icon: '<i class="fas fa-trash"></i>',
                     callback: async () => {
-                        await sheet.actor.update({ [`system.theYet.-=${existingData.id}`]: null });
+                        await usedSheet.actor.update({ [`system.theYet.-=${usedExistingData.id}`]: null });
                         Sound.delete();
-                        viewState.interactionMode = 'pan';
-                        renderGraph(svg, viewState, graphData);
+                        if (viewport) {
+                            viewport._render();
+                        } else {
+                            viewState.interactionMode = 'pan';
+                            renderGraph(svg, viewState, graphData);
+                        }
                     }
                 }
             } : {
@@ -205,15 +250,23 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
             cancel: {
                 label: "Cancel",
                 callback: () => {
-                    viewState.interactionMode = 'pan';
-                    renderGraph(svg, viewState, graphData);
+                    if (viewport) {
+                        viewport._render();
+                    } else {
+                        viewState.interactionMode = 'pan';
+                        renderGraph(svg, viewState, graphData);
+                    }
                 }
             }
         },
         default: "save",
         close: () => {
-            if (viewState.interactionMode === 'create-yet') {
+            if (viewState && viewState.interactionMode === 'create-yet') {
                 viewState.interactionMode = 'pan';
+            }
+            if (viewport) {
+                viewport._render();
+            } else if (viewState) {
                 renderGraph(svg, viewState, graphData);
             }
         }
