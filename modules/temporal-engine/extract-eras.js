@@ -1,23 +1,29 @@
-/**
- * ENGINE UNIT: EXTRACT ERAS
- * Formats and sorts era data from the actor for visual rendering.
- * ENFORCES: ADI (Authoritative Data Isolation).
- */
+/*
+ENGINE UNIT: EXTRACT ERAS
+Formats and sorts era data from the actor for visual rendering.
+Delegates boundary computation to the Kernel layer.
+
+ENFORCES: ADI (Authoritative Data Isolation).
+Kernel is the single authority for era boundaries.
+*/
+
+import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
+
 export function extractEras(actor) {
     const eras = [];
     if (!actor?.system?.eras) return eras;
 
-    const erasRaw = Object.values(actor.system.eras).sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
-    let currentAge = 0;
-    
-    erasRaw.forEach(era => {
+    const boundaries = computeEraBoundaries(actor.system.eras);
+
+    boundaries.forEach(era => {
         eras.push({
-            name: era.name || 'Unknown Era',
-            startAge: currentAge,
-            duration: Number(era.duration || 0),
-            color: era.color || '#555'
+            id: era.id,
+            name: era.name,
+            startAge: era.startAge,
+            endAge: era.endAge,
+            duration: era.endAge === Infinity ? 0 : era.endAge - era.startAge,
+            color: actor.system.eras[era.id]?.color || '#555'
         });
-        currentAge += Number(era.duration || 0);
     });
 
     return eras;

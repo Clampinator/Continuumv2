@@ -39,6 +39,7 @@ export function generateManifest(state, viewport, interaction = null) {
             const startX = viewport.worldToScreen(era.startAge, 0).x;
             const endX = viewport.worldToScreen(era.startAge + (era.duration || 0), 0).x;
             manifest.eras.push({
+                id: era.id,
                 name: era.name || 'Unknown Era', startX,
                 width: Math.max(0, endX - startX), color: era.color || '#555'
             });
@@ -182,6 +183,21 @@ export function generateManifest(state, viewport, interaction = null) {
     const historyNodes = state.nodes.filter(n => !n.isVirtual && n.id !== 'now');
     const lastEvent = historyNodes.pop() || { x: 0 };
     manifest.hud.creationStartX = viewport.worldToScreen(lastEvent.x, 0).x;
+
+    // 8. ERA CREATION DRAG RECT
+    // Visible only when dragging out a new era
+    if (interaction?.type === 'create-era' && interaction?.isDragging) {
+        const startScreen = viewport.worldToScreen(interaction.startWorld?.eventAge || 0, 0);
+        const currentScreen = viewport.worldToScreen(interaction.currentWorld?.eventAge || 0, 0);
+        const containerRect = viewport.container.getBoundingClientRect();
+        const gutterHeight = 35;
+        manifest.hud.creationDragRect = {
+            startX: Math.min(startScreen.x, currentScreen.x),
+            endX: Math.max(startScreen.x, currentScreen.x),
+            y: containerRect.height - gutterHeight - 20,
+            height: 20
+        };
+    }
 
     return manifest;
 }

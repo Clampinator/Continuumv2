@@ -1,7 +1,9 @@
-/**
- * DUMB RENDERER: CREATION RENDERER
- * Performs pure SVG drawing of the creation bar at the end of history.
- */
+/*
+CREATION RENDERER
+Dumb SVG renderer for the creation bar and drag rect.
+Receives manifest data, draws pixels. No domain logic.
+*/
+
 export class CreationRenderer {
   constructor(viewport, parentGroup) {
     this.viewport = viewport;
@@ -9,41 +11,46 @@ export class CreationRenderer {
   }
 
   /**
-   * Renders the creation helper from a pre-calculated position.
+   * Renders the creation bar at the bottom and optional drag rect.
+   * @param {number|null} startX - Unused (kept for API compat). Bar is always full-width.
+   * @param {Object|null} dragRect - { startX, endX, y, height } for the drag selection.
    */
-  render(startX) {
-    if (!this.group || startX === null) return;
+  render(startX, dragRect = null) {
+    if (!this.group) return;
     this.group.innerHTML = '';
 
     const rect = this.viewport.container.getBoundingClientRect();
-    const width = rect.width - startX;
-    
-    if (width > 0) {
-        const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        bar.setAttribute('x', startX);
-        bar.setAttribute('y', 0);
-        bar.setAttribute('width', width);
-        bar.setAttribute('height', 30);
-        bar.setAttribute('class', 'graph-creation-bar-era');
-        
-        bar.style.fill = 'rgba(255, 0, 255, 0.1)';
-        bar.style.stroke = 'rgba(255, 0, 255, 0.3)';
-        bar.style.strokeWidth = '1';
-        bar.style.cursor = 'pointer';
-        
-        this.group.appendChild(bar);
+    const width = rect.width;
+    const height = rect.height;
+    const barHeight = 20;
 
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', startX + (width / 2));
-        label.setAttribute('y', 18);
-        label.setAttribute('text-anchor', 'middle');
-        label.textContent = "+ CREATE NEW ERA";
-        label.style.fill = '#ff00ff';
-        label.style.fontSize = '10px';
-        label.style.fontWeight = 'bold';
-        label.style.fontFamily = 'monospace';
-        label.style.pointerEvents = 'none';
-        this.group.appendChild(label);
+    // Creation bar at the bottom - always full width, always rendered
+    const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bar.setAttribute('x', 0);
+    bar.setAttribute('y', height - barHeight);
+    bar.setAttribute('width', width);
+    bar.setAttribute('height', barHeight);
+    bar.setAttribute('class', 'creation-bar-era');
+    this.group.appendChild(bar);
+
+    // Label centered in the bar
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', width / 2);
+    label.setAttribute('y', height - 7);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('class', 'creation-label-era');
+    label.textContent = 'Create Era';
+    this.group.appendChild(label);
+
+    // Drag selection rect - only visible during era creation drag
+    if (dragRect) {
+      const drag = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      drag.setAttribute('x', dragRect.startX);
+      drag.setAttribute('y', dragRect.y);
+      drag.setAttribute('width', dragRect.endX - dragRect.startX);
+      drag.setAttribute('height', dragRect.height);
+      drag.setAttribute('class', 'creation-drag-rect');
+      this.group.appendChild(drag);
     }
   }
 

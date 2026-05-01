@@ -1,8 +1,18 @@
 import { normalizeDateInput, convertTimestampToDateString, SECONDS_IN_YEAR, SECONDS_IN_DAY, getObjectiveDateFromSubjectiveX } from './span-graph-utils/provide-span-graph-utils.js';
-import { renderGraph } from './span-graph-render.js';
 import { renderDatePicker } from './span-graph-ui-helpers.js';
 import { activateDatePickers } from './date-picker.js';
 import { Sound } from './sound-manager.js';
+
+/**
+ * Refresh graph after dialog close. Uses the viewport if available
+ * (span-graph), otherwise falls back to legacy renderGraph.
+ */
+function _refreshAfterDialog(sheet) {
+    const viewport = sheet._spanGraphViewport;
+    if (viewport) {
+        viewport.updateActor(sheet.actor);
+    }
+}
 
 // Logic constants to match parseAgeString logic for consistency
 const SECONDS_IN_MONTH = 2592000; // 30 days
@@ -173,7 +183,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
                 label: "Cancel",
                 callback: () => {
                     viewState.interactionMode = 'pan';
-                    renderGraph(svg, viewState, graphData);
+                    _refreshAfterDialog(sheet);
                 }
             }
         },
@@ -181,7 +191,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
         close: () => {
             if (viewState.interactionMode === 'dialog-open') {
                 viewState.interactionMode = 'pan';
-                renderGraph(svg, viewState, graphData);
+                _refreshAfterDialog(sheet);
             }
         }
     }, { classes: ["continuum-v2", "dialog"], width: 440 }).render(true);

@@ -6,6 +6,9 @@ import { constrainInsertionMovement } from '/systems/continuum-v2/modules/tempor
 import { getLoreContext } from '../../state/get-lore-context.js';
 import { solveNowDragConstraint } from '../../temporal-kernel/solve-now-drag-constraint.js';
 import { validateSpanPhysics } from '../../temporal-kernel/validate-span-physics.js';
+import { resolveEraDrag } from '/systems/continuum-v2/modules/temporal-kernel/resolve-era-drag.js';
+import { resolveEraEditContext } from '/systems/continuum-v2/modules/temporal-kernel/resolve-era-edit-context.js';
+import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
 import { formatSubjectiveAge } from '../../span-graph-utils/provide-span-graph-utils.js';
 import { convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
 import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
@@ -39,6 +42,39 @@ export class PointerMachine {
 
     onDown(event, screenPos) {
         if (this.state.isPending) return;
+
+        // ERA CREATION BAR: Start era drag on click
+        const creationBar = event.target.closest('.creation-bar-era');
+        if (creationBar || event.target.closest('.span-graph-creation')) {
+            this.state.isDown = true;
+            this.state.isDragging = false;
+            this.state.mode = 'create-era';
+            this.state.startScreen = screenPos;
+            const boundaries = computeEraBoundaries(this.actor.system.eras);
+            const startAge = boundaries.length > 0
+                ? boundaries[boundaries.length - 1].endAge
+                : 0;
+            this.state.startWorld = { eventAge: startAge, eventTime: 0 };
+            this.state.currentWorld = { ...this.state.startWorld };
+
+            this.viewport._interaction = {
+                isDragging: false,
+                type: 'create-era',
+                startWorld: this.state.startWorld,
+                currentWorld: this.state.currentWorld
+            };
+            return;
+        }
+
+        // ERA LABEL: Click to edit era
+        const eraLabel = event.target.closest('.graph-era-label');
+        if (eraLabel) {
+            const eraId = eraLabel.getAttribute('data-id');
+            if (eraId) {
+                this._openEditEraDialog(eraId);
+                return;
+            }
+        }
 
         this.state.isDown = true;
         this.state.startScreen = screenPos;
@@ -130,9 +166,21 @@ export class PointerMachine {
         }
 
         if (this.state.isDragging) {
-            // INSERT-SPAN: Interactive span insertion from rail drag
-            if (this.state.insertionContext) {
-                this._handleInsertSpanDrag(screenPos);
+            // ERA CREATION DRAG: Update current world position
+            if (this.state.mode === 'create-era' || this.state.insertionContext) {
+                if (this.state.insertionContext) {
+                    this._handleInsertSpanDrag(screenPos);
+                } else if (this.state.mode === 'create-era') {
+                    const rawWorld = this.viewport.screenToWorld(screenPos.x, screenPos.y);
+                    // ERA DRAG: Only move forward (one-directional)
+                    this.state.currentWorld = {
+                        eventAge: Math.max(rawWorld.eventAge, this.state.startWorld.eventAge),
+                        eventTime: 0
+                    };
+                    this.viewport._interaction.currentWorld = this.state.currentWorld;
+                    this.viewport._interaction.isDragging = true;
+                    this.viewport._render();
+                }
             } else if (this.state.activeNodeId === 'now') {
                 this._handleNowDrag(screenPos);
             } else {
@@ -260,6 +308,12 @@ export class PointerMachine {
         const wasDragging = this.state.isDragging;
         this.state.isDragging = false;
         this.viewport.tooltipManager.hide();
+
+        // ERA CREATION: Complete drag and open dialog
+        if (wasDragging && this.state.mode === 'create-era') {
+            await this._completeEraCreation();
+            return;
+        }
 
         // INSERT-SPAN: Commit or cancel span insertion
         if (wasDragging && this.state.insertionContext && this.state.mode === 'insert-span') {
@@ -430,6 +484,63 @@ export class PointerMachine {
             insertionContext: null, displacementResult: null,
             previewHistory: null
         };
+    }
+
+    /**
+     * ERA CREATION: Completes the era drag gesture.
+     * Validates via the kernel and opens the create era dialog.
+     */
+    async _completeEraCreation() {
+        const startAge = this.state.startWorld.eventAge;
+        const currentAge = this.state.currentWorld.eventAge;
+        const result = resolveEraDrag(this.actor.system.eras, startAge, currentAge);
+
+        if (!result.isValid) {
+            this._resetInteraction();
+            this.viewport._render();
+            return;
+        }
+
+        this.state.isPending = true;
+        this.viewport._interaction.isPending = true;
+        this.viewport.viewState.interactionMode = 'dialog-open';
+
+        // Set creation context for the dialog
+        this.viewport.viewState.creationStartAgeSeconds = result.startAgeSeconds;
+        this.viewport.viewState.creationCurrentAgeSeconds = currentAge;
+
+        const { showCreateEraDialog } = await import('../../span-graph-ui-dialogs.js');
+        showCreateEraDialog(
+            this.viewport.viewState,
+            {},
+            this.actor.sheet,
+            this.viewport.svg,
+            result.durationSeconds,
+            Object.values(this.actor.system.eras || {}),
+            result.isFirstEra
+        );
+
+        this._resetInteraction();
+        this.viewport._render();
+    }
+
+    /**
+     * ERA EDIT: Opens the era edit dialog for a clicked era label.
+     */
+    async _openEditEraDialog(eraId) {
+        const eras = this.actor.system.eras;
+        const ctx = resolveEraEditContext(eras, eraId);
+        if (!ctx) return;
+
+        this.state.isPending = true;
+        this.viewport._interaction.isPending = true;
+        this.viewport.viewState.interactionMode = 'dialog-open';
+
+        const { openEraEditDialog } = await import('../../span-graph-dialog-age.js');
+        openEraEditDialog(ctx, this.actor.sheet, this.viewport.viewState);
+
+        this._resetInteraction();
+        this.viewport._render();
     }
 
     _generateHUD(world, mode, lore) {

@@ -32,8 +32,6 @@ export function renderViewport(viewport, state, manifest) {
         viewport.nodeRenderer.renderGhostNode(null);
     }
 
-    const spanRank = viewport.actor?.system.spanning?.span || 0;
-    if (spanRank >= 1) {
-        viewport.creationRenderer.render(manifest.hud.creationStartX);
-    }
+    // Creation bar always renders (eras are for all characters, not just spanners)
+    viewport.creationRenderer.render(manifest.hud.creationStartX, manifest.hud.creationDragRect || null);
 }

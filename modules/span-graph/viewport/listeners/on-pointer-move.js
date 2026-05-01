@@ -23,14 +23,26 @@ export function onPointerMove(event, viewport) {
     const dy = y - viewport._interaction.startY;
 
     // 1. Resolve Move Mode (Threshold Gate)
+    // IMPORTANT: Only set drag-node mode for node drags, not for era creation
     if (!viewport._interaction.hasSignificantMovement) {
         if (Math.hypot(dx, dy) < 5) return;
         viewport._interaction.hasSignificantMovement = true;
-        viewport.viewState.interactionMode = 'drag-node';
+        if (viewport._interaction.type === 'node') {
+            viewport.viewState.interactionMode = 'drag-node';
+        }
     }
 
     // 2. Perform Movement
-    if (viewport._interaction.type === 'node') {
+    if (viewport._interaction.type === 'create-era') {
+        // ERA CREATION: Compute current age from cursor X position
+        const rawWorld = viewport.screenToWorld(x, y);
+        const startAge = viewport._interaction.startWorld?.eventAge || 0;
+        viewport._interaction.currentWorld = {
+            eventAge: Math.max(rawWorld.eventAge, startAge),
+            eventTime: 0
+        };
+        viewport._render();
+    } else if (viewport._interaction.type === 'node') {
         const isNowNode = viewport._interaction.nodeElement?.classList.contains('graph-node-now');
         
         // AUTHORITY: Recalculate mode on every frame for NOW node to allow smooth axis transitions.

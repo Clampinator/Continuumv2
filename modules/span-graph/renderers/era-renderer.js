@@ -1,7 +1,10 @@
-/**
- * DUMB RENDERER: ERA RENDERER
- * Performs pure SVG drawing of background era bands.
- */
+/*
+ERA RENDERER
+Dumb SVG renderer for era bands and labels.
+Uses OLD CSS classes for styling. No inline styles.
+Labels are centered horizontally with data-id for click interaction.
+*/
+
 export class EraRenderer {
   constructor(viewport, parentGroup) {
     this.viewport = viewport;
@@ -10,6 +13,7 @@ export class EraRenderer {
 
   /**
    * Renders era bands from a pre-calculated manifest.
+   * Each era in the manifest has: { id, name, startX, width, color, endAge }
    */
   render(eras, height) {
     if (!this.group || !eras) return;
@@ -21,23 +25,23 @@ export class EraRenderer {
         eraRect.setAttribute('y', 0);
         eraRect.setAttribute('width', era.width);
         eraRect.setAttribute('height', height);
-        eraRect.setAttribute('class', 'span-graph-era-band');
-        eraRect.style.fill = era.color || 'rgba(255, 255, 255, 0.03)';
-        eraRect.style.pointerEvents = 'none';
+        eraRect.setAttribute('class', 'graph-era-column');
+        if (era.color) {
+            eraRect.style.fill = era.color;
+        }
         this.group.appendChild(eraRect);
 
-        // Label
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', era.startX + 10);
-        label.setAttribute('y', 20);
-        label.setAttribute('class', 'span-graph-era-label');
-        label.textContent = era.name;
-        label.style.fill = era.color || '#fff';
-        label.style.opacity = '0.4';
-        label.style.fontSize = '12px';
-        label.style.fontWeight = 'bold';
-        label.style.fontFamily = 'monospace';
-        this.group.appendChild(label);
+        // Label: centered in the era column, with data-id for click interaction
+        if (era.name && era.width > 30) {
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', era.startX + (era.width / 2));
+            label.setAttribute('y', 15);
+            label.setAttribute('text-anchor', 'middle');
+            label.setAttribute('class', 'graph-era-label');
+            label.setAttribute('data-id', era.id);
+            label.textContent = era.name;
+            this.group.appendChild(label);
+        }
     });
   }
 

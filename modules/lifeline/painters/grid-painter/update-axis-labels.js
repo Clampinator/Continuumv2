@@ -54,7 +54,7 @@ export function updateAxisLabels(group, width, height, viewState) {
         const screenY = ((height - 65) / 5) * i;
         const timestamp = (screenY - viewState.y) / viewState.scaleY;
         const dateLines = formatObjectiveDate(timestamp);
-        const labelX = 22;
+        const labelX = 15;
         label.setAttribute('x', labelX);
         label.setAttribute('y', Math.min(height - 15, Math.max(20, screenY)));
         label.innerHTML = '';
@@ -70,10 +70,10 @@ export function updateAxisLabels(group, width, height, viewState) {
     const xTitle = group.querySelector('.x-eventTitle');
     if (xTitle) {
         xTitle.setAttribute('x', width / 2);
-        xTitle.setAttribute('y', height - 33);
+        xTitle.setAttribute('y', height - 8);
     }
     const yTitle = group.querySelector('.y-eventTitle');
     if (yTitle) {
-        yTitle.setAttribute('transform', `translate(10, ${height / 2}) rotate(-90)`);
+        yTitle.setAttribute('transform', `translate(5, ${height / 2}) rotate(-90)`);
     }
 }

@@ -17,8 +17,8 @@ export class AxisRenderer {
     const rect = this.viewport.container.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    const gutterHeight = 20;
-    const labelX = 110; 
+    const gutterHeight = 35;
+    const labelX = 14;
 
     // 1. X-AXIS (Subjective Age)
     const xAxisY = height - gutterHeight;
@@ -31,14 +31,14 @@ export class AxisRenderer {
         const worldAge = worldLeft + (ageRange * ratio);
         const screenX = this.viewport.worldToScreen(worldAge, 0).x;
         
-        const label = this._createText(screenX, xAxisY + 15, formatSubjectiveAge(worldAge), 'graph-axis-text');
+        const label = this._createText(screenX, xAxisY + 13, formatSubjectiveAge(worldAge), 'graph-axis-text', 'middle');
         this.group.appendChild(label);
         
-        const tick = this._createTick(screenX, xAxisY, screenX, xAxisY + 5);
+        const tick = this._createTick(screenX, xAxisY - 15, screenX, xAxisY - 10);
         this.group.appendChild(tick);
     }
 
-    const ageHeader = this._createText(width / 2, xAxisY + 15, 'SUBJECTIVE AGE', 'graph-axis-text graph-axis-text-bold', 'middle');
+    const ageHeader = this._createText(width / 2, xAxisY + 28, 'SUBJECTIVE AGE', 'graph-axis-text graph-axis-text-bold', 'middle');
     this.group.appendChild(ageHeader);
 
     // 2. Y-AXIS (Objective Time)
@@ -52,18 +52,18 @@ export class AxisRenderer {
         const screenY = this.viewport.worldToScreen(0, currentTime).y;
         
         const dt = convertTimestampToDateString(currentTime);
-        const dateText = this._createText(labelX, screenY - 5, dt.date, 'graph-axis-text');
+        const dateText = this._createText(labelX, screenY - 5, dt.date, 'graph-axis-text', 'start');
         this.group.appendChild(dateText);
         
-        const timeText = this._createText(labelX, screenY + 7, dt.time, 'graph-axis-text graph-axis-text-bold', 'end');
+        const timeText = this._createText(labelX, screenY + 7, dt.time, 'graph-axis-text graph-axis-text-bold', 'start');
         this.group.appendChild(timeText);
         
-        const tick = this._createTick(labelX + 5, screenY, labelX + 10, screenY);
+        const tick = this._createTick(labelX + 2, screenY, labelX + 7, screenY);
         this.group.appendChild(tick);
     }
 
-    const dateHeader = this._createText(labelX - 10, (height - gutterHeight) / 2, 'OBJECTIVE DATE', 'graph-axis-text graph-axis-text-bold', 'middle');
-    dateHeader.setAttribute('transform', `rotate(-90, ${labelX - 10}, ${(height - gutterHeight) / 2})`);
+    const dateHeader = this._createText(5, (height - gutterHeight) / 2, 'OBJECTIVE DATE', 'graph-axis-text graph-axis-text-bold', 'middle');
+    dateHeader.setAttribute('transform', `rotate(-90, 5, ${(height - gutterHeight) / 2})`);
     this.group.appendChild(dateHeader);
   }
 
