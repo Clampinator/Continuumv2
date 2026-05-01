@@ -37,6 +37,18 @@ describe('extractEras', () => {
         });
     });
 
+    it('should use null when era has no custom color', () => {
+        const actor = {
+            system: {
+                eras: {
+                    'era1': { name: 'Youth', age: 0, sort: 1 }
+                }
+            }
+        };
+        const eras = extractEras(actor);
+        expect(eras[0].color).toBeNull();
+    });
+
     it('should return empty array if no actor or eras provided', () => {
         expect(extractEras(null)).toEqual([]);
         expect(extractEras({})).toEqual([]);

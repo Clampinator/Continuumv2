@@ -22,7 +22,7 @@ export function extractEras(actor) {
             startAge: era.startAge,
             endAge: era.endAge,
             duration: era.endAge === Infinity ? 0 : era.endAge - era.startAge,
-            color: actor.system.eras[era.id]?.color || '#555'
+            color: actor.system.eras[era.id]?.color || null
         });
     });
 

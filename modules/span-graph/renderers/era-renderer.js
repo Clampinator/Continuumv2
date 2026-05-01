@@ -28,6 +28,9 @@ export class EraRenderer {
         eraRect.setAttribute('class', 'graph-era-column');
         if (era.color) {
             eraRect.style.fill = era.color;
+        } else {
+            eraRect.style.fill = 'rgba(0, 100, 255, 0.1)';
+            eraRect.style.stroke = 'rgba(0, 100, 255, 0.4)';
         }
         this.group.appendChild(eraRect);
 

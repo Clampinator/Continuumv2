@@ -44,7 +44,7 @@ export function generateManifest(state, viewport, interaction = null) {
             manifest.eras.push({
                 id: era.id,
                 name: era.name || 'Unknown Era', startX,
-                width, color: era.color || '#555'
+                width, color: era.color || null
             });
         });
     }
