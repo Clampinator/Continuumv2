@@ -746,21 +746,24 @@
     text-align: center;
 }
 
-.dialog-gear-section .gear-slider-container {
+.dialog-gear-section .gear-slider-container,
+.dialog-modifier-section .gear-slider-container {
     position: relative;
     width: 100%;
     margin: 5px 0;
     cursor: pointer;
 }
 
-.dialog-gear-section .gear-slider-container .push-slider-background {
+.dialog-gear-section .gear-slider-container .push-slider-background,
+.dialog-modifier-section .gear-slider-container .push-slider-background {
     width: 100%;
     display: block;
     user-select: none;
     pointer-events: none;
 }
 
-.dialog-gear-section .gear-slider-container .push-slider-pointer {
+.dialog-gear-section .gear-slider-container .push-slider-pointer,
+.dialog-modifier-section .gear-slider-container .push-slider-pointer {
     position: absolute;
     top: 50%;
     width: 25px;

@@ -133,20 +133,28 @@ export async function performRollAction(params) {
     if (isMeta && delta < 0) {
         const absDelta = Math.abs(delta);
         if (pushBonus < 0) {
-            // Pushing Beyond Failure: Subtract abs(delta) from IP pool as a wound
+            // Pushing Beyond Failure: Subtract abs(delta) from IP pool as wounds
             const cost = absDelta;
             const isBotch = outcome.cssClass === 'critical-failure';
             const woundName = isBotch ? "Push Botch (Bleeding)" : "Push Strain (Bruise)";
-            const woundId = foundry.utils.randomID();
 
-            await actor.update({
-                [`system.combat.wounds.${woundId}`]: {
+            // Distribute across slots capped at 10 each (spinner max)
+            const woundUpdates = {};
+            let remaining = cost;
+            let i = 0;
+            const now = Date.now();
+            while (remaining > 0) {
+                const woundIp = Math.min(remaining, 10);
+                woundUpdates[`system.combat.wounds.${foundry.utils.randomID()}`] = {
                     name: woundName,
-                    ip: cost,
+                    ip: woundIp,
                     bleeding: isBotch,
-                    sort: Date.now()
-                }
-            });
+                    sort: now + i
+                };
+                remaining -= woundIp;
+                i++;
+            }
+            await actor.update(woundUpdates);
             consequence = { type: 'ip', value: cost, label: isBotch ? 'IP (Bleeding)' : 'IP (Bruise)' };
         } else if (pushBonus === 0) {
             // Flat Roll Failure: Subtract floor(abs(delta) / 2) from Temp Will

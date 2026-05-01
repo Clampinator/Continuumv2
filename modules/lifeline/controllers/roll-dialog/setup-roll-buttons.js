@@ -85,13 +85,14 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
         html.find('.rolling-attribute-name').text(btn.text());
         html.find('.dialog-resonance-section').toggle(!isMeta && !isVehicle);
         html.find('.dialog-push-section').toggle(!!isMeta || !!isVehicle);
-        html.find('.dialog-gear-section').show();
+        html.find('.dialog-gear-section').toggle(!isMeta);
+        html.find('.dialog-modifier-section').toggle(!!isMeta);
         html.find('input[name="resonance_choice"][value="none"]').prop('checked', true);
 
         // Reset situational modifier input and bonus slider to 0
         content.data({ gearId: null });
         html.find('input[name="situational_modifier"]').val(0);
-        const bonusSliderPointer = html.find('.dialog-gear-section .push-slider-pointer');
+        const bonusSliderPointer = html.find('.dialog-gear-section .push-slider-pointer, .dialog-modifier-section .push-slider-pointer');
         bonusSliderPointer.css({ 'left': '50%' });
         html.find('.gear-slider-value').text('+0');
 
@@ -114,7 +115,7 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
         }
 
         if (isMeta) {
-            html.find('.push-slider-background').attr('src', 'systems/continuum-v2/assets/metability-push-slider.png');
+            html.find('.push-slider-container .push-slider-background').attr('src', 'systems/continuum-v2/assets/metability-push-slider.png');
             const clean = key.substring(5);
             const rank = Number(sheet.actor.system.metabilities[clean]?.value) || 0;
             content.data({ actualRank: rank, selectedRank: rank });
@@ -132,7 +133,7 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
             html.find('.metability-application-selection').show();
         } else if (isVehicle) {
             html.find('.metability-application-selection').hide();
-            html.find('.push-slider-background').attr('src', 'systems/continuum-v2/assets/vehicle-speed-slider.png');
+            html.find('.push-slider-container .push-slider-background').attr('src', 'systems/continuum-v2/assets/vehicle-speed-slider.png');
             const vehicleId = btn.data('id');
             const vehicle = sheet.actor.system.vehicles[vehicleId] ||
                             sheet.actor.system.airVehicles[vehicleId] ||

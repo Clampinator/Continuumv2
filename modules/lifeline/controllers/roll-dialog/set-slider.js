@@ -8,7 +8,7 @@
 export function setSlider(rank, html, isVehicle = false) {
     const pos = { 1: 10, 2: 30, 3: 50, 4: 70, 5: 90 };
     const vib = { 1: "0px", 2: "0px", 3: "1px", 4: "2px", 5: "4px" };
-    const pointer = html.find('.push-slider-pointer');
+    const pointer = html.find('.push-slider-container .push-slider-pointer');
     
     pointer.css({ 
         'left': `${pos[rank] || 0}%`, 

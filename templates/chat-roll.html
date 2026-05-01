@@ -18,7 +18,9 @@
           {{#if (eq resultClass "success")}}<i class="fas fa-check-circle"></i>{{/if}}
           {{#if (eq resultClass "failure")}}<i class="fas fa-times-circle"></i>{{/if}}
           {{#if (eq resultClass "critical-failure")}}<i class="fas fa-skull"></i>{{/if}}
-          <span>{{resultText}}</span>
+          {{#if (eq resultClass "critical")}}<span>Critical<br>Success</span>
+          {{else if (eq resultClass "critical-failure")}}<span>Critical<br>Failure</span>
+          {{else}}<span>{{resultText}}</span>{{/if}}
       </div>
     </div>
 
@@ -33,7 +35,7 @@
       </div>
       <div class="grid-cell">
         <span class="cell-label">{{resonanceName}}</span>
-        <span class="cell-value">+{{resBonus}}</span>
+        <span class="cell-value">{{numberFormat resBonus sign=true}}</span>
       </div>
 
       {{#if gearName}}

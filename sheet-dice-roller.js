@@ -138,7 +138,7 @@ export function initializeDiceRoller(html, sheet) {
     const syncBonusSliderToInput = () => {
         const val = parseInt(html.find('input[name="situational_modifier"]').val()) || 0;
         const clamped = Math.max(-4, Math.min(4, val));
-        const pointer = html.find('.dialog-gear-section .push-slider-pointer');
+        const pointer = html.find('.dialog-gear-section .push-slider-pointer, .dialog-modifier-section .push-slider-pointer');
         if (pointer.length && bonusPositions[String(clamped)] !== undefined) {
             pointer.css({ 'left': `${bonusPositions[String(clamped)]}%` });
         }
