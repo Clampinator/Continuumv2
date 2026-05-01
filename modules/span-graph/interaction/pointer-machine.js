@@ -9,6 +9,7 @@ import { validateSpanPhysics } from '../../temporal-kernel/validate-span-physics
 import { resolveEraDrag } from '/systems/continuum-v2/modules/temporal-kernel/resolve-era-drag.js';
 import { resolveEraEditContext } from '/systems/continuum-v2/modules/temporal-kernel/resolve-era-edit-context.js';
 import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
+import { resolveEventEra } from '/systems/continuum-v2/modules/temporal-kernel/resolve-event-era.js';
 import { formatSubjectiveAge } from '../../span-graph-utils/provide-span-graph-utils.js';
 import { convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
 import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
@@ -464,12 +465,18 @@ export class PointerMachine {
             }));
         }
 
+        // RESOLVE ERA: Explicitly resolve era from node data or age position
+        const resolvedEraId = existingData?.eraId || resolveEventEra(this.actor.system.eras, age);
+        const resolvedExpId = existingData?.expId || null;
+
         await openEventNodeDialog(this.actor.sheet, {
             mode, ageRaw: age, timeRaw: time, date: dt.date, time: dt.time, eventIsSpan,
             departure,
             arrival,
             insertionContext: this.state.insertionContext,
             existingData,
+            eraId: resolvedEraId,
+            expId: resolvedExpId,
             // PHYSICS VETO: Span checkbox is disabled when spanning is blocked.
             spanDisabled: isBreathBlocked || isRankBlocked,
             onClose: (confirmed) => {

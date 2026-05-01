@@ -4,8 +4,9 @@ export function resolveContext(actor, formData, params) {
     const { existingData, eraId, expId } = params;
     const contextAction = formData.experienceAction;
 
-    // Prioritize explicit era from params, then resolve from age
-    let targetEraId = eraId || existingData?.eraId;
+    // AUTHORITY: Explicit era from params/form, then resolve from age
+    // The hidden input eraId in the form takes priority if params.eraId is stale
+    let targetEraId = formData.eraId || eraId || existingData?.eraId;
     if (!targetEraId || targetEraId === 'default') {
         const age = existingData?.eventAge || existingData?.x || params.ageRaw || 0;
         targetEraId = resolveEventEra(actor.system.eras, age);

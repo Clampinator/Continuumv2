@@ -11,14 +11,14 @@ computation with a simple lookup.
 
 @param {Object} eras - Raw era object from actor.system.eras (keyed by ID)
 @param {number} targetAge - Subjective age in seconds to classify
-@returns {string} The era ID, or 'default' if no era matches
+@returns {string|null} The era ID, or null if no eras exist
 */
 export function resolveEventEra(eras, targetAge) {
-  if (!eras || typeof eras !== 'object') return 'default';
+  if (!eras || typeof eras !== 'object') return null;
 
   const boundaries = computeEraBoundaries(eras);
 
-  if (boundaries.length === 0) return 'default';
+  if (boundaries.length === 0) return null;
 
   for (const era of boundaries) {
     if (targetAge <= era.endAge) {
@@ -26,6 +26,6 @@ export function resolveEventEra(eras, targetAge) {
     }
   }
 
-  // Fallback: event is beyond all defined eras
+  // Fallback: event is beyond all defined eras, assign to last era
   return boundaries[boundaries.length - 1].id;
 }

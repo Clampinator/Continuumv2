@@ -7,6 +7,7 @@ import { resolveRecordPath } from './resolve-record-path.js';
 import { Translator } from '../temporal-translator/temporal-translator.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
+import { resolveEventEra } from '../temporal-kernel/resolve-event-era.js';
 
 /**
  * STATE: INSERT HISTORY ROW
@@ -96,21 +97,15 @@ export async function insertHistoryRow(actor, data, options = {}) {
         createdAt: Date.now()
     };
 
-    // AUTHORITY: Find correct Era Chronologically
+    // AUTHORITY: Find correct Era via Kernel resolution
     let eraId = data.eraId;
+    if (!eraId || eraId === 'default') {
+        eraId = resolveEventEra(actor.system.eras, atomic.eventAge);
+    }
+    // Fallback: if no eras exist, use the first era key or 'unfiled'
     if (!eraId) {
-        const eras = Object.entries(actor.system.eras || {}).map(([id, e]) => ({ id, ...e }));
-        eras.sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
-        
-        let cumulativeAge = 0;
-        for (const era of eras) {
-            cumulativeAge += Number(era.duration || 0);
-            if (atomic.eventAge <= cumulativeAge) {
-                eraId = era.id;
-                break;
-            }
-        }
-        eraId = eraId || eras[eras.length - 1]?.id || "default";
+        const eraKeys = Object.keys(actor.system.eras || {});
+        eraId = eraKeys[0] || 'unfiled';
     }
 
     const expId = data.expId || null;
