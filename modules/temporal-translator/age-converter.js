@@ -96,3 +96,28 @@ export function formatSubjectiveAge(totalSeconds) {
     const prefix = isNegative ? "-" : "";
     return `${prefix}${years}y ${days}d ${pad(hours)}:${pad(mins)}:${pad(secs)}`;
 }
+
+/**
+ * Formats a pure integer (seconds) into a short age string.
+ * Format: "Xy Mm Dd" (years, months, remaining days).
+ * Uses 30-day months consistent with org-graph convention.
+ * Designed for spreadsheet readability - drops hours/minutes/seconds.
+ * @param {number} totalSeconds - Integer seconds.
+ * @returns {string} Formatted short age string.
+ */
+export function formatSubjectiveAgeShort(totalSeconds) {
+    if (!Number.isFinite(totalSeconds)) return '0y 0m 0d';
+
+    const isNegative = totalSeconds < 0;
+    let s = Math.abs(Math.floor(totalSeconds));
+
+    const years = Math.floor(s / SECONDS_IN_YEAR);
+    s %= SECONDS_IN_YEAR;
+
+    const totalDays = Math.floor(s / SECONDS_IN_DAY);
+    const months = Math.floor(totalDays / 30);
+    const days = totalDays % 30;
+
+    const prefix = isNegative ? '-' : '';
+    return `${prefix}${years}y ${months}m ${days}d`;
+}

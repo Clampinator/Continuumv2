@@ -17,6 +17,7 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
     super(options);
     this.sheet = options.sheet;
     this.actor = options.actor;
+    this._sortNewestFirst = false;
   }
 
   /** @override */
@@ -60,12 +61,17 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
   async _prepareContext(options) {
       const { rows, allExperiences, allEras } = getSpreadsheetRows(this.actor);
 
+      // Invert sort order if player toggled to newest-first
+      if (this._sortNewestFirst) {
+          rows.reverse();
+      }
+
       return {
           actor: this.actor,
           rows,
           allExperiences,
           allEras,
-          sortNewestFirst: false
+          sortNewestFirst: this._sortNewestFirst
       };
   }
 

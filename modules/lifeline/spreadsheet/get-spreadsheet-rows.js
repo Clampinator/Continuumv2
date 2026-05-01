@@ -72,9 +72,15 @@ export function getSpreadsheetRows(actor) {
             expName: expName, 
             typeLabel: record.eventIsSpan ? 'Span' : 'Event',
             eventNotes: record.eventNotes || record.description || '',
-            projectedTime: node.y
+            projectedTime: node.y,
+            _ageSeconds: node.x
         };
     });
+
+    // SPREADSHEET SORT AUTHORITY: Always sort by subjective age ascending.
+    // The temporal engine may order nodes by narrative/segment order,
+    // but the spreadsheet view is strictly chronological by age.
+    rows.sort((a, b) => (a._ageSeconds || 0) - (b._ageSeconds || 0));
 
     const allEras = Object.entries(rawEras)
         .map(([eraId, era]) => ({ eraId, name: era.name || eraId, sort: Number(era.sort || 0) }))

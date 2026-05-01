@@ -1,4 +1,4 @@
-import { parseSubjectiveAge, formatSubjectiveAge } from './age-converter.js';
+import { parseSubjectiveAge, formatSubjectiveAge, formatSubjectiveAgeShort } from './age-converter.js';
 import { parseObjectiveTime, formatObjectiveTime } from './coordinate-converter.js';
 import { resolveLocationContext } from './location-resolver.js';
 
@@ -25,6 +25,7 @@ export const Translator = {
 
         // Subjective Translations
         const ageFormatted = formatSubjectiveAge(age);
+        const ageShort = formatSubjectiveAgeShort(age);
 
         // Objective Translations
         const dt = formatObjectiveTime(ts, context);
@@ -33,6 +34,7 @@ export const Translator = {
         return {
             ...rawFacts,
             ageFormatted,
+            ageShort,
             date: dt.date,
             time: dt.time,
             eventSpanFromDate: dt.date,

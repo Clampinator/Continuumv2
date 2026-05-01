@@ -21,7 +21,7 @@
 .lifeline-spreadsheet .lss-field-title { min-width:180px; }
 .lifeline-spreadsheet .lss-field-notes { min-width:240px; }
 .lifeline-spreadsheet .lss-field-location { min-width:150px; }
-.lifeline-spreadsheet .lss-age-cell { color:#aaa; font-size:10px; white-space:nowrap; min-width:60px; }
+.lifeline-spreadsheet .lss-age-cell { color:#7af; font-size:11px; font-family:monospace; white-space:nowrap; text-align:right; padding-right:6px; min-width:70px; }
 .lifeline-spreadsheet .lss-exp-badge { background:#3a3a1a; border:1px solid #666; color:#cc9; padding:1px 5px; border-radius:10px; font-size:10px; }
 .lifeline-spreadsheet .lss-era-badge { background:#1a2a3a; border:1px solid #3a5a7a; color:#7af; padding:1px 5px; border-radius:10px; font-size:10px; }
 .lifeline-spreadsheet .lss-span-badge { color:#4da6ff; font-size:10px; }
@@ -48,8 +48,6 @@
 .lifeline-spreadsheet .lss-export-btn:hover  { background:#243c30; }
 .lifeline-spreadsheet .lss-template-btn { background:#2a1a3a; border:1px solid #5a3a7a; color:#b7f; }
 .lifeline-spreadsheet .lss-template-btn:hover { background:#38284a; }
-.lifeline-spreadsheet .lss-bulk-shift-btn { background:#3a2a1a; border:1px solid #7a5a3a; color:#fb7; }
-.lifeline-spreadsheet .lss-bulk-shift-btn:hover { background:#4a3828; }
 .lifeline-spreadsheet .lss-drag-handle { color:#555; cursor:grab; padding:2px 4px; font-size:11px; user-select:none; }
 .lifeline-spreadsheet .lss-drag-handle:hover { color:#aaa; }
 .lifeline-spreadsheet .lss-event-row.sortable-ghost { opacity:0.4; background:#2a3a4a; }
