@@ -51,8 +51,11 @@ export class PointerMachine {
             this.state.mode = 'create-era';
             this.state.startScreen = screenPos;
             const boundaries = computeEraBoundaries(this.actor.system.eras);
-            const startAge = boundaries.length > 0
-                ? boundaries[boundaries.length - 1].endAge
+            // Last era's endAge may be Infinity (open-ended era).
+            // Use the last era's startAge as fallback, or 0 if no eras.
+            const lastBoundary = boundaries.length > 0 ? boundaries[boundaries.length - 1] : null;
+            const startAge = lastBoundary
+                ? (lastBoundary.endAge === Infinity ? lastBoundary.startAge : lastBoundary.endAge)
                 : 0;
             this.state.startWorld = { eventAge: startAge, eventTime: 0 };
             this.state.currentWorld = { ...this.state.startWorld };

@@ -15,7 +15,7 @@ export function computeEraBoundaries(eras) {
   const SECONDS_IN_MONTH = 2628000;
   const SECONDS_IN_DAY = 86400;
 
-  return Object.entries(eras)
+  const result = Object.entries(eras)
     .map(([id, era]) => {
       const name = era.name || 'Untitled';
       // AUTHORITY: Era start comes from era.age (subjective seconds from birth)
@@ -34,4 +34,13 @@ export function computeEraBoundaries(eras) {
       return { id, name, startAge, endAge };
     })
     .sort((a, b) => a.startAge - b.startAge);
+
+  // Fill in endAge from next era's startAge for eras without dateTo
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].endAge === Infinity && i + 1 < result.length) {
+      result[i].endAge = result[i + 1].startAge;
+    }
+  }
+
+  return result;
 }

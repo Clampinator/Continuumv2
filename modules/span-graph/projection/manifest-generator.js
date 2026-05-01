@@ -35,13 +35,16 @@ export function generateManifest(state, viewport, interaction = null) {
 
     // 1. PROJECT ERAS
     if (state.eras) {
+        const containerRect = viewport.container.getBoundingClientRect();
+        const maxEndX = containerRect.width;
         state.eras.forEach(era => {
             const startX = viewport.worldToScreen(era.startAge, 0).x;
-            const endX = viewport.worldToScreen(era.startAge + (era.duration || 0), 0).x;
+            const eraEnd = era.endAge === Infinity ? maxEndX : viewport.worldToScreen(era.startAge + (era.duration || 0), 0).x;
+            const width = Math.max(0, eraEnd - startX);
             manifest.eras.push({
                 id: era.id,
                 name: era.name || 'Unknown Era', startX,
-                width: Math.max(0, endX - startX), color: era.color || '#555'
+                width, color: era.color || '#555'
             });
         });
     }
