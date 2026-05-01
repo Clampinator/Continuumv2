@@ -20,7 +20,6 @@ import {
     handleDebugGraphDataClick, handleResetGraphViewClick, handleTimelineSortToggle, handleFixRailOffsetsClick,
     handleExportLifelineClick, handleImportLifelineClick, handlePersonalLocateClick, handlePersonalGrabClick
 } from '../sheet-ui-handlers.js';
-import { showCreateGoalDialog } from '../span-graph-ui-dialogs.js';
 import { openLifelineSpreadsheet } from '../lifeline/spreadsheet/open-lifeline-spreadsheet.js';
 import { ITEM_DATA } from '../../item-data.js';
 
@@ -196,11 +195,9 @@ export function activateCharacterListeners(sheet, html) {
         sheet.render();
     });
 
-    // --- LISTENER FOR ADDING GOAL FROM GRAPH ---
-    html.on('click', '.goal-hud-add', (event) => {
-        event.preventDefault();
-        showCreateGoalDialog(sheet);
-    });
+    // --- GOAL HUD: Handled by span-graph interaction/goal-listeners.js ---
+    // The goal-hud-add button, goal chip hover, click-to-edit, and drag-to-link
+    // are all managed by the goal-listeners module attached via sheet-handler.js.
 
     // Initialize Sub-Systems
     initializeDragAndDrop(sheet);

@@ -18,7 +18,9 @@ describe('renderViewport: Interaction Rendering', () => {
             railRenderer: { render: vi.fn() },
             nodeRenderer: { render: vi.fn(), renderGhostNode: vi.fn() },
             axisRenderer: { render: vi.fn() },
-            creationRenderer: { render: vi.fn() }
+            creationRenderer: { render: vi.fn() },
+            goalRenderer: { render: vi.fn() },
+            _goalState: { goalId: null, goalScreenPos: null, goalImportance: null, isFading: false }
         };
         mockState = {};
     });

@@ -152,7 +152,11 @@ export function generateManifest(state, viewport, interaction = null) {
             type: _resolveNodeType(node),
             record: node.record || node,
             spanDirection: node.spanDirection,
-            isPreview
+            isPreview,
+            linkedGoalIds: (node.record?.linkedGoalIds || node.linkedGoalIds || []),
+            // Hierarchy keys for goal linking and event editing
+            eraId: node.eraId || node.record?.eraId || null,
+            expId: node.expId || node.record?.expId || null
         };
     });
 

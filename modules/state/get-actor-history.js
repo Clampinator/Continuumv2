@@ -81,7 +81,10 @@ function mapToFact(id, event, path, eraId, expId) {
         isExpEnd: Boolean(event.isExpEnd || event._isExpEnd),
         // AUTHORITY: Preserve raw timestamps from database to prevent re-parsing drift.
         ts: event.ts,
-        arrivalTs: event.arrivalTs
+        arrivalTs: event.arrivalTs,
+        // GOAL LINKAGE: Carries goal IDs linked to this event so the
+        // Projector can draw dotted connection lines on hover.
+        linkedGoalIds: (event.linkedGoalIds || []).concat(event.linkedGoalId ? [event.linkedGoalId] : [])
     };
 
     if (eventIsSpan) {

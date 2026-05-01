@@ -1,4 +1,5 @@
 import { SpanGraphViewport } from '../viewport.js';
+import { attachGoalListeners, detachGoalListeners } from '../interaction/goal-listeners.js';
 
 const viewports = new Map();
 
@@ -54,6 +55,13 @@ export function initializeSpanGraph(actor, html, sheet) {
     }
     
     viewport.updateActor(actor);
+  }
+
+  // GOAL HUD: Attach goal chip listeners (hover, drag-to-link, click-to-edit)
+  // Must be re-attached on every render since Foundry replaces the DOM.
+  detachGoalListeners(html);
+  if (actor.isOwner) {
+    attachGoalListeners(html, viewport);
   }
 
   sheet._spanGraphViewport = viewport;

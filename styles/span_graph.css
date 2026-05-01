@@ -96,9 +96,24 @@
     transition: opacity 1s linear;
 }
 
+/* Span-graph scoped goal connection lines (new viewport renderer) */
+.span-graph-wrapper .goal-connection-line {
+    stroke-width: 1.5px;
+    stroke-dasharray: 4, 3;
+    pointer-events: none;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
+    transition: opacity 1s linear;
+}
+
 .goal-connection-line.fading {
     opacity: 0;
     transition: opacity 1s linear 2s; 
+}
+
+.span-graph-wrapper .goal-connection-line.fading {
+    opacity: 0;
+    transition: opacity 1s linear 2s;
 }
 
 /* Unit Selector Chips */

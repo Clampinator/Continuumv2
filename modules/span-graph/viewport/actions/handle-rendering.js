@@ -22,6 +22,10 @@ export function renderViewport(viewport, state, manifest) {
     viewport.railRenderer.render(manifest);
     viewport.nodeRenderer.render(manifest);
 
+    // 2.5. Goal Layer (Dotted connection lines from hovered goal chip)
+    // Only drawn when a goal chip is hovered in the HUD.
+    viewport.goalRenderer.render(manifest, viewport._goalState);
+
     // 3. HUD Layer (Interface)
     viewport.axisRenderer.render();
     

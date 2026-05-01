@@ -5,6 +5,7 @@ import { CreationRenderer } from './renderers/creation-renderer.js';
 import { EraRenderer } from './renderers/era-renderer.js';
 import { AxisRenderer } from './renderers/axis-renderer.js';
 import { ExperienceRenderer } from './renderers/experience-renderer.js';
+import { GoalRenderer } from './renderers/goal-renderer.js';
 import { TooltipManager } from './ui/tooltips.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
@@ -37,6 +38,15 @@ export class SpanGraphViewport {
 
     // THE INTERACTION MACHINE
     this.pointerMachine = new PointerMachine(this);
+
+    // GOAL STATE: Shared between HUD interaction and goal renderer.
+    // Set by the goal HUD listeners on hover/drag, read by the render pipeline.
+    this._goalState = {
+        highlightedGoalId: null,
+        goalScreenPos: null,
+        goalImportance: null,
+        isFading: false
+    };
 
     // LEGACY COMPATIBILITY (Will be decimated)
     this._interaction = {
@@ -71,6 +81,7 @@ export class SpanGraphViewport {
       this.axisRenderer = new AxisRenderer(this, this.hudLayer);           
       this.creationRenderer = new CreationRenderer(this, this.hudLayer);   
       this.tooltipManager = new TooltipManager(this, this.hudLayer);
+      this.goalRenderer = new GoalRenderer(this, this.contentLayer);
 
       activateListeners(this);
       
