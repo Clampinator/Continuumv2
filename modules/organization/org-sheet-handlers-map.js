@@ -1,4 +1,5 @@
-import { panToLocation, getMapCenterLocation, updateActorMapState } from '../map-manager.js';
+import { panToLocation, getMapCenterLocation, getActorTokenLocation, updateActorMapState } from '../map-manager.js';
+import { writeImmediateKeyframe } from '../spacetime-bridge/write-keyframes.js';
 
 /**
  * Locate button handler for org sheets.
@@ -69,5 +70,37 @@ export async function handleOrgGrabClick(sheet, event) {
             'system.structure.headquartersLng': result.lng,
             'system.structure.headquarters': result.formattedAddress
         });
+    }
+}
+
+export async function handleOrgTokenClick(sheet, event) {
+    event.preventDefault();
+    const button = $(event.currentTarget);
+    const icon = button.find('i');
+
+    icon.removeClass('fa-person').addClass('fa-spinner fa-spin');
+    button.prop('disabled', true);
+
+    const result = await getActorTokenLocation(sheet.actor);
+
+    icon.removeClass('fa-spinner fa-spin').addClass('fa-person');
+    button.prop('disabled', false);
+
+    if (!result) {
+        ui.notifications.warn("No SpaceTime position available. Set the slider to a time when this actor has a located lifeline event, then try again.");
+        return;
+    }
+
+    const dob = sheet.actor.system?.personal?.dob;
+    const ts = dob ? new Date(`${dob}T12:00:00`).getTime() : result.timestampMs;
+
+    await sheet.actor.update({
+        'system.personal.birthLat': result.lat,
+        'system.personal.birthLng': result.lng,
+        'system.personal.birthLocation': result.formattedAddress
+    });
+
+    if (Number.isFinite(ts)) {
+        await writeImmediateKeyframe(sheet.actor, ts, result.lat, result.lng);
     }
 }

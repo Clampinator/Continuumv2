@@ -30,8 +30,8 @@ export function getTemplateData(actor, params) {
     const predecessor = isInsertMode ? params.insertionContext.beforeNode : lore.lastEvent;
     // INSERT-SPAN: Level Breath is impossible in insert mode. Ghost-snap
     // only targets level rails, so the click is always on a level segment.
-    const isBreathBlocked = isInsertMode ? false : Boolean(predecessor?.isSpanOrigin || predecessor?.record?.eventIsSpan);
-    const isRankBlocked = (lore.spanRank || 0) < 1;
+    const isBreathBlocked = (isInsertMode || mode === 'edit') ? false : Boolean(predecessor?.isSpanOrigin || predecessor?.record?.eventIsSpan);
+    const isRankBlocked = mode === 'edit' ? false : (lore.spanRank || 0) < 1;
     const spanDisabled = Boolean(params.spanDisabled || isBreathBlocked || isRankBlocked);
     const effectiveEventIsSpan = spanDisabled ? false : eventIsSpan;
 

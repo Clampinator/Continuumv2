@@ -64,18 +64,25 @@ export const api = {
         ChatMessage.create(chatData);
 
         if (window.CCW_setAPByActor) window.CCW_setAPByActor(actor.id, actionPoints);
-        await actor.update({ 'flags.continuum-v2.lastAP': actionPoints }, { render: false });
 
+        // Emit before actor.update() so a permission error can't abort the broadcast
         if (game.socket) {
-          game.socket.emit('module.continuum-v2-combat-tracker', {
-            type: 'ap-update',
-            actorId: actor.id,
-            actorName: actor.name,
-            ap: actionPoints
-          });
+            game.socket.emit('module.continuum-combat-tracker', {
+                type: 'ap-update',
+                actorId: actor.id,
+                actorName: actor.name,
+                ap: actionPoints
+            });
         }
 
         Hooks.callAll('continuum-v2.apRolled', actor, actionPoints);
+
+        // Best-effort flag write - non-owners may lack permission; failure is non-fatal
+        try {
+            await actor.update({ 'flags.continuum-v2.lastAP': actionPoints }, { render: false });
+        } catch (e) {
+            // Intentionally swallowed - the socket path above is the authoritative update
+        }
 
         return actionPoints;
     },

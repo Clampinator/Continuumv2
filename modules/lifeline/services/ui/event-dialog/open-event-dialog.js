@@ -2,6 +2,8 @@ import { getTemplateData } from './get-template-data.js';
 import { handleSubmit } from './handle-submit.js';
 import { activateDatePickers } from '/systems/continuum-v2/modules/date-picker.js';
 import { panToLocation, getMapCenterLocation } from '/systems/continuum-v2/modules/span-graph-map.js';
+import { getActorTokenLocation } from '/systems/continuum-v2/modules/map-manager.js';
+import { writeImmediateKeyframe } from '/systems/continuum-v2/modules/spacetime-bridge/write-keyframes.js';
 import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';
 
 /**
@@ -61,7 +63,7 @@ export async function openEventDialog(sheet, params) {
         content: content,
         render: (html) => {
             activateDatePickers(html);
-            _activateInternalListeners(html, dialog);
+            _activateInternalListeners(html, dialog, actor);
         },
         buttons: buttons,
         default: "save",
@@ -74,11 +76,7 @@ export async function openEventDialog(sheet, params) {
     dialog.render(true);
 }
 
-/**
- * Internal logic for dialog UI behaviors.
- * @private
- */
-function _activateInternalListeners(html, dialog) {
+function _activateInternalListeners(html, dialog, actor) {
     const contextList = html.find('.context-list-scroll');
     
     // 1. Experience Lifecycle
@@ -126,17 +124,47 @@ function _activateInternalListeners(html, dialog) {
         const btn = $(e.currentTarget);
         const isGrab = btn.hasClass('grab-btn');
         const input = btn.closest('.input-with-btn').find('input[type="text"]');
-        
+
         btn.find('i').attr('class', 'fas fa-spinner fa-spin');
         const result = isGrab ? await getMapCenterLocation() : await panToLocation(input.val());
         btn.find('i').attr('class', isGrab ? 'fas fa-crosshairs' : 'fas fa-map-marker-alt');
-        
+
         if (result) {
             const container = btn.closest('.input-with-btn');
-            container.find('input[name*="Lat"]').val(result.lat); 
+            container.find('input[name*="Lat"]').val(result.lat);
             container.find('input[name*="Lng"]').val(result.lng);
             container.find('input[name*="Zoom"]').val(result.zoom || 12);
             if (result.formattedAddress) input.val(result.formattedAddress);
+        }
+    });
+
+    // 4. Token Location - captures actor position at slider time and writes a preview keyframe
+    html.find('.token-btn').on('click', async (e) => {
+        const btn = $(e.currentTarget);
+        btn.find('i').attr('class', 'fas fa-spinner fa-spin');
+        const result = await getActorTokenLocation(actor);
+        btn.find('i').attr('class', 'fas fa-person');
+
+        if (!result) {
+            ui.notifications.warn("No SpaceTime position available. Set the slider to a time when this character has a located lifeline event, then try again.");
+            return;
+        }
+
+        const container = btn.closest('.input-with-btn');
+        const input = container.find('input[type="text"]');
+        container.find('input[name*="Lat"]').val(result.lat);
+        container.find('input[name*="Lng"]').val(result.lng);
+        container.find('input[name*="Zoom"]').val(result.zoom || 12);
+        if (result.formattedAddress) input.val(result.formattedAddress);
+
+        // Resolve the event datetime from the date/time inputs for this location group
+        const dateName = btn.data('date-name');
+        const timeName = btn.data('time-name');
+        const dateVal  = html.find(`[name="${dateName}"]`).val();
+        const timeVal  = html.find(`[name="${timeName}"]`).val() || '12:00:00';
+        const ts = dateVal ? new Date(`${dateVal}T${timeVal}`).getTime() : result.timestampMs;
+        if (Number.isFinite(ts)) {
+            await writeImmediateKeyframe(actor, ts, result.lat, result.lng);
         }
     });
 }

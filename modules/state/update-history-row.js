@@ -21,13 +21,44 @@ export async function updateHistoryRow(actor, recordId, data) {
     const oldNode = history.find(n => n.id === recordId);
     if (!oldNode) return;
 
+    // ARRIVAL EDIT: The user right-clicked the arrival node of a span. The submitted
+    // eventDate/Time is the new arrival time. Reconstruct full span data so that
+    // Translator.toAtomic reads the preserved departure and the new arrival.
+    if (data._editArrivalOnly && oldNode.record?.eventIsSpan) {
+        data = {
+            ...data,
+            _editArrivalOnly: undefined,
+            eventIsSpan: true,
+            eventAge: oldNode.record.eventAge,
+            eventDate: oldNode.record.eventDate,
+            eventTime: oldNode.record.eventTime,
+            eventLocation: oldNode.record.eventLocation,
+            eventSpanFromDate: oldNode.record.eventSpanFromDate || oldNode.record.eventDate,
+            eventSpanFromTime: oldNode.record.eventSpanFromTime || oldNode.record.eventTime,
+            eventSpanFromLocation: oldNode.record.eventSpanFromLocation || "",
+            eventSpanToDate: data.eventDate,
+            eventSpanToTime: data.eventTime,
+            eventSpanToLocation: data.eventSpanToLocation || oldNode.record.eventSpanToLocation || "",
+        };
+    }
+
     // 1. Resolve Origin Time (Birth Authority)
     const dob = actor.system.personal?.dob || "1970-01-01";
     const birthCtx = resolveLocationContext([], 0, actor);
     const originTime = parseObjectiveTime(dob, "12:00:00", birthCtx);
 
     // 2. Facts to Physics Conversion (TTL Handshake)
-    const atomic = Translator.toAtomic(data, history, actor);
+    let atomic = Translator.toAtomic(data, history, actor);
+
+    // SPAN DEPARTURE EDIT: If the departure ts changed, move the arrival by the same
+    // delta to preserve span duration. Editing the departure node moves both ends
+    // together; only the arrival node edit changes the span length.
+    if (!data._editArrivalOnly && oldNode.record?.eventIsSpan && oldNode.record?.arrivalTs) {
+        const departureDelta = atomic.ts - Number(oldNode.record.ts);
+        if (departureDelta !== 0) {
+            atomic = { ...atomic, arrivalTs: Number(oldNode.record.arrivalTs) + departureDelta };
+        }
+    }
 
     const targetNode = { 
         id: recordId, 

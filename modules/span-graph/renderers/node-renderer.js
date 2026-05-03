@@ -18,6 +18,7 @@ export class NodeRenderer {
     if (!this.group || !manifest.nodes) return;
     this.group.innerHTML = '';
 
+    const deferred = [];
     manifest.nodes.forEach(node => {
       // DEFENSIVE: Skip nodes with invalid or missing screen coordinates
       if (node.x === undefined || node.y === undefined || isNaN(node.x) || isNaN(node.y)) {
@@ -26,8 +27,12 @@ export class NodeRenderer {
       }
 
       const el = this._createNodeShape(node);
-      if (el) this.group.appendChild(el);
+      if (!el) return;
+      // Span-origin triangles render last so they sit on top of any overlapping nodes
+      if (el._renderLast) deferred.push(el);
+      else this.group.appendChild(el);
     });
+    deferred.forEach(el => this.group.appendChild(el));
   }
 
   /**
@@ -67,7 +72,7 @@ export class NodeRenderer {
 
     if (node.type === 'span-origin') {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        const r = 6;
+        const r = 9;
         const points = node.spanDirection === 'up'
             ? `${cx},${cy - r} ${cx - r},${cy + r} ${cx + r},${cy + r}`
             : `${cx},${cy + r} ${cx - r},${cy - r} ${cx + r},${cy - r}`;
@@ -75,7 +80,10 @@ export class NodeRenderer {
         shape.classList.add('graph-node-span-origin');
         shape.style.fill = '#ff00ff'; // Unified Span Pink
         shape.style.stroke = '#ffffff';
-    } 
+        shape.style.strokeWidth = '1.5';
+        // Render above all other nodes by using a high z-index equivalent via DOM order
+        shape._renderLast = true;
+    }
     else if (node.type === 'span-dest') {
         shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const r = 6;

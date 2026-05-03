@@ -2,10 +2,10 @@ import { reindexLifelineNodes } from '../chronology/reindex-lifeline-nodes.js';
 import { ReferenceResolver } from '../reference-resolver.js';
 
 export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
-    if (!sourceEvent || !sourceEvent.date) return;
+    if (!sourceEvent || !sourceEvent.eventDate) return;
 
     // 1. Calculate the end time (24 hours later)
-    const startTimeStr = `${sourceEvent.date}T${sourceEvent.time || '00:00'}`;
+    const startTimeStr = `${sourceEvent.eventDate}T${sourceEvent.eventTime || '00:00'}`;
     const startDate = new Date(startTimeStr);
     if (isNaN(startDate.getTime())) return;
 
@@ -16,7 +16,7 @@ export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
 
     // 2. Calculate the correct Subjective Age for the end of rest
     // Since Rest is a 1:1 progression, the age increases by exactly the same amount as objective time.
-    const endAge = (Number(sourceEvent.age) || 0) + (24 * 60 * 60);
+    const endAge = (Number(sourceEvent.eventAge) || 0) + (24 * 60 * 60);
 
     // 3. Prepare the new event ID
     const newId = foundry.utils.randomID();
@@ -32,9 +32,9 @@ export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
         id: newId,
         eventTitle: "End of Rest",
         eventNotes: "Automatic rest completion.",
-        date: endDateStr,
-        time: endTimeStr,
-        age: endAge, // Canonical age calculated above
+        eventDate: endDateStr,
+        eventTime: endTimeStr,
+        eventAge: endAge,
         sort: reindex.targetSortValue, // Canonical sort from reindex
         eventIsSpan: false,
         eventIsRest: false,

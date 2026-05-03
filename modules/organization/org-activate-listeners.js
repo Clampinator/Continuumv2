@@ -5,7 +5,7 @@ import { initializeOrgGraph } from './org-graph/org-graph-logic.js';
 import { activateDatePickers } from '../date-picker.js';
 import { initializeSpinners } from '../sheet-spinners.js';
 import { handleRestToggle } from '../lifeline/services/ui/handle-rest-toggle.js';
-import { handleOrgLocateClick, handleOrgGrabClick } from './org-sheet-handlers-map.js';
+import { handleOrgLocateClick, handleOrgGrabClick, handleOrgTokenClick } from './org-sheet-handlers-map.js';
 import { showCreateMandateDialog } from './org-dialog-create-mandate.js';
 import { showUnitSettingsDialog } from './org-dialog-unit-settings.js';
 
@@ -45,6 +45,7 @@ export function activateOrgListeners(sheet, html) {
 
     html.on('click', '.personal-locate-btn', (event) => handleOrgLocateClick(sheet, event));
     html.on('click', '.personal-grab-btn', (event) => handleOrgGrabClick(sheet, event));
+    html.on('click', '.personal-token-btn', (event) => handleOrgTokenClick(sheet, event));
 
     // Rest Handling
     html.on('change', 'input[name*=".eventIsRest"]', (event) => handleRestToggle(sheet, event));

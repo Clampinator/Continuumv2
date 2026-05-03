@@ -541,7 +541,29 @@ export class PointerMachine {
 
         this.state.isPending = true;
         this.viewport._interaction.isPending = true;
-        
+
+        // SPAN ARRIVAL: Right-clicking an arrival node should edit that span's arrival time.
+        // Virtual arrival nodes have no DB record, so we find the span-origin (whose arrivalY
+        // matches the arrival node's y), then open a level-event dialog at the arrival time.
+        // The _editArrivalOnly flag tells update-history-row to treat the submitted date/time
+        // as the new arrival rather than a new departure.
+        if (node.isSpanDest) {
+            const originNode = (this.viewport.latestState?.nodes || []).find(
+                n => n.isSpanOrigin && n.arrivalY === node.y
+            );
+            if (originNode) {
+                await this._openDialog('edit', node.x, node.y, false, {
+                    ...node,
+                    id: originNode.id,
+                    eraId: originNode.eraId,
+                    expId: originNode.expId,
+                    record: originNode.record,
+                    _editArrivalOnly: true
+                });
+                return;
+            }
+        }
+
         await this._openDialog('edit', node.x, node.y, node.record.eventIsSpan, node);
     }
 
@@ -566,8 +588,8 @@ export class PointerMachine {
         // level segment - even if the beforeNode in sort order is a span
         // origin. The beforeNode is the span's DEPARTURE, but the click is
         // on the level rail AFTER the span's arrival.
-        const isBreathBlocked = isInsertMode ? false : Boolean(predecessor?.isSpanOrigin || predecessor?.record?.eventIsSpan);
-        const isRankBlocked = (lore.spanRank || 0) < 1;
+        const isBreathBlocked = (isInsertMode || mode === 'edit') ? false : Boolean(predecessor?.isSpanOrigin || predecessor?.record?.eventIsSpan);
+        const isRankBlocked = mode === 'edit' ? false : (lore.spanRank || 0) < 1;
 
         // INSERT-SPAN: Pass departure/arrival context for pre-population
         const departure = this.state.startWorld;

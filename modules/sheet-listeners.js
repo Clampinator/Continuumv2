@@ -8,7 +8,8 @@ import {
     handleCombatHelpClick, handleTheYetHelpClick,
     handleRelationshipsHelpClick, handleLandVehiclesHelpClick, handleAirVehiclesHelpClick, handleWaterVehiclesHelpClick,
     handleGearHelpClick, handleDebugGraphDataClick, handleResetGraphViewClick, handleTimelineSortToggle,
-    handleExportLifelineClick, handleImportLifelineClick, handlePersonalLocateClick, handlePersonalGrabClick
+    handleExportLifelineClick, handleImportLifelineClick, handlePersonalLocateClick, handlePersonalGrabClick,
+    handlePersonalTokenClick
 } from './sheet-ui-handlers.js';
 import { showCreateGoalDialog } from './span-graph-ui-dialogs.js';
 import { initializeSearch } from '../sheet-search.js';
@@ -117,6 +118,7 @@ export function activateSheetListeners(sheet, html) {
     // --- PERSONAL MAP BUTTONS ---
     html.on('click', '.personal-locate-btn', (event) => handlePersonalLocateClick(sheet, event));
     html.on('click', '.personal-grab-btn', (event) => handlePersonalGrabClick(sheet, event));
+    html.on('click', '.personal-token-btn', (event) => handlePersonalTokenClick(sheet, event));
 
     // --- GHOST INPUT HANDLING ---
     html.find('.experience-item.is-clone').each((i, el) => {

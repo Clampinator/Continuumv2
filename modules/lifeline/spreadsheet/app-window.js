@@ -18,6 +18,16 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
     this.sheet = options.sheet;
     this.actor = options.actor;
     this._sortNewestFirst = false;
+    this._submitting = false;
+
+    // Re-render when this actor's data changes from an external source
+    // (e.g. another player edits the sheet, or the graph dialog saves).
+    // The _submitting guard prevents a loop when our own cell edits cause the update.
+    this._actorHookId = Hooks.on('updateActor', (updatedActor) => {
+        if (updatedActor.id !== this.actor?.id) return;
+        if (this._submitting) return;
+        if (this.rendered) this.render();
+    });
   }
 
   /** @override */
@@ -78,8 +88,13 @@ export class LifelineSpreadsheetApp extends foundry.applications.api.HandlebarsA
   /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
-    // AUTHORITY: Attach the refactored listeners to the rendered HTML
     const html = $(this.element);
     bindSpreadsheetListeners(this, html);
+  }
+
+  /** @override */
+  _onClose(options) {
+    super._onClose(options);
+    Hooks.off('updateActor', this._actorHookId);
   }
 }

@@ -18,7 +18,8 @@ import {
     handleCombatHelpClick, handleTheYetHelpClick, handleRelationshipsHelpClick, handleLandVehiclesHelpClick, 
     handleAirVehiclesHelpClick, handleWaterVehiclesHelpClick, handleGearHelpClick, handleSpanGraphHelpClick,
     handleDebugGraphDataClick, handleResetGraphViewClick, handleTimelineSortToggle, handleFixRailOffsetsClick,
-    handleExportLifelineClick, handleImportLifelineClick, handlePersonalLocateClick, handlePersonalGrabClick
+    handleExportLifelineClick, handleImportLifelineClick, handlePersonalLocateClick, handlePersonalGrabClick,
+    handlePersonalTokenClick
 } from '../sheet-ui-handlers.js';
 import { openLifelineSpreadsheet } from '../lifeline/spreadsheet/open-lifeline-spreadsheet.js';
 import { ITEM_DATA } from '../../item-data.js';
@@ -124,6 +125,7 @@ export function activateCharacterListeners(sheet, html) {
 
     html.on('click', '.personal-locate-btn', (event) => handlePersonalLocateClick(sheet, event));
     html.on('click', '.personal-grab-btn', (event) => handlePersonalGrabClick(sheet, event));
+    html.on('click', '.personal-token-btn', (event) => handlePersonalTokenClick(sheet, event));
     // If the player types a new birthplace text directly, clear stale lat/lng so the
     // map doesn't center on the old location. Geo buttons re-populate them correctly.
     html.on('input', 'input[name="system.personal.birthLocation"]', (event) => {

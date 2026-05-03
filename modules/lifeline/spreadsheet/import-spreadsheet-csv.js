@@ -154,7 +154,7 @@ export async function importFromCsv(app) {
         const rawHeaders = allRows[0].map(h => h.trim().toLowerCase());
         const dataRows   = _orientFromBirth(rawHeaders, allRows.slice(1));
 
-        if (!rawHeaders.includes('eventTitle')) {
+        if (!rawHeaders.includes('eventtitle')) {
             _importing = false;
             return void ui.notifications.error("CSV is missing a 'eventTitle' column. Download the template for the correct format.");
         }

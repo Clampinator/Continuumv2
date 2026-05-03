@@ -3,6 +3,13 @@ import { attachGoalListeners, detachGoalListeners } from '../interaction/goal-li
 
 const viewports = new Map();
 
+// Drive graph updates from actor data changes regardless of whether the owning
+// sheet re-renders first (e.g. edits coming from the Lifeline Spreadsheet app).
+Hooks.on('updateActor', (updatedActor) => {
+    const viewport = viewports.get(updatedActor.id);
+    if (viewport) viewport.updateActor(updatedActor);
+});
+
 // GATE: Check if the actor has birth/inc data required to render the lifeline.
 // Without a birth date and location, the graph has no origin point and cannot
 // display meaningful coordinates. Prevents viewport initialization and the

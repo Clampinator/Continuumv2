@@ -136,6 +136,7 @@ export async function handleSubmit(actor, formData, params) {
 
     // 4. Route to Atomic State Layer (Where physics/sorting actually happens)
     if (mode === 'edit' && existingData?.id) {
+        if (existingData._editArrivalOnly) data._editArrivalOnly = true;
         await updateHistoryRow(actor, existingData.id, data);
     } else {
         const isLog = (mode === 'log');

@@ -14,6 +14,7 @@ import { loadApi }         from './lifeline/services/map/load-api.js';
 import { isCoordsValid }   from './span-graph-utils.js';
 import { reportApiError }  from './lifeline/services/map/report-api-error.js';
 import { geocodeAddress, reverseGeocode } from './lifeline/services/map/nominatim.js';
+import { getLifelineEvents } from './spacetime-bridge/get-lifeline-events.js';
 export { geocodeAddress, reverseGeocode };
 
 // Inline OSM raster style - no external JSON fetch required, same as SpaceTime's working default
@@ -197,4 +198,75 @@ export async function panToLocation(address, actorId = null) {
     const result = await geocodeAddress(address);
     if (result) panToCoordinates(result.lat, result.lng, result.zoom, actorId);
     return result ?? null;
+}
+
+/*
+Interpolates the actor's lat/lng at a given timestamp from their lifeline waypoints.
+Returns { lat, lng, zoom, formattedAddress } or null if no waypoints are available.
+*/
+function _interpolateLatLng(waypoints, ms) {
+    if (!waypoints.length) return null;
+    if (ms <= waypoints[0].ms) return { lat: waypoints[0].lat, lng: waypoints[0].lng };
+    if (ms >= waypoints[waypoints.length - 1].ms) {
+        const last = waypoints[waypoints.length - 1];
+        return { lat: last.lat, lng: last.lng };
+    }
+    let lo = 0, hi = waypoints.length - 1;
+    while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (waypoints[mid].ms <= ms) lo = mid; else hi = mid;
+    }
+    const a = waypoints[lo], b = waypoints[hi];
+    const t = (ms - a.ms) / (b.ms - a.ms);
+    return { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t };
+}
+
+export async function getActorTokenLocation(actor) {
+    if (!actor) return null;
+    const stApi = game.modules.get('spacetime')?.api;
+    const sliderMs = stApi?.getCurrentTimestamp?.() ?? null;
+
+    // Primary: interpolate from lifeline waypoints at the current slider time
+    if (sliderMs != null) {
+        const { waypoints } = getLifelineEvents(actor);
+        if (waypoints.length > 0) {
+            const pos = _interpolateLatLng(waypoints, sliderMs);
+            if (pos) {
+                const formattedAddress = await reverseGeocode(pos.lat, pos.lng);
+                return { lat: pos.lat, lng: pos.lng, zoom: 12, formattedAddress, timestampMs: sliderMs };
+            }
+        }
+    }
+
+    // Fallback: scan SpaceTime tokens for this actor across all scenes.
+    // Check latlng (manually dragged position) first, then keyframes.
+    const effectiveMs = sliderMs ?? Date.now();
+    for (const scene of game.scenes) {
+        for (const tokenDoc of scene.tokens) {
+            if (tokenDoc.actorId !== actor.id) continue;
+            if (!tokenDoc.flags?.spacetime) continue;
+
+            // latlng is written by SpaceTime whenever the user drags the token -
+            // it is the most current physical position and takes priority over keyframes.
+            const latlng = tokenDoc.flags.spacetime.latlng;
+            if (latlng?.lat != null && latlng?.lng != null) {
+                const formattedAddress = await reverseGeocode(Number(latlng.lat), Number(latlng.lng));
+                return { lat: Number(latlng.lat), lng: Number(latlng.lng), zoom: 12, formattedAddress, timestampMs: effectiveMs };
+            }
+
+            // keyframes fallback: find the frame closest to the current slider time.
+            const kf = tokenDoc.flags.spacetime.keyframes;
+            if (!Array.isArray(kf) || !kf.length) continue;
+            const sorted = [...kf].sort((a, b) =>
+                Math.abs(a.timestamp - effectiveMs) - Math.abs(b.timestamp - effectiveMs)
+            );
+            const best = sorted[0];
+            if (best?.lat != null && best?.lng != null) {
+                const formattedAddress = await reverseGeocode(Number(best.lat), Number(best.lng));
+                return { lat: Number(best.lat), lng: Number(best.lng), zoom: 12, formattedAddress, timestampMs: effectiveMs };
+            }
+        }
+    }
+
+    return null;
 }

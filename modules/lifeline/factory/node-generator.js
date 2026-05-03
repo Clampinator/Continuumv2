@@ -20,6 +20,7 @@ export const NodeGenerator = {
             eventNotes: config.eventNotes || "",
             linkedGoalIds: config.linkedGoalIds || [],
             isRestStart: !!config.isRestStart,
+            isRestEnd: !!config.isRestEnd,
             isYetFulfillment: !!config.isYetFulfillment,
             lat: (config.lat !== null && config.lat !== undefined && config.lat !== '') ? config.lat : null,
             lng: (config.lng !== null && config.lng !== undefined && config.lng !== '') ? config.lng : null,

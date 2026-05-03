@@ -25,9 +25,14 @@ export function bindSpreadsheetListeners(app, html) {
         const row = input.closest('tr');
         const eventId = row.dataset.eventId;
         const fieldName = input.dataset.field;
-        
+
         if (eventId && fieldName) {
-            await submitSpreadsheetRow(actor, eventId, fieldName, input.value);
+            app._submitting = true;
+            try {
+                await submitSpreadsheetRow(actor, eventId, fieldName, input.value);
+            } finally {
+                app._submitting = false;
+            }
         }
     });
 
