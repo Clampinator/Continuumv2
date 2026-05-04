@@ -19,6 +19,18 @@ Each issue MUST include:
 
 ## Issues
 
+## ISSUE-004
+**Reported:** 2026-05-05 | **Status:** [in-progress]
+**Summary:** Spreadsheet CSV import fails (missing submitNewRow) + inline date edits don't recalculate coordinates
+
+**Details:** Two related bugs:
+1. `import-spreadsheet-csv.js` imports `submitNewRow` from `submit-spreadsheet-row.js`, but that function never existed. CSV import called a missing function, causing silent failure with "Import complete" reported but no data actually written.
+2. `submitSpreadsheetRow` (the inline edit handler) writes raw string values via `actor.update()` without recalculating `ts`/`arrivalTs` epoch coordinates, so date edits don't move the graph position.
+
+**Affected files:** `modules/lifeline/spreadsheet/submit-spreadsheet-row.js`, `modules/lifeline/spreadsheet/import-spreadsheet-csv.js`, `modules/lifeline/spreadsheet/rebuild-from-spreadsheet.js`
+
+**Resolution:** Added `submitNewRow` function to `submit-spreadsheet-row.js` that bridges spreadsheet/CSV form values to the state layer via `insertHistoryRow`. This fixes CSV import. The inline edit coordinate recalculation will be fixed in Step 21/22 of the Trinity refactoring when the spreadsheet edit path is wired through Translator.toAtomic().
+
 ## ISSUE-003
 **Reported:** 2026-04-29 | **Status:** [resolved]
 **Summary:** Recency bonus thresholds wrong - code used <=7yr for +2, spec says 2-5yr

@@ -1,5 +1,5 @@
-import { parseSubjectiveAge, formatSubjectiveAge, formatSubjectiveAgeShort } from './age-converter.js';
-import { parseObjectiveTime, formatObjectiveTime } from './coordinate-converter.js';
+import { parseSubjectiveAge, formatSubjectiveAge, formatSubjectiveAgeShort, formatDuration } from './age-converter.js';
+import { parseObjectiveTime, formatObjectiveTime, timestampToDateString, formatDateOnly, formatTimeOnly, normalizeDateInput, parseDateToObjectiveMs } from './coordinate-converter.js';
 import { resolveLocationContext } from './location-resolver.js';
 
 /**
@@ -43,6 +43,66 @@ export const Translator = {
             eventSpanToTime: arrDt.time,
             locationContext: context
         };
+    },
+
+    /**
+     * Formats a duration in seconds. Same format as formatSubjectiveAge
+     * but semantically distinct (elapsed time vs lifeline position).
+     * @param {number} seconds - Duration in seconds.
+     * @returns {string} Formatted duration string.
+     */
+    formatDuration(seconds) {
+        return formatDuration(seconds);
+    },
+
+    /**
+     * Converts a timestamp (ms) to a { date, time } object.
+     * Defaults to UTC when no context is provided.
+     * @param {number} ts - Integer milliseconds.
+     * @param {Object} [context] - { timezone: string }
+     * @returns {Object} { date: string, time: string }
+     */
+    timestampToDateString(ts, context) {
+        return timestampToDateString(ts, context);
+    },
+
+    /**
+     * Formats a timestamp to a date-only string "YYYY-MM-DD".
+     * @param {number} ts - Integer milliseconds.
+     * @param {Object} [context] - { timezone: string }
+     * @returns {string} Date string.
+     */
+    formatDateOnly(ts, context) {
+        return formatDateOnly(ts, context);
+    },
+
+    /**
+     * Formats a timestamp to a time-only string "HH:MM:SS".
+     * @param {number} ts - Integer milliseconds.
+     * @param {Object} [context] - { timezone: string }
+     * @returns {string} Time string.
+     */
+    formatTimeOnly(ts, context) {
+        return formatTimeOnly(ts, context);
+    },
+
+    /**
+     * Normalizes a date input to "YYYY-MM-DD" using UTC interpretation.
+     * @param {string|number} val - Raw date input.
+     * @returns {string} "YYYY-MM-DD" or "" for falsy input.
+     */
+    normalizeDateInput(val) {
+        return normalizeDateInput(val);
+    },
+
+    /**
+     * Parses a date+time to epoch milliseconds, enforcing UTC.
+     * @param {string} dateString - "YYYY-MM-DD"
+     * @param {string} [timeString] - "HH:MM:SS" (defaults to 12:00:00)
+     * @returns {number} Epoch ms, or 0 for invalid input.
+     */
+    parseDateToObjectiveMs(dateString, timeString) {
+        return parseDateToObjectiveMs(dateString, timeString);
     },
 
     /**

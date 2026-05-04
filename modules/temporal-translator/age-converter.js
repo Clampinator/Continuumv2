@@ -121,3 +121,14 @@ export function formatSubjectiveAgeShort(totalSeconds) {
     const prefix = isNegative ? '-' : '';
     return `${prefix}${years}y ${months}m ${days}d`;
 }
+
+/**
+ * Formats a duration in seconds using the same convention as subjective age.
+ * Semantic alias: "duration" and "age" share the same human-readable format
+ * but carry different meaning (elapsed time vs position on a lifeline).
+ * @param {number} seconds - Duration in seconds.
+ * @returns {string} Formatted duration string (same as formatSubjectiveAge).
+ */
+export function formatDuration(seconds) {
+    return formatSubjectiveAge(seconds);
+}

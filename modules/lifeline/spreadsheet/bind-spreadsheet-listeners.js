@@ -1,5 +1,6 @@
 import { submitSpreadsheetRow } from './submit-spreadsheet-row.js';
-import { exportSpreadsheetCSV, importSpreadsheetCSV, downloadCSVTemplate } from './csv-tools.js';
+import { exportSpreadsheetCSV, downloadCSVTemplate } from './csv-tools.js';
+import { importFromCsv } from './import-spreadsheet-csv.js';
 
 // Namespace suffix for delegated events - allows clean teardown on re-render
 const NS = '.lss';
@@ -50,7 +51,7 @@ export function bindSpreadsheetListeners(app, html) {
 
     html.on('click' + NS, '.lss-import-btn', (event) => {
         event.preventDefault();
-        importSpreadsheetCSV(actor);
+        importFromCsv(app);
     });
 
     html.on('click' + NS, '.lss-template-btn', (event) => {

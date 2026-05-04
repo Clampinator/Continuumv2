@@ -145,7 +145,9 @@ export async function importFromCsv(app) {
         if (!file) { _importing = false; return; }
 
         const text = await file.text();
-        const allRows = parseCsv(text);
+        // Strip BOM if present (common in Windows-exported CSVs)
+        const cleanText = text.replace(/^\uFEFF/, '');
+        const allRows = parseCsv(cleanText);
         if (allRows.length < 2) {
             _importing = false;
             return void ui.notifications.warn("CSV has no data rows.");
@@ -154,9 +156,20 @@ export async function importFromCsv(app) {
         const rawHeaders = allRows[0].map(h => h.trim().toLowerCase());
         const dataRows   = _orientFromBirth(rawHeaders, allRows.slice(1));
 
-        if (!rawHeaders.includes('eventtitle')) {
+        // Accept common header names for the event title column
+        const titleAliases = ['eventtitle', 'title', 'name', 'event'];
+        const hasTitleColumn = rawHeaders.some(h => titleAliases.includes(h));
+        if (!hasTitleColumn) {
             _importing = false;
+            const headerPreview = rawHeaders.slice(0, 10).join(', ');
+            console.warn(`[CSV Import] Headers found: ${headerPreview}`);
             return void ui.notifications.error("CSV is missing a 'eventTitle' column. Download the template for the correct format.");
+        }
+
+        // Normalize title column name to 'eventTitle' if using an alias
+        const titleIdx = rawHeaders.findIndex(h => titleAliases.includes(h));
+        if (rawHeaders[titleIdx] !== 'eventtitle') {
+            rawHeaders[titleIdx] = 'eventtitle';
         }
 
         const headers = rawHeaders.map(h => {

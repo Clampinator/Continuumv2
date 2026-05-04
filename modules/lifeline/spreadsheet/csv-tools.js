@@ -5,8 +5,11 @@ import { getSpreadsheetRows } from './get-spreadsheet-rows.js';
  */
 
 const CSV_HEADERS = [
-    'ageShort', 'date', 'time', 'eventTitle', 'eventNotes', 'location', 'eventIsSpan', 
-    'eventSpanToDate', 'eventSpanToTime', 'eventSpanToLocation'
+    'date', 'time', 'eventTitle', 'eventNotes', 'location',
+    'eventIsSpan',
+    'eventSpanFromDate', 'eventSpanFromTime', 'eventSpanFromLocation',
+    'eventSpanToDate', 'eventSpanToTime', 'eventSpanToLocation',
+    'subjectiveAge'
 ];
 
 /**
@@ -19,8 +22,10 @@ export function exportSpreadsheetCSV(actor) {
     const lines = [CSV_HEADERS.join(',')];
 
     for (const row of rows) {
+        // Map internal field names to export column names
+        const exportRow = { ...row, subjectiveAge: row._ageSeconds || '' };
         const values = CSV_HEADERS.map(header => {
-            let val = row[header];
+            let val = exportRow[header];
             if (val === undefined || val === null) val = '';
             
             let str = String(val);
