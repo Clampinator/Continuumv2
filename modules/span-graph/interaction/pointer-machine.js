@@ -542,24 +542,15 @@ export class PointerMachine {
         this.state.isPending = true;
         this.viewport._interaction.isPending = true;
 
-        // SPAN ARRIVAL: Right-clicking an arrival node should edit that span's arrival time.
-        // Virtual arrival nodes have no DB record, so we find the span-origin (whose arrivalY
-        // matches the arrival node's y), then open a level-event dialog at the arrival time.
-        // The _editArrivalOnly flag tells update-history-row to treat the submitted date/time
-        // as the new arrival rather than a new departure.
+        // SPAN ARRIVAL: Right-clicking an arrival node opens the same span edit dialog
+        // as the origin node. The arrival node is virtual (no DB record), so we find
+        // the span-origin and delegate entirely to it.
         if (node.isSpanDest) {
             const originNode = (this.viewport.latestState?.nodes || []).find(
                 n => n.isSpanOrigin && n.arrivalY === node.y
             );
             if (originNode) {
-                await this._openDialog('edit', node.x, node.y, false, {
-                    ...node,
-                    id: originNode.id,
-                    eraId: originNode.eraId,
-                    expId: originNode.expId,
-                    record: originNode.record,
-                    _editArrivalOnly: true
-                });
+                await this._openDialog('edit', originNode.x, originNode.y, true, originNode);
                 return;
             }
         }

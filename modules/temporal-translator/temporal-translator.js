@@ -53,16 +53,19 @@ export const Translator = {
      * @returns {Object} Bundle of pure integers
      */
     toAtomic(strings, history, actor) {
-        const age = parseSubjectiveAge(strings.eventAge);
-        const isSpan = Boolean(strings.eventIsSpan);
-        
+        // Strip internal routing keys that must not reach the database.
+        const { _spanRecordId, ...persistable } = strings;
+
+        const age = parseSubjectiveAge(persistable.eventAge);
+        const isSpan = Boolean(persistable.eventIsSpan);
+
         // Resolve location context to ensure parsing is aware of the character's local rules
         const context = resolveLocationContext(history, age, actor);
 
         // 1. Resolve Departure (ts)
         // If it's a Span, we strictly look at SpanFrom fields to avoid collisions with Level fields.
-        const dateStr = isSpan ? strings.eventSpanFromDate : strings.eventDate;
-        const timeStr = isSpan ? strings.eventSpanFromTime : strings.eventTime;
+        const dateStr = isSpan ? persistable.eventSpanFromDate : persistable.eventDate;
+        const timeStr = isSpan ? persistable.eventSpanFromTime : persistable.eventTime;
 
         const ts = parseObjectiveTime(dateStr, timeStr, context);
 
@@ -70,14 +73,14 @@ export const Translator = {
         let arrivalTs = ts;
         if (isSpan) {
             arrivalTs = parseObjectiveTime(
-                strings.eventSpanToDate,
-                strings.eventSpanToTime,
+                persistable.eventSpanToDate,
+                persistable.eventSpanToTime,
                 context
             );
         }
 
         return {
-            ...strings,
+            ...persistable,
             eventAge: age,
             ts,
             arrivalTs

@@ -46,6 +46,13 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
     // Null guard: some node arrays may contain undefined entries from empty segments.
     const _age = (n) => n ? (n.age !== undefined ? n.age : n.x) : null;
     const _time = (n) => n ? (n.time !== undefined ? n.time : n.y) : null;
+    // _openTime: for span nodes, returns arrivalY (where the character lands and
+    // starts living), not y (departure). Level events behave identically to _time.
+    const _openTime = (n) => {
+        if (!n) return null;
+        if (n.isSpanOrigin || n.record?.eventIsSpan) return n.arrivalY ?? _time(n);
+        return _time(n);
+    };
 
     // LEVELING AGE: The character's subjective age WITHOUT span displacement.
     // Spans move the character in objective time but do NOT age them. For game
@@ -122,12 +129,13 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
                 // ANCHOR START: Use the opener event node's exact coordinates.
                 // This guarantees the experience box corner aligns with the
                 // rendered event node on the span graph.
+                // For span openers: use arrivalY (arrival time) not y (departure).
                 startAge = _age(openerNode);
-                startTime = _time(openerNode);
+                startTime = _openTime(openerNode);
             } else if (chain.length > 0) {
                 // CHAIN FALLBACK: First chain node as opener.
                 startAge = _age(chain[0]);
-                startTime = _time(chain[0]);
+                startTime = _openTime(chain[0]);
             } else {
                 // DATE FALLBACK: No events belong to this experience yet.
                 // Fall back to date-string interpolation via mapDateToSubjective.
@@ -185,7 +193,7 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
             // still be expanded by chain events since they extend to NOW.
             if (chain.length > 0) {
                 const firstAge = _age(chain[0]);
-                const firstTime = _time(chain[0]);
+                const firstTime = _openTime(chain[0]);
                 if (firstAge !== null) startAge = Math.min(startAge, firstAge);
                 if (firstTime !== null) startTime = Math.min(startTime, firstTime);
                 // Only expand the end boundary if the experience is ongoing.

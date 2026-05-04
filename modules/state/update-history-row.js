@@ -69,7 +69,10 @@ export async function updateHistoryRow(actor, recordId, data) {
     };
 
     // 3. Physical Validation
-    const validation = validateSpanPhysics(targetNode, lore);
+    // skipLevelBreath: the event already passed the consecutive-span check at
+    // insertion time. Re-checking against the globally-last node gives false
+    // positives when editing a span that sits in the middle of the history.
+    const validation = validateSpanPhysics(targetNode, lore, { skipLevelBreath: true, history, recordId });
     if (!validation.isValid) {
         ui.notifications.error(validation.error);
         return;

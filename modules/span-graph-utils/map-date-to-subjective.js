@@ -35,12 +35,15 @@ export function mapDateToSubjective(targetDate, lifelinePoints, dobTs) {
         const y2 = p2.time !== undefined ? p2.time : p2.y;
         
         const outgoing = p1.outgoingType || p1.type;
+        const p1IsSpan = outgoing === 'span' || p1.isSpanOrigin || Boolean(p1.record?.eventIsSpan) || (x1 === x2 && Math.abs(y2 - y1) > 1000);
 
-        // Skip vertical jumps (Spans) for linear interpolation
-        // But check if we are exactly on the origin of a jump
-        if (outgoing === 'span' || (x1 === x2 && Math.abs(y2 - y1) > 1000)) {
+        // Skip vertical jumps (Spans) for linear interpolation.
+        // Spans are instantaneous - departure age equals arrival age (x1).
+        // Match both departure (y1) and arrival (arrivalY) timestamps to x1.
+        if (p1IsSpan) {
             if (Math.abs(targetTs - y1) < 1000) bestMatchAge = x1;
-            continue; 
+            if (Math.abs(targetTs - (p1.arrivalY ?? y1)) < 1000) bestMatchAge = x1;
+            continue;
         }
 
         const minT = Math.min(y1, y2);

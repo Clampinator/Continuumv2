@@ -58,8 +58,12 @@ export const api = {
             sound: CONFIG.sounds.dice
         };
 
-        // Respect global Roll Mode setting
-        ChatMessage.applyRollMode(chatData, game.settings.get("core", "rollMode"));
+        // NPC rolls are always whispered to GM only.
+        // PC rolls respect the global Roll Mode setting.
+        const rollMode = actor.hasPlayerOwner
+            ? game.settings.get("core", "rollMode")
+            : CONST.DICE_ROLL_MODES.PRIVATE;
+        ChatMessage.applyRollMode(chatData, rollMode);
 
         ChatMessage.create(chatData);
 

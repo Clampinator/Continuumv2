@@ -69,9 +69,6 @@ export class RailRenderer {
               stroke-dasharray: 6, 4;
               animation: span-flow 0.5s linear infinite;
           }
-          .span-graph-span-line.past {
-              animation-direction: reverse;
-          }
           .span-graph-span-line.inserting {
               stroke: #ff00ff;
               stroke-width: 3;
