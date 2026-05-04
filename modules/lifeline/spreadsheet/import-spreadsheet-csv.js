@@ -55,22 +55,6 @@ function _orientFromBirth(rawHeaders, dataRows) {
     return [birthRow, ...dataRows.slice(0, birthIdx).reverse()];
 }
 
-// Builds a Set of 'eventTitle|date' keys from all events already on the actor.
-// Used to skip rows that would create duplicate entries.
-function _buildExistingKeys(actor) {
-    const keys = new Set();
-    const add = (ev) => {
-        const d = ev.eventIsSpan ? (ev.eventSpanFromDate || '') : (ev.eventDate || '');
-        if (ev.eventTitle && d) keys.add(`${ev.eventTitle.toLowerCase().trim()}|${d}`);
-    };
-    for (const era of Object.values(actor.system.eras || {})) {
-        Object.values(era.events || {}).forEach(add);
-        for (const exp of Object.values(era.experiences || {}))
-            Object.values(exp.events || {}).forEach(add);
-    }
-    return keys;
-}
-
 function _rowToFormValues(headers, cells, actor) {
     const get  = (name) => (cells[headers.indexOf(name)] ?? '').trim();
     const date = (name) => normalizeDate(get(name));
@@ -112,6 +96,7 @@ function _rowToFormValues(headers, cells, actor) {
         eventNotes:            get('eventNotes'),
         location:         get('location'),
         eventIsSpan:           parseBool(get('eventIsSpan')),
+        eventIsRest:           parseBool(get('eventIsRest')),
         eventSpanFromDate:     date('eventSpanFromDate'),
         eventSpanFromTime:     get('eventSpanFromTime'),
         eventSpanFromLocation: get('eventSpanFromLocation'),
@@ -128,9 +113,9 @@ function _rowToFormValues(headers, cells, actor) {
 }
 
 /*
-Opens a file picker, reads a CSV, and imports each row as a new lifeline event.
-Rows with no eventTitle and no date are silently skipped.
-Rows whose eventTitle+date match an existing event are skipped as duplicates.
+Wipes the entire lifeline (all eras, experiences, events) and rebuilds it
+from the imported CSV. This is a destructive operation - the existing lifeline
+is completely replaced by the CSV data.
 */
 export async function importFromCsv(app) {
     const input = document.createElement('input');
@@ -177,31 +162,54 @@ export async function importFromCsv(app) {
             return match ?? h;
         });
 
-        // Snapshot existing events before import begins - used for duplicate detection.
-        const existingKeys = _buildExistingKeys(app.sheet.actor);
+        const actor = app.sheet.actor;
 
-        let imported = 0, skipped = 0, duplicates = 0;
-        let lastSpanToTs = null; // tracks previous span's arrival for diagonal slope calculation
+        // WIPE: Remove all existing eras (this cascades to experiences and events)
+        const existingEraIds = Object.keys(actor.system.eras || {});
+        if (existingEraIds.length > 0) {
+            const deletions = {};
+            for (const eraId of existingEraIds) {
+                deletions[`system.eras.-=${eraId}`] = null;
+            }
+            await actor.update(deletions);
+        }
+
+        // Create a default era to hold imported events
+        const defaultEraId = foundry.utils.randomID();
+        await actor.update({
+            [`system.eras.${defaultEraId}.name`]: 'Imported Events',
+            [`system.eras.${defaultEraId}.sort`]: 0
+        });
+
+        let imported = 0, skipped = 0;
+        let lastValidTs = null;
+        let lastValidAge = null;
 
         try {
             for (const cells of dataRows) {
-                const fv = _rowToFormValues(headers, cells, app.sheet.actor);
+                const fv = _rowToFormValues(headers, cells, actor);
                 if (!fv.date && !fv.eventSpanFromDate) { skipped++; continue; }
                 if (!fv.eventTitle)                    { skipped++; continue; }
 
-                // Skip if a matching eventTitle+date already exists.
-                const primaryDate = fv.eventIsSpan ? fv.eventSpanFromDate : fv.date;
-                const key = `${fv.eventTitle.toLowerCase().trim()}|${primaryDate}`;
-                if (existingKeys.has(key)) { duplicates++; continue; }
-
-                const ok = await submitNewRow(app.sheet, fv, { batchImport: true, lastSpanToTs });
+                const ok = await submitNewRow(app.sheet, fv, { batchImport: true, lastSpanToTs: lastValidTs });
                 if (ok) {
-                    existingKeys.add(key); // guard against duplicate rows within the CSV itself
                     imported++;
-                    // Record span arrival so next span can compute lived time for diagonal slope.
-                    const d = fv.eventIsSpan && fv.eventSpanToDate ? normalizeDate(fv.eventSpanToDate) : null;
-                    lastSpanToTs = d ? new Date(`${d}T${fv.eventSpanToTime || '12:00:00'}`).getTime() : null;
-                    await Promise.resolve();
+                    // Track the last valid event's position for NOW sync
+                    // For spans, NOW should be at the arrival point; for levels, at the event itself.
+                    if (fv.eventIsSpan && fv.eventSpanToDate) {
+                        const arrTime = fv.eventSpanToTime || '12:00:00';
+                        const d = normalizeDate(fv.eventSpanToDate);
+                        lastValidTs = d ? new Date(`${d}T${arrTime}`).getTime() : null;
+                    } else {
+                        const depTime = fv.time || '12:00:00';
+                        const d = normalizeDate(fv.date || fv.eventSpanFromDate);
+                        lastValidTs = d ? new Date(`${d}T${depTime}`).getTime() : null;
+                    }
+                    if (fv.subjectiveAge && fv.subjectiveAge > 0) {
+                        lastValidAge = fv.subjectiveAge;
+                    }
+                    // Yield to let Foundry process each update before the next
+                    await new Promise(r => setTimeout(r, 50));
                     processGraphData(app.sheet, getSheetContext(app.sheet).graphData);
                 } else {
                     skipped++;
@@ -211,9 +219,22 @@ export async function importFromCsv(app) {
             _importing = false;
         }
 
+        // AUTHORITY: Sync NOW to the last imported event's position.
+        // After a full wipe-and-rebuild, the character's subjective/objective NOW
+        // must point to the last event so the lifeline connects properly.
+        if (lastValidTs || lastValidAge) {
+            const nowUpdate = {};
+            if (lastValidTs) nowUpdate['system.personal.objectiveNow'] = lastValidTs;
+            if (lastValidAge) nowUpdate['system.personal.subjectiveNow'] = lastValidAge;
+            await actor.update(nowUpdate);
+            processGraphData(app.sheet, getSheetContext(app.sheet).graphData);
+        }
+
+        // Refresh the sheet to reflect the new data
+        app.render(true);
+
         const parts = [`Import complete. ${imported} event${imported !== 1 ? 's' : ''} added`];
-        if (duplicates) parts.push(`${duplicates} duplicate${duplicates !== 1 ? 's' : ''} skipped`);
-        if (skipped)    parts.push(`${skipped} invalid row${skipped !== 1 ? 's' : ''} skipped`);
+        if (skipped) parts.push(`${skipped} invalid row${skipped !== 1 ? 's' : ''} skipped`);
         ui.notifications.info(parts.join(', ') + '.');
     };
 

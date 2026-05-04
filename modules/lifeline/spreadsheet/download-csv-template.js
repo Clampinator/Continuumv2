@@ -3,29 +3,31 @@ CSV column names accepted by the importer. Order does not matter - matched by na
 Required for events: eventTitle AND (date OR eventSpanFromDate).
 */
 export const TEMPLATE_HEADERS = [
-    'type',
     'date', 'time', 'eventTitle', 'eventNotes', 'location',
-    'eventIsSpan',
+    'eventIsSpan', 'eventIsRest',
     'eventSpanFromDate', 'eventSpanFromTime', 'eventSpanFromLocation',
-    'eventSpanToDate',   'eventSpanToTime',   'eventSpanToLocation',
+    'eventSpanToDate', 'eventSpanToTime', 'eventSpanToLocation',
     'experience', 'startExperience', 'endExperience',
-    'age', 'isBirth',
     'subjectiveAge',
 ];
 
 /*
 Example rows shown in the downloaded template.
-Age rows come first; event rows follow and reference the age by name.
+Each row maps to the TEMPLATE_HEADERS columns in order.
 */
 const TEMPLATE_EXAMPLE_ROWS = [
-    // type=age rows create Age containers - no date needed, just a eventTitle
-    ['age', '', '', 'College Years', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-    // type=event (or blank) rows are lifeline events
-    // experience=name, startExperience=true opens an Experience; age=name routes to that Age
-    ['event', '1985-06-12', '09:00', 'First Day of College', 'Moved into the dorms.', 'State University',
-     '', '', '', '', '', '', '', 'College Years', 'true', '', 'College Years'],
-    ['event', '1989-05-20', '', 'Graduation Day', 'Finally done.', 'State University',
-     '', '', '', '', '', '', '', 'College Years', '', 'true', 'College Years'],
+    // A level event opening a new experience
+    ['1985-06-12', '09:00', 'First Day of College', 'Moved into the dorms.', 'State University',
+     '', '', '', '', '', '', '',
+     'College Years', 'true', '', ''],
+    // A level event closing an experience
+    ['1989-05-20', '', 'Graduation Day', 'Finally done.', 'State University',
+     '', '', '', '', '', '', '',
+     'College Years', '', 'true', ''],
+    // A span event (time traveler jumping to the future)
+    ['2040-03-15', '12:00', 'Arrival in 2040', 'Saw the future.', 'Paris',
+     'true', '', '2040-03-15', '12:00', '', '2060-01-01', '12:00', '',
+     '', '', '', ''],
 ];
 
 export function downloadCsvTemplate() {
