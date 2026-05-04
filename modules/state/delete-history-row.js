@@ -1,12 +1,16 @@
+import { pushSnapshot } from '../lifeline/undo-manager.js';
+
 /**
  * STATE: DELETE ACTOR RECORD
  * Removes a history record from the character's database.
- * 
+ *
  * @param {Actor} actor - The Foundry Actor instance.
  * @param {string} recordId - The ID of the record to delete.
  */
 export async function deleteHistoryRow(actor, recordId) {
     if (!recordId || recordId === 'now') return;
+
+    pushSnapshot(actor);
 
     // 1. Locate the record across the nested structure
     const eras = actor.system.eras || {};

@@ -152,6 +152,7 @@ export class ContinuumActorSheet extends BaseActorSheet {
   /** @override */
   async close(options={}) {
       deleteSheetContext(this);
+      $(document).off(`keydown.lifelineUndo-${this.actor.id}`);
       return super.close(options);
   }
 

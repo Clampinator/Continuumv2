@@ -1,4 +1,5 @@
 import { findEventPath } from './data-utils.js';
+import { pushSnapshot } from '../undo-manager.js';
 
 /**
  * Processes a single row update from the spreadsheet.
@@ -16,8 +17,9 @@ export async function submitSpreadsheetRow(actor, eventId, field, value) {
         return;
     }
 
+    pushSnapshot(actor);
+
     const targetPath = `${path}.${field}`;
 
-    
     return await actor.update({ [targetPath]: value });
 }

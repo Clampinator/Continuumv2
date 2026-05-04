@@ -5,6 +5,7 @@ import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';
 import { resolveContext } from './handle-submit/resolve-context.js';
 import { handleNewExperience } from './handle-submit/experience-lifecycle.js';
 import { processExperienceLifecycle } from './handle-submit/experience-lifecycle.js';
+import { pushSnapshot } from '../../../../lifeline/undo-manager.js';
 
 /**
  * AUTHORITATIVE SUBMIT HANDLER
@@ -18,6 +19,9 @@ import { processExperienceLifecycle } from './handle-submit/experience-lifecycle
  */
 export async function handleSubmit(actor, formData, params) {
     const { mode, existingData } = params;
+
+    // Snapshot before any writes so this entire logical operation is one undo step
+    pushSnapshot(actor);
 
     // 1. Resolve Context (which era/experience does this event belong to?)
     const { targetEraId, targetExpId: initialExpId } = resolveContext(actor, formData, params);

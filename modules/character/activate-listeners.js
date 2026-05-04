@@ -22,6 +22,7 @@ import {
     handlePersonalTokenClick
 } from '../sheet-ui-handlers.js';
 import { openLifelineSpreadsheet } from '../lifeline/spreadsheet/open-lifeline-spreadsheet.js';
+import { undo, redo } from '../lifeline/undo-manager.js';
 import { ITEM_DATA } from '../../item-data.js';
 
 export function activateCharacterListeners(sheet, html) {
@@ -61,6 +62,38 @@ export function activateCharacterListeners(sheet, html) {
     html.on('click', '.water-vehicles-help', handleWaterVehiclesHelpClick);
     html.on('click', '.gear-help', handleGearHelpClick);
     html.on('click', '.span-graph-help', handleSpanGraphHelpClick);
+
+    // Undo / Redo
+    html.on('click', '.lifeline-undo', async (event) => {
+        event.preventDefault();
+        const did = await undo(sheet.actor);
+        if (!did) ui.notifications.info("Nothing to undo.");
+    });
+    html.on('click', '.lifeline-redo', async (event) => {
+        event.preventDefault();
+        const did = await redo(sheet.actor);
+        if (!did) ui.notifications.info("Nothing to redo.");
+    });
+
+    // CTRL+Z / CTRL+Y anywhere in the sheet (skips when an input has focus)
+    const actorId = sheet.actor.id;
+    $(document).off(`keydown.lifelineUndo-${actorId}`);
+    $(document).on(`keydown.lifelineUndo-${actorId}`, async (event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        const tag = (event.target?.tagName ?? '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+        const sheetEl = sheet.element?.[0];
+        if (!sheetEl || !sheetEl.contains(event.target)) return;
+        if (event.key === 'z' || event.key === 'Z') {
+            event.preventDefault();
+            const did = await undo(sheet.actor);
+            if (!did) ui.notifications.info("Nothing to undo.");
+        } else if (event.key === 'y' || event.key === 'Y') {
+            event.preventDefault();
+            const did = await redo(sheet.actor);
+            if (!did) ui.notifications.info("Nothing to redo.");
+        }
+    });
 
     // Graph & Data Controls
     html.on('click', '.lifeline-spreadsheet-btn', () => openLifelineSpreadsheet(sheet));

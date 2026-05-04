@@ -1,18 +1,12 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-
-// SNAP_RADIUS - extra pixels beyond the node edge where snapping activates.
-// Total snap distance from center = nodeRadius + SNAP_RADIUS.
-const SNAP_RADIUS = 40;
-
-// GLOW_FILTER_ID - shared ID for the SVG <defs> proximity glow filter.
-const GLOW_FILTER_ID = 'link-drag-glow';
+import { getNodeData, findSnapTarget, installGlowFilter, clearSnapGlow, applySnapGlow } from './link-snap-utils.js';
 
 /**
  * Attaches the right-drag tool for creating new relationships.
  *
  * UX improvements:
- *  - Magnetic snap: within (nodeRadius + SNAP_RADIUS) px, the drag line
- *    snaps to the nearest valid target center.
+ *  - Magnetic snap: within (nodeRadius + 40) px, the drag line snaps
+ *    to the nearest valid target center.
  *  - Proximity glow: the snap target gains a cyan SVG filter halo.
  *  - Cursor feedback: SVG shows crosshair cursor during drag.
  *  - Cancel notification: releasing on empty space shows an info message.
@@ -35,77 +29,13 @@ export function manageLinkCreation(svg, g, nodeSel, sheet) {
         .attr('stroke-dasharray', '5,5')
         .style('opacity', 0);
 
-    // Glow filter - soft cyan halo applied to snap-target nodes
-    const defs = svg.select('defs').empty()
-        ? svg.append('defs')
-        : svg.select('defs');
-    defs.append('filter')
-        .attr('id', GLOW_FILTER_ID)
-        .attr('x', '-50%').attr('y', '-50%')
-        .attr('width', '200%').attr('height', '200%')
-        .call(filter => {
-            filter.append('feGaussianBlur')
-                .attr('stdDeviation', '4')
-                .attr('result', 'blur');
-            filter.append('feMerge')
-                .call(merge => {
-                    merge.append('feMergeNode').attr('in', 'blur');
-                    merge.append('feMergeNode').attr('in', 'SourceGraphic');
-                });
-        });
-
-    // Collect all node datum for proximity checks on every mousemove
-    function getNodeData() {
-        const nodes = [];
-        nodeSel.each(function(d) { nodes.push(d); });
-        return nodes;
-    }
-
-    // Find the nearest non-source node whose edge is within SNAP_RADIUS
-    function findSnapTarget(mx, my, nodes) {
-        let nearest = null;
-        let nearestDist = Infinity;
-        for (const node of nodes) {
-            if (node === dragSource) continue;
-            if (node.x == null || node.y == null) continue;
-            const dx = mx - node.x;
-            const dy = my - node.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const nodeRadius = node.isRoot ? 35 : 25;
-            // Snap activates when cursor enters the node circle + SNAP_RADIUS band
-            const threshold = nodeRadius + SNAP_RADIUS;
-            if (dist < threshold && dist < nearestDist) {
-                nearest = node;
-                nearestDist = dist;
-            }
-        }
-        return nearest;
-    }
-
-    // Remove glow from the previous snap target
-    function clearSnapGlow() {
-        if (snapTarget) {
-            nodeSel.filter(d => d === snapTarget)
-                .select('circle')
-                .style('filter', null);
-            snapTarget = null;
-        }
-    }
-
-    // Apply glow halo to a snap target node
-    function applySnapGlow(target) {
-        clearSnapGlow();
-        snapTarget = target;
-        nodeSel.filter(d => d === target)
-            .select('circle')
-            .style('filter', `url(#${GLOW_FILTER_ID})`);
-    }
+    installGlowFilter(svg);
 
     // Full cleanup of drag visual state
     function endDrag() {
         dragSource = null;
+        snapTarget = clearSnapGlow(nodeSel, snapTarget);
         dragLine.style('opacity', 0);
-        clearSnapGlow();
         // Reset cursor - null removes the inline style, reverting to CSS default
         svg.style('cursor', null);
     }
@@ -147,17 +77,19 @@ export function manageLinkCreation(svg, g, nodeSel, sheet) {
     svg.on('mousemove.linkcreate', (event) => {
         if (!dragSource) return;
         const [mx, my] = d3.pointer(event, g.node());
-        const nodes = getNodeData();
-        const target = findSnapTarget(mx, my, nodes);
+        const nodes = getNodeData(nodeSel);
+        const target = findSnapTarget(mx, my, nodes, dragSource);
 
         if (target) {
             // Magnetic snap: line locks to target center
+            snapTarget = clearSnapGlow(nodeSel, snapTarget);
+            applySnapGlow(nodeSel, target);
+            snapTarget = target;
             dragLine.attr('x2', target.x).attr('y2', target.y);
-            applySnapGlow(target);
         } else {
             // Free drag: line follows cursor
+            snapTarget = clearSnapGlow(nodeSel, snapTarget);
             dragLine.attr('x2', mx).attr('y2', my);
-            clearSnapGlow();
         }
     });
 
