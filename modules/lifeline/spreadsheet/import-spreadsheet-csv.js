@@ -7,7 +7,6 @@ import { resolveLocationContext } from '../../temporal-translator/location-resol
 import { resolveEventEra } from '../../temporal-kernel/resolve-event-era.js';
 import { resolveRecordPath } from '../../state/resolve-record-path.js';
 import { projectSubjectiveAge, computeOffsetFromArrival } from '../../temporal-kernel/project-subjective-age.js';
-import { calculateSpanDisplacement } from '../../temporal-kernel/calculate-displacement-pool.js';
 
 let _importing = false;
 
