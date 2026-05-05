@@ -1,6 +1,8 @@
 import { parseSubjectiveAge, formatSubjectiveAge, formatSubjectiveAgeShort, formatDuration } from './age-converter.js';
-import { parseObjectiveTime, formatObjectiveTime, timestampToDateString, formatDateOnly, formatTimeOnly, normalizeDateInput, parseDateToObjectiveMs } from './coordinate-converter.js';
+import { parseObjectiveTime, formatObjectiveTime, timestampToDateString, formatDateOnly, formatTimeOnly, normalizeDateInput, parseDateToObjectiveMs, formatObjectiveDateLines } from './coordinate-converter.js';
 import { resolveLocationContext } from './location-resolver.js';
+import { formatSubjectiveAgeSmart, formatObjectiveDateSmart } from './smart-formatters.js';
+import { diffSeconds, convertSecondsToDateString } from './duration-converter.js';
 
 /**
  * TEMPORAL TRANSLATOR: FACADE
@@ -103,6 +105,59 @@ export const Translator = {
      */
     parseDateToObjectiveMs(dateString, timeString) {
         return parseDateToObjectiveMs(dateString, timeString);
+    },
+
+    /**
+     * Adapts age label precision based on visible range.
+     * @param {number} seconds - Subjective age in seconds.
+     * @param {number} range - Visible age range in seconds.
+     * @returns {string} Compact or full age string.
+     */
+    formatSubjectiveAgeSmart(seconds, range) {
+        return formatSubjectiveAgeSmart(seconds, range);
+    },
+
+    /**
+     * Adapts date label precision based on visible time range.
+     * @param {number} ts - Objective timestamp in ms.
+     * @param {number} range - Visible time range in ms.
+     * @param {Object} [context] - { timezone: string }
+     * @returns {string[]} Array of label lines.
+     */
+    formatObjectiveDateSmart(ts, range, context) {
+        return formatObjectiveDateSmart(ts, range, context);
+    },
+
+    /**
+     * Computes the difference in seconds between two Date objects.
+     * @param {Date} dateA - Start date.
+     * @param {Date} dateB - End date.
+     * @returns {number} Duration in seconds.
+     */
+    diffSeconds(dateA, dateB) {
+        return diffSeconds(dateA, dateB);
+    },
+
+    /**
+     * Converts a subjective age (seconds) to a date string
+     * by adding the age to the date-of-birth timestamp.
+     * @param {number} seconds - Subjective age in seconds.
+     * @param {number} dobTs - Date-of-birth timestamp in ms.
+     * @param {Object} [context] - { timezone: string }
+     * @returns {string} Date string "YYYY-MM-DD".
+     */
+    convertSecondsToDateString(seconds, dobTs, context) {
+        return convertSecondsToDateString(seconds, dobTs, context);
+    },
+
+    /**
+     * Formats a timestamp as [date, time, weekday] lines for tooltips/axes.
+     * @param {number} ts - Integer milliseconds.
+     * @param {Object} [context] - { timezone: string }
+     * @returns {string[]} [date, time, weekday] strings.
+     */
+    formatObjectiveDateLines(ts, context) {
+        return formatObjectiveDateLines(ts, context);
     },
 
     /**

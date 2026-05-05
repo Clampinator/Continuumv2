@@ -54,7 +54,12 @@ export async function insertHistoryRow(actor, data, options = {}) {
     };
 
     // 3. Physical Validation
-    const validation = validateSpanPhysics(targetNode, lore);
+    // Level Breath is skipped for insertions because:
+    // - Spans can only be inserted into level segments (the UI enforces this)
+    // - The lastEvent in lore context is the globally-last event, not the
+    //   narrative predecessor of the insertion point. Comparing against it
+    //   produces false positives when inserting a span mid-timeline.
+    const validation = validateSpanPhysics(targetNode, lore, { skipLevelBreath: true });
     if (!validation.isValid) {
         ui.notifications.error(validation.error);
         return null;

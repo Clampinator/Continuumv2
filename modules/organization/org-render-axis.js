@@ -1,4 +1,4 @@
-import { formatSubjectiveAgeSmart, formatObjectiveDateSmart } from '../span-graph-utils.js';
+import { formatSubjectiveAgeSmart, formatObjectiveDateSmart } from '../temporal-translator/smart-formatters.js';
 
 const svgNS = "http://www.w3.org/2000/svg";
 

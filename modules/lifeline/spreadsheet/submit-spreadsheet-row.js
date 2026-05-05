@@ -3,6 +3,8 @@ import { pushSnapshot } from '../undo-manager.js';
 import { insertHistoryRow } from '../../state/insert-history-row.js';
 import { updateHistoryRow } from '../../state/update-history-row.js';
 import { resolveEventEra } from '../../temporal-kernel/resolve-event-era.js';
+import { parseObjectiveTime } from '../../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
 
 /**
  * Processes a single field update on an existing event row.
@@ -94,6 +96,25 @@ export async function submitNewRow(sheet, fv, options = {}) {
         }
     }
 
+    // AUTHORITY: Derive eventAge from date fields when subjectiveAge is absent.
+    // Without this, events default to age 0 (birth), causing wrong rail placement.
+    const dob = actor.system.personal?.dob || '1970-01-01';
+    const birthCtx = resolveLocationContext([], 0, actor);
+    const birthTs = parseObjectiveTime(dob, '12:00:00', birthCtx);
+
+    // Resolve the departure timestamp from form values
+    const depDate = eventIsSpan ? (fv.eventSpanFromDate || fv.date) : fv.date;
+    const depTime = eventIsSpan ? (fv.eventSpanFromTime || fv.time || '12:00:00') : (fv.time || '12:00:00');
+
+    let eventAge = fv.subjectiveAge || 0;
+    if (!eventAge && depDate) {
+        // Compute age from date-of-birth and departure timestamp
+        const depTs = parseObjectiveTime(depDate, depTime, birthCtx);
+        if (depTs && birthTs) {
+            eventAge = Math.max(0, Math.round((depTs - birthTs) / 1000));
+        }
+    }
+
     // Build data payload matching the structure expected by insertHistoryRow
     const data = {
         eventTitle: fv.eventTitle || (eventIsSpan ? 'New Span' : 'New Event'),
@@ -101,7 +122,7 @@ export async function submitNewRow(sheet, fv, options = {}) {
         eventIsSpan: eventIsSpan,
         eventIsRest: Boolean(fv.eventIsRest),
 
-        eventAge: fv.subjectiveAge || 0,
+        eventAge,
 
         eventDate: fv.date || fv.eventSpanFromDate || '',
         eventTime: fv.time || '12:00:00',

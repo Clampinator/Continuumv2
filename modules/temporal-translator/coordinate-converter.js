@@ -163,6 +163,26 @@ export function parseDateToObjectiveMs(dateString, timeString) {
 }
 
 /**
+ * Formats a timestamp (ms) into an array of label lines for axis/tooltip use.
+ * Returns [date, time, weekday] - e.g. ["2024/01/15", "12:00:00", "MON"].
+ * Uses TTL location-aware formatting throughout.
+ * @param {number} ts - Integer milliseconds.
+ * @param {Object} [context] - { timezone: string } (defaults to UTC)
+ * @returns {string[]} Array of [date, time, weekday] strings.
+ */
+export function formatObjectiveDateLines(ts, context) {
+    if (!ts && ts !== 0) return ['Invalid', 'Date', ''];
+    const result = formatObjectiveTime(ts, context || { timezone: 'UTC' });
+    // Convert date from YYYY-MM-DD to YYYY/MM/DD for display
+    const dateDisplay = result.date.replace(/-/g, '/');
+    // Derive weekday abbreviation from the localized date
+    const weekday = new Date(ts).toLocaleDateString('en-US', {
+        weekday: 'short', timeZone: context?.timezone || 'UTC'
+    }).toUpperCase();
+    return [dateDisplay, result.time, weekday];
+}
+
+/**
  * Ensures years are padded to 4 digits for reliable Date parsing.
  * @private
  */

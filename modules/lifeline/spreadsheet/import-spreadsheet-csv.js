@@ -3,6 +3,8 @@ import { parseBool, normalizeDate, parseCsv } from './parse-csv.js';
 import { TEMPLATE_HEADERS } from './download-csv-template.js';
 import { processGraphData } from '../../span-graph-data-processor.js';
 import { getSheetContext } from '../../span-graph-state.js';
+import { parseObjectiveTime } from '../../temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
 
 let _importing = false; // prevents concurrent imports
 
@@ -164,6 +166,11 @@ export async function importFromCsv(app) {
 
         const actor = app.sheet.actor;
 
+        // AUTHORITY: Resolve birth timestamp for consistent date->age computation
+        const dob = actor.system.personal?.dob || '1970-01-01';
+        const birthCtx = resolveLocationContext([], 0, actor);
+        const birthTs = parseObjectiveTime(dob, '12:00:00', birthCtx);
+
         // WIPE: Remove all existing eras (this cascades to experiences and events)
         const existingEraIds = Object.keys(actor.system.eras || {});
         if (existingEraIds.length > 0) {
@@ -195,18 +202,26 @@ export async function importFromCsv(app) {
                 if (ok) {
                     imported++;
                     // Track the last valid event's position for NOW sync
-                    // For spans, NOW should be at the arrival point; for levels, at the event itself.
+                    // AUTHORITY: Use parseObjectiveTime for UTC-accurate timestamps
+                    const tsContext = resolveLocationContext([], lastValidAge || 0, actor);
                     if (fv.eventIsSpan && fv.eventSpanToDate) {
-                        const arrTime = fv.eventSpanToTime || '12:00:00';
-                        const d = normalizeDate(fv.eventSpanToDate);
-                        lastValidTs = d ? new Date(`${d}T${arrTime}`).getTime() : null;
+                        lastValidTs = parseObjectiveTime(
+                            normalizeDate(fv.eventSpanToDate),
+                            fv.eventSpanToTime || '12:00:00',
+                            tsContext
+                        );
                     } else {
-                        const depTime = fv.time || '12:00:00';
-                        const d = normalizeDate(fv.date || fv.eventSpanFromDate);
-                        lastValidTs = d ? new Date(`${d}T${depTime}`).getTime() : null;
+                        lastValidTs = parseObjectiveTime(
+                            normalizeDate(fv.date || fv.eventSpanFromDate),
+                            fv.time || '12:00:00',
+                            tsContext
+                        );
                     }
+                    // Compute age from timestamp if subjectiveAge not in CSV
                     if (fv.subjectiveAge && fv.subjectiveAge > 0) {
                         lastValidAge = fv.subjectiveAge;
+                    } else if (lastValidTs && birthTs) {
+                        lastValidAge = Math.max(0, Math.round((lastValidTs - birthTs) / 1000));
                     }
                     // Yield to let Foundry process each update before the next
                     await new Promise(r => setTimeout(r, 50));
