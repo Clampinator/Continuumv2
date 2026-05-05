@@ -2,6 +2,8 @@
 import { parseSubjectiveAge, formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { migrateEraEvents } from '/systems/continuum-v2/modules/state/migrate-era-events.js';
+import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
+import { computeEraGaps } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-gaps.js';
 import { Sound } from './sound-manager.js';
 
 /**
@@ -16,6 +18,10 @@ import { Sound } from './sound-manager.js';
  * and experiences across all eras. If any event's subjective age now
  * falls outside its current era, it migrates to the correct era.
  * Experiences migrate to the era of their LAST event (or NOW).
+ *
+ * GAP CREATION: If narrowing an era creates a gap before NOW (or
+ * between eras), automatically creates a follow-on era to ensure
+ * no events are left without an era bucket.
  *
  * The dialog shows age as subjective strings (e.g. "17y 2m") and
  * converts to/from seconds using the TTL age converter.
@@ -107,6 +113,30 @@ export function openEraEditDialog(data, sheet, viewState) {
                     const migrationUpdates = migrateEraEvents(sheet.actor);
                     if (Object.keys(migrationUpdates).length > 0) {
                         await sheet.actor.update(migrationUpdates);
+                    }
+
+                    // If narrowing this era created a gap before NOW or between
+                    // eras, auto-create a follow-on era to catch orphaned events
+                    const erasData = sheet.actor.system.eras;
+                    const boundaries = computeEraBoundaries(erasData);
+                    const nowAge = Number(sheet.actor.system.personal?.subjectiveNow) || 0;
+                    const gapEras = computeEraGaps(erasData, boundaries, nowAge, dobStr);
+                    if (gapEras.length > 0) {
+                        const gapUpdates = {};
+                        for (const gap of gapEras) {
+                            const newEraId = foundry.utils.randomID();
+                            gapUpdates[`system.eras.${newEraId}`] = {
+                                id: newEraId,
+                                name: gap.name,
+                                age: gap.age,
+                                dateFrom: gap.dateFrom,
+                                dateTo: '',
+                                experiences: {},
+                                events: {},
+                                sort: Date.now()
+                            };
+                        }
+                        await sheet.actor.update(gapUpdates);
                     }
 
                     Sound.confirm();
