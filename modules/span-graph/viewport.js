@@ -20,7 +20,7 @@ import { PointerMachine } from './interaction/pointer-machine.js';
 // ATOMIZED ACTIONS
 import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
 import { renderViewport } from './viewport/actions/handle-rendering.js';
-import { autoCenter } from './viewport/actions/auto-center.js';
+import { autoCenter } from './actions/auto-center.js';
 
 // ATOMIZED LISTENERS
 import { activateListeners, deactivateListeners } from './viewport/listeners/activate-listeners.js';
