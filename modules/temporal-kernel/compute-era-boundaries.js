@@ -9,14 +9,13 @@ queries.
 
 RULES:
 1. Era start comes from era.age (subjective seconds from birth).
-2. Era end is the MAXIMUM of:
-   a. startAge + (dateTo - dateFrom) in seconds (user-set dates)
-   b. The furthest event endAge within the era
-   c. The furthest experience endAge within the era
-3. If dateTo is absent, endAge falls through to the next era's startAge.
+2. Era end with explicit dateTo: the user-set boundary is authoritative.
+   Events/experiences beyond it belong to a different era, not this one.
+3. Era end without dateTo: extends to cover all events, then fills from
+   the next era's startAge to avoid gaps. This is auto-era behavior.
 4. Downward propagation: after computing initial boundaries, any era whose
-   startAge equals its predecessor's endAge is considered contiguous.
-   Gaps between eras are preserved (they represent time outside any era).
+   startAge collides with its predecessor's endAge is shifted forward.
+   Earlier eras own their time range.
 
 TTL COMPLIANCE: Uses parseDateToObjectiveMs instead of raw Date constructor.
 
@@ -49,17 +48,17 @@ export function computeEraBoundaries(eras) {
         }
       }
 
-      // Compute furthest event/experience age within this era for duration calc
+      // Compute furthest event/experience age within this era.
+      // Only extends the boundary for auto-eras (no dateTo). Eras with an
+      // explicit dateTo use that as the hard boundary - events beyond it
+      // belong to a different era and will be migrated by the caller.
       const maxEventAge = _furthestEventAge(era, startAge);
 
-      // Era end is the latest of: date-based end, furthest event age, or startAge
-      if (endAge === Infinity) {
-        // No dateTo: end is bounded by events (or falls through to next era)
+      if (noDateTo) {
+        // Auto-era: boundary extends to cover events or falls through to next era
         endAge = maxEventAge > startAge ? maxEventAge : Infinity;
-      } else if (maxEventAge > endAge) {
-        // Events extend past the user-set dateTo: extend the era boundary
-        endAge = maxEventAge;
       }
+      // else: user-set dateTo is authoritative, even if events exceed it
 
       const computedDuration = endAge === Infinity ? 0 : endAge - startAge;
 

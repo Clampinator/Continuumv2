@@ -1,6 +1,7 @@
 // continuum/modules/span-graph-dialog-age.js
 import { parseSubjectiveAge, formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { migrateEraEvents } from '/systems/continuum-v2/modules/state/migrate-era-events.js';
 import { Sound } from './sound-manager.js';
 
 /**
@@ -10,6 +11,11 @@ import { Sound } from './sound-manager.js';
  * dateFrom, and dateTo to the actor. This ensures computeEraBoundaries
  * can read era.age as the authoritative start position and derive
  * endAge from dateTo - dateFrom via TTL.
+ *
+ * MIGRATION: After updating the era boundary, re-checks all events
+ * and experiences across all eras. If any event's subjective age now
+ * falls outside its current era, it migrates to the correct era.
+ * Experiences migrate to the era of their LAST event (or NOW).
  *
  * The dialog shows age as subjective strings (e.g. "17y 2m") and
  * converts to/from seconds using the TTL age converter.
@@ -95,6 +101,14 @@ export function openEraEditDialog(data, sheet, viewState) {
                     }
 
                     await sheet.actor.update(updates);
+
+                    // After boundary change, migrate events/experiences that now
+                    // fall outside their era to the correct era
+                    const migrationUpdates = migrateEraEvents(sheet.actor);
+                    if (Object.keys(migrationUpdates).length > 0) {
+                        await sheet.actor.update(migrationUpdates);
+                    }
+
                     Sound.confirm();
                 }
             },

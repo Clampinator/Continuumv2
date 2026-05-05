@@ -53,7 +53,7 @@ describe('computeEraBoundaries', () => {
     expect(result[0].computedDuration).toBe(0);
   });
 
-  it('should extend era boundary when events exceed dateTo', () => {
+  it('should NOT extend era boundary past explicit dateTo for events', () => {
     const eras = {
       'era1': {
         name: 'Childhood',
@@ -66,8 +66,10 @@ describe('computeEraBoundaries', () => {
       }
     };
     const result = computeEraBoundaries(eras);
-    // Event at 8yr exceeds dateTo (5yr), so era should extend to 8yr
-    expect(result[0].endAge).toBe(8 * YR);
+    // User-set dateTo is authoritative. Events beyond it belong
+    // to a different era and will be migrated by the caller.
+    expect(result[0].endAge).toBeGreaterThan(4 * YR);
+    expect(result[0].endAge).toBeLessThan(6 * YR);
   });
 
   it('should use furthest event age when dateTo is absent', () => {
@@ -90,7 +92,7 @@ describe('computeEraBoundaries', () => {
     expect(result[0].endAge).toBe(10 * YR);
   });
 
-  it('should include experience events in furthest age calculation', () => {
+  it('should NOT extend era past explicit dateTo for experience events', () => {
     const eras = {
       'era1': {
         name: 'Childhood',
@@ -108,8 +110,9 @@ describe('computeEraBoundaries', () => {
       }
     };
     const result = computeEraBoundaries(eras);
-    // Experience event at 6yr exceeds dateTo (5yr)
-    expect(result[0].endAge).toBe(6 * YR);
+    // User-set dateTo is authoritative; events beyond it will be migrated
+    expect(result[0].endAge).toBeGreaterThan(4 * YR);
+    expect(result[0].endAge).toBeLessThan(6 * YR);
   });
 
   it('should propagate startAge forward when previous era overlaps', () => {
@@ -153,5 +156,42 @@ describe('computeEraBoundaries', () => {
     };
     const result = computeEraBoundaries(eras);
     expect(result[0].startAge).toBe(0);
+  });
+
+  it('should extend auto-era (no dateTo) boundary with events', () => {
+    const eras = {
+      'era1': {
+        name: 'Childhood',
+        age: 0,
+        events: {
+          'evt1': { eventTitle: 'Event at 5yr', eventAge: 5 * YR },
+          'evt2': { eventTitle: 'Event at 8yr', eventAge: 8 * YR }
+        }
+      },
+      'era2': { name: 'Adulthood', age: 15 * YR }
+    };
+    const result = computeEraBoundaries(eras);
+    // era1 has no dateTo, so events extend it to max(8yr, next era start=15yr)
+    expect(result[0].endAge).toBe(15 * YR);
+  });
+
+  it('should respect explicit dateTo even when events are beyond it', () => {
+    const eras = {
+      'era1': {
+        name: 'Childhood',
+        age: 0,
+        dateFrom: '2000-01-01',
+        dateTo: '2005-01-01',
+        events: {
+          'evt1': { eventTitle: 'Event at 8yr', eventAge: 8 * YR }
+        }
+      },
+      'era2': { name: 'Adulthood', age: 15 * YR }
+    };
+    const result = computeEraBoundaries(eras);
+    // era1 has explicit dateTo (~5yr). Events at 8yr do NOT extend it.
+    // The event at 8yr is "orphaned" and will be migrated by the caller.
+    expect(result[0].endAge).toBeGreaterThan(4 * YR);
+    expect(result[0].endAge).toBeLessThan(6 * YR);
   });
 });

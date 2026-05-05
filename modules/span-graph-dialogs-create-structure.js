@@ -1,6 +1,7 @@
 import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { convertSecondsToDateString } from '/systems/continuum-v2/modules/temporal-translator/duration-converter.js';
 import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+import { migrateEraEvents } from '/systems/continuum-v2/modules/state/migrate-era-events.js';
 import { renderGraph } from './span-graph-render.js';
 import { renderDatePicker } from './span-graph-ui-helpers.js';
 import { ContextFinder } from './lifeline/services/context-finder.js';
@@ -123,6 +124,12 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
                             sort: newSort
                         }
                     });
+
+                    // New era may split existing era boundaries - migrate events
+                    const migrationUpdates = migrateEraEvents(sheet.actor);
+                    if (Object.keys(migrationUpdates).length > 0) {
+                        await sheet.actor.update(migrationUpdates);
+                    }
 
                     viewState.interactionMode = 'pan';
                     sheet.render();
