@@ -91,7 +91,7 @@ export class PointerMachine {
             return;
         }
 
-        // ERA LABEL: Click to edit era
+        // ERA LABEL: Click to edit era, double-click to center viewport on era
         const eraLabel = event.target.closest('.graph-era-label');
         if (eraLabel) {
             const eraId = eraLabel.getAttribute('data-id');
@@ -100,6 +100,9 @@ export class PointerMachine {
                 return;
             }
         }
+
+        // ERA LABEL DOUBLE-CLICK: Center viewport on era midpoint
+        // (handled by dblclick listener in _bindEvents)
 
         this.state.isDown = true;
         this.state.startScreen = screenPos;

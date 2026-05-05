@@ -43,8 +43,13 @@ export function generateManifest(state, viewport, interaction = null) {
             const width = Math.max(0, eraEnd - startX);
             manifest.eras.push({
                 id: era.id,
-                name: era.name || 'Unknown Era', startX,
-                width, color: era.color || null
+                name: era.name || 'Unknown Era',
+                startAge: era.startAge,
+                endAge: era.endAge,
+                duration: era.duration,
+                color: era.color || null,
+                startX,
+                width
             });
         });
     }

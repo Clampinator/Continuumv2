@@ -20,6 +20,7 @@ import { PointerMachine } from './interaction/pointer-machine.js';
 // ATOMIZED ACTIONS
 import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
 import { renderViewport } from './viewport/actions/handle-rendering.js';
+import { autoCenter } from './viewport/actions/auto-center.js';
 
 // ATOMIZED LISTENERS
 import { activateListeners, deactivateListeners } from './viewport/listeners/activate-listeners.js';
@@ -125,6 +126,17 @@ export class SpanGraphViewport {
   }
 
   setViewState(newState) { this.viewState = { ...this.viewState, ...newState }; this._render(); }
+
+  /**
+   * Centers the viewport on a specific subjective age.
+   * Used for era navigation: double-click an era label to scroll to it.
+   * @param {number} age - Subjective age in seconds to center on
+   */
+  centerOnAge(age) {
+    const originTime = this._getOriginTime();
+    const targetTime = originTime + (age * 1000);
+    autoCenter(this, { eventAge: age, eventTime: targetTime });
+  }
   
   /**
    * AUTHORITATIVE MASTER RENDER PASS

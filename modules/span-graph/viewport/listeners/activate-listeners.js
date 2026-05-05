@@ -61,6 +61,23 @@ export function activateListeners(viewport) {
         viewport.pointerMachine.onRightClick(e, { x: e.clientX - rect.left, y: e.clientY - rect.top });
     };
     viewport.svg.addEventListener('contextmenu', viewport._onContextMenu);
+
+    // --- ERA LABEL DOUBLE-CLICK (Center viewport on era) ---
+    viewport._onEraDblClick = (e) => {
+        const eraLabel = e.target.closest('.graph-era-label');
+        if (!eraLabel) return;
+        e.preventDefault();
+        const eraId = eraLabel.getAttribute('data-id');
+        if (!eraId || !viewport.latestState?.eras) return;
+        const era = viewport.latestState.eras.find(er => er.id === eraId);
+        if (!era) return;
+        // Center on era midpoint (midpoint between startAge and endAge)
+        const midAge = era.endAge === Infinity
+            ? era.startAge + (era.duration || 0) / 2
+            : era.startAge + (era.duration || 0) / 2;
+        viewport.centerOnAge(midAge);
+    };
+    viewport.svg.addEventListener('dblclick', viewport._onEraDblClick);
 }
 
 /**
@@ -74,6 +91,7 @@ export function deactivateListeners(viewport) {
     if (viewport._onPointerDown) viewport.svg.removeEventListener('pointerdown', viewport._onPointerDown);
     if (viewport._onWheel) viewport.svg.removeEventListener('wheel', viewport._onWheel);
     if (viewport._onContextMenu) viewport.svg.removeEventListener('contextmenu', viewport._onContextMenu);
+    if (viewport._onEraDblClick) viewport.svg.removeEventListener('dblclick', viewport._onEraDblClick);
 
     // Window-level listeners (most critical to remove - these fire on every pointer event)
     if (viewport._onPointerMove) window.removeEventListener('pointermove', viewport._onPointerMove);
