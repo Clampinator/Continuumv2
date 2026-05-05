@@ -1,11 +1,11 @@
 /*
-ENGINE UNIT: EXTRACT ERAS
-Formats and sorts era data from the actor for visual rendering.
-Delegates boundary computation to the Kernel layer.
+ ENGINE UNIT: EXTRACT ERAS
+ Formats and sorts era data from the actor for visual rendering.
+ Delegates boundary computation to the Kernel layer.
 
-ENFORCES: ADI (Authoritative Data Isolation).
-Kernel is the single authority for era boundaries.
-*/
+ ENFORCES: ADI (Authoritative Data Isolation).
+ Kernel is the single authority for era boundaries and duration.
+ */
 
 import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
 
@@ -21,7 +21,7 @@ export function extractEras(actor) {
             name: era.name,
             startAge: era.startAge,
             endAge: era.endAge,
-            duration: era.endAge === Infinity ? 0 : era.endAge - era.startAge,
+            duration: era.computedDuration,
             color: actor.system.eras[era.id]?.color || null
         });
     });
