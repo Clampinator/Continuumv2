@@ -11,9 +11,12 @@ export async function handleCharacterItemAdd(sheet, event) {
     let updates = {};
 
     switch (dataType) {
-        case 'era':
-            updates[`system.eras.${newId}`] = { id: newId, name: "New Era", sort: Date.now(), experiences: {}, events: {} };
+        case 'era': {
+            const existingEras = actor.system.eras || {};
+            const dobStr = actor.system.personal?.dob || '';
+            updates[`system.eras.${newId}`] = { id: newId, name: "New Era", age: 0, dateFrom: dobStr, dateTo: '', sort: Date.now(), experiences: {}, events: {} };
             break;
+        }
         case 'experience':
             const eraId = button.dataset.eraId;
             if (eraId) updates[`system.eras.${eraId}.experiences.${newId}`] = { id: newId, name: "New Experience", sort: Date.now(), events: {} };

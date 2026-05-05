@@ -173,6 +173,8 @@ export async function importFromCsv(app) {
         const defaultEraId = foundry.utils.randomID();
         await actor.update({
             [`system.eras.${defaultEraId}.name`]: 'Imported Events',
+            [`system.eras.${defaultEraId}.age`]: 0,
+            [`system.eras.${defaultEraId}.dateFrom`]: actor.system.personal?.dob || '',
             [`system.eras.${defaultEraId}.sort`]: 0
         });
 

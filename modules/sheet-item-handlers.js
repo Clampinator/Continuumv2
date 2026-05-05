@@ -22,7 +22,8 @@ export async function handleItemAdd(sheet, event) {
             updates[`system.eras.${newId}`] = {
                 id: newId,
                 name: "New Era",
-                dateFrom: isFirst ? dobStr : '',
+                age: 0,
+                dateFrom: dobStr,
                 dateTo: '',
                 sort: Date.now(),
                 experiences: {},

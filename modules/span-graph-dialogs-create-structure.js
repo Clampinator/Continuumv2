@@ -1,4 +1,4 @@
-import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { convertSecondsToDateString } from '/systems/continuum-v2/modules/temporal-translator/duration-converter.js';
 import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 import { renderGraph } from './span-graph-render.js';
@@ -10,7 +10,8 @@ import { activateDatePickers } from './date-picker.js';
 Dialog to create a new Era from drag selection.
 */
 export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSeconds, sortedEras) {
-    const dobTs = sheet.actor.system.personal?.dob ? new Date(sheet.actor.system.personal.dob + "T00:00:00").getTime() : Date.now();
+    const dobStr = sheet.actor.system.personal?.dob;
+    const dobTs = dobStr ? parseDateToObjectiveMs(dobStr) : Date.now();
     const startStr = convertSecondsToDateString(viewState.creationStartAgeSeconds, dobTs);
     const endStr = convertSecondsToDateString(viewState.creationCurrentAgeSeconds, dobTs);
 
