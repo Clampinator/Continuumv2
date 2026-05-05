@@ -2,8 +2,9 @@ import { renderOrgGraph } from './org-render.js';
 import { panToCoordinates } from '../map-manager.js';
 import { SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 import { showCreatePhaseDialog, showInsertEngagementDialog, showLogEngagementDialog, showYetDialog, openEditDialog } from './org-graph-dialogs.js';
+import { markYetFulfilled } from '/systems/continuum-v2/modules/state/mark-yet-fulfilled.js';
 
-export function handleOrgPointerUp(event, svg, viewState, graphData, sheet) {
+export async function handleOrgPointerUp(event, svg, viewState, graphData, sheet) {
     if (event.pointerId) svg.releasePointerCapture(event.pointerId);
 
     const mode = viewState.interactionMode;
@@ -55,7 +56,7 @@ export function handleOrgPointerUp(event, svg, viewState, graphData, sheet) {
 
             if (dist < 25) {
                 const yetId = viewState.draggedYetId;
-                sheet.actor.update({ [`system.theYet.${yetId}.done`]: true });
+                await markYetFulfilled(sheet.actor, yetId);
                 ui.notifications.info("Yet Fulfilled!");
                 sheet.render();
                 return;

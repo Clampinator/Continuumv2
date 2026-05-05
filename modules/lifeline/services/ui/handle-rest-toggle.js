@@ -1,62 +1,41 @@
-import { reindexLifelineNodes } from '../chronology/reindex-lifeline-nodes.js';
-import { ReferenceResolver } from '../reference-resolver.js';
+import { insertHistoryRow } from '/systems/continuum-v2/modules/state/insert-history-row.js';
+import { SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
+/**
+ * Creates an "End of Rest" event 24 hours after the given rest event.
+ * Routes through insertHistoryRow (State layer) instead of bypassing
+ * it with a direct actor.update() call.
+ */
 export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
     if (!sourceEvent || !sourceEvent.eventDate) return;
 
-    // 1. Calculate the end time (24 hours later)
-    const startTimeStr = `${sourceEvent.eventDate}T${sourceEvent.eventTime || '00:00'}`;
-    const startDate = new Date(startTimeStr);
-    if (isNaN(startDate.getTime())) return;
+    // Compute end-of-rest coordinates.
+    // Rest is a 1:1 progression, so age increases by exactly 24 hours.
+    const endAge = (Number(sourceEvent.eventAge) || 0) + SECONDS_IN_DAY;
+    const endTs = (Number(sourceEvent.ts) || 0) + (SECONDS_IN_DAY * 1000);
 
-    const endDate = new Date(startDate.getTime() + (24 * 60 * 60 * 1000)); 
+    // Format date/time from end timestamp
+    const endDate = new Date(endTs);
+    if (isNaN(endDate.getTime())) return;
     const formatZeroPad = (num) => String(num).padStart(2, '0');
     const endDateStr = `${endDate.getFullYear()}-${formatZeroPad(endDate.getMonth() + 1)}-${formatZeroPad(endDate.getDate())}`;
     const endTimeStr = `${formatZeroPad(endDate.getHours())}:${formatZeroPad(endDate.getMinutes())}`;
 
-    // 2. Calculate the correct Subjective Age for the end of rest
-    // Since Rest is a 1:1 progression, the age increases by exactly the same amount as objective time.
-    const endAge = (Number(sourceEvent.eventAge) || 0) + (24 * 60 * 60);
-
-    // 3. Prepare the new event ID
-    const newId = foundry.utils.randomID();
-    
-    // 4. Use Reindex to get the correct Sort for the new event
-    const reindex = reindexLifelineNodes(actor, newId, -1, { 
-        age: endAge,
-        time: endDate.getTime(),
-        eventIsSpan: false 
-    });
-
-    const newEventData = {
-        id: newId,
-        eventTitle: "End of Rest",
-        eventNotes: "Automatic rest completion.",
+    // Route through State layer via insertHistoryRow
+    const record = {
+        eventTitle: 'End of Rest',
+        eventNotes: 'Automatic rest completion.',
         eventDate: endDateStr,
         eventTime: endTimeStr,
         eventAge: endAge,
-        sort: reindex.targetSortValue, // Canonical sort from reindex
         eventIsSpan: false,
         eventIsRest: false,
-        isRestEnd: true
+        isRestEnd: true,
+        eraId,
+        expId
     };
-    
 
-    // 5. Construct the update path
-    const updatePath = expId
-        ? `system.eras.${eraId}.experiences.${expId}.events.${newId}`
-        : `system.eras.${eraId}.events.${newId}`;
-
-    // 6. Apply updates (including any reindex shifts)
-    const updates = {
-        ...reindex,
-        [updatePath]: newEventData,
-        'system.personal.subjectiveNow': endAge
-    };
-    delete updates.targetAge;
-    delete updates.targetSortValue;
-
-    await actor.update(updates);
+    await insertHistoryRow(actor, record);
     ui.notifications.info("Created 'End of Rest' event 24 hours later.");
 }
 

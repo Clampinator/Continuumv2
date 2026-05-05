@@ -6,10 +6,10 @@
  * This is the spacetime loop closure mechanic - the character has reached
  * the point in their life where the Yet event was always meant to happen.
  */
-import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { markYetFulfilled } from '/systems/continuum-v2/modules/state/mark-yet-fulfilled.js';
 
 /**
- * Fulfills a Yet by marking it done and creating a fulfillment event.
+ * Fulfills a Yet by marking it done via the State layer.
  *
  * @param {Actor} actor - The Foundry actor
  * @param {string} yetId - The ID of the Yet to fulfill
@@ -22,20 +22,8 @@ export async function fulfillYet(actor, yetId, viewport) {
         return;
     }
 
-    const nowNode = viewport.latestState?.nowNode;
-    if (!nowNode) {
-        console.warn('Continuum | Yet fulfillment failed: No NOW node');
-        return;
-    }
+    await markYetFulfilled(actor, yetId);
 
-    // Mark the Yet as done
-    const updates = {
-        [`system.theYet.${yetId}.done`]: true
-    };
-
-    await actor.update(updates);
-
-    // Notify the user
     ui.notifications.info(
         `Loop Closed: "${yetData.description || 'Yet event'}" fulfilled.`
     );
