@@ -1,9 +1,8 @@
-import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
-import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
-
 /**
  * DUMB RENDERER: AXIS RENDERER
  * Performs pure SVG drawing of the HUD axes and labels.
+ * Receives pre-formatted label strings from computeAxisLabels().
+ * FORBIDDEN from calling TTL, Kernel, or State functions.
  */
 export class AxisRenderer {
   constructor(viewport, parentGroup) {
@@ -11,56 +10,39 @@ export class AxisRenderer {
     this.group = this._createAxisGroup(parentGroup);
   }
 
-  render() {
+  render(axisData) {
     if (!this.group) return;
     this.group.innerHTML = '';
 
-    const rect = this.viewport.container.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const gutterHeight = 35;
+    if (!axisData) return;
+
+    const { ageLabels, timeLabels, width, height, gutterHeight } = axisData;
     const labelX = 14;
+    const xAxisY = height - gutterHeight;
 
     // 1. X-AXIS (Subjective Age)
-    const xAxisY = height - gutterHeight;
-    const worldLeft = this.viewport.screenToWorld(0, 0).eventAge;
-    const worldRight = this.viewport.screenToWorld(width, 0).eventAge;
-    const ageRange = worldRight - worldLeft;
-    
-    for (let i = 0; i <= 5; i++) {
-        const ratio = i / 5;
-        const worldAge = worldLeft + (ageRange * ratio);
-        const screenX = this.viewport.worldToScreen(worldAge, 0).x;
-        
-        const label = this._createText(screenX, xAxisY + 13, formatSubjectiveAge(worldAge), 'graph-axis-text', 'middle');
-        this.group.appendChild(label);
-        
-        const tick = this._createTick(screenX, xAxisY - 15, screenX, xAxisY - 10);
-        this.group.appendChild(tick);
+    // The 5px offset prevents tick from overlapping axis labels
+    for (const { screenX, label } of ageLabels) {
+      const text = this._createText(screenX, xAxisY + 13, label, 'graph-axis-text', 'middle');
+      this.group.appendChild(text);
+
+      const tick = this._createTick(screenX, xAxisY - 15, screenX, xAxisY - 10);
+      this.group.appendChild(tick);
     }
 
     const ageHeader = this._createText(width / 2, xAxisY + 28, 'SUBJECTIVE AGE', 'graph-axis-text graph-axis-text-bold', 'middle');
     this.group.appendChild(ageHeader);
 
     // 2. Y-AXIS (Objective Time)
-    const topWorld = this.viewport.screenToWorld(0, 0);
-    const bottomWorld = this.viewport.screenToWorld(0, height - gutterHeight);
-    const timeRange = bottomWorld.eventTime - topWorld.eventTime;
+    for (const { screenY, date, time } of timeLabels) {
+      const dateText = this._createText(labelX, screenY - 5, date, 'graph-axis-text', 'start');
+      this.group.appendChild(dateText);
 
-    for (let i = 0; i <= 5; i++) {
-        const ratio = i / 5;
-        const currentTime = topWorld.eventTime + (timeRange * ratio);
-        const screenY = this.viewport.worldToScreen(0, currentTime).y;
-        
-        const dt = timestampToDateString(currentTime);
-        const dateText = this._createText(labelX, screenY - 5, dt.date, 'graph-axis-text', 'start');
-        this.group.appendChild(dateText);
-        
-        const timeText = this._createText(labelX, screenY + 7, dt.time, 'graph-axis-text graph-axis-text-bold', 'start');
-        this.group.appendChild(timeText);
-        
-        const tick = this._createTick(labelX + 2, screenY, labelX + 7, screenY);
-        this.group.appendChild(tick);
+      const timeText = this._createText(labelX, screenY + 7, time, 'graph-axis-text graph-axis-text-bold', 'start');
+      this.group.appendChild(timeText);
+
+      const tick = this._createTick(labelX + 2, screenY, labelX + 7, screenY);
+      this.group.appendChild(tick);
     }
 
     const dateHeader = this._createText(5, (height - gutterHeight) / 2, 'OBJECTIVE DATE', 'graph-axis-text graph-axis-text-bold', 'middle');

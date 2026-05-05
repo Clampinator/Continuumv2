@@ -8,6 +8,7 @@ import { ExperienceRenderer } from './renderers/experience-renderer.js';
 import { GoalRenderer } from './renderers/goal-renderer.js';
 import { YetRenderer } from './renderers/yet-renderer.js';
 import { TooltipManager } from './ui/tooltips.js';
+import { computeAxisLabels } from './projection/compute-axis-labels.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
@@ -97,12 +98,18 @@ export class SpanGraphViewport {
 
   updateActor(actor) { this.actor = actor; this._render(); }
 
-  _getOriginTime() {
-      if (!this.actor) return 0;
-      const dobStr = this.actor.system.personal?.dob || "1970-01-01";
-      const birthCtx = resolveLocationContext([], 0, this.actor);
-      return parseObjectiveTime(dobStr, "12:00:00", birthCtx);
-  }
+   _getOriginTime() {
+       if (!this.actor) return 0;
+       const dobStr = this.actor.system.personal?.dob || "1970-01-01";
+       const birthCtx = resolveLocationContext([], 0, this.actor);
+       return parseObjectiveTime(dobStr, "12:00:00", birthCtx);
+   }
+
+   // PROJECTION: Pre-computes formatted axis labels via TTL.
+   // Called by the rendering orchestrator and passed to the dumb AxisRenderer.
+   computeAxisLabels() {
+       return computeAxisLabels(this);
+   }
 
   autoFocus() {
       if (!this.actor) return null;

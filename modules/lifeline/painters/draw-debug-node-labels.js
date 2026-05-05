@@ -1,14 +1,16 @@
-
 import { formatObjectiveDateLines } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 
+// DEVELOPMENT ONLY: Debug overlay for node labels.
+// TTL imports remain here because this is a debug overlay, not a production renderer.
+// If re-enabled, format calls should be moved to the orchestrator layer.
 /**
  * DEBUG AUTHORITY: Persistent Node Labels.
  * Draws internal array indices and physical coordinates over the graph.
  */
 export function drawDebugNodeLabels(svg, viewState, graphData) {
     const svgNS = "http://www.w3.org/2000/svg";
-    
+
     // 1. Resolve Layer
     let debugLayer = svg.querySelector('.graph-debug-labels-layer');
     if (!debugLayer) {
@@ -44,26 +46,22 @@ export function drawDebugNodeLabels(svg, viewState, graphData) {
         labelGroup.style.pointerEvents = 'none';
         labelGroup.style.textShadow = '1px 1px 2px black';
 
-        // Line 1: Progression Index (Array position in the subjective stream)
         const tIdx = document.createElementNS(svgNS, 'tspan');
         tIdx.textContent = `[PROG: ${index}] ${node.type.toUpperCase()}`;
         tIdx.setAttribute('x', x + 10);
         tIdx.setAttribute('dy', '0');
         tIdx.style.fontWeight = 'bold';
-        
-        // Line 2: Subjective Age
+
         const tAge = document.createElementNS(svgNS, 'tspan');
         tAge.textContent = `AGE: ${ageStr}`;
         tAge.setAttribute('x', x + 10);
         tAge.setAttribute('dy', '1.2em');
 
-        // Line 3: Objective Date
         const tDate = document.createElementNS(svgNS, 'tspan');
         tDate.textContent = `OBJ: ${dateLines[0]} ${dateLines[1]}`;
         tDate.setAttribute('x', x + 10);
         tDate.setAttribute('dy', '1.2em');
 
-        // Line 4: Database Address (The Sort Value)
         const tCreate = document.createElementNS(svgNS, 'tspan');
         tCreate.textContent = `ADR: ${node.sort || 'GENESIS'}`;
         tCreate.setAttribute('x', x + 10);
@@ -81,7 +79,7 @@ export function drawDebugNodeLabels(svg, viewState, graphData) {
     if (graphData.nowNode) {
         const nx = (graphData.nowNode.age * viewState.scaleX) + viewState.x;
         const ny = (graphData.nowNode.time * viewState.scaleY) + viewState.y;
-        
+
         if (Number.isFinite(nx) && Number.isFinite(ny)) {
             const nowLabel = document.createElementNS(svgNS, 'text');
             nowLabel.setAttribute('x', nx + 12);

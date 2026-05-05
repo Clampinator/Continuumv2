@@ -2,6 +2,7 @@
  * DUMB PIPE: RENDER VIEWPORT
  * Executes the visual update based on an injected state and manifest.
  * FORBIDDEN from fetching database data or performing temporal math.
+ * Axis labels are pre-computed via computeAxisLabels (TTL calls happen there).
  * 
  * @param {Object} viewport - The viewport instance.
  * @param {Object} state - Pre-calculated TemporalState.
@@ -30,7 +31,10 @@ export function renderViewport(viewport, state, manifest) {
     viewport.yetRenderer.render(manifest);
 
     // 3. HUD Layer (Interface)
-    viewport.axisRenderer.render();
+    // Axis labels are pre-formatted in the projection layer so the
+    // AxisRenderer stays truly dumb (no TTL calls)
+    const axisData = viewport.computeAxisLabels ? viewport.computeAxisLabels() : null;
+    viewport.axisRenderer.render(axisData);
     
     // AUTHORITY: Ghost Node rendering now flows through the Projector
     if (manifest.interaction?.ghost) {
