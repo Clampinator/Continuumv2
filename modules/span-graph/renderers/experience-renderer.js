@@ -29,7 +29,7 @@ export class ExperienceRenderer {
     const labelSlots = {};
 
     manifest.experiences.forEach(exp => {
-        const { x, y, width, height, isOngoing, opacity, name, id, eraId } = exp;
+        const { x, y, width, height, isOngoing, opacity, bonus, name, id, eraId } = exp;
 
         // 1. Draw Box (visual container - no pointer events so clicks pass through)
         const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -78,7 +78,11 @@ export class ExperienceRenderer {
             label.setAttribute('data-id', id);
             label.setAttribute('data-era-id', eraId);
             label.classList.add('graph-exp-label');
-            label.textContent = name;
+            // Display bonus next to name when available
+            const displayText = (bonus !== undefined && bonus !== null && bonus > 0)
+                ? `${name} (+${bonus})`
+                : name;
+            label.textContent = displayText;
             this.group.appendChild(label);
         }
     });

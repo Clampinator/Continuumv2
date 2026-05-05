@@ -1,7 +1,10 @@
 /*
 Service to manage the experience eventTitle hover tooltip.
-Handles DOM lifecycle, mouse tracking, and data aggregation for locations.
+Handles DOM lifecycle, mouse tracking, data aggregation for locations,
+and resonance bonus display.
 */
+import { calculateResonanceBonuses } from '../calculators/resonance-calculator/calculate-resonance-bonuses.js';
+
 export const ExperienceTooltipService = {
     show(actor, targetEl, event) {
         this.hide();
@@ -50,13 +53,38 @@ export const ExperienceTooltipService = {
             primaryLocation = mode || "Unknown";
         }
 
-        // 3. Create Tooltip Element
+        // 3. Calculate Resonance Bonus (two-axis: duration + distance)
+        let bonusText = '';
+        try {
+            const allBonuses = calculateResonanceBonuses(actor);
+            const matched = allBonuses.find(b => b.name === expData.name);
+            if (matched && matched.bonus > 0) {
+                bonusText = `<div class="tooltip-row">
+                    <i class="fas fa-bolt"></i>
+                    <span>Resonance: +${matched.bonus}</span>
+                </div>`;
+            }
+        } catch (_) {
+            // Resonance calculation may fail if actor data is incomplete
+        }
+
+        // 4. Description (optional)
+        let descText = '';
+        if (expData.description && expData.description.trim()) {
+            const shortDesc = expData.description.length > 80
+                ? expData.description.substring(0, 80) + '...'
+                : expData.description;
+            descText = `<div class="tooltip-row tooltip-desc" style="color: #aaa; font-style: italic;">${shortDesc}</div>`;
+        }
+
+        // 5. Create Tooltip Element
         const tooltip = document.createElement('div');
         tooltip.className = 'experience-hover-tooltip';
         tooltip.id = 'experience-hover-tooltip-global';
         
         tooltip.innerHTML = `
             <div class="tooltip-header">${expData.name || 'Experience'}</div>
+            ${descText}
             <div class="tooltip-row">
                 <i class="fas fa-calendar-alt"></i> 
                 <span>${start} to ${end}</span>
@@ -65,6 +93,7 @@ export const ExperienceTooltipService = {
                 <i class="fas fa-map-marker-alt"></i> 
                 <span>Primary: ${primaryLocation}</span>
             </div>
+            ${bonusText}
         `;
 
         document.body.appendChild(tooltip);

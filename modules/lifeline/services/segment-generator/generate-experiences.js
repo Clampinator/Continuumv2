@@ -1,5 +1,6 @@
 import { parseDate } from '../../../span-graph-utils/parse-date.js';
 import { mapDateToSubjective } from '../../../span-graph-utils/map-date-to-subjective.js';
+import { calculateExperienceBonus } from '../../../temporal-kernel/calculate-experience-bonus.js';
 
 /**
  * NODE-ANCHORED EXPERIENCE GENERATOR
@@ -159,7 +160,10 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
                 endTime = nowTime;
             } else if (closerNode && _age(closerNode) !== null) {
                 // ANCHOR END: Use the closer event node's exact coordinates.
-                // This node carries isExpEnd, marking it as the definitive end.
+                // For closers, use _time (departure) not _openTime (arrival).
+                // An experience ENDS where the character was living, which is
+                // the departure point for span origins. The arrival point is
+                // where they GO next, after the experience has ended.
                 endAge = _age(closerNode);
                 endTime = _time(closerNode);
             } else {
@@ -241,57 +245,12 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
                 isOngoing,
                 isClosed,
                 opacity,
-                bonus: _calculateBonus(isOngoing, mechanicalEndAge, startAge, nowAge)
+                bonus: calculateExperienceBonus(isOngoing, mechanicalEndAge, startAge, nowAge)
             });
         });
     });
 
     return experiences;
-}
-
-/**
- * TWO-AXIS BONUS: Duration + Distance from NOW, combined additively with a
- * hard cap of +3. This matches the Continuum RPG design where both how long
- * you did something and how recently you did it contribute to recall ability.
- *
- * Duration Bonus (how long the experience lasted):
- *   <6 months = 0, 6mo-2yr = +1, 2-4yr = +2, 4+yr = +3
- *
- * Distance Bonus (how long ago the experience ended, relative to NOW):
- *   <2yr = +3, 2-5yr = +2, 5-10yr = +1, >10yr = 0
- *
- * Ongoing experiences always get Distance = +3 (they never left active memory).
- *
- * @param {boolean} isOngoing - True if experience is still active
- * @param {number} endAge - End subjective age in seconds
- * @param {number} startAge - Start subjective age in seconds
- * @param {number} nowAge - Current NOW subjective age in seconds
- * @returns {number} Capped bonus value (0-3)
- */
-function _calculateBonus(isOngoing, endAge, startAge, nowAge) {
-    const SECONDS_PER_YEAR = 31536000;
-
-    // DURATION AXIS: How long the character was in this experience
-    const durationSeconds = endAge - startAge;
-    const durationYears = durationSeconds / SECONDS_PER_YEAR;
-
-    // Inclusive upper bounds to match the spec's range convention
-    // (e.g., "6mo-2yr" includes 2yr in the +1 tier, "2-4yr" starts after 2yr)
-    const durationBonus = durationYears < 0.5 ? 0
-        : durationYears <= 2 ? 1
-        : durationYears <= 4 ? 2
-        : 3;
-
-    // DISTANCE AXIS: How far in the subjective past the experience ended.
-    // Ongoing experiences are always "recent" -> distance = 0 years -> +3.
-    const distanceYears = isOngoing ? 0 : Math.max(0, (nowAge - endAge) / SECONDS_PER_YEAR);
-    const distanceBonus = distanceYears < 2 ? 3
-        : distanceYears <= 5 ? 2
-        : distanceYears <= 10 ? 1
-        : 0;
-
-    // Hard cap: no skill check bonus can exceed +3 in Continuum
-    return Math.min(durationBonus + distanceBonus, 3);
 }
 
 /**
