@@ -1,7 +1,9 @@
 // continuum/modules/span-graph-dialog-experience.js
 import { renderDatePicker } from './span-graph-ui-helpers.js';
 import { activateDatePickers } from './date-picker.js';
-import { normalizeDateInput, getAgeStringFromDate, parseAgeString, convertTimestampToDateString } from './span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { getAgeStringFromDate } from './span-graph-utils/provide-span-graph-utils.js';
+import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { Sound } from './sound-manager.js';
 
 /**
@@ -211,7 +213,7 @@ export function openExperienceEditDialog(data, sheet, viewState, onClose) {
                     
                     // Sync Subjective Age strings to Dates if they were edited
                     if (formData.startAge && formData.startAge !== startAgeStr) {
-                        const startSec = parseAgeString(formData.startAge);
+                        const startSec = parseSubjectiveAge(formData.startAge);
                         const startDate = new Date(dobTs + (startSec * 1000));
                         updates[`${prefix}.dateFrom`] = startDate.toISOString().split('T')[0];
                     } else {
@@ -219,7 +221,7 @@ export function openExperienceEditDialog(data, sheet, viewState, onClose) {
                     }
 
                     if (formData.endAge && formData.endAge !== endAgeStr) {
-                        const endSec = parseAgeString(formData.endAge);
+                        const endSec = parseSubjectiveAge(formData.endAge);
                         const endDate = new Date(dobTs + (endSec * 1000));
                         updates[`${prefix}.dateTo`] = endDate.toISOString().split('T')[0];
                     } else {

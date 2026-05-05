@@ -1,4 +1,5 @@
-import { formatSubjectiveAge, convertTimestampToDateString } from './span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { ExperienceTooltipService } from './lifeline/services/ui/experience-tooltip-service.js';
 
 export function attachTooltipListeners(svg, graphData, actor) {
@@ -71,7 +72,7 @@ export function attachTooltipListeners(svg, graphData, actor) {
             // A. High Fidelity Chronology (Header)
             if (data) {
                 const ageStr = formatSubjectiveAge(data.eventAge);
-                const dt = convertTimestampToDateString(data.eventTime);
+                const dt = timestampToDateString(data.eventTime);
                 const dateFull = `${dt.date} ${dt.time}`;
                 
                 lines.push({ 

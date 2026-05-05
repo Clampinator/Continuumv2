@@ -13,7 +13,7 @@ import { handleCharacterToggleChange } from './modules/character/handle-toggle.j
 import { handleCharacterSituationClick } from './modules/character/handle-situation.js';
 import { deleteSheetContext } from './modules/graph-state.js';
 import { ITEM_DATA } from './item-data.js';
-import { normalizeDateInput } from './modules/span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from './modules/temporal-translator/coordinate-converter.js';
 import { handleActorDrop } from './modules/network/handle-actor-drop.js';
 
 // V13 Compatibility

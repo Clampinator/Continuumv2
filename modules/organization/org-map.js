@@ -2,7 +2,7 @@
 // continuum/modules/org-map.js
 
 import { loadGoogleMaps, panToLocation, geocodeAddress, setMapInstance } from '../span-graph-map.js';
-import { normalizeDateInput } from '../span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { activateDatePickers } from '../date-picker.js';
 import { openEditDialog } from './org-graph-dialogs.js';
 import { renderDatePicker } from '../span-graph-ui-helpers.js';

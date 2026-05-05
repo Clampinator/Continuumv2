@@ -1,4 +1,4 @@
-import { normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { renderOrgGraph } from './org-render.js';
 import { renderDatePicker } from '../span-graph-ui-helpers.js';
 import { activateDatePickers } from '../date-picker.js';

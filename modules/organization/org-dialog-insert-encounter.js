@@ -5,7 +5,7 @@
  * Operational Map timeline. Mirrors the Lifeline's insert-event flow.
  */
 
-import { convertTimestampToDateString, normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { renderDatePicker } from '../span-graph-ui-helpers.js';
 import { activateDatePickers } from '../date-picker.js';
 import { panToLocation, getMapCenterLocation } from '../span-graph-map.js';
@@ -63,7 +63,7 @@ function attachGeoButtonListeners(html) {
  */
 export function showOrgInsertEncounterDialog(segmentInfo, sheet, graphData, onClose) {
     const { worldTime, nodeA, track } = segmentInfo;
-    const { date, time } = convertTimestampToDateString(worldTime);
+    const { date, time } = timestampToDateString(worldTime);
 
     // ── Operation context ────────────────────────────────────────────────────
     const sourcePhaseId = nodeA?.phaseId ?? null;

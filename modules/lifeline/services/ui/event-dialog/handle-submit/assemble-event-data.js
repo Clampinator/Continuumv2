@@ -1,4 +1,4 @@
-import { normalizeDateInput, convertTimestampToDateString } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Assembles the core event data object.
@@ -16,8 +16,8 @@ export function assembleEventData(formData, params) {
         ? viewState.dragStartWorld.time 
         : params.timeRaw; 
     
-    const departureDT = convertTimestampToDateString(departureTime);
-    const resolvedDT = convertTimestampToDateString(finalTime);
+    const departureDT = timestampToDateString(departureTime);
+    const resolvedDT = timestampToDateString(finalTime);
 
     const eventData = {
         id: newId,

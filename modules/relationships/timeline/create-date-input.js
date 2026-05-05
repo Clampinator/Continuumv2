@@ -1,4 +1,4 @@
-import { convertTimestampToDateString } from '../../span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Appends a labeled date input block with map-integrated date picker support.
@@ -8,7 +8,7 @@ import { convertTimestampToDateString } from '../../span-graph-utils.js';
  * @returns {object} D3 selection of the text input.
  */
 export function createDateInput(container, dateTs, labelText) {
-    const dt = convertTimestampToDateString(dateTs);
+    const dt = timestampToDateString(dateTs);
     const div = container.append("div")
         .style("pointer-events", "all")
         .style("background", "rgba(0,0,0,0.8)")

@@ -1,7 +1,8 @@
 import { getActorHistory } from './get-actor-history.js';
 import { establishHistoryPhysics } from '../temporal-kernel/establish-history-physics.js';
 import { calculateDisplacementPool } from '/systems/continuum-v2/modules/temporal-kernel/calculate-displacement-pool.js';
-import { parseDate, normalizeDateInput } from '../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { parseDate } from '../span-graph-utils/provide-span-graph-utils.js';
 
 /**
  * STATE: GET LORE CONTEXT

@@ -1,4 +1,4 @@
-import { SECONDS_IN_YEAR, MS_IN_YEAR } from '../../../span-graph-utils.js';
+import { SECONDS_IN_YEAR, MS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 const svgNS = "http://www.w3.org/2000/svg";
 

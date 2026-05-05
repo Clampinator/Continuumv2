@@ -1,5 +1,6 @@
 import { resolveNarrativeOrder } from '/systems/continuum-v2/modules/temporal-kernel/resolve-narrative-order.js';
-import { normalizeDateInput, parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
 
 /**
  * Handles the chronological re-indexing logic for nodes using the Temporal Kernel.

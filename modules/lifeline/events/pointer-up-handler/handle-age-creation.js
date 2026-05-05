@@ -1,5 +1,5 @@
 import { showCreateEraDialog } from '../../../span-graph-ui-dialogs.js';
-import { SECONDS_IN_DAY } from '../../../span-graph-utils.js';
+import { SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 export function handleEraCreation(viewState, graphData, sheet, svg) {
     const dur = viewState.creationCurrentAgeSeconds - viewState.creationStartAgeSeconds;

@@ -1,6 +1,6 @@
 import { getGraphDebugData } from './span-graph-container.js';
 import { fitGraphToView } from './viewport-controller.js';
-import { formatSubjectiveAge } from './span-graph-utils.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { getSheetContext } from './graph-state.js';
 import { processGraphData } from './span-graph-data-processor.js';
 import { renderGraph } from './span-graph-render.js';

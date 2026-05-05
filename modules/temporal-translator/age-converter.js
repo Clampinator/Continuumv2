@@ -1,4 +1,4 @@
-import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '../span-graph-utils/constants.js';
+import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 /**
  * TEMPORAL TRANSLATOR: AGE CONVERTER

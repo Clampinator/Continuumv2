@@ -1,4 +1,5 @@
-import { normalizeDateInput, parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
 import { computeOffsetFromArrival, projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**

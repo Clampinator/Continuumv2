@@ -1,4 +1,4 @@
-import { normalizeDateInput, convertTimestampToDateString } from '../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { renderOrgGraph } from './org-render.js';
 import { renderDatePicker } from '../span-graph-ui-helpers.js';
 import { activateDatePickers } from '../date-picker.js';
@@ -39,7 +39,7 @@ function attachGeoButtonListeners(html) {
 
 export function showLogEngagementDialog(viewState, graphData, sheet, svg) {
     viewState.interactionMode = 'dialog-open';
-    const toDT = convertTimestampToDateString(graphData.nowNode.time);
+    const toDT = timestampToDateString(graphData.nowNode.time);
 
     const activeTrack = graphData.tracks[viewState.activeUnitId || 'hq'];
     const lastNode = activeTrack.nodes[activeTrack.nodes.length - 1];

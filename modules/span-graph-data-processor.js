@@ -1,4 +1,5 @@
-import { SECONDS_IN_YEAR, parseDate } from './span-graph-utils/provide-span-graph-utils.js';
+import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+import { parseDate } from './span-graph-utils/provide-span-graph-utils.js';
 import { ChronologyAssembler } from './lifeline/services/chronology-assembler.js';
 import { ReferenceResolver } from './lifeline/services/reference-resolver.js';
 import { computeRailOffset } from './lifeline/services/chronology/compute-rail-offset.js';

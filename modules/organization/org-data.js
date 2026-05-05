@@ -1,7 +1,7 @@
 
 // continuum/modules/org-data.js
 
-import { SECONDS_IN_YEAR } from '../span-graph-utils.js';
+import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 const UNIT_COLORS = {
     physical: '#E32017',   // Red

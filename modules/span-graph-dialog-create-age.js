@@ -1,4 +1,6 @@
-import { normalizeDateInput, convertTimestampToDateString, SECONDS_IN_YEAR, SECONDS_IN_DAY, getObjectiveDateFromSubjectiveX } from './span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+import { getObjectiveDateFromSubjectiveX } from './span-graph-utils/provide-span-graph-utils.js';
 import { renderDatePicker } from './span-graph-ui-helpers.js';
 import { activateDatePickers } from './date-picker.js';
 import { Sound } from './sound-manager.js';
@@ -29,11 +31,11 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
     // where the user dragged the creation bar. Subsequent eras use the drag position.
     const isFirstEra = sortedEras.length === 0;
     const startStr = isFirstEra
-        ? (dobString || convertTimestampToDateString(dobDate.getTime()).date)
-        : convertTimestampToDateString(getObjectiveDateFromSubjectiveX(viewState.creationStartAgeSeconds, points, dobDate).getTime()).date;
+        ? (dobString || timestampToDateString(dobDate.getTime()).date)
+        : timestampToDateString(getObjectiveDateFromSubjectiveX(viewState.creationStartAgeSeconds, points, dobDate).getTime()).date;
 
     const endDate = getObjectiveDateFromSubjectiveX(viewState.creationCurrentAgeSeconds, points, dobDate);
-    const endStr = convertTimestampToDateString(endDate.getTime()).date;
+    const endStr = timestampToDateString(endDate.getTime()).date;
 
     // Decompose current absolute subjective age into Y, M, D
     const totalSecs = viewState.creationCurrentAgeSeconds;

@@ -6,7 +6,7 @@
  * This is the spacetime loop closure mechanic - the character has reached
  * the point in their life where the Yet event was always meant to happen.
  */
-import { convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Fulfills a Yet by marking it done and creating a fulfillment event.

@@ -1,4 +1,4 @@
-import { normalizeDateInput } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Checks if an experience ended on a specific date.

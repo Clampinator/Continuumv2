@@ -1,6 +1,6 @@
 import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.esm.js';
 import { reindexLifelineNodes } from './modules/lifeline/services/chronology/reindex-lifeline-nodes.js';
-import { convertTimestampToDateString } from './modules/span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from './modules/temporal-translator/coordinate-converter.js';
 
 /*
 Handles the end of a sortable drag operation.
@@ -23,7 +23,7 @@ async function _onSortEnd(evt, sheet) {
         const finalSort = reindex.targetSortValue;
         const finalAge = reindex.targetAge;
         const finalTime = reindex.targetTime;
-        const dt = convertTimestampToDateString(finalTime);
+        const dt = timestampToDateString(finalTime);
 
         delete reindex.targetSortValue;
         delete reindex.targetAge;

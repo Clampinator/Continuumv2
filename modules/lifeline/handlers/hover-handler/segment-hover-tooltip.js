@@ -1,4 +1,4 @@
-import { convertTimestampToDateString } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 const TOOLTIP_ID = 'graph-segment-hover-tooltip';
 
@@ -16,8 +16,8 @@ export const SegmentHoverTooltip = {
             el.style.borderColor = '#00ccff';
             document.body.appendChild(el);
         }
-        const fromDT = convertTimestampToDateString(fromTime);
-        const toDT = convertTimestampToDateString(toTime);
+        const fromDT = timestampToDateString(fromTime);
+        const toDT = timestampToDateString(toTime);
         el.innerHTML = `<span style="color:#00ccff">${fromTitle}</span>&nbsp;&nbsp;${fromDT.date}<br><span style="color:#aaa">${toTitle}</span>&nbsp;&nbsp;${toDT.date}`;
         el.style.left = `${event.clientX + 15}px`;
         el.style.top = `${event.clientY - 55}px`;

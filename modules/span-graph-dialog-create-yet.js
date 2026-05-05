@@ -1,4 +1,7 @@
-import { normalizeDateInput, SECONDS_IN_YEAR, formatSubjectiveAge, parseAgeString } from './span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { renderGraph } from './span-graph-render.js';
 import { activateDatePickers } from './date-picker.js';
 import { Sound } from './sound-manager.js';
@@ -201,7 +204,7 @@ export function showYetDialog(optionsOrViewState, graphData, sheet, svg, existin
                     };
                     
                     if (formData.age && formData.age.trim() !== "") {
-                        const seconds = parseAgeString(formData.age);
+                        const seconds = parseSubjectiveAge(formData.age);
                         updates[`system.theYet.${id}.age`] = (seconds / SECONDS_IN_YEAR).toFixed(4);
                     } else {
                         updates[`system.theYet.${id}.age`] = null;

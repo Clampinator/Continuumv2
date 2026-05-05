@@ -1,11 +1,12 @@
-import { formatSubjectiveAge, formatObjectiveDate, formatDuration } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { formatSubjectiveAge, formatDuration } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { formatObjectiveDateLines } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Generates tactile feedback for the drag tooltip.
  * Highlights spanning prohibitions for Levellers.
  */
 export function generateDragTooltip(constrained, startWorld, mode, graphData, isValid, spanningRestricted, dx, dy) {
-    const objDateLines = formatObjectiveDate(constrained.time);
+    const objDateLines = formatObjectiveDateLines(constrained.time);
     const subAgeStr = formatSubjectiveAge(constrained.age);
     
     const dAge = constrained.age - startWorld.age;

@@ -1,4 +1,4 @@
-import { normalizeDateInput, convertTimestampToDateString } from '../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { renderOrgGraph } from './org-render.js';
 import { renderDatePicker } from '../span-graph-ui-helpers.js';
 import { activateDatePickers } from '../date-picker.js';
@@ -49,7 +49,7 @@ function attachGeoButtonListeners(html) {
 export function showInsertEngagementDialog(viewState, graphData, sheet, svg) {
     viewState.interactionMode = 'dialog-open';
     const { worldTime, index } = viewState.hoveredSegment;
-    const dateObj = convertTimestampToDateString(worldTime);
+    const dateObj = timestampToDateString(worldTime);
 
     const sourceNode = graphData.levelNodes[index];
     const sourcePhaseId = sourceNode.eraId;

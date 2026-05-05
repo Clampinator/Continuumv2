@@ -1,4 +1,4 @@
-import { normalizeDateInput, convertTimestampToDateString } from '../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { renderOrgGraph } from './org-render.js';
 import { renderDatePickerInput } from '../span-graph-ui-helpers.js';
 import { activateDatePickers } from '../date-picker.js';
@@ -12,7 +12,7 @@ export function showYetDialog(viewState, graphData, sheet, svg, existingData = n
     const pX = viewState.pointerDownX - rect.left;
     const pY = viewState.pointerDownY - rect.top;
     const worldTime = (pY - viewState.y) / viewState.scaleY;
-    const dt = convertTimestampToDateString(worldTime);
+    const dt = timestampToDateString(worldTime);
 
     const content = `
         <form>

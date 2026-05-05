@@ -1,5 +1,5 @@
 import { ReferenceResolver } from '../../../reference-resolver.js';
-import { convertTimestampToDateString } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { findNextNode } from './find-next-node.js';
 import { computeOffsetFromArrival, projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
@@ -59,8 +59,8 @@ export function reconcileSpacetimeDebt(actor, params, updates) {
         
         const reconcileOriginTime = projectObjectiveTime(reconcileAge, currentOffset);
         const reconcileDestTime = projectObjectiveTime(reconcileAge, targetOffset);
-        const rOriginDT = convertTimestampToDateString(reconcileOriginTime);
-        const rDestDT = convertTimestampToDateString(reconcileDestTime);
+        const rOriginDT = timestampToDateString(reconcileOriginTime);
+        const rDestDT = timestampToDateString(reconcileDestTime);
 
         const reconcileEvent = {
             id: reconcileId,

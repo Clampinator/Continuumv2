@@ -1,4 +1,6 @@
-import { normalizeDateInput, convertSecondsToDateString, SECONDS_IN_YEAR } from './span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { convertSecondsToDateString } from '/systems/continuum-v2/modules/temporal-translator/duration-converter.js';
+import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 import { renderGraph } from './span-graph-render.js';
 import { renderDatePicker } from './span-graph-ui-helpers.js';
 import { ContextFinder } from './lifeline/services/context-finder.js';

@@ -1,4 +1,6 @@
-import { normalizeDateInput, parseAgeString, parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { parseDate } from '../../../../../span-graph-utils/provide-span-graph-utils.js';
+import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { calculateRailOffset } from './calculate-rail-offset.js';
 import { projectObjectiveTime, projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
@@ -15,7 +17,7 @@ export function solveDiagonal(actor, formData, params) {
     let finalTime = Number(params.timeRaw);
 
     if (!eventIsSpan && mode !== 'log') {
-        const inputAge = parseAgeString(String(formData.eventAge || ""));
+        const inputAge = parseSubjectiveAge(String(formData.eventAge || ""));
         const inputDate = normalizeDateInput(formData.eventDate);
         const inputTime = formData.eventTime || "12:00:00";
         const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
@@ -42,14 +44,14 @@ export function solveDiagonal(actor, formData, params) {
     } else if (mode === 'log') {
         // AUTHORITY: In Log Mode, the dragged coordinates ARE the truth.
         // We do not solve for rail here; we let the drag define the new position.
-        finalAge = parseAgeString(String(formData.eventAge || params.ageRaw || 0));
+        finalAge = parseSubjectiveAge(String(formData.eventAge || params.ageRaw || 0));
         const inputDate = normalizeDateInput(formData.eventDate || formData.eventSpanToDate);
         const inputTime = formData.eventTime || formData.eventSpanToTime || "12:00:00";
         const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
         if (inputDateObj) finalTime = inputDateObj.getTime();
     } else {
         // AUTHORITY: For Spans, we honor BOTH the Subjective Age and the Objective Date.
-        finalAge = parseAgeString(String(formData.eventAge || ""));
+        finalAge = parseSubjectiveAge(String(formData.eventAge || ""));
         const inputDate = normalizeDateInput(formData.eventSpanToDate);
         const inputTime = formData.eventSpanToTime || "12:00:00";
         const inputDateObj = parseDate(`${inputDate}T${inputTime}`);

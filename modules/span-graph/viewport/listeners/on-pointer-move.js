@@ -1,5 +1,6 @@
 import { getDragMode, constrainMovement } from '/systems/continuum-v2/modules/temporal-kernel/drag-physics.js';
-import { convertTimestampToDateString, formatSubjectiveAge, formatDuration } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge, formatDuration } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { calculateSpanPool } from '/systems/continuum-v2/modules/lifeline/services/calculators/calculate-span-pool.js';
 import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/services/context-finder/find-last-known-location.js';
 
@@ -101,7 +102,7 @@ function _updateHoverTooltips(viewport, event, x, y) {
 
     if (node.classList.contains('graph-node-now')) {
         const nowNode = state.nowNode;
-        const dt = convertTimestampToDateString(nowNode.y);
+        const dt = timestampToDateString(nowNode.y);
         const location = findLastKnownLocation(history, nowNode.x);
         
         content.push({ label: 'STATUS', value: 'NOW', color: '#ffd700' });
@@ -114,10 +115,10 @@ function _updateHoverTooltips(viewport, event, x, y) {
         const targetNode = history.find(n => n.id === eventId);
         if (targetNode) {
             const record = targetNode.record || targetNode;
-            const dt = convertTimestampToDateString(targetNode.y);
+            const dt = timestampToDateString(targetNode.y);
             
             if (record.eventIsSpan) {
-                const arrDT = convertTimestampToDateString(targetNode.arrivalY);
+                const arrDT = timestampToDateString(targetNode.arrivalY);
                 const cost = Math.abs(targetNode.arrivalY - targetNode.y) / 1000;
                 
                 content.push({ label: 'SPAN', value: record.eventTitle || 'Span', color: '#ff00ff' });
@@ -151,15 +152,15 @@ function _updateDragTooltip(viewport, x, y) {
     const content = [];
 
     if (viewport._interaction.mode === 'level') {
-        const dt = convertTimestampToDateString(world.eventTime);
+        const dt = timestampToDateString(world.eventTime);
         content.push({ label: 'ACTION', value: 'LEVELING...', color: '#4da6ff' });
         content.push({ label: 'DATE', value: dt.date });
         content.push({ label: 'TIME', value: dt.time });
         content.push({ label: 'AGE', value: formatSubjectiveAge(world.eventAge) });
     } 
     else if (viewport._interaction.mode === 'span') {
-        const depDT = convertTimestampToDateString(viewport._interaction.startWorld.eventTime);
-        const arrDT = convertTimestampToDateString(world.eventTime);
+        const depDT = timestampToDateString(viewport._interaction.startWorld.eventTime);
+        const arrDT = timestampToDateString(world.eventTime);
         const spent = Math.abs(world.eventTime - viewport._interaction.startWorld.eventTime) / 1000;
         
         const pool = calculateSpanPool(viewport.actor, history, { 

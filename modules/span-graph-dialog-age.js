@@ -1,5 +1,6 @@
 // continuum/modules/span-graph-dialog-age.js
-import { getAgeStringFromDate, parseAgeString } from './span-graph-utils.js';
+import { getAgeStringFromDate } from './span-graph-utils.js';
+import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { Sound } from './sound-manager.js';
 
 export function openEraEditDialog(data, sheet, viewState) {
@@ -41,12 +42,12 @@ export function openEraEditDialog(data, sheet, viewState) {
                     updates[`system.eras.${data.id}.name`] = formData.name;
 
                     if (formData.startAge) {
-                        const startSec = parseAgeString(formData.startAge);
+                        const startSec = parseSubjectiveAge(formData.startAge);
                         const startDate = new Date(dobTs + (startSec * 1000));
                         updates[`system.eras.${data.id}.dateFrom`] = startDate.toISOString().split('T')[0];
                     }
                     if (formData.endAge) {
-                        const endSec = parseAgeString(formData.endAge);
+                        const endSec = parseSubjectiveAge(formData.endAge);
                         const endDate = new Date(dobTs + (endSec * 1000));
                         updates[`system.eras.${data.id}.dateTo`] = endDate.toISOString().split('T')[0];
                     }

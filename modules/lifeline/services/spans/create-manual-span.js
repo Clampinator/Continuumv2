@@ -1,4 +1,6 @@
-import { normalizeDateInput, parseAgeString, parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { computeOffsetFromArrival, projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
@@ -17,7 +19,7 @@ export function createManualSpan(actor, formData, params) {
     if (mode === 'edit') {
         // DIAGONAL AUTHORITY (edit): project eventSpanFromDate onto the current rail to derive
         // the correct departure age. Do NOT use formData.eventAge here — formatDuration writes
-        // 'm' for minutes, but parseAgeString reads 'm' as months, corrupting the age.
+        // 'm' for minutes, but parseSubjectiveAge reads 'm' as months, corrupting the age.
         // params.timeRaw = old span's arrival time; params.ageRaw = old span's age.
         // For a span whose destination sits on the original rail: railOffset = dobTs exactly.
         if (formData.eventSpanFromDate) {
@@ -37,7 +39,7 @@ export function createManualSpan(actor, formData, params) {
         // AUTHORITY: For Spans, we honor BOTH the Subjective Age and the Objective Date,
         // which allows the user to create "Fractures" (Time Dilation/Contraction).
         if (formData.eventAge && formData.eventAge.trim() !== "") {
-            finalAge = parseAgeString(formData.eventAge);
+            finalAge = parseSubjectiveAge(formData.eventAge);
         }
         // For log/insert, finalTime is the arrival (the drag end / eventSpanToDate).
         const inputDate = normalizeDateInput(formData.eventSpanToDate);

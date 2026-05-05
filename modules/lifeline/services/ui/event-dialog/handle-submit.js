@@ -1,4 +1,4 @@
-import { convertTimestampToDateString } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { insertHistoryRow } from '../../../../state/insert-history-row.js';
 import { updateHistoryRow } from '../../../../state/update-history-row.js';
 import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';

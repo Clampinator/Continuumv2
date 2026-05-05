@@ -1,6 +1,6 @@
 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import { normalizeDateInput, convertTimestampToDateString } from '../span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { activateDatePickers } from '../date-picker.js';
 
 export function setupTimeline({ container, svg, width, height, data, sheet, onTimeChange }) {
@@ -51,8 +51,8 @@ export function setupTimeline({ container, svg, width, height, data, sheet, onTi
 
     // HTML Controls
     const controlsDiv = container.append("div").attr("class", "network-timeline-controls");
-    const minDT = convertTimestampToDateString(data.minTime);
-    const maxDT = convertTimestampToDateString(data.maxTime);
+    const minDT = timestampToDateString(data.minTime);
+    const maxDT = timestampToDateString(data.maxTime);
 
     function createControlGroup(cls, date, time) {
         return controlsDiv.append("div").attr("class", `network-control-group ${cls}`)

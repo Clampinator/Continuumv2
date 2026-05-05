@@ -1,4 +1,4 @@
-import { SECONDS_IN_YEAR } from '../../span-graph-utils.js';
+import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 // Approximate width per character for 11px bold Segoe UI with text-anchor:start
 const LABEL_CHAR_WIDTH = 7;

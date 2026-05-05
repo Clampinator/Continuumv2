@@ -10,8 +10,8 @@ import { resolveEraDrag } from '/systems/continuum-v2/modules/temporal-kernel/re
 import { resolveEraEditContext } from '/systems/continuum-v2/modules/temporal-kernel/resolve-era-edit-context.js';
 import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
 import { resolveEventEra } from '/systems/continuum-v2/modules/temporal-kernel/resolve-event-era.js';
-import { formatSubjectiveAge } from '../../span-graph-utils/provide-span-graph-utils.js';
-import { convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
 import { buildPreviewHistory } from '../../temporal-engine/build-preview-history.js';
 
@@ -169,7 +169,7 @@ export class PointerMachine {
             this.viewport._interaction.ghostSnap = this.state.ghostSnap;
 
             if (this.state.ghostSnap) {
-                const dt = convertTimestampToDateString(this.state.ghostSnap.world.eventTime);
+                const dt = timestampToDateString(this.state.ghostSnap.world.eventTime);
                 this.viewport.tooltipManager.show([
                     { label: 'INSERT', value: 'CLICK TO ADD', color: '#ffd700' },
                     { label: 'AGE', value: formatSubjectiveAge(this.state.ghostSnap.world.eventAge) },
@@ -283,8 +283,8 @@ export class PointerMachine {
      * Generates HUD content for live span insertion drag.
      */
     _generateInsertionHUD(result, lore) {
-        const depDT = convertTimestampToDateString(result.departureTime);
-        const arrDT = convertTimestampToDateString(result.arrivalTime);
+        const depDT = timestampToDateString(result.departureTime);
+        const arrDT = timestampToDateString(result.arrivalTime);
         const durationMs = Math.abs(result.arrivalTime - result.departureTime);
         const direction = result.isUpSpan ? 'UP' : result.isDownSpan ? 'DOWN' : 'ZERO';
         const directionColor = result.isUpSpan ? '#00ff00' : result.isDownSpan ? '#ff00ff' : '#888888';
@@ -560,7 +560,7 @@ export class PointerMachine {
 
     async _openDialog(mode, age, time, eventIsSpan = false, existingData = null) {
         const { openEventNodeDialog } = await import('../../span-graph-ui-dialogs.js');
-        const dt = convertTimestampToDateString(time);
+        const dt = timestampToDateString(time);
         
         // HIERARCHY GATE: When spanning is physically impossible (Level Breath
         // or Rank 0), pass a veto flag so the dialog can disable the span
@@ -692,7 +692,7 @@ export class PointerMachine {
     }
 
     _generateHUD(world, mode, lore) {
-        const dt = convertTimestampToDateString(world.eventTime);
+        const dt = timestampToDateString(world.eventTime);
         const rows = [
             { label: 'ACTION', value: mode === 'level' ? 'LEVELING' : 'SPANNING', color: mode === 'level' ? '#00e5ff' : '#ff00ff' },
             { label: 'AGE', value: formatSubjectiveAge(world.eventAge) },
@@ -760,7 +760,7 @@ export class PointerMachine {
         if (!nodeId) { this.viewport.tooltipManager.hide(); return; }
         const node = (this.viewport.latestState?.nodes || []).find(n => n.id === nodeId);
         if (!node) return;
-        const dt = convertTimestampToDateString(node.y);
+        const dt = timestampToDateString(node.y);
         this.viewport.tooltipManager.show([
             { label: 'EVENT', value: node.record.eventTitle || 'Unknown', color: '#00e5ff' },
             { label: 'AGE', value: formatSubjectiveAge(node.x) },

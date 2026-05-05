@@ -15,7 +15,7 @@ import { showCreateGoalDialog } from './span-graph-ui-dialogs.js';
 import { initializeSearch } from '../sheet-search.js';
 import { initializeDiceRoller } from '../sheet-dice-roller.js';
 import { initializeSpinners } from './sheet-spinners.js';
-import { convertTimestampToDateString } from './span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { activateDatePickers } from './date-picker.js';
 import { ExperienceTooltipService } from './lifeline/services/ui/experience-tooltip-service.js';
 

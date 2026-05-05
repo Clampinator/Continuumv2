@@ -1,4 +1,5 @@
-import { formatSubjectiveAge, convertTimestampToDateString } from '../../span-graph-utils/provide-span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 
 /**
  * DUMB RENDERER: AXIS RENDERER
@@ -51,7 +52,7 @@ export class AxisRenderer {
         const currentTime = topWorld.eventTime + (timeRange * ratio);
         const screenY = this.viewport.worldToScreen(0, currentTime).y;
         
-        const dt = convertTimestampToDateString(currentTime);
+        const dt = timestampToDateString(currentTime);
         const dateText = this._createText(labelX, screenY - 5, dt.date, 'graph-axis-text', 'start');
         this.group.appendChild(dateText);
         

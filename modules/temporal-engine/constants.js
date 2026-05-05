@@ -18,4 +18,7 @@ export const SECONDS_IN_YEAR_STRICT = 31557600; // 365.25 days (precision)
  * Since 1s Age = 1000ms Time, and Y increases downward in SVG,
  * we use -0.00057735 to make Time move "Up" at 30 degrees.
  */
+export const MS_IN_YEAR = SECONDS_IN_YEAR * MS_PER_SECOND;
+export const MS_IN_DAY = SECONDS_IN_DAY * MS_PER_SECOND;
+
 export const TARGET_RATIO = -0.00057735;

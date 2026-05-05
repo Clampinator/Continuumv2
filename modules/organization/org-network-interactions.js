@@ -1,6 +1,6 @@
 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import { normalizeDateInput } from '../span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 export function setupInteractions({ svg, g, sheet, simulation, data, renderRefs }) {
     const { nodeSel, linkVisible, linkHit } = renderRefs;

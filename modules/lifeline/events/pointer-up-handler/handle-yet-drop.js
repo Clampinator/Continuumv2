@@ -1,7 +1,7 @@
 import { Sound } from '../../../sound-manager.js';
 import { showYetDialog } from '../../../span-graph-ui-dialogs.js';
 import { reindexLifelineNodes } from '../../services/chronology/reindex-lifeline-nodes.js';
-import { convertTimestampToDateString } from '../../../span-graph-utils.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
     const rect = svg.getBoundingClientRect();
@@ -23,7 +23,7 @@ export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
         const yetData = sheet.actor.system.theYet[yetId];
         const newEventId = foundry.utils.randomID();
         const now = graphData.nowNode;
-        const dt = convertTimestampToDateString(now.time);
+        const dt = timestampToDateString(now.time);
 
         // A. Resolve Address for the new fulfillment node
         const reindex = reindexLifelineNodes(sheet.actor, newEventId, -1, { age: now.age, time: now.time });

@@ -1,6 +1,6 @@
 import { renderOrgGraph } from './org-render.js';
 import { panToCoordinates } from '../map-manager.js';
-import { SECONDS_IN_DAY } from '../span-graph-utils.js';
+import { SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 import { showCreatePhaseDialog, showInsertEngagementDialog, showLogEngagementDialog, showYetDialog, openEditDialog } from './org-graph-dialogs.js';
 
 export function handleOrgPointerUp(event, svg, viewState, graphData, sheet) {

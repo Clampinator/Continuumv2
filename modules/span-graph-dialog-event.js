@@ -1,4 +1,6 @@
-import { normalizeDateInput, convertTimestampToDateString, formatSubjectiveAge, parseAgeString } from './span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { renderDatePickerInput } from './span-graph-ui-helpers.js';
 import { activateDatePickers } from './date-picker.js';
 import { buildContextOptions } from './lifeline/services/ui/build-context-options.js';
@@ -134,7 +136,7 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
                         ...data,
                         eventTitle: formData.eventTitle,
                         eventNotes: formData.eventNotes,
-                        age: parseAgeString(formData.eventAge),
+                        age: parseSubjectiveAge(formData.eventAge),
                         eventIsRest: !data.eventIsSpan && formData.eventIsRest,
                         eraId: targetEraId,
                         expId: targetExpId

@@ -1,4 +1,5 @@
-import { formatSubjectiveAge, formatObjectiveDate } from '../../../span-graph-utils.js';
+import { formatObjectiveDateLines } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 
 const svgNS = "http://www.w3.org/2000/svg";
 
@@ -53,7 +54,7 @@ export function updateAxisLabels(group, width, height, viewState) {
     yLabels.forEach((label, i) => {
         const screenY = ((height - 65) / 5) * i;
         const timestamp = (screenY - viewState.y) / viewState.scaleY;
-        const dateLines = formatObjectiveDate(timestamp);
+        const dateLines = formatObjectiveDateLines(timestamp);
         const labelX = 15;
         label.setAttribute('x', labelX);
         label.setAttribute('y', Math.min(height - 15, Math.max(20, screenY)));

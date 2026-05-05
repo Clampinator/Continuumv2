@@ -1,5 +1,6 @@
 
-import { formatSubjectiveAge, formatObjectiveDate } from '/systems/continuum-v2/modules/span-graph-utils.js';
+import { formatObjectiveDateLines } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 
 /**
  * DEBUG AUTHORITY: Persistent Node Labels.
@@ -31,7 +32,7 @@ export function drawDebugNodeLabels(svg, viewState, graphData) {
 
         if (!Number.isFinite(x) || !Number.isFinite(y)) return;
 
-        const dateLines = formatObjectiveDate(node.time);
+        const dateLines = formatObjectiveDateLines(node.time);
         const ageStr = formatSubjectiveAge(node.age);
 
         const labelGroup = document.createElementNS(svgNS, 'text');

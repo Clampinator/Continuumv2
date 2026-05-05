@@ -1,5 +1,5 @@
 
-import { formatSubjectiveAge } from './format-subjective-age.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 export function getAgeStringFromDate(dateStr, dobTs) {

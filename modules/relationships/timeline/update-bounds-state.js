@@ -1,4 +1,4 @@
-import { normalizeDateInput } from '../../span-graph-utils.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Validates date inputs and updates the time scale, axis, and actor flags.

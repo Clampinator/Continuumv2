@@ -1,9 +1,6 @@
 import { formatSubjectiveAge } from './age-converter.js';
 import { formatObjectiveTime } from './coordinate-converter.js';
-import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '../span-graph-utils/constants.js';
-
-const MS_IN_YEAR = SECONDS_IN_YEAR * 1000;
-const MS_IN_DAY = SECONDS_IN_DAY * 1000;
+import { SECONDS_IN_YEAR, SECONDS_IN_DAY, MS_IN_YEAR, MS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 /**
  * TEMPORAL TRANSLATOR: SMART AGE FORMATTER
