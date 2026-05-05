@@ -20,6 +20,7 @@
 
 import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
 import { resolveEventEra } from '/systems/continuum-v2/modules/temporal-kernel/resolve-event-era.js';
+import { parseDateToObjectiveMs, formatDateOnly } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 export function computeEraGaps(erasData, boundaries, nowAge, dobStr) {
   if (!boundaries || boundaries.length === 0) return [];
@@ -71,10 +72,10 @@ export function computeEraGaps(erasData, boundaries, nowAge, dobStr) {
  */
 function _deriveDateFrom(ageSeconds, dobStr) {
   if (!dobStr) return '';
-  const dobMs = new Date(dobStr + 'T00:00:00').getTime();
+  const dobMs = parseDateToObjectiveMs(dobStr);
   if (isNaN(dobMs)) return '';
-  const dateFrom = new Date(dobMs + (ageSeconds * 1000));
-  return dateFrom.toISOString().split('T')[0];
+  const dateFromMs = dobMs + (ageSeconds * 1000);
+  return formatDateOnly(dateFromMs);
 }
 
 /**

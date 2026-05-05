@@ -492,40 +492,52 @@
     stroke: #fff;
 }
 
+/* Ghost node styling: outlined, low opacity, transparent fill for hit testing */
 .span-graph-wrapper .graph-node-yet {
-    fill: #ff9f43;
-    stroke: #fff;
-    stroke-width: 1px;
+    fill: transparent;
+    stroke: #ff9f43;
+    stroke-width: 2px;
+    stroke-dasharray: 3, 2;
+    pointer-events: all;
+    opacity: 0.6;
     cursor: grab;
-    transition: stroke-width 0.2s;
+    transition: stroke-width 0.2s, opacity 0.2s;
     transform-box: fill-box;
     transform-origin: center;
 }
 
 .span-graph-wrapper .graph-node-yet:hover {
     stroke: #00f2ff;
-    stroke-width: 2px;
+    stroke-width: 2.5px;
+    opacity: 0.85;
 }
 
-/* Locked on at least one axis — no float animation; stalking provides the motion */
+/* Locked on at least one axis: no float animation; stalking provides motion.
+   Slightly more visible than drifting because position is certain. */
 .span-graph-wrapper .graph-node-yet.graph-node-yet-locked {
     animation: none;
     stroke-width: 2px;
+    stroke-dasharray: none;
+    opacity: 0.55;
 }
 
-/* Neither locked — slow Brownian ghost drift */
+/* Neither locked: slow Brownian ghost drift, most ethereal */
 .span-graph-wrapper .graph-node-yet.graph-node-yet-drifting {
     animation: brownian-drift 22s ease-in-out infinite;
-    opacity: 0.75;
-    filter: drop-shadow(0 0 4px rgba(255, 159, 67, 0.6));
+    opacity: 0.45;
+    stroke-dasharray: 4, 3;
+    stroke-width: 1.5px;
+    filter: drop-shadow(0 0 4px rgba(255, 159, 67, 0.4));
 }
 
-/* Violated — violent shake, red, pulsing glow */
+/* Violated: overrides ghost styling with full fill, violent shake, red glow */
 .span-graph-wrapper .graph-node-yet.graph-node-yet-violated {
     animation: yet-violated-shake var(--yet-shake-dur, 0.25s) linear infinite;
     fill: #ff2222 !important;
     stroke: #ff6600 !important;
     stroke-width: 2px;
+    stroke-dasharray: none !important;
+    opacity: 1 !important;
     filter: drop-shadow(0 0 6px rgba(255, 30, 0, 0.9));
     transform-box: fill-box;
     transform-origin: center;

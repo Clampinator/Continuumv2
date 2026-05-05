@@ -20,7 +20,7 @@ Each issue MUST include:
 ## Issues
 
 ## ISSUE-004
-**Reported:** 2026-05-05 | **Status:** [in-progress]
+**Reported:** 2026-05-05 | **Status:** [resolved]
 **Summary:** Spreadsheet CSV import fails (missing submitNewRow) + inline date edits don't recalculate coordinates
 
 **Details:** Two related bugs:
@@ -29,7 +29,7 @@ Each issue MUST include:
 
 **Affected files:** `modules/lifeline/spreadsheet/submit-spreadsheet-row.js`, `modules/lifeline/spreadsheet/import-spreadsheet-csv.js`, `modules/lifeline/spreadsheet/rebuild-from-spreadsheet.js`
 
-**Resolution:** Added `submitNewRow` function to `submit-spreadsheet-row.js` that bridges spreadsheet/CSV form values to the state layer via `insertHistoryRow`. This fixes CSV import. The inline edit coordinate recalculation will be fixed in Step 21/22 of the Trinity refactoring when the spreadsheet edit path is wired through Translator.toAtomic().
+**Resolution:** CSV import fixed: added `submitNewRow` function and fixed `_extractSections` section-routing bug (event rows were mis-routed to `experienceRows` when blank separator lines were stripped by `parseCsv`). Added `'type'` to event header detection. Inline edit coordinate recalculation still requires wiring through Translator.toAtomic() - tracked as part of Trinity purge of math from UI/DB layers.
 
 ## ISSUE-003
 **Reported:** 2026-04-29 | **Status:** [resolved]

@@ -1,6 +1,7 @@
 
 import { ITEM_DATA } from '../item-data.js';
 import { reindexLifelineNodes } from './lifeline/services/chronology/reindex-lifeline-nodes.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /*
 Handles the "Add" button clicks for all repeating sections on the actor sheet.
@@ -18,7 +19,7 @@ export async function handleItemAdd(sheet, event) {
         case 'era': {
             const existingEras = actor.system.eras || {};
             const isFirst = Object.keys(existingEras).length === 0;
-            const dobStr = actor.system.personal?.dob || '';
+            const dobStr = normalizeDateInput(actor.system.personal?.dob || '');
             updates[`system.eras.${newId}`] = {
                 id: newId,
                 name: "New Era",

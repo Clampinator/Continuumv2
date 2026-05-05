@@ -211,13 +211,16 @@ export function generateManifest(state, viewport, interaction = null) {
         };
     }
 
-    // 9. PROJECT YET NODES
+    // 9. PROJECT YET NODES + YET RAILS
     // Yets are resolved by the Kernel and projected to screen coordinates here.
-    // The YetRenderer consumes this data to draw floating/violated/locked nodes.
+    // The YetRenderer consumes node data; the RailRenderer draws dashed cyan
+    // connector lines from NOW to each Yet (the "future rail").
     manifest.yetNodes = [];
     if (state.yetNodes && state.yetNodes.length > 0) {
+        // Find NOW's screen position from already-projected nodes
+        const nowScreen = manifest.nodes.find(n => n.id === 'now');
+
         manifest.yetNodes = state.yetNodes.map(yet => {
-            // Is this Yet currently being dragged? Override position from interaction.
             const isDragging = interaction?.yetDrag?.id === yet.id;
             let screen;
 
@@ -225,6 +228,15 @@ export function generateManifest(state, viewport, interaction = null) {
                 screen = { x: interaction.yetDrag.screenX, y: interaction.yetDrag.screenY };
             } else {
                 screen = viewport.worldToScreen(yet.worldAge, yet.worldTime);
+            }
+
+            // Dashed cyan connector from NOW to this Yet node
+            if (nowScreen && !yet.isViolated) {
+                manifest.rails.push({
+                    type: 'yet',
+                    p1: { x: nowScreen.x, y: nowScreen.y },
+                    p2: { x: screen.x, y: screen.y }
+                });
             }
 
             return {

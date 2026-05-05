@@ -1,7 +1,8 @@
 /**
  * STATE: MARK YET FULFILLED
- * Marks a Yet as done in the database. The only authorized way
- * to update the Yet flag - UI must call this function, not actor.update().
+ * Marks a Yet as done in the database. This is the flag-only operation.
+ * The caller (yet-fulfillment.js) is responsible for also inserting a
+ * permanent history row via insertHistoryRow before calling this.
  *
  * @param {Actor} actor - The Foundry actor
  * @param {string} yetId - The ID of the Yet to mark as fulfilled

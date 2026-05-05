@@ -1,6 +1,6 @@
 // continuum/modules/span-graph-dialog-age.js
 import { parseSubjectiveAge, formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
-import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatDateOnly, normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { migrateEraEvents } from '/systems/continuum-v2/modules/state/migrate-era-events.js';
 import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
 import { computeEraGaps } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-gaps.js';
@@ -82,10 +82,10 @@ export function openEraEditDialog(data, sheet, viewState) {
                         const startSec = parseSubjectiveAge(formData.startAge);
                         updates[`system.eras.${data.id}.age`] = startSec;
 
-                        // Derive dateFrom from age + DOB
+                        // Derive dateFrom from age + DOB via TTL
                         if (!isNaN(dobTs)) {
-                            const fromDate = new Date(dobTs + (startSec * 1000));
-                            updates[`system.eras.${data.id}.dateFrom`] = fromDate.toISOString().split('T')[0];
+                            const fromMs = dobTs + (startSec * 1000);
+                            updates[`system.eras.${data.id}.dateFrom`] = formatDateOnly(fromMs);
                         }
                     }
 
@@ -95,13 +95,13 @@ export function openEraEditDialog(data, sheet, viewState) {
                         const startSec = parseSubjectiveAge(formData.startAge) || Number(data.age) || 0;
                         const durationSec = endSec - startSec;
 
-                        // Derive dateTo from dateFrom + duration
+                        // Derive dateTo from dateFrom + duration via TTL
                         const dateFromStr = updates[`system.eras.${data.id}.dateFrom`] || data.dateFrom;
                         if (dateFromStr && !isNaN(dobTs)) {
                             const fromMs = parseDateToObjectiveMs(dateFromStr);
                             if (!isNaN(fromMs)) {
-                                const toDate = new Date(fromMs + (durationSec * 1000));
-                                updates[`system.eras.${data.id}.dateTo`] = toDate.toISOString().split('T')[0];
+                                const toMs = fromMs + (durationSec * 1000);
+                                updates[`system.eras.${data.id}.dateTo`] = formatDateOnly(toMs);
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 import { submitSpreadsheetRow } from './submit-spreadsheet-row.js';
-import { exportSpreadsheetCSV, downloadCSVTemplate } from './csv-tools.js';
+import { exportSpreadsheetCsv } from './export-spreadsheet-csv.js';
+import { downloadCsvTemplate } from './download-csv-template.js';
 import { importFromCsv } from './import-spreadsheet-csv.js';
 
 // Namespace suffix for delegated events - allows clean teardown on re-render
@@ -46,7 +47,7 @@ export function bindSpreadsheetListeners(app, html) {
 
     html.on('click' + NS, '.lss-export-btn', (event) => {
         event.preventDefault();
-        exportSpreadsheetCSV(actor);
+        exportSpreadsheetCsv(actor);
     });
 
     html.on('click' + NS, '.lss-import-btn', (event) => {
@@ -56,7 +57,7 @@ export function bindSpreadsheetListeners(app, html) {
 
     html.on('click' + NS, '.lss-template-btn', (event) => {
         event.preventDefault();
-        downloadCSVTemplate();
+        downloadCsvTemplate();
     });
 
     // ENTER on location inputs triggers adjacent map-pin button

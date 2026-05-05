@@ -74,4 +74,57 @@ describe('computeEraGaps', () => {
     const gaps = computeEraGaps({}, [], 20 * YR, '2000-01-01');
     expect(gaps).toHaveLength(0);
   });
+
+  // TTL BOUNDARY-TRACE TESTS
+  // _deriveDateFrom now uses parseDateToObjectiveMs + formatDateOnly
+  // instead of raw new Date(). These tests verify the TTL round-trip.
+
+  it('should produce valid YYYY-MM-DD dateFrom via TTL (not ISO full-timestamp)', () => {
+    // When a gap is detected, the follow-on era's dateFrom must be a clean
+    // YYYY-MM-DD string, not an ISO timestamp like "2010-01-01T00:00:00.000Z"
+    const erasData = {
+      'era1': { name: 'Childhood', age: 0, dateFrom: '2000-01-01', dateTo: '2010-01-01' }
+    };
+    const boundaries = computeEraBoundaries(erasData);
+    const gaps = computeEraGaps(erasData, boundaries, 20 * YR, '2000-01-01');
+    expect(gaps).toHaveLength(1);
+    // dateFrom must be YYYY-MM-DD format, no T or Z suffix
+    expect(gaps[0].dateFrom).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(gaps[0].dateFrom).not.toContain('T');
+    expect(gaps[0].dateFrom).not.toContain('Z');
+  });
+
+  it('should derive dateFrom=2010-01-01 for a gap starting 10 years after DOB 2000-01-01', () => {
+    const erasData = {
+      'era1': { name: 'Childhood', age: 0, dateFrom: '2000-01-01', dateTo: '2010-01-01' }
+    };
+    const boundaries = computeEraBoundaries(erasData);
+    const gaps = computeEraGaps(erasData, boundaries, 20 * YR, '2000-01-01');
+    expect(gaps).toHaveLength(1);
+    expect(gaps[0].dateFrom).toBe('2010-01-01');
+  });
+
+  it('should return empty dateFrom when dobStr is empty', () => {
+    const erasData = {
+      'era1': { name: 'Childhood', age: 0, dateFrom: '2000-01-01', dateTo: '2010-01-01' }
+    };
+    const boundaries = computeEraBoundaries(erasData);
+    const gaps = computeEraGaps(erasData, boundaries, 20 * YR, '');
+    expect(gaps).toHaveLength(1);
+    expect(gaps[0].dateFrom).toBe('');
+  });
+
+  it('should use TTL-consistent date formatting for gap dateFrom (no timezone drift)', () => {
+    // DOB in a timezone-sensitive date. TTL uses UTC to avoid local timezone shifts.
+    const erasData = {
+      'era1': { name: 'Early', age: 0, dateFrom: '1999-12-31', dateTo: '2009-12-31' }
+    };
+    const boundaries = computeEraBoundaries(erasData);
+    const gaps = computeEraGaps(erasData, boundaries, 20 * YR, '1999-12-31');
+    expect(gaps).toHaveLength(1);
+    // Must produce a clean date, not shifted by timezone
+    expect(gaps[0].dateFrom).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    // The exact date should be 10 years after 1999-12-31 = 2009-12-31
+    expect(gaps[0].dateFrom).toBe('2009-12-31');
+  });
 });

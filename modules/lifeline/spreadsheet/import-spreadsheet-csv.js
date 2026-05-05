@@ -2,7 +2,7 @@ import { parseBool, normalizeDate, parseCsv } from './parse-csv.js';
 import { TEMPLATE_HEADERS } from './download-csv-template.js';
 import { processGraphData } from '../../span-graph-data-processor.js';
 import { getSheetContext } from '../../span-graph-state.js';
-import { parseObjectiveTime } from '../../temporal-translator/coordinate-converter.js';
+import { parseObjectiveTime, normalizeDateInput } from '../../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
 import { resolveEventEra } from '../../temporal-kernel/resolve-event-era.js';
 import { resolveRecordPath } from '../../state/resolve-record-path.js';
@@ -92,6 +92,7 @@ function _rowToFormValues(headers, cells, actor) {
         eventSpanToDate:       date('eventSpanToDate'),
         eventSpanToTime:       get('eventSpanToTime'),
         eventSpanToLocation:   get('eventSpanToLocation'),
+        eraName:          get('era'),
         startNewExp,
         newExpName,
         experienceAction,
@@ -99,6 +100,113 @@ function _rowToFormValues(headers, cells, actor) {
         reopenExperiences: '',
         subjectiveAge,
     };
+}
+
+/**
+ * Pre-scans CSV rows for @era and @experience metadata sections.
+ * Returns separated sections with parsed data.
+ *
+ * @param {string[][]} allRows - Raw parsed CSV rows (first = headers, rest = data)
+ * @returns {{ eraRows: string[][], experienceRows: string[][], eventRows: string[][] }}
+ */
+function _extractSections(allRows) {
+    const eraRows = [];
+    const experienceRows = [];
+    const eventRows = [];
+    let currentSection = 'events';
+
+    // The first row is always the event column headers (or @ section headers)
+    // We detect sections by checking if the first cell starts with @
+    for (const row of allRows) {
+        const first = (row[0] ?? '').trim().toLowerCase();
+
+        if (first === '@era') {
+            currentSection = 'era';
+            continue;
+        }
+        if (first === '@experience') {
+            currentSection = 'experience';
+            continue;
+        }
+
+        // Empty first cell or non-@ prefix: event data
+        // A blank line (all empty) resets to events section
+        const isBlank = row.every(c => !(c ?? '').trim());
+        if (isBlank) {
+            currentSection = 'events';
+            continue;
+        }
+
+        // Known event column headers reset to events section.
+        // 'type' is the first column of TEMPLATE_HEADERS and must be
+        // detected here because parseCsv strips blank separator lines,
+        // so sections transition without a blank-row reset.
+        if (first === 'type' || first === 'date' || first === 'eventtitle' || first === 'title') {
+            currentSection = 'events';
+        }
+
+        if (currentSection === 'era') {
+            eraRows.push(row);
+        } else if (currentSection === 'experience') {
+            experienceRows.push(row);
+        } else {
+            eventRows.push(row);
+        }
+    }
+
+    return { eraRows, experienceRows, eventRows };
+}
+
+/**
+ * Parses @era rows into structured era descriptors.
+ * Format: id,name,age,dateFrom,dateTo,sort
+ *
+ * @param {string[][]} eraRows - Raw CSV rows from the @era section
+ * @returns {Array<{origId: string, name: string, age: number, dateFrom: string, dateTo: string, sort: number}>}
+ */
+function _parseEraRows(eraRows) {
+    const eras = [];
+    for (const row of eraRows) {
+        if (row.length < 3) continue;
+        const origId = (row[0] ?? '').trim();
+        // Skip if this looks like a header row
+        if (origId.toLowerCase() === 'id') continue;
+        eras.push({
+            origId,
+            name: (row[1] ?? '').trim() || 'Imported Era',
+            age: Number(row[2]) || 0,
+            dateFrom: normalizeDateInput((row[3] ?? '').trim()),
+            dateTo: normalizeDateInput((row[4] ?? '').trim()),
+            sort: Number(row[5]) || 0
+        });
+    }
+    return eras;
+}
+
+/**
+ * Parses @experience rows into structured experience descriptors.
+ * Format: id,name,eraId,dateFrom,dateTo,isOngoing,sort
+ *
+ * @param {string[][]} experienceRows - Raw CSV rows from the @experience section
+ * @returns {Array<{origId: string, name: string, origEraId: string, dateFrom: string, dateTo: string, isOngoing: boolean, sort: number}>}
+ */
+function _parseExperienceRows(experienceRows) {
+    const exps = [];
+    for (const row of experienceRows) {
+        if (row.length < 3) continue;
+        const origId = (row[0] ?? '').trim();
+        if (origId.toLowerCase() === 'id') continue;
+        exps.push({
+            origId,
+            name: (row[1] ?? '').trim() || 'Imported Experience',
+            origEraId: (row[2] ?? '').trim(),
+            dateFrom: normalizeDateInput((row[3] ?? '').trim()),
+            dateTo: normalizeDateInput((row[4] ?? '').trim()),
+            isOngoing: parseBool((row[5] ?? '').trim()),
+            sort: Number(row[6]) || 0
+        });
+    }
+    return exps;
 }
 
 /*
@@ -109,6 +217,11 @@ during batch operations by shifting previously-inserted nodes.
 
 Instead, we pre-compute all ages and timestamps using the physics walk
 (establishHistoryPhysics) and write everything in one actor.update().
+
+STRUCTURED IMPORT: If the CSV contains @era and @experience sections,
+those are parsed first and used to rebuild the era/experience structure.
+If no @era section exists, falls back to a single "Imported Events" era
+(legacy behavior).
 */
 export async function importFromCsv(app) {
     const input = document.createElement('input');
@@ -130,27 +243,8 @@ export async function importFromCsv(app) {
             return void ui.notifications.warn("CSV has no data rows.");
         }
 
-        const rawHeaders = allRows[0].map(h => h.trim().toLowerCase());
-        const dataRows   = _orientFromBirth(rawHeaders, allRows.slice(1));
-
-        const titleAliases = ['eventtitle', 'title', 'name', 'event'];
-        const hasTitleColumn = rawHeaders.some(h => titleAliases.includes(h));
-        if (!hasTitleColumn) {
-            _importing = false;
-            const headerPreview = rawHeaders.slice(0, 10).join(', ');
-            console.warn(`[CSV Import] Headers found: ${headerPreview}`);
-            return void ui.notifications.error("CSV is missing a 'eventTitle' column. Download the template for the correct format.");
-        }
-
-        const titleIdx = rawHeaders.findIndex(h => titleAliases.includes(h));
-        if (rawHeaders[titleIdx] !== 'eventtitle') {
-            rawHeaders[titleIdx] = 'eventtitle';
-        }
-
-        const headers = rawHeaders.map(h => {
-            const match = TEMPLATE_HEADERS.find(t => t.toLowerCase() === h);
-            return match ?? h;
-        });
+        // SEPARATE METADATA SECTIONS FROM EVENT ROWS
+        const { eraRows, experienceRows, eventRows } = _extractSections(allRows);
 
         const actor = app.sheet.actor;
 
@@ -169,14 +263,101 @@ export async function importFromCsv(app) {
             await actor.update(deletions);
         }
 
-        // Create a default era
-        const defaultEraId = foundry.utils.randomID();
-        await actor.update({
-            [`system.eras.${defaultEraId}.name`]: 'Imported Events',
-            [`system.eras.${defaultEraId}.age`]: 0,
-            [`system.eras.${defaultEraId}.dateFrom`]: actor.system.personal?.dob || '',
-            [`system.eras.${defaultEraId}.sort`]: 0
+        // ID MAPPINGS: origId -> newId for eras and experiences
+        const eraIdMap = {};
+        const expIdMap = {};
+        // Name -> newId lookup for events that only have era name
+        const eraNameToNewId = {};
+
+        // CREATE ERAS from @era section (if present)
+        const parsedEras = _parseEraRows(eraRows);
+        const hasEraSection = parsedEras.length > 0;
+
+        if (hasEraSection) {
+            // Structured import: create eras from CSV metadata
+            const eraUpdates = {};
+            for (const era of parsedEras) {
+                const newId = foundry.utils.randomID();
+                eraIdMap[era.origId] = newId;
+                eraNameToNewId[era.name.toLowerCase().trim()] = newId;
+                eraUpdates[`system.eras.${newId}`] = {
+                    id: newId,
+                    name: era.name,
+                    age: era.age,
+                    dateFrom: era.dateFrom,
+                    dateTo: era.dateTo,
+                    sort: era.sort,
+                    experiences: {},
+                    events: {}
+                };
+            }
+            await actor.update(eraUpdates);
+        } else {
+            // Legacy fallback: single "Imported Events" era
+            const defaultEraId = foundry.utils.randomID();
+            await actor.update({
+                [`system.eras.${defaultEraId}.name`]: 'Imported Events',
+                [`system.eras.${defaultEraId}.age`]: 0,
+                [`system.eras.${defaultEraId}.dateFrom`]: normalizeDateInput(actor.system.personal?.dob || ''),
+                [`system.eras.${defaultEraId}.sort`]: 0
+            });
+            // Map any lookups to the default era
+            eraIdMap['default'] = defaultEraId;
+            eraNameToNewId['imported events'] = defaultEraId;
+        }
+
+        // CREATE EXPERIENCES from @experience section (if present)
+        const parsedExperiences = _parseExperienceRows(experienceRows);
+        if (parsedExperiences.length > 0) {
+            const expUpdates = {};
+            for (const exp of parsedExperiences) {
+                const newId = foundry.utils.randomID();
+                expIdMap[exp.origId] = newId;
+                // Map the experience's eraId through the era mapping
+                const mappedEraId = eraIdMap[exp.origEraId] || eraNameToNewId[exp.origEraId.toLowerCase().trim()] || '';
+                if (!mappedEraId) continue;
+                expUpdates[`system.eras.${mappedEraId}.experiences.${newId}`] = {
+                    id: newId,
+                    name: exp.name,
+                    dateFrom: exp.dateFrom,
+                    dateTo: exp.dateTo,
+                    isOngoing: exp.isOngoing,
+                    sort: exp.sort,
+                    events: {}
+                };
+            }
+            if (Object.keys(expUpdates).length > 0) {
+                await actor.update(expUpdates);
+            }
+        }
+
+        // PARSE EVENT ROWS
+        // The eventRows include the column header row + data rows
+        const rawHeaders = eventRows.length > 0
+            ? eventRows[0].map(h => h.trim().toLowerCase())
+            : [];
+
+        const titleAliases = ['eventtitle', 'title', 'name', 'event'];
+        const hasTitleColumn = rawHeaders.some(h => titleAliases.includes(h));
+        if (!hasTitleColumn && eventRows.length <= 1) {
+            _importing = false;
+            return void ui.notifications.warn("CSV has no event rows with an eventTitle column.");
+        }
+
+        // Fix title column name for consistency
+        if (hasTitleColumn) {
+            const titleIdx = rawHeaders.findIndex(h => titleAliases.includes(h));
+            if (rawHeaders[titleIdx] !== 'eventtitle') {
+                rawHeaders[titleIdx] = 'eventtitle';
+            }
+        }
+
+        const headers = rawHeaders.map(h => {
+            const match = TEMPLATE_HEADERS.find(t => t.toLowerCase() === h);
+            return match ?? h;
         });
+
+        const dataRows = _orientFromBirth(headers, eventRows.slice(1));
 
         // Pre-compute all events with correct ages using physics walk
         const events = [];
@@ -184,6 +365,10 @@ export async function importFromCsv(app) {
         let lastTs = originTime;
         let lastAge = 0;
         let sortIndex = 1000;
+
+        // Get current era state for resolveEventEra
+        const currentEras = actor.system.eras || {};
+        const firstEraId = Object.keys(currentEras)[0] || '';
 
         for (const cells of dataRows) {
             const fv = _rowToFormValues(headers, cells, actor);
@@ -216,7 +401,12 @@ export async function importFromCsv(app) {
                 currentOffset = computeOffsetFromArrival(arrivalTs, eventAge);
             }
 
-            const eraId = resolveEventEra(actor.system.eras, eventAge) || defaultEraId;
+            // Resolve era: use Kernel resolveEventEra, falling back to
+            // name lookup from the era column, then first era
+            const eraId = resolveEventEra(currentEras, eventAge)
+                || eraNameToNewId[(fv.eraName || '').toLowerCase().trim()]
+                || firstEraId;
+
             const eventId = foundry.utils.randomID();
             const expId = null;
 
@@ -277,7 +467,13 @@ export async function importFromCsv(app) {
         app.render(true);
 
         _importing = false;
-        ui.notifications.info(`Import complete. ${events.length} event${events.length !== 1 ? 's' : ''} added.`);
+        const eraCount = Object.keys(currentEras).length;
+        const expCount = parsedExperiences.length;
+        ui.notifications.info(
+            `Import complete. ${events.length} event${events.length !== 1 ? 's' : ''}` +
+            `, ${eraCount} era${eraCount !== 1 ? 's' : ''}` +
+            `, ${expCount} experience${expCount !== 1 ? 's' : ''} added.`
+        );
     };
 
     input.click();

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseObjectiveTime, formatObjectiveTime } from '../../modules/temporal-translator/coordinate-converter.js';
+import { parseObjectiveTime, formatObjectiveTime, formatDateOnly, parseDateToObjectiveMs, normalizeDateInput } from '../../modules/temporal-translator/coordinate-converter.js';
 
 describe('Coordinate Converter: Parsing (Inbound)', () => {
     it('should parse the same wall-clock time differently based on LocationContext', () => {
@@ -73,5 +73,45 @@ describe('Coordinate Converter: Round-Trip Integrity', () => {
 
         const backToMs = parseObjectiveTime(result.date, result.time, context);
         expect(backToMs).toBe(ms);
+    });
+});
+
+describe('formatDateOnly: TTL Boundary-Trace Tests', () => {
+    it('should produce YYYY-MM-DD without time or timezone suffix', () => {
+        // DOB + 10 years in ms
+        const dobMs = new Date('2000-01-01T00:00:00Z').getTime();
+        const tenYearsMs = dobMs + (10 * 31536000 * 1000);
+        const result = formatDateOnly(tenYearsMs);
+        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(result).not.toContain('T');
+        expect(result).not.toContain('Z');
+    });
+
+    it('should replace toISOString().split("T")[0] without timezone drift', () => {
+        // Previously: new Date(ms).toISOString().split('T')[0] would produce UTC dates
+        // formatDateOnly should produce the same clean YYYY-MM-DD
+        const ms = new Date('2010-06-15T14:30:00Z').getTime();
+        const result = formatDateOnly(ms);
+        const legacy = new Date(ms).toISOString().split('T')[0];
+        expect(result).toBe(legacy);
+    });
+
+    it('should return empty string for NaN input', () => {
+        expect(formatDateOnly(NaN)).toBe('');
+        expect(formatDateOnly(undefined)).toBe('');
+    });
+
+    it('should produce correct date for DOB + subjective age offset', () => {
+        // 10 tropical years (31536000 s/yr) = 365.2425-day years.
+        // From 2000-01-01 UTC, +10 tropical years lands in late Dec 2009.
+        const dobMs = parseDateToObjectiveMs('2000-01-01');
+        const ageMs = dobMs + (10 * 31536000 * 1000);
+        const result = formatDateOnly(ageMs);
+        expect(result).toMatch(/^2009-1[12]-\d{2}$/);
+    });
+
+    it('normalizeDateInput should clean standard format passthrough', () => {
+        expect(normalizeDateInput('2024-01-15')).toBe('2024-01-15');
+        expect(normalizeDateInput('')).toBe('');
     });
 });

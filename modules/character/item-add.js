@@ -1,5 +1,6 @@
 
 import { reindexLifelineNodes } from '../lifeline/services/chronology/reindex-lifeline-nodes.js';
+import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 export async function handleCharacterItemAdd(sheet, event) {
     const button = event.target.closest('.item-add');
@@ -13,7 +14,7 @@ export async function handleCharacterItemAdd(sheet, event) {
     switch (dataType) {
         case 'era': {
             const existingEras = actor.system.eras || {};
-            const dobStr = actor.system.personal?.dob || '';
+            const dobStr = normalizeDateInput(actor.system.personal?.dob || '');
             updates[`system.eras.${newId}`] = { id: newId, name: "New Era", age: 0, dateFrom: dobStr, dateTo: '', sort: Date.now(), experiences: {}, events: {} };
             break;
         }

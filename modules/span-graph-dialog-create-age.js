@@ -1,4 +1,4 @@
-import { normalizeDateInput, timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { normalizeDateInput, timestampToDateString, parseDateToObjectiveMs, formatDateOnly } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 import { getObjectiveDateFromSubjectiveX } from './span-graph-utils/provide-span-graph-utils.js';
 import { renderDatePicker } from './span-graph-ui-helpers.js';
@@ -24,7 +24,8 @@ Dialog to create a new Era from drag selection.
 */
 export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSeconds, sortedEras) {
     const dobString = sheet.actor.system.personal?.dob || sheet.actor.system.structure?.inceptionDate || null;
-    const dobDate = dobString ? new Date(dobString + "T00:00:00") : new Date();
+    const dobMs = dobString ? parseDateToObjectiveMs(dobString) : Date.now();
+    const dobDate = new Date(dobMs);
     const points = (graphData.levelNodes || []).map(n => ({ x: n.age, y: n.time }));
 
     // The first era on any character MUST start at the birth date, regardless of
@@ -95,7 +96,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
             const endMInput = html.find('input[name="endMonths"]');
             const endDInput = html.find('input[name="endDays"]');
 
-            // SYNC: AGE INPUTS -> DATE TO
+            // SYNC: AGE INPUTS -> DATE TO (via TTL)
             const updateDateFromAge = () => {
                 const y = parseInt(endYInput.val()) || 0;
                 const m = parseInt(endMInput.val()) || 0;
@@ -107,33 +108,27 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
                 const sVal = dateFromInput.val();
                 if (!sVal) return;
 
-                const startD = new Date(sVal + "T00:00:00");
-                if (isNaN(startD.getTime())) return;
+                const startMs = parseDateToObjectiveMs(sVal);
+                if (isNaN(startMs)) return;
 
-                const endD = new Date(startD.getTime() + (durationNeeded * 1000));
-
-                const outY = endD.getFullYear();
-                const outM = String(endD.getMonth() + 1).padStart(2, '0');
-                const outD = String(endD.getDate()).padStart(2, '0');
-
-                dateToInput.val(`${outY}-${outM}-${outD}`);
+                const endMs = startMs + (durationNeeded * 1000);
+                dateToInput.val(formatDateOnly(endMs));
             };
 
             [endYInput, endMInput, endDInput].forEach(el => el.on('change', updateDateFromAge));
 
-            // SYNC: DATES -> AGE INPUTS
+            // SYNC: DATES -> AGE INPUTS (via TTL)
             const updateAgeFromDates = () => {
                 const sVal = dateFromInput.val();
                 const eVal = dateToInput.val();
                 if (!sVal || !eVal) return;
 
-                const startD = new Date(sVal + "T00:00:00");
-                const endD = new Date(eVal + "T00:00:00");
+                const startMs = parseDateToObjectiveMs(sVal);
+                const endMs = parseDateToObjectiveMs(eVal);
 
-                if (isNaN(startD.getTime()) || isNaN(endD.getTime())) return;
+                if (isNaN(startMs) || isNaN(endMs)) return;
 
-                const durationMs = endD.getTime() - startD.getTime();
-                const durationSecs = durationMs / 1000;
+                const durationSecs = (endMs - startMs) / 1000;
 
                 const absoluteEndAgeSecs = viewState.creationStartAgeSeconds + durationSecs;
 

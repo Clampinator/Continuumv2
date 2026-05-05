@@ -4,9 +4,9 @@
  *
  * Yets are floating future events that stalk the NOW node.
  * They exhibit three visual states:
- *   LOCKED  (hasAge || hasDate): Fixed on at least one axis. No drift animation.
- *   DRIFTING (!hasAge && !hasDate): Brownian motion via CSS animation. Floats ahead of NOW.
- *   VIOLATED (age-locked and NOW has passed their age): Red shake + particle burst.
+ *   LOCKED  (hasAge || hasDate): Outlined ghost, fixed on at least one axis. No drift animation.
+ *   DRIFTING (!hasAge && !hasDate): Outlined + dashed ghost, Brownian motion via CSS. Floats ahead of NOW.
+ *   VIOLATED (age-locked and NOW has passed their age): Red shake + particle burst. Full fill.
  *
  * This renderer is a dumb pipe: it receives manifest data and draws pixels.
  * All position and violation logic is computed by the Kernel (yet-physics.js)

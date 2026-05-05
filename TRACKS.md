@@ -6,7 +6,7 @@ All track specs, plans, and status consolidated here. Source files in `conductor
 
 ## Active Tracks
 
-### [~] Experiences Management & Rendering
+### [x] Experiences Management & Rendering
 **ID:** `experiences_management_20260428` | **Type:** feature
 
 Experiences are logical/visual containers for events, anchored to start/end nodes. Includes recency bonus calculation, "The Forgetting" opacity fade (100% -> 10% over 15 years), elastic bounding boxes for re-opened experiences, and categorized dialog UIs (Close Active / Re-open Past).
@@ -25,7 +25,7 @@ Experiences are logical/visual containers for events, anchored to start/end node
 
 ---
 
-### [~] Eras Structural Refinement
+### [x] Eras Structural Refinement
 **ID:** `eras_structural_refinement_20260428` | **Type:** feature
 
 Solidify Eras as the primary chronological grouping. Enforce sequential authority by subjective age, duration rules, and downward propagation.
@@ -40,18 +40,14 @@ Solidify Eras as the primary chronological grouping. Enforce sequential authorit
 
 **Plan:**
 - Phase 1: Engine Logic [DONE] - TTL compliance in computeEraBoundaries, event-aware duration for auto-eras, downward propagation, explicit dateTo as hard boundary, computeEraGaps for gap detection, migrateEraEvents for event/experience migration
-- Phase 2: Projection & Rendering [NOT STARTED] - Era metadata in manifest, EraRenderer with labels/striping
-- Phase 3: UI & Navigation [NOT STARTED] - Era-based autofocus, refactor era management dialogs through TTL
-- Click era label to center viewport on that segment
+- Phase 2: Projection & Rendering [DONE] - Era metadata in manifest, EraRenderer with bands/labels/separators, dblclick-to-center
+- Phase 3: UI & Dialog TTL [DONE] - Era edit dialog migrated to TTL (formatDateOnly, parseDateToObjectiveMs), create-age dialog migrated, compute-era-gaps _deriveDateFrom migrated, dobStr normalized through normalizeDateInput in item-add/sheet-handlers/CSV-import, dblclick era label autofocus verified
 
-**Plan:**
-- Phase 1: Engine Logic - Era duration calc, downward propagation enforcement
-- Phase 2: Projection & Rendering - Era metadata in manifest, EraRenderer with labels/striping
-- Phase 3: UI & Navigation - Era-based autofocus, refactor era management dialogs through TTL
+**Tests:** 13 compute-era-boundaries, 7 compute-era-gaps (4 new TTL boundary-trace), 8 migrate-era-events, 4 manifest-eras, 14 coordinate-converter (5 new formatDateOnly/normalizeDateInput)
 
 ---
 
-### [ ] The "Yet" (Future Events) Implementation
+### [~] The "Yet" (Future Events) Implementation
 **ID:** `the_yet_implementation_20260428` | **Type:** feature
 
 System for tracking and rendering scheduled-but-unlived events beyond the NOW node. Yet events are ghost nodes with dashed rails; they become permanent when the NOW node reaches their age.
@@ -64,9 +60,9 @@ System for tracking and rendering scheduled-but-unlived events beyond the NOW no
 - "Schedule Yet" dialog for adding future dates; drag-to-future interaction
 
 **Plan:**
-- Phase 1: Data & Engine - Define theYet schema in template.json, integrate into getTemporalState (flag isYet:true, place on 1:1 diagonal)
-- Phase 2: Projection & Rendering - Ghost node styling in NodeRenderer, dashed rails in RailRenderer, fulfillment visual transition
-- Phase 3: UI & Interaction - Schedule Yet dialog, drag-to-future interaction
+- Phase 1: Data & Engine [DONE] - theYet schema in template.json, yet-physics.js stalking/violation/resolve, getTemporalState integration, 29 kernel tests
+- Phase 2: Projection & Rendering [DONE] - Ghost node styling (outlined, no fill, low opacity, dashed stroke for drifting), dashed cyan rails from NOW to non-violated Yets in manifest-generator + rail-renderer, 6 manifest projection tests
+- Phase 3: UI & Interaction [DONE] - Yet fulfillment creates permanent history row via insertHistoryRow + markYetFulfilled, drag-to-NOW fulfillment, schedule Yet dialog, 6 fulfillment contract tests
 
 ---
 
@@ -110,6 +106,24 @@ Insert spans into the character's past and propagate downstream time shifts. Eve
 - Phase 1: Kernel Hardening - Propagation logic, compensation wave for downstream ts updates, insert-history-row for historical context [DONE]
 - Phase 2: Interaction Machine - Two-step historical span drag (choose age via ghost-snap, choose magnitude via vertical drag), live propagation preview in manifest [DONE]
 - Phase 3: UI - Refactor Insert Span dialog showing before/after objective times
+
+---
+
+### [x] CSV Full Round-Trip (Eras + Experiences + Events)
+**ID:** `csv_full_roundtrip_20260506` | **Type:** feature
+
+Export and import the complete character lifeline structure: eras, experiences, and events. Previously only events were exported; import wiped all eras and created a single "Imported Events" era.
+
+**Spec:**
+- Export: @era section (id, name, age, dateFrom, dateTo, sort) + @experience section (id, name, eraId, dateTo, isOngoing, sort) + standard event rows
+- Import: Parse @era + @experience sections, create eras/experiences with new mapped IDs, then import events into correct era buckets
+- Backward compatibility: old CSV without @ sections falls back to single "Imported Events" era
+
+**Plan:**
+- Phase 1: Export [DONE] - export-spreadsheet-csv.js emits @era/@experience prefix sections before event rows
+- Phase 2: Import [DONE] - import-spreadsheet-csv.js parses sections, builds eraIdMap + expIdMap, creates eras then experiences then events
+- Phase 3: Template [DONE] - download-csv-template.js includes ERA_TEMPLATE_HEADER + EXPERIENCE_TEMPLATE_HEADER + example rows
+- Phase 4: Tests [DONE] - 15 tests: section extraction, era/experience parsing, backward compat, boundary-trace (age integers, isOngoing, empty dateTo)
 
 ---
 

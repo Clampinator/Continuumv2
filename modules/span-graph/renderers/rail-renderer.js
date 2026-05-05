@@ -33,6 +33,12 @@ export class RailRenderer {
 
             this.group.appendChild(el);
         }
+        else if (rail.type === 'yet') {
+            // Dashed cyan connector from NOW to a Yet node (future rail)
+            const pathData = `M ${rail.p1.x} ${rail.p1.y} L ${rail.p2.x} ${rail.p2.y}`;
+            const el = this._createPathElement(pathData, 'span-graph-yet-rail');
+            this.group.appendChild(el);
+        }
     });
   }
 
@@ -75,6 +81,12 @@ export class RailRenderer {
               stroke-dasharray: 4, 4;
               opacity: 0.85;
               animation: span-flow 0.3s linear infinite;
+          }
+          .span-graph-yet-rail {
+              stroke: #00e5ff;
+              stroke-width: 1.5;
+              stroke-dasharray: 4, 6;
+              opacity: 0.4;
           }
           @keyframes span-flow {
               from { stroke-dashoffset: 20; }
