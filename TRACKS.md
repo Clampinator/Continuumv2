@@ -19,22 +19,29 @@ Experiences are logical/visual containers for events, anchored to start/end node
 - Closed experiences use solid fill with recency-based opacity
 
 **Plan:**
-- Phase 1: Engine & Logic [CORRECTED] - Fixed output field names (startAge/endAge/startTime/endTime), added isClosed/bonus fields, fixed recency bonus thresholds (2-5yr=+2, 5-10yr=+1), implemented two-axis bonus, added description field, null-guarded node accessors
-- Phase 2: Projection & Rendering [FIXED] - Added experience projection step to manifest-generator.js (was dead code), enabled click interaction on experience-renderer.js (data-id/data-era-id attributes, pointer-events on labels)
-- Phase 3: UI & Interaction [PARTIAL] - Wired description field; remaining: wire bonuses to dice roller end-to-end
+- Phase 1: Engine & Logic [DONE] - Fixed output field names, added isClosed/bonus fields, fixed recency bonus thresholds, implemented two-axis bonus, added description field, null-guarded node accessors
+- Phase 2: Projection & Rendering [DONE] - Experience projection in manifest-generator, click interaction on experience-renderer, bonus display in labels and tooltips
+- Phase 3: UI & Interaction [DONE] - Two-axis bonus wired to dice roller via calculateExperienceBonus, description in tooltip, bonus in renderer labels
 
 ---
 
-### [ ] Eras Structural Refinement
+### [~] Eras Structural Refinement
 **ID:** `eras_structural_refinement_20260428` | **Type:** feature
 
-Solidify Eras as the primary chronological grouping. Enforce sequential authority by subjective age, duration rules (sum of constituent events), and downward propagation (changes to earlier eras shift subsequent era start ages).
+Solidify Eras as the primary chronological grouping. Enforce sequential authority by subjective age, duration rules, and downward propagation.
 
 **Spec:**
 - Eras ordered sequentially by Subjective Age
-- Duration = sum of constituent event/experience durations
-- Propagation: edits to earlier eras shift startAge of all later eras
-- Rendering: overarching labels at graph top, vertical separators, background shading
+- Duration computed from constituent events (auto-eras) or user-set dateTo (explicit eras)
+- Downward propagation: overlapping eras shift subsequent start ages forward
+- Events migrate to correct era when boundaries change
+- Experiences belong to era of their last event (including NOW)
+- Auto-create follow-on era when narrowing creates a gap before NOW
+
+**Plan:**
+- Phase 1: Engine Logic [DONE] - TTL compliance in computeEraBoundaries, event-aware duration for auto-eras, downward propagation, explicit dateTo as hard boundary, computeEraGaps for gap detection, migrateEraEvents for event/experience migration
+- Phase 2: Projection & Rendering [NOT STARTED] - Era metadata in manifest, EraRenderer with labels/striping
+- Phase 3: UI & Navigation [NOT STARTED] - Era-based autofocus, refactor era management dialogs through TTL
 - Click era label to center viewport on that segment
 
 **Plan:**
