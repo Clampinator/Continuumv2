@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { verifySpanCoordinates } from '/systems/continuum-v2/modules/temporal-kernel/verify-span-coordinates.js';
 
+// NOTE: The handshake is now wired directly into insert-history-row.js and
+// update-history-row.js as inline drift checks (comparing TTL-produced values
+// against pre-computed values before the override). This test file validates
+// the Kernel utility function, which is still available for ad-hoc checks.
+
 describe('verifySpanCoordinates', () => {
   it('should verify when committed matches target exactly', () => {
     const committed = { ts: 946772400000, arrivalTs: 946781040000, eventAge: 25 * 31536000 };

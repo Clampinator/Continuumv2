@@ -36,8 +36,27 @@ export async function insertHistoryRow(actor, data, options = {}) {
     // TTL string round-trip (formatObjectiveTime -> parseObjectiveTime) can
     // introduce timezone drift when the browser local timezone differs from
     // the character's timezone. Pre-computed values are authoritative.
-    if (Number(data.ts)) atomic.ts = Number(data.ts);
-    if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
+    const preComputedTs = Number(data.ts) || null;
+    const preComputedArrivalTs = Number(data.arrivalTs) || null;
+
+    // POST-SAVE HANDSHAKE (pre-commit): If TTL produced different values
+    // than the caller's exact timestamps, log a drift warning. This catches
+    // timezone round-trip bugs where formatObjectiveTime produces a string
+    // that parseObjectiveTime re-parses to a different ms value.
+    if (preComputedTs && Number(atomic.ts) !== preComputedTs) {
+        console.warn('[INSERT-HANDSHAKE] TTL drifted ts:', {
+            id: newId, ttlTs: Number(atomic.ts), preComputedTs, drift: Number(atomic.ts) - preComputedTs
+        });
+    }
+    if (preComputedArrivalTs && Number(atomic.arrivalTs) !== preComputedArrivalTs) {
+        console.warn('[INSERT-HANDSHAKE] TTL drifted arrivalTs:', {
+            id: newId, ttlArrivalTs: Number(atomic.arrivalTs), preComputedArrivalTs, drift: Number(atomic.arrivalTs) - preComputedArrivalTs
+        });
+    }
+
+    // Apply overrides AFTER drift check so committed values are correct.
+    if (preComputedTs) atomic.ts = preComputedTs;
+    if (preComputedArrivalTs) atomic.arrivalTs = preComputedArrivalTs;
 
     const targetNode = { 
         id: newId, 

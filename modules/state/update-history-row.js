@@ -38,8 +38,25 @@ export async function updateHistoryRow(actor, recordId, data) {
     // AUTHORITY: Pre-computed timestamps bypass the string round-trip.
     // Same as insert-history-row: callers with exact ms values must not
     // suffer timezone drift through date string formatting/re-parsing.
-    if (Number(data.ts)) atomic.ts = Number(data.ts);
-    if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
+    const preComputedTs = Number(data.ts) || null;
+    const preComputedArrivalTs = Number(data.arrivalTs) || null;
+
+    // POST-SAVE HANDSHAKE (pre-commit): If TTL produced different values
+    // than the caller's exact timestamps, log a drift warning.
+    if (preComputedTs && Number(atomic.ts) !== preComputedTs) {
+        console.warn('[UPDATE-HANDSHAKE] TTL drifted ts:', {
+            id: recordId, ttlTs: Number(atomic.ts), preComputedTs, drift: Number(atomic.ts) - preComputedTs
+        });
+    }
+    if (preComputedArrivalTs && Number(atomic.arrivalTs) !== preComputedArrivalTs) {
+        console.warn('[UPDATE-HANDSHAKE] TTL drifted arrivalTs:', {
+            id: recordId, ttlArrivalTs: Number(atomic.arrivalTs), preComputedArrivalTs, drift: Number(atomic.arrivalTs) - preComputedArrivalTs
+        });
+    }
+
+    // Apply overrides AFTER drift check so committed values are correct.
+    if (preComputedTs) atomic.ts = preComputedTs;
+    if (preComputedArrivalTs) atomic.arrivalTs = preComputedArrivalTs;
 
     // SPAN DEPARTURE EDIT: Kernel enforces span duration conservation.
     // When departure shifts, arrival moves by the same delta. Only
