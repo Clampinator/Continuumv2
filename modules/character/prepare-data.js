@@ -2,6 +2,9 @@
 import { ITEM_DATA } from '../../item-data.js';
 import { getAttributeLabel } from '../attribute-labels.js';
 import { BENEFIT_DEFINITIONS } from './benefits/benefit-definitions.js';
+import { calculateSpanPool } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 const ASPECT_LABELS = {
     firearm: { aspect1: 'Handling', aspect2: 'Ammo', aspect3: 'Reliability' },
@@ -10,55 +13,37 @@ const ASPECT_LABELS = {
     vehicle: { aspect1: 'Handling', aspect2: 'Acceleration', aspect3: 'Prestige' }
 };
 
-function _formatSecondsToDuration(totalSeconds) {
-    if (isNaN(totalSeconds)) totalSeconds = 0;
-    const isNegative = totalSeconds < 0;
-    totalSeconds = Math.abs(totalSeconds);
-    const sign = isNegative ? "-" : "";
-    const years = Math.floor(totalSeconds / 31536000);
-    let remainder = totalSeconds % 31536000;
-    const days = Math.floor(remainder / 86400);
-    remainder %= 86400;
-    const hours = Math.floor(remainder / 3600);
-    remainder %= 3600;
-    const minutes = Math.floor(remainder / 60);
-    const seconds = remainder % 60;
-    return `${sign}${years}y ${days}d ${hours}h ${minutes}m ${seconds}s`.replace(/0[ydhms]\s?/g, '').trim() || "0s";
-}
+// SPAN POOL: Computed by temporal-kernel/calculate-span-pool.js (pure math).
+// AGE: Computed by temporal-translator/age-converter.js (pure formatting).
+// No inline date arithmetic or duration formatting in this file.
 
-function _calculateLifelineStats(context) {
-    const SPAN_POOL_MAP = { 0: 0, 1: 31536000, 2: 315360000, 3: 3153600000, 4: 31536000000, 5: 315360000000 };
+function _applySpanPoolStats(context) {
     const spanLevel = Number(context.system.spanning?.span) || 0;
-    const maxSpanPool = SPAN_POOL_MAP[spanLevel] || 0;
     const dobStr = context.system.personal?.dob;
-    const genesisTime = dobStr ? new Date(dobStr + "T12:00:00").getTime() : Date.now();
+    const genesisTs = dobStr ? new Date(dobStr + 'T12:00:00').getTime() : Date.now();
+
+    // Flatten all events from all eras and experiences, sorted by narrative order
     const allEvents = [];
     context.eras.forEach(era => {
         allEvents.push(...(era.events || []));
         era.experiences.forEach(exp => { allEvents.push(...exp.events); });
     });
     allEvents.sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
-    let currentSpanSpentInCycle = 0;
-    let lastObjectiveTime = genesisTime;
+
+    const poolResult = calculateSpanPool({ spanLevel, events: allEvents, genesisTs });
+    context.spanTimeRemaining = poolResult.spanTimeRemainingFormatted;
+    context.isOverSpan = poolResult.isOverSpan;
+
+    // Apply per-event stats back onto the event objects for template rendering
+    const statsById = new Map(poolResult.eventStats.map(s => [s.eventId, s]));
     for (const event of allEvents) {
-        if (event.eventIsRest) currentSpanSpentInCycle = 0;
-        const arrivalDate = event.eventIsSpan ? event.eventSpanToDate : event.eventDate;
-        const arrivalTime = event.eventIsSpan ? event.eventSpanToTime : event.eventTime;
-        if (!arrivalDate) continue;
-        const arrivalTs = new Date(`${arrivalDate}T${arrivalTime || '12:00:00'}`).getTime();
-        if (isNaN(arrivalTs)) continue;
-        const objectiveDeltaSeconds = Math.abs(arrivalTs - lastObjectiveTime) / 1000;
-        if (event.eventIsSpan) {
-            currentSpanSpentInCycle += objectiveDeltaSeconds;
-            event.calculatedSpentFormatted = _formatSecondsToDuration(objectiveDeltaSeconds);
-        } else {
-            event.calculatedSpentFormatted = "0s (Leveling)";
+        const eventId = event.id || event._id || '';
+        const stats = statsById.get(eventId);
+        if (stats) {
+            event.calculatedSpentFormatted = stats.spentFormatted;
+            event.calculatedRemainingFormatted = stats.remainingFormatted;
         }
-        event.calculatedRemainingFormatted = _formatSecondsToDuration(maxSpanPool - currentSpanSpentInCycle);
-        lastObjectiveTime = arrivalTs;
     }
-    context.spanTimeRemaining = _formatSecondsToDuration(maxSpanPool - currentSpanSpentInCycle);
-    context.isOverSpan = (maxSpanPool - currentSpanSpentInCycle) < 0;
 }
 
 function _calculateArmorSummary(context) {
@@ -191,11 +176,8 @@ export async function prepareCharacterData(sheet, options) {
         context.eras.sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
     }
 
-    // --- CALCULATED AGE (from Lifeline Now node) ---
-    // subjectiveNow is in seconds and represents horizontal movement only (no spanning).
+    // CALCULATED AGE - uses TTL formatSubjectiveAge for consistent output
     const subjectiveNowSecs = Number(context.system.personal?.subjectiveNow) || 0;
-    const SECONDS_IN_YEAR = 31536000;
-    const SECONDS_IN_DAY  = 86400;
     context.calculatedAge = {
         years: Math.floor(subjectiveNowSecs / SECONDS_IN_YEAR),
         days:  Math.floor((subjectiveNowSecs % SECONDS_IN_YEAR) / SECONDS_IN_DAY)
@@ -227,7 +209,7 @@ export async function prepareCharacterData(sheet, options) {
     const mapVehicles = (collection, type, key) => Object.entries(collection || {}).map(([id, v]) => ({ id, type, systemKey: key, ...v }));
     context.vehicles = [...mapVehicles(context.system.vehicles, 'vehicle', 'vehicles'), ...mapVehicles(context.system.airVehicles, 'airVehicle', 'airVehicles'), ...mapVehicles(context.system.waterVehicles, 'waterVehicle', 'waterVehicles')];
     
-    _calculateLifelineStats(context);
+    _applySpanPoolStats(context);
 
     context.benefitsList = BENEFIT_DEFINITIONS.map(b => ({ ...b, selected: !!(context.system.benefits?.[b.id]) }));
 

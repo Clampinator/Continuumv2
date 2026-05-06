@@ -50,6 +50,12 @@ export async function updateHistoryRow(actor, recordId, data) {
     // 2. Facts to Physics Conversion (TTL Handshake)
     let atomic = Translator.toAtomic(data, history, actor);
 
+    // AUTHORITY: Pre-computed timestamps bypass the string round-trip.
+    // Same as insert-history-row: callers with exact ms values must not
+    // suffer timezone drift through date string formatting/re-parsing.
+    if (Number(data.ts)) atomic.ts = Number(data.ts);
+    if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
+
     // SPAN DEPARTURE EDIT: If the departure ts changed, move the arrival by the same
     // delta to preserve span duration. Editing the departure node moves both ends
     // together; only the arrival node edit changes the span length.

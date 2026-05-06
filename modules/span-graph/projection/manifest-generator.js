@@ -103,6 +103,33 @@ export function generateManifest(state, viewport, interaction = null) {
             points: points
         });
 
+        // REST SUB-RAILS: If the segment contains a rest node, draw a green
+        // rail from the rest node to the next node (24h rest duration).
+        // Uses railNodes (which includes arrival/exit/NOW-drag nodes) so the
+        // green line reaches the next visible node even when NOW is filtered
+        // from seg.nodes.
+        const restPositionsInRail = [];
+        for (let ri = 0; ri < railNodes.length; ri++) {
+            if (railNodes[ri].isRest) restPositionsInRail.push(ri);
+        }
+
+        for (const rni of restPositionsInRail) {
+            // The rest rail goes from the rest node to the next rail node
+            const nextIdx = rni + 1;
+            if (nextIdx < railNodes.length) {
+                const rNode = railNodes[rni];
+                const nNode = railNodes[nextIdx];
+                const rp = viewport.worldToScreen(rNode.x, rNode.y);
+                const np = viewport.worldToScreen(nNode.x, nNode.y);
+                manifest.rails.push({
+                    type: 'rest',
+                    path: `M ${rp.x} ${rp.y} L ${np.x} ${np.y}`,
+                    p1: rp,
+                    p2: np
+                });
+            }
+        }
+
         // Render span line connecting this segment's exit to next segment's arrival
         if (seg.exitPoint) {
             const nextSeg = state.segments[index + 1];
@@ -158,6 +185,8 @@ export function generateManifest(state, viewport, interaction = null) {
             record: node.record || node,
             spanDirection: node.spanDirection,
             isPreview,
+            isRest: node.isRest || false,
+            isRestEnd: node.isRestEnd || false,
             linkedGoalIds: (node.record?.linkedGoalIds || node.linkedGoalIds || []),
             // Hierarchy keys for goal linking and event editing
             eraId: node.eraId || node.record?.eraId || null,
@@ -261,5 +290,7 @@ function _resolveNodeType(node) {
     if (node.id === 'now') return 'now';
     if (node.isSpanDest) return 'span-dest';
     if (node.record?.eventIsSpan || node.isSpanOrigin) return 'span-origin';
+    if (node.isRestEnd) return 'rest-end';
+    if (node.isRest) return 'rest';
     return 'level';
 }

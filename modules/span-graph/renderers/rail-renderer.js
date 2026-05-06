@@ -39,6 +39,12 @@ export class RailRenderer {
             const el = this._createPathElement(pathData, 'span-graph-yet-rail');
             this.group.appendChild(el);
         }
+        else if (rail.type === 'rest') {
+            // Green level rail for 24h rest duration
+            const pathData = `M ${rail.p1.x} ${rail.p1.y} L ${rail.p2.x} ${rail.p2.y}`;
+            const el = this._createPathElement(pathData, 'span-graph-rest-rail');
+            this.group.appendChild(el);
+        }
     });
   }
 
@@ -87,6 +93,12 @@ export class RailRenderer {
               stroke-width: 1.5;
               stroke-dasharray: 4, 6;
               opacity: 0.4;
+          }
+          .span-graph-rest-rail {
+              stroke: #00ff00;
+              stroke-width: 3;
+              stroke-linecap: round;
+              filter: drop-shadow(0 0 4px rgba(0, 255, 0, 0.9));
           }
           @keyframes span-flow {
               from { stroke-dashoffset: 20; }

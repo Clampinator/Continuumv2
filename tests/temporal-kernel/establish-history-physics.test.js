@@ -77,4 +77,52 @@ describe('establishHistoryPhysics', () => {
         // e2 time should be SpanArrival + (AgeDelta): (noon+20s) + (15-10)s = noon+25s
         expect(e2.y).toBe(originTime + 25000);
     });
+
+    it('should propagate isRest flag to physics nodes', () => {
+        const historyFacts = [
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'e1', sort: 2000, record: { eventAge: 10, eventDate: "2000-01-01", eventTime: "12:00:10", eventIsRest: true } },
+            { id: 'e2', sort: 3000, record: { eventAge: 20, eventDate: "2000-01-01", eventTime: "12:00:20" } }
+        ];
+
+        const physicalNodes = establishHistoryPhysics(historyFacts, originTime);
+
+        const restNode = physicalNodes.find(n => n.id === 'e1');
+        expect(restNode.isRest).toBe(true);
+        expect(restNode.isSpanOrigin).toBe(false);
+
+        const levelNode = physicalNodes.find(n => n.id === 'e2');
+        expect(levelNode.isRest).toBe(false);
+    });
+
+    it('should propagate isRestEnd flag to physics nodes', () => {
+        const historyFacts = [
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'rest1', sort: 2000, record: { eventAge: 10, eventIsRest: true, eventDate: "2000-01-01", eventTime: "12:00:10" } },
+            { id: 'rest1-end', sort: 2500, record: { eventAge: 86410, isRestEnd: true, eventDate: "2000-01-02", eventTime: "12:00:10" } }
+        ];
+
+        const physicalNodes = establishHistoryPhysics(historyFacts, originTime);
+
+        const restNode = physicalNodes.find(n => n.id === 'rest1');
+        expect(restNode.isRest).toBe(true);
+
+        const restEndNode = physicalNodes.find(n => n.id === 'rest1-end');
+        expect(restEndNode.isRestEnd).toBe(true);
+        expect(restEndNode.isRest).toBe(false);
+    });
+
+    it('should not set isRest when eventIsSpan is true', () => {
+        const historyFacts = [
+            { id: 'birth', sort: 1000, isBirth: true, record: { eventAge: 0, eventDate: "2000-01-01", eventTime: "12:00:00" } },
+            { id: 'span1', sort: 2000, record: { eventAge: 10, eventIsSpan: true, eventIsRest: true, eventDate: "2000-01-01", eventSpanFromDate: "2000-01-01", eventSpanFromTime: "12:00:10", eventSpanToDate: "2000-01-01", eventSpanToTime: "12:00:20" } }
+        ];
+
+        const physicalNodes = establishHistoryPhysics(historyFacts, originTime);
+
+        const spanNode = physicalNodes.find(n => n.id === 'span1');
+        // Span events cannot be rest events - isRest must be false
+        expect(spanNode.isRest).toBe(false);
+        expect(spanNode.isSpanOrigin).toBe(true);
+    });
 });

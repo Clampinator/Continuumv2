@@ -55,6 +55,8 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
         }
 
         const eventIsSpan = !!record.eventIsSpan;
+        const isRest = !!record.eventIsRest && !eventIsSpan;
+        const isRestEnd = !!record.isRestEnd && !eventIsSpan;
 
         // 3. Establish Departure (Objective Time / Physics Y)
         // AUTHORITY: Location field defines the local timezone.
@@ -88,7 +90,9 @@ export function establishHistoryPhysics(historyFacts, originTime, subjectiveNow 
             x,
             y,
             arrivalY,
-            isSpanOrigin: eventIsSpan
+            isSpanOrigin: eventIsSpan,
+            isRest,
+            isRestEnd
         });
     }
 

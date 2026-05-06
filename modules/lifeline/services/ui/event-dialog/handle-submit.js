@@ -147,6 +147,13 @@ export async function handleSubmit(actor, formData, params) {
         await insertHistoryRow(actor, data, { isLog });
     }
 
+    // 5. Rest Logic: When rest is toggled ON, create the "End of Rest" event
+    // 24 hours after the rest event. This fires after the row is committed so
+    // the rest event has a valid sort position and age for the end event to
+    // reference.
+    const { handleRestLogic } = await import('./handle-submit/handle-rest-logic.js');
+    await handleRestLogic(actor, data, existingData, { targetAgeId: targetEraId, targetExpId: initialExpId });
+
     Sound.confirm();
     return { positionChanged: true };
 }

@@ -116,6 +116,19 @@ export class NodeRenderer {
             shape.style.stroke = '#ffffff';
             shape.style.strokeWidth = '1.5';
         }
+        else if (node.type === 'rest') {
+            shape.classList.add('graph-node-rest');
+            shape.style.fill = '#00ff00';
+            shape.style.stroke = '#fff';
+            shape.style.strokeWidth = '1.5';
+        }
+        else if (node.type === 'rest-end') {
+            shape.classList.add('graph-node-rest');
+            shape.style.fill = '#00ff00';
+            shape.style.stroke = '#ffffff';
+            shape.style.strokeWidth = '1';
+            shape.setAttribute('r', '4');
+        }
         else if (node.type === 'birth') shape.classList.add('graph-node-birth');
         else shape.classList.add('graph-node-level');
     }

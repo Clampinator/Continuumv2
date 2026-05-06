@@ -73,6 +73,7 @@ function mapToFact(id, event, path, eraId, expId) {
         eventLocation: event.eventLocation || "",
         eventIsSpan,
         eventIsRest: Boolean(event.eventIsRest),
+        isRestEnd: Boolean(event.isRestEnd),
         // Experience linkage - needed so generateExperiences can anchor
         // box corners to the event nodes that open/close each Experience.
         startsExpId: event.startsExpId || null,

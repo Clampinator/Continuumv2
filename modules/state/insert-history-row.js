@@ -29,6 +29,15 @@ export async function insertHistoryRow(actor, data, options = {}) {
     // AUTHORITY: The Translator is the only authorized way to turn UI strings into integers.
     const atomic = Translator.toAtomic(data, history, actor);
 
+    // AUTHORITY: Pre-computed timestamps bypass the string round-trip.
+    // Callers that have exact ms values (e.g. createEndOfRestEvent computing
+    // endTs = startTs + 86400000) pass ts/arrivalTs on the data object. The
+    // TTL string round-trip (formatObjectiveTime -> parseObjectiveTime) can
+    // introduce timezone drift when the browser local timezone differs from
+    // the character's timezone. Pre-computed values are authoritative.
+    if (Number(data.ts)) atomic.ts = Number(data.ts);
+    if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
+
     // DEBUG: Final atomic coordinates after TTL translation
     if (data.eventIsSpan) {
         console.warn('[INSERT-SPAN] 5-ATOMIC (DB write)', JSON.stringify({
