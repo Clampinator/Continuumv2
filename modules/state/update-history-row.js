@@ -44,8 +44,8 @@ export async function updateHistoryRow(actor, recordId, data) {
     // SPAN DEPARTURE EDIT: Kernel enforces span duration conservation.
     // When departure shifts, arrival moves by the same delta. Only
     // arrival-only edits change the span length. The _editArrivalOnly
-    // flag (now stripped above) prevents this rule from applying to
-    // arrival edits.
+    // flag prevents this rule from applying to arrival-only edits
+    // (editing arrival should NOT move the departure).
     if (!data._editArrivalOnly && oldNode.record?.eventIsSpan && oldNode.record?.arrivalTs) {
         const correctedArrival = adjustSpanOnDepartureEdit(
             atomic.ts,

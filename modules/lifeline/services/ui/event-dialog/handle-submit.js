@@ -144,18 +144,30 @@ export async function handleSubmit(actor, formData, params) {
         // reconstruct full span data so Translator.toAtomic reads the preserved
         // departure and the new arrival. This is dialog logic (assembling the
         // correct form data), NOT state logic.
+        //
+        // MUST use object spread so form values (data.eventDate, data.eventTime)
+        // are captured BEFORE the departure overwrites. Sequential mutation would
+        // overwrite data.eventDate with the departure, then read the departure
+        // as the span arrival destination.
         if (existingData._editArrivalOnly && existingData.record?.eventIsSpan) {
-            data.eventIsSpan = true;
-            data.eventAge = existingData.record.eventAge;
-            data.eventDate = existingData.record.eventDate;
-            data.eventTime = existingData.record.eventTime;
-            data.eventLocation = existingData.record.eventLocation;
-            data.eventSpanFromDate = existingData.record.eventSpanFromDate || existingData.record.eventDate;
-            data.eventSpanFromTime = existingData.record.eventSpanFromTime || existingData.record.eventTime;
-            data.eventSpanFromLocation = existingData.record.eventSpanFromLocation || "";
-            data.eventSpanToDate = data.eventDate;
-            data.eventSpanToTime = data.eventTime;
-            data.eventSpanToLocation = data.eventSpanToLocation || existingData.record.eventSpanToLocation || "";
+            const arrivalDate = data.eventDate;
+            const arrivalTime = data.eventTime;
+            const arrivalLocation = data.eventSpanToLocation || existingData.record.eventSpanToLocation || "";
+            data = {
+                ...data,
+                _editArrivalOnly: true,
+                eventIsSpan: true,
+                eventAge: existingData.record.eventAge,
+                eventDate: existingData.record.eventDate,
+                eventTime: existingData.record.eventTime,
+                eventLocation: existingData.record.eventLocation,
+                eventSpanFromDate: existingData.record.eventSpanFromDate || existingData.record.eventDate,
+                eventSpanFromTime: existingData.record.eventSpanFromTime || existingData.record.eventTime,
+                eventSpanFromLocation: existingData.record.eventSpanFromLocation || "",
+                eventSpanToDate: arrivalDate,
+                eventSpanToTime: arrivalTime,
+                eventSpanToLocation: arrivalLocation,
+            };
         }
         await updateHistoryRow(actor, existingData.id, data);
     } else {
