@@ -140,6 +140,20 @@ export async function handleSubmit(actor, formData, params) {
 
     // 4. Route to Atomic State Layer (Where physics/sorting actually happens)
     if (mode === 'edit' && existingData?.id) {
+        // INTENT FLAG: _departureChanged tells the State layer whether the user
+        // actually changed the departure date/time. Without this, editing a span's
+        // title or notes would trigger adjustSpanOnDepartureEdit from TTL micro-drift,
+        // cascading the compensation wave through every downstream node.
+        if (eventIsSpan && existingData.record) {
+            const oldFromDate = existingData.record.eventSpanFromDate || existingData.record.eventDate || '';
+            const oldFromTime = existingData.record.eventSpanFromTime || existingData.record.eventTime || '';
+            const newFromDate = data.eventSpanFromDate || data.eventDate || '';
+            const newFromTime = data.eventSpanFromTime || data.eventTime || '';
+            if (newFromDate !== oldFromDate || newFromTime !== oldFromTime) {
+                data._departureChanged = true;
+            }
+        }
+
         // ARRIVAL EDIT: When the user right-clicked the arrival node of a span,
         // reconstruct full span data so Translator.toAtomic reads the preserved
         // departure and the new arrival. This is dialog logic (assembling the

@@ -5,18 +5,26 @@
  * physical conservation law: editing the departure shifts both ends
  * together; only editing the arrival changes the span length.
  *
- * This rule was previously embedded in update-history-row.js (State layer).
- * It belongs in the Kernel because it is a physics rule.
+ * TOLERANCE GUARD: TTL round-trip can introduce micro-drift (timezone
+ * rounding, seconds truncation) that makes the departure timestamp shift
+ * by a few ms even when the user didn't change the date. If this noise
+ * delta were applied to arrivalTs, the compensation wave would propagate
+ * the shift through every downstream node. Deltas below MIN_DEPARTURE_DELTA_MS
+ * are treated as TTL noise and the arrival is returned unchanged.
  *
- * Returns the corrected arrivalTs (unchanged if delta is zero).
+ * Returns the corrected arrivalTs (unchanged if delta is below tolerance).
  *
  * @param {number} newDepartureTs - New departure timestamp (epoch ms)
  * @param {number} oldDepartureTs - Old departure timestamp (epoch ms)
  * @param {number} oldArrivalTs - Old arrival timestamp (epoch ms)
- * @returns {number} Corrected arrival timestamp (epoch ms)
+ * @param {number} [toleranceMs=1000] - Minimum departure delta to trigger adjustment
+ * @returns {{ arrivalTs: number, adjusted: boolean }}
  */
-export function adjustSpanOnDepartureEdit(newDepartureTs, oldDepartureTs, oldArrivalTs) {
+export function adjustSpanOnDepartureEdit(newDepartureTs, oldDepartureTs, oldArrivalTs, toleranceMs = 1000) {
     const delta = newDepartureTs - oldDepartureTs;
-    if (delta === 0) return oldArrivalTs;
-    return oldArrivalTs + delta;
+    if (Math.abs(delta) < toleranceMs) {
+        // Delta below tolerance: treat as TTL noise, preserve original arrival.
+        return { arrivalTs: oldArrivalTs, adjusted: false };
+    }
+    return { arrivalTs: oldArrivalTs + delta, adjusted: true };
 }

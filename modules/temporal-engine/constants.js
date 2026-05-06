@@ -28,3 +28,12 @@ export const TARGET_RATIO = -0.00057735;
 // sub-minute spans are physically valid. The physics layer rejects zero-displacement
 // spans separately in validateSpanPhysics.
 export const MIN_DRAG_DISPLACEMENT_MS = 60000;
+
+// PHYSICS: Minimum departure delta (ms) for arrival adjustment on span edits.
+// When editing a span, TTL round-trip can introduce micro-drift (timezone rounding,
+// seconds truncation) that makes the departure timestamp shift by a few ms even
+// when the user didn't change the date. If this noise delta is applied to arrivalTs
+// via adjustSpanOnDepartureEdit, the compensation wave propagates the shift through
+// every downstream node. Values below this threshold are treated as TTL noise and
+// ignored. The user's explicit departure change will always exceed 1 second.
+export const MIN_DEPARTURE_DELTA_MS = 1000;

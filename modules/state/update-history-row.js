@@ -63,13 +63,25 @@ export async function updateHistoryRow(actor, recordId, data) {
     // arrival-only edits change the span length. The _editArrivalOnly
     // flag prevents this rule from applying to arrival-only edits
     // (editing arrival should NOT move the departure).
-    if (!data._editArrivalOnly && oldNode.record?.eventIsSpan && oldNode.record?.arrivalTs) {
-        const correctedArrival = adjustSpanOnDepartureEdit(
+    //
+    // INTENT GATE: _departureChanged is set by the dialog when the user
+    // actually changed the departure date/time. Without this flag, editing
+    // a span's title or notes would trigger arrival adjustment from TTL
+    // micro-drift, cascading through the compensation wave.
+    // TOLERANCE GATE: Even with the intent flag, the delta must exceed
+    // MIN_DEPARTURE_DELTA_MS (1 second) to filter out TTL rounding noise.
+    const shouldAdjustArrival = data._departureChanged
+        && !data._editArrivalOnly
+        && oldNode.record?.eventIsSpan
+        && oldNode.record?.arrivalTs;
+
+    if (shouldAdjustArrival) {
+        const { arrivalTs: correctedArrival, adjusted } = adjustSpanOnDepartureEdit(
             atomic.ts,
             Number(oldNode.record.ts),
             Number(oldNode.record.arrivalTs)
         );
-        if (correctedArrival !== Number(oldNode.record.arrivalTs)) {
+        if (adjusted) {
             atomic = { ...atomic, arrivalTs: correctedArrival };
         }
     }
