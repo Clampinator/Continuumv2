@@ -153,8 +153,8 @@ export async function submitNewRow(sheet, fv, options = {}) {
     };
 
     try {
-        const newId = await insertHistoryRow(actor, data, { isLog: false });
-        return newId;
+        const result = await insertHistoryRow(actor, data, { isLog: false });
+        return result.id;
     } catch (e) {
         console.error('[submitNewRow] Insert failed:', e);
         return null;

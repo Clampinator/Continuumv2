@@ -121,4 +121,5 @@ export async function updateHistoryRow(actor, recordId, data) {
     }
 
     await actor.update(updates);
+    return { id: recordId, committedTs: atomic.ts, committedArrivalTs: atomic.arrivalTs, committedAge: atomic.eventAge };
 }

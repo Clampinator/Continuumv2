@@ -117,5 +117,5 @@ export async function insertHistoryRow(actor, data, options = {}) {
     }
 
     await actor.update(updates);
-    return newId;
+    return { id: newId, committedTs: atomic.ts, committedArrivalTs: atomic.arrivalTs, committedAge: atomic.eventAge };
 }

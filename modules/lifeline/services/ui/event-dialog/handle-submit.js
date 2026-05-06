@@ -6,6 +6,7 @@ import { resolveContext } from './handle-submit/resolve-context.js';
 import { handleNewExperience } from './handle-submit/experience-lifecycle.js';
 import { processExperienceLifecycle } from './handle-submit/experience-lifecycle.js';
 import { pushSnapshot } from '../../../../lifeline/undo-manager.js';
+import { verifySpanCoordinates } from '/systems/continuum-v2/modules/temporal-kernel/verify-span-coordinates.js';
 
 /**
  * AUTHORITATIVE SUBMIT HANDLER
@@ -169,10 +170,40 @@ export async function handleSubmit(actor, formData, params) {
                 eventSpanToLocation: arrivalLocation,
             };
         }
-        await updateHistoryRow(actor, existingData.id, data);
+        const updateResult = await updateHistoryRow(actor, existingData.id, data);
+
+        // POST-SAVE HANDSHAKE: Verify committed coordinates are within tolerance
+        // of the old record. For span edits, the departure should stay at the old
+        // departure (unless explicitly moved), and arrival should move to the
+        // new value. Drift here means TTL round-trip corrupted the coordinates.
+        if (updateResult && eventIsSpan) {
+            const targetTs = Number(existingData.record?.ts) || 0;
+            const targetArrivalTs = Number(existingData.record?.arrivalTs) || 0;
+            const targetAge = Number(existingData.record?.eventAge) || 0;
+            // Only verify departure if departure was NOT edited (arrival-only edit)
+            if (existingData._editArrivalOnly) {
+                verifySpanCoordinates(
+                    { ts: updateResult.committedTs, arrivalTs: updateResult.committedArrivalTs, eventAge: updateResult.committedAge },
+                    { ts: targetTs, arrivalTs: targetArrivalTs, eventAge: targetAge, id: existingData.id }
+                );
+            }
+        }
     } else {
         const isLog = (mode === 'log');
-        await insertHistoryRow(actor, data, { isLog });
+        const insertResult = await insertHistoryRow(actor, data, { isLog });
+
+        // POST-SAVE HANDSHAKE: Verify committed coordinates match the span drag
+        // coordinates from the interaction layer. Drift means TTL round-trip
+        // silently shifted the event position.
+        if (insertResult && eventIsSpan) {
+            const targetTs = params.departure?.eventTime || 0;
+            const targetArrivalTs = params.arrival?.eventTime || 0;
+            const targetAge = params.departure?.eventAge || params.ageRaw || 0;
+            verifySpanCoordinates(
+                { ts: insertResult.committedTs, arrivalTs: insertResult.committedArrivalTs, eventAge: insertResult.committedAge },
+                { ts: targetTs, arrivalTs: targetArrivalTs, eventAge: targetAge, id: insertResult.id }
+            );
+        }
     }
 
     // 5. Rest Logic: When rest is toggled ON, create the "End of Rest" event

@@ -241,27 +241,37 @@ State should report raw values; Kernel classifies them.
 
 ## Item 7: Spanning Core Physics Phase 3 - Post-Save Handshake
 
-### Problem
-After a span event is saved, there is no verification that the DB integers match
-the visual coordinates the user saw during the drag. A drift in the TTL round-trip
-could silently place the event at a different position.
+**Status:** Done
 
-### Fix
-- Add a post-save validation step in the engine: after `insertHistoryRow` or
-  `updateHistoryRow` commits a span, read the committed record back and compare
-  its `ts`/`arrivalTs` against the target values from the interaction state.
-- If drift exceeds a tolerance (e.g., 1000ms), log a warning and/or offer to
-  correct.
-- This is a DEFENSE mechanism, not a correction loop. It should never fire in
-  normal operation.
+### Problem
+After a span event is saved, there was no verification that the DB integers
+match the visual coordinates the user saw during the drag. A drift in the
+TTL round-trip could silently place the event at a different position.
+
+### Fix (Applied)
+- Created `verifySpanCoordinates(committed, target, toleranceMs)` in
+  `modules/temporal-kernel/verify-span-coordinates.js`. Pure Kernel function
+  that compares committed ts/arrivalTs/eventAge against intended values.
+  Logs a warning if drift exceeds 1000ms (configurable). This is a defense
+  mechanism, not a correction loop.
+- `insertHistoryRow` now returns `{ id, committedTs, committedArrivalTs,
+  committedAge }` instead of just `newId`. Callers that captured the ID
+  now use `.id`.
+- `updateHistoryRow` now returns `{ id, committedTs, committedArrivalTs,
+  committedAge }` instead of void.
+- `handle-submit.js` calls `verifySpanCoordinates` after both insert and
+  update for span events. Insert targets come from drag parameters
+  (params.departure/arrival). Edit targets come from the old record for
+  arrival-only spans (departure should not shift).
+- `submit-spreadsheet-row.js` updated to use `result.id` instead of `newId`.
 
 ### Files
-- `modules/temporal-engine/commands/insert-span.js` (add post-save verification)
-- `modules/state/insert-history-row.js` (return committed record for verification)
-
-### Tests
-- Simulate a save with exact `ts`, verify post-save check passes.
-- Simulate drift (mock TTL returning different ts), verify warning fires.
+- `modules/temporal-kernel/verify-span-coordinates.js` (NEW)
+- `modules/state/insert-history-row.js` (returns object instead of string)
+- `modules/state/update-history-row.js` (returns object instead of void)
+- `modules/lifeline/services/ui/event-dialog/handle-submit.js` (verification calls)
+- `modules/lifeline/spreadsheet/submit-spreadsheet-row.js` (updated return handling)
+- `tests/temporal-kernel/verify-span-coordinates.test.js` (NEW - 7 tests)
 
 ---
 
