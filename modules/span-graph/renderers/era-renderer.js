@@ -70,6 +70,8 @@ export class EraRenderer {
     label.setAttribute('class', 'graph-era-label');
     label.setAttribute('data-id', era.id);
     label.style.cursor = 'pointer';
+    // Re-enable pointer events so era labels are clickable (group has pointer-events: none)
+    label.style.pointerEvents = 'auto';
     label.textContent = era.name;
     this.group.appendChild(label);
   }
@@ -92,6 +94,9 @@ export class EraRenderer {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-eras');
+    // Default: pass-through so content layer elements receive pointer events.
+    // Individual era labels override with pointer-events: auto.
+    g.style.pointerEvents = 'none';
     parent.appendChild(g);
     return g;
   }

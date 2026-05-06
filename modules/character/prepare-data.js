@@ -4,6 +4,7 @@ import { getAttributeLabel } from '../attribute-labels.js';
 import { BENEFIT_DEFINITIONS } from './benefits/benefit-definitions.js';
 import { calculateSpanPool } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
 import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 const ASPECT_LABELS = {
@@ -20,7 +21,7 @@ const ASPECT_LABELS = {
 function _applySpanPoolStats(context) {
     const spanLevel = Number(context.system.spanning?.span) || 0;
     const dobStr = context.system.personal?.dob;
-    const genesisTs = dobStr ? new Date(dobStr + 'T12:00:00').getTime() : Date.now();
+    const genesisTs = dobStr ? parseDateToObjectiveMs(dobStr) : Date.now();
 
     // Flatten all events from all eras and experiences, sorted by narrative order
     const allEvents = [];

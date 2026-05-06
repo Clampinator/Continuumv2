@@ -11,8 +11,7 @@ export class TooltipManager {
         this.group = this._createTooltipGroup(parentGroup);
         this.isVisible = false;
         
-        // Authority: Static Styles
-        this._injectStyles();
+        // Styles loaded via span_graph.css - no inline injection needed
     }
 
     /**
@@ -104,22 +103,4 @@ export class TooltipManager {
         return g;
     }
 
-    _injectStyles() {
-        if (document.getElementById('span-graph-tooltip-styles')) return;
-        const style = document.createElement('style');
-        style.id = 'span-graph-tooltip-styles';
-        style.textContent = `
-            .tooltip-body {
-                padding: 6px;
-                font-family: "Signika", sans-serif;
-                font-size: 11px;
-                color: #fff;
-            }
-            .tooltip-table { border-collapse: collapse; white-space: nowrap; }
-            .tooltip-table td { padding: 1px 4px; vertical-align: top; }
-            .tooltip-table .label { font-weight: bold; color: #ffffff; text-transform: uppercase; }
-            .tooltip-table .value { color: #00ffff; font-family: monospace; }
-        `;
-        document.head.appendChild(style);
-    }
 }

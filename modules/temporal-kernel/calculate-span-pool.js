@@ -4,29 +4,14 @@
  * consumption per cycle (resetting on rest events).
  *
  * AUTHORITY: This is the only function allowed to compute span pool
- * consumption for the character sheet. The UI must call this function
- * and use the TTL's formatDurationCompact for display strings.
+ * consumption. The UI must call these functions and use the TTL's
+ * formatDurationCompact for display strings.
  *
- * @param {Object} params
- * @param {number} params.spanLevel - Span rank (0-5).
- * @param {Array} params.events - Events sorted by narrative order (ascending sort).
- *   Each event must have:
- *     - {boolean} eventIsSpan - Whether this is a span event.
- *     - {boolean} eventIsRest - Whether this is a rest event (resets pool).
- *     - {number} ts - Departure objective time in milliseconds.
- *     - {number} arrivalTs - Arrival objective time in milliseconds (same as ts for level events).
- * @param {number} params.genesisTs - Birth timestamp in milliseconds.
- *   Used as the starting point for the first event's displacement calc.
- * @returns {Object} Pool statistics:
- *   - {number}   maxPoolSeconds - Maximum span pool for this rank, in seconds.
- *   - {number}   spentInCycleSeconds - Cumulative span spent in current cycle.
- *   - {number}   remainingSeconds - Pool remaining (can be negative if over-span).
- *   - {boolean}  isOverSpan - True if remainingSeconds < 0.
- *   - {string}   spanTimeRemainingFormatted - TTL-formatted remaining string.
- *   - {Array}    eventStats - Per-event stats, each with:
- *       {string} eventId, {number} spentSeconds, {string} spentFormatted,
- *       {number} remainingAfterEvent, {string} remainingFormatted,
- *       {boolean} isSpan, {boolean} isRest
+ * SPAN COST = |arrivalTs - ts| (arrival minus departure).
+ * The cost is the OBJECTIVE TIME the span jumps, which is independent
+ * of the character's subjective age or the position of prior events.
+ * A span from year 2000 to year 2020 costs 20 years regardless of
+ * whether the character arrived at year 2000 via leveling or spanning.
  */
 
 import { SECONDS_IN_YEAR } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
@@ -43,11 +28,91 @@ const SPAN_POOL_SECONDS = {
 
 const MS_PER_SECOND = 1000;
 
+/**
+ * Returns the maximum span pool capacity in seconds for a given rank.
+ * @param {number} rank - Span rank (0-5).
+ * @returns {number} Capacity in seconds.
+ */
+export function getCurrentSpanCapacity(rank) {
+  return SPAN_POOL_SECONDS[Number(rank) || 0] || 0;
+}
+
+/**
+ * Computes the span cost of a single span event in seconds.
+ * The cost is the absolute objective time displaced by the span:
+ * |arrivalTs - departureTs| / 1000.
+ *
+ * @param {Object} spanEvent - Event with {ts, arrivalTs} in milliseconds.
+ * @returns {number} Span cost in seconds. 0 for invalid or non-span events.
+ */
+export function computeSpanCost(spanEvent) {
+  if (!spanEvent) return 0;
+  const dep = Number(spanEvent.ts) || 0;
+  const arr = Number(spanEvent.arrivalTs) || dep;
+  if (dep === 0 && arr === 0) return 0;
+  return Math.abs(arr - dep) / MS_PER_SECOND;
+}
+
+/**
+ * Projects pool state after a proposed span, without mutating any history.
+ * Used by drag tooltips and validation to show "remaining after this span".
+ *
+ * @param {Object} params
+ * @param {number} params.spanLevel - Span rank (0-5).
+ * @param {Array}  params.events - Existing events (same format as calculateSpanPool).
+ * @param {number} params.genesisTs - Birth timestamp in ms.
+ * @param {number} params.proposedDepartureMs - Proposed departure timestamp in ms.
+ * @param {number} params.proposedArrivalMs - Proposed arrival timestamp in ms.
+ * @returns {Object} { remainingSeconds, isOverSpan, remainingFormatted, costSeconds }
+ */
+export function computePoolAfterSpan({ spanLevel, events, genesisTs, proposedDepartureMs, proposedArrivalMs }) {
+  // First compute current pool state from existing events
+  const current = calculateSpanPool({ spanLevel, events, genesisTs });
+
+  // Cost of the proposed span
+  const costSeconds = Math.abs(proposedArrivalMs - proposedDepartureMs) / MS_PER_SECOND;
+
+  // Subtract from current remaining
+  const remainingSeconds = current.remainingSeconds - costSeconds;
+
+  return {
+    costSeconds,
+    remainingSeconds,
+    isOverSpan: remainingSeconds < 0,
+    remainingFormatted: formatDurationCompact(remainingSeconds)
+  };
+}
+
+/**
+ * Walks a sorted list of events computing cumulative span consumption
+ * per cycle (resetting on rest events).
+ *
+ * SPAN COST = |arrivalTs - ts| / 1000 (arrival minus departure, in seconds).
+ * This is the objective time the span jumps, NOT the gap from the previous
+ * event. A span from 2000 to 2020 costs 20 years whether the character
+ * arrived at 2000 by leveling or by a prior span.
+ *
+ * @param {Object} params
+ * @param {number} params.spanLevel - Span rank (0-5).
+ * @param {Array} params.events - Events sorted by narrative order (ascending sort).
+ *   Each event must have:
+ *     - {boolean} eventIsSpan - Whether this is a span event.
+ *     - {boolean} eventIsRest - Whether this is a rest event (resets pool).
+ *     - {number} ts - Departure objective time in milliseconds.
+ *     - {number} arrivalTs - Arrival objective time in milliseconds (same as ts for level events).
+ * @param {number} params.genesisTs - Birth timestamp in milliseconds.
+ * @returns {Object} Pool statistics:
+ *   - {number}   maxPoolSeconds - Maximum span pool for this rank, in seconds.
+ *   - {number}   spentInCycleSeconds - Cumulative span spent in current cycle.
+ *   - {number}   remainingSeconds - Pool remaining (can be negative if over-span).
+ *   - {boolean}  isOverSpan - True if remainingSeconds < 0.
+ *   - {string}   spanTimeRemainingFormatted - TTL-formatted remaining string.
+ *   - {Array}    eventStats - Per-event stats
+ */
 export function calculateSpanPool({ spanLevel, events, genesisTs }) {
   const maxPoolSeconds = SPAN_POOL_SECONDS[spanLevel] || 0;
 
   let cycleSpentSeconds = 0;
-  let lastTs = genesisTs;
   const eventStats = [];
 
   for (const event of events) {
@@ -60,21 +125,18 @@ export function calculateSpanPool({ spanLevel, events, genesisTs }) {
       cycleSpentSeconds = 0;
     }
 
-    // Arrival time: for spans, arrivalTs; for levels, ts.
-    // Falls back to ts if arrivalTs is missing or zero.
+    // SPAN COST: |arrivalTs - ts| / 1000 (objective time displaced by the span).
+    // This is the span's own cost - how much objective time the character jumps
+    // from departure to arrival. It is NOT the gap from the previous event.
     const departureTs = Number(event.ts) || 0;
     const arrivalTs = isSpan
       ? (Number(event.arrivalTs) || departureTs)
       : departureTs;
 
-    // Displacement in seconds between this event and the last
-    const displacementSeconds = Math.abs(arrivalTs - lastTs) / MS_PER_SECOND;
-
-    // For span events, accumulate displacement in the cycle
     let spentSeconds = 0;
-    if (isSpan && arrivalTs > 0) {
-      cycleSpentSeconds += displacementSeconds;
-      spentSeconds = displacementSeconds;
+    if (isSpan && departureTs > 0 && arrivalTs > 0) {
+      spentSeconds = Math.abs(arrivalTs - departureTs) / MS_PER_SECOND;
+      cycleSpentSeconds += spentSeconds;
     }
 
     const remainingAfterEvent = maxPoolSeconds - cycleSpentSeconds;
@@ -90,11 +152,6 @@ export function calculateSpanPool({ spanLevel, events, genesisTs }) {
       remainingAfterEvent,
       remainingFormatted: formatDurationCompact(remainingAfterEvent)
     });
-
-    // Update lastTs for the next delta calculation
-    if (arrivalTs > 0) {
-      lastTs = arrivalTs;
-    }
   }
 
   const remainingSeconds = maxPoolSeconds - cycleSpentSeconds;

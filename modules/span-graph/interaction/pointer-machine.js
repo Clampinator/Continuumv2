@@ -10,8 +10,11 @@ import { resolveEraDrag } from '/systems/continuum-v2/modules/temporal-kernel/re
 import { resolveEraEditContext } from '/systems/continuum-v2/modules/temporal-kernel/resolve-era-edit-context.js';
 import { computeEraBoundaries } from '/systems/continuum-v2/modules/temporal-kernel/compute-era-boundaries.js';
 import { resolveEventEra } from '/systems/continuum-v2/modules/temporal-kernel/resolve-event-era.js';
+import { computeSpanCost, computePoolAfterSpan } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
 import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
-import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { timestampToDateString, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatDurationCompact } from '/systems/continuum-v2/modules/temporal-translator/duration-converter.js';
+import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/services/context-finder/find-last-known-location.js';
 import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
 import { buildPreviewHistory } from '../../temporal-engine/build-preview-history.js';
 import { MIN_DRAG_DISPLACEMENT_MS } from '../../temporal-engine/constants.js';
@@ -705,25 +708,70 @@ export class PointerMachine {
             { label: 'DATE', value: dt.date }
         ];
 
-        if (mode === 'span') {
-            const validation = validateSpanPhysics({ y: this.state.startWorld.eventTime, arrivalY: world.eventTime, record: { eventIsSpan: true } }, lore);
-            if (!validation.isValid) {
-                rows[0] = { label: 'ILLEGAL', value: validation.error, color: '#ff0000' };
-            } else if (validation.warning) {
-                rows.push({ label: 'WARNING', value: validation.warning, color: '#ffd700' });
-            }
-        }
-
-        // PHYSICS VETO HUD: When spanning is blocked, explain WHY the drag
-        // is forced to level mode. This prevents user confusion when they
-        // try to span but the system forces leveling.
         if (mode === 'level') {
+            // Show time for level drags
+            rows.push({ label: 'TIME', value: dt.time });
+            // Show aging cost
+            const dAge = world.eventAge - this.state.startWorld.eventAge;
+            if (dAge > 0) {
+                rows.push({ label: 'AGING', value: formatDurationCompact(dAge), color: '#00e5ff' });
+            }
+            // PHYSICS VETO HUD: Explain why spanning is blocked
             const isBreathBlocked = Boolean(lore.lastEvent?.record?.eventIsSpan);
             const isRankBlocked = (lore.spanRank || 0) < 1;
             if (isBreathBlocked) {
                 rows.push({ label: 'BLOCKED', value: 'LEVEL BREATH - Span follows span', color: '#ff4444' });
             } else if (isRankBlocked) {
                 rows.push({ label: 'BLOCKED', value: 'SPAN RANK 0 - Cannot span', color: '#ff4444' });
+            }
+        } else if (mode === 'span') {
+            // Span drag: show departure, arrival, cost, and remaining pool
+            const depDT = timestampToDateString(this.state.startWorld.eventTime);
+            const arrDT = timestampToDateString(world.eventTime);
+            rows.push({ label: 'DEPART', value: `${depDT.date} ${depDT.time}` });
+            rows.push({ label: 'NOW', value: `${arrDT.date} ${arrDT.time}` });
+
+            const costSeconds = computeSpanCost({
+                ts: this.state.startWorld.eventTime,
+                arrivalTs: world.eventTime
+            });
+            rows.push({ label: 'SPENT', value: formatDurationCompact(costSeconds), color: '#ff6b6b' });
+
+            // Pool projection via Kernel
+            const spanRank = Number(this.viewport.actor?.system?.spanning?.span) || 0;
+            if (spanRank > 0) {
+                const dobStr = this.viewport.actor?.system?.personal?.dob;
+                const genesisMs = dobStr ? parseDateToObjectiveMs(dobStr) : 0;
+                const physicsNodes = this.viewport.latestState?.nodes || [];
+                const kernelEvents = physicsNodes
+                    .filter(n => n.id !== 'now' && !n.isVirtual && !n.isBirth)
+                    .map(n => ({
+                        id: n.id,
+                        eventIsSpan: Boolean(n.isSpanOrigin || n.record?.eventIsSpan),
+                        eventIsRest: Boolean(n.isRest || n.record?.eventIsRest),
+                        ts: Number(n.y) || 0,
+                        arrivalTs: Number(n.arrivalY || n.y) || 0
+                    }));
+                const pool = computePoolAfterSpan({
+                    spanLevel: spanRank,
+                    events: kernelEvents,
+                    genesisTs: genesisMs,
+                    proposedDepartureMs: this.state.startWorld.eventTime,
+                    proposedArrivalMs: world.eventTime
+                });
+                rows.push({
+                    label: 'REMAINING',
+                    value: pool.remainingFormatted,
+                    color: pool.isOverSpan ? '#ff0000' : '#28a745'
+                });
+            }
+
+            // Physics validation
+            const validation = validateSpanPhysics({ y: this.state.startWorld.eventTime, arrivalY: world.eventTime, record: { eventIsSpan: true } }, lore);
+            if (!validation.isValid) {
+                rows[0] = { label: 'ILLEGAL', value: validation.error, color: '#ff0000' };
+            } else if (validation.warning) {
+                rows.push({ label: 'WARNING', value: validation.warning, color: '#ffd700' });
             }
         }
 
@@ -739,8 +787,15 @@ export class PointerMachine {
         this.state.startScreen = screenPos;
     }
 
+    /**
+     * HOVER TOOLTIP: Shows contextual metadata for any node under the pointer.
+     * Data flow: Physics nodes (state.nodes) have x/y/arrivalY coordinates.
+     * Raw facts (latestHistory) have record fields (titles, locations, etc).
+     * Manifest nodes carry arrivalY/worldY/worldX for span-origin nodes
+     * and spanOriginId for span-dest nodes.
+     */
     _updateStaticHover(event, screenPos) {
-        // YET NODE HOVER: Show tooltip for Yet nodes
+        // YET NODE HOVER
         const yetTarget = event.target.closest('.graph-node-yet');
         if (yetTarget) {
             const yetId = yetTarget.getAttribute('data-yet-id');
@@ -748,29 +803,107 @@ export class PointerMachine {
             const yetNodes = this.viewport.latestManifest?.yetNodes || [];
             const yet = yetNodes.find(n => n.id === yetId);
             if (yet) {
-                const tooltipRows = [
+                const rows = [
                     { label: 'YET', value: yetDesc || 'Unknown Yet', color: '#ff9f43' }
                 ];
-                if (yet.hasAge) tooltipRows.push({ label: 'AGE', value: 'LOCKED', color: '#ffd700' });
-                if (yet.hasDate) tooltipRows.push({ label: 'DATE', value: 'LOCKED', color: '#ffd700' });
-                if (!yet.hasAge && !yet.hasDate) tooltipRows.push({ label: 'DRIFTING', value: 'Nebulous', color: '#888' });
-                if (yet.isViolated) tooltipRows.push({ label: 'VIOLATED', value: 'Loop broken!', color: '#ff2222' });
-                this.viewport.tooltipManager.show(tooltipRows, screenPos);
+                if (yet.hasAge) rows.push({ label: 'AGE', value: 'LOCKED', color: '#ffd700' });
+                if (yet.hasDate) rows.push({ label: 'DATE', value: 'LOCKED', color: '#ffd700' });
+                if (!yet.hasAge && !yet.hasDate) rows.push({ label: 'DRIFTING', value: 'Nebulous', color: '#888' });
+                if (yet.isViolated) rows.push({ label: 'VIOLATED', value: 'Loop broken!', color: '#ff2222' });
+                this.viewport.tooltipManager.show(rows, screenPos);
             } else {
                 this.viewport.tooltipManager.hide();
             }
             return;
         }
 
-        const nodeId = event.target.dataset.eventId;
+        // Identify which node type we're hovering
+        const nodeEl = event.target.closest('.graph-node-level, .graph-node-span-origin, .graph-node-span-dest, .graph-node-now');
+        if (!nodeEl) {
+            this.viewport.tooltipManager.hide();
+            return;
+        }
+
+        const nodeId = nodeEl.dataset.eventId;
         if (!nodeId) { this.viewport.tooltipManager.hide(); return; }
-        const node = (this.viewport.latestState?.nodes || []).find(n => n.id === nodeId);
-        if (!node) return;
-        const dt = timestampToDateString(node.y);
-        this.viewport.tooltipManager.show([
-            { label: 'EVENT', value: node.record.eventTitle || 'Unknown', color: '#00e5ff' },
-            { label: 'AGE', value: formatSubjectiveAge(node.x) },
-            { label: 'DATE', value: dt.date }
-        ], screenPos);
+
+        const state = this.viewport.latestState;
+        if (!state) { this.viewport.tooltipManager.hide(); return; }
+
+        const physicsNodes = state.nodes || [];
+        const history = this.viewport.latestHistory || [];
+        const content = [];
+
+        // NOW NODE: Show status, date/time, age, and last known location
+        if (nodeEl.classList.contains('graph-node-now')) {
+            const nowNode = state.nowNode;
+            if (!nowNode) { this.viewport.tooltipManager.hide(); return; }
+            const dt = timestampToDateString(nowNode.y);
+            const location = findLastKnownLocation(history, nowNode.x);
+            content.push({ label: 'STATUS', value: 'NOW', color: '#ffd700' });
+            content.push({ label: 'DATE', value: dt.date });
+            content.push({ label: 'TIME', value: dt.time });
+            content.push({ label: 'AGE', value: formatSubjectiveAge(nowNode.x) });
+            content.push({ label: 'LOCATION', value: location, color: '#8ecae6' });
+        }
+        // SPAN DEST (ARRIVAL) NODE: Rich span info via manifest link
+        else if (nodeEl.classList.contains('graph-node-span-dest')) {
+            const manifestNodes = this.viewport.latestManifest?.nodes || [];
+            const destManifest = manifestNodes.find(n => n.id === nodeId);
+            const originId = destManifest?.spanOriginId;
+            if (originId) {
+                const originManifest = manifestNodes.find(n => n.id === originId);
+                if (originManifest) {
+                    const originRecord = originManifest.record || {};
+                    const departureWorld = originManifest.worldY || 0;
+                    const arrivalWorld = originManifest.arrivalY || departureWorld;
+                    const depDT = timestampToDateString(departureWorld);
+                    const arrDT = timestampToDateString(arrivalWorld);
+                    const costSeconds = computeSpanCost({ ts: departureWorld, arrivalTs: arrivalWorld });
+                    content.push({ label: 'SPAN', value: originRecord.eventTitle || 'Span', color: '#ff00ff' });
+                    content.push({ label: 'DEPART', value: `${depDT.date} ${depDT.time}` });
+                    content.push({ label: 'ARRIVE', value: `${arrDT.date} ${arrDT.time}` });
+                    content.push({ label: 'SPENT', value: formatDurationCompact(costSeconds), color: '#ff6b6b' });
+                    if (originManifest.worldX !== undefined) {
+                        content.push({ label: 'AGE', value: formatSubjectiveAge(originManifest.worldX) });
+                    }
+                    if (originRecord.eventSpanFromLocation) content.push({ label: 'FROM', value: originRecord.eventSpanFromLocation });
+                    if (originRecord.eventSpanToLocation) content.push({ label: 'TO', value: originRecord.eventSpanToLocation });
+                }
+            }
+        }
+        // LEVEL or SPAN-ORIGIN NODE: Physics nodes for coordinates, record for display
+        else {
+            const physicsNode = physicsNodes.find(n => n.id === nodeId);
+            if (physicsNode) {
+                const record = physicsNode.record || {};
+                const dt = timestampToDateString(physicsNode.y);
+                if (physicsNode.isSpanOrigin || record.eventIsSpan) {
+                    // SPAN ORIGIN
+                    const arrDT = timestampToDateString(physicsNode.arrivalY || physicsNode.y);
+                    const costSeconds = computeSpanCost({ ts: physicsNode.y, arrivalTs: physicsNode.arrivalY || physicsNode.y });
+                    content.push({ label: 'SPAN', value: record.eventTitle || 'Span', color: '#ff00ff' });
+                    content.push({ label: 'DEPART', value: `${dt.date} ${dt.time}` });
+                    content.push({ label: 'ARRIVE', value: `${arrDT.date} ${arrDT.time}` });
+                    content.push({ label: 'SPENT', value: formatDurationCompact(costSeconds), color: '#ff6b6b' });
+                    content.push({ label: 'AGE', value: formatSubjectiveAge(physicsNode.x) });
+                    if (record.eventSpanFromLocation) content.push({ label: 'FROM', value: record.eventSpanFromLocation });
+                    if (record.eventSpanToLocation) content.push({ label: 'TO', value: record.eventSpanToLocation });
+                } else {
+                    // LEVEL EVENT
+                    content.push({ label: 'EVENT', value: record.eventTitle || 'Unknown', color: '#4da6ff' });
+                    content.push({ label: 'DATE', value: dt.date });
+                    content.push({ label: 'TIME', value: dt.time });
+                    content.push({ label: 'AGE', value: formatSubjectiveAge(physicsNode.x) });
+                    if (record.eventLocation) content.push({ label: 'LOCATION', value: record.eventLocation, color: '#8ecae6' });
+                }
+            }
+        }
+
+        if (content.length > 0) {
+            this.viewport.tooltipManager.show(content, screenPos);
+        } else {
+            this.viewport.tooltipManager.hide();
+        }
     }
 }

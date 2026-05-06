@@ -5,6 +5,7 @@ import { panToLocation, getMapCenterLocation } from '/systems/continuum-v2/modul
 import { getActorTokenLocation } from '/systems/continuum-v2/modules/map-manager.js';
 import { writeImmediateKeyframe } from '/systems/continuum-v2/modules/spacetime-bridge/write-keyframes.js';
 import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';
+import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * HUD: OPEN EVENT DIALOG
@@ -162,7 +163,7 @@ function _activateInternalListeners(html, dialog, actor) {
         const timeName = btn.data('time-name');
         const dateVal  = html.find(`[name="${dateName}"]`).val();
         const timeVal  = html.find(`[name="${timeName}"]`).val() || '12:00:00';
-        const ts = dateVal ? new Date(`${dateVal}T${timeVal}`).getTime() : result.timestampMs;
+        const ts = dateVal ? parseDateToObjectiveMs(dateVal, timeVal) : result.timestampMs;
         if (Number.isFinite(ts)) {
             await writeImmediateKeyframe(actor, ts, result.lat, result.lng);
         }

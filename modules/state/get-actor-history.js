@@ -82,6 +82,16 @@ function mapToFact(id, event, path, eraId, expId) {
         endsExpId: event.endsExpId || null,
         isExpStart: Boolean(event.isExpStart || event._isExpStart),
         isExpEnd: Boolean(event.isExpEnd || event._isExpEnd),
+        // Span facts: always populated with departure fallback so the
+        // Kernel and TTL don't have to re-derive them. For level events,
+        // the departure fields mirror the level fields. The Kernel routes
+        // to the correct fields based on eventIsSpan.
+        eventSpanFromDate: event.eventSpanFromDate || event.eventDate || "",
+        eventSpanFromTime: event.eventSpanFromTime || event.eventTime || "",
+        eventSpanToDate: event.eventSpanToDate || event.eventDate || "",
+        eventSpanToTime: event.eventSpanToTime || event.eventTime || "",
+        eventSpanFromLocation: event.eventSpanFromLocation || event.eventLocation || "",
+        eventSpanToLocation: event.eventSpanToLocation || "",
         // AUTHORITY: Preserve raw timestamps from database to prevent re-parsing drift.
         ts: event.ts,
         arrivalTs: event.arrivalTs,
@@ -89,13 +99,6 @@ function mapToFact(id, event, path, eraId, expId) {
         // Projector can draw dotted connection lines on hover.
         linkedGoalIds: (event.linkedGoalIds || []).concat(event.linkedGoalId ? [event.linkedGoalId] : [])
     };
-
-    if (eventIsSpan) {
-        fact.eventSpanFromDate = event.eventSpanFromDate || fact.eventDate;
-        fact.eventSpanFromTime = event.eventSpanFromTime || fact.eventTime;
-        fact.eventSpanToDate = event.eventSpanToDate || fact.eventDate;
-        fact.eventSpanToTime = event.eventSpanToTime || fact.eventTime;
-    }
 
     return {
         id,

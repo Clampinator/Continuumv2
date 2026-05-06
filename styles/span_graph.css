@@ -620,58 +620,38 @@
     stroke: #ff00ff;
 }
 
-/* Hover Tooltip */
-.span-graph-wrapper .graph-tooltip-group {
+/* HUD Tooltip (TooltipManager - Authoritative double-pass HTML-in-SVG) */
+.span-graph-tooltip-group {
     pointer-events: none;
 }
 
-.span-graph-wrapper .graph-tooltip-group .tooltip-bg {
-    fill: rgba(20, 20, 30, 0.9);
-    stroke: #555;
-    stroke-width: 1px;
-}
-
-.span-graph-wrapper .graph-tooltip-group .tooltip-text {
-    font-family: 'Segoe UI', sans-serif;
+.tooltip-body {
+    padding: 6px;
+    font-family: "Signika", sans-serif;
     font-size: 11px;
-    fill: #eee;
-    text-anchor: start;
-}
-
-/* --- FIXED HTML DRAG TOOLTIP (Restoration from _tooltip.md) --- */
-.graph-drag-tooltip-html {
-    position: fixed;
-    pointer-events: none;
-    z-index: 10000;
-    background: rgba(0, 0, 0, 0.95);
     color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-family: 'Consolas', 'Monaco', monospace;
-    line-height: 1.4;
+    overflow: visible;
+}
+
+.tooltip-table {
+    border-collapse: collapse;
     white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-    border: 1px solid #ffd700;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.12s ease, transform 0.12s ease;
 }
 
-.graph-drag-tooltip-html.active {
-    opacity: 1;
-    transform: translateY(0);
+.tooltip-table td {
+    padding: 1px 4px;
+    vertical-align: top;
 }
 
-.graph-drag-tooltip-html.warning {
-    border-color: #ff4444;
-    background: rgba(40, 0, 0, 0.98);
-    color: #ffcccc;
+.tooltip-table .label {
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: uppercase;
 }
 
-/* Deprecated SVG tooltip group - hidden to prevent double-rendering */
-.span-graph-wrapper .graph-drag-tooltip-group {
-    display: none !important;
+.tooltip-table .value {
+    color: #00ffff;
+    font-family: monospace;
 }
 
 .span-graph-wrapper .creation-bar-era {

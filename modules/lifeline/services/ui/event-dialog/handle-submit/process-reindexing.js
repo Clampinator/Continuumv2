@@ -1,6 +1,5 @@
 import { resolveNarrativeOrder } from '/systems/continuum-v2/modules/temporal-kernel/resolve-narrative-order.js';
-import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
-import { parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * Handles the chronological re-indexing logic for nodes using the Temporal Kernel.
@@ -50,8 +49,7 @@ export function processReindexing(actor, newId, mode, intent, params, updates) {
     if (eventIsSpan) {
         const depDate = normalizeDateInput(params.formData.eventSpanFromDate);
         const depTimeStr = params.formData.eventSpanFromTime || "12:00:00";
-        const depDateObj = parseDate(`${depDate}T${depTimeStr}`);
-        sortTime = depDateObj ? depDateObj.getTime() : finalTime;
+        sortTime = parseDateToObjectiveMs(depDate, depTimeStr) || finalTime;
     }
 
     const target = { id: newId, x: finalAge, y: sortTime };

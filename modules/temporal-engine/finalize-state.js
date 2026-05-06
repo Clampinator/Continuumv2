@@ -1,5 +1,7 @@
 import { generateExperiences } from '../lifeline/services/segment-generator/generate-experiences.js';
 import { resolveYetNodes } from '../temporal-kernel/yet-physics.js';
+import { getCurrentSpanCapacity } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
+import { MS_PER_SECOND } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 /**
  * ENGINE UNIT: FINALIZE STATE
@@ -11,6 +13,10 @@ export function finalizeState(segments, nodes, subjectiveNow, totalDisplacement 
   const nowNode = nodes.find(n => n.id === 'now');
   let experiences = [];
   let yetNodes = [];
+
+  // KERNEL: Span pool total from ranked capacity lookup (seconds -> ms)
+  const spanLevel = actor ? (Number(actor.system.spanning?.span) || 0) : 0;
+  const spanPoolTotalMs = getCurrentSpanCapacity(spanLevel) * MS_PER_SECOND;
 
   if (actor) {
     const erasWithIds = Object.entries(actor.system.eras || {}).map(([id, era]) => ({ ...era, id: id }))
@@ -53,6 +59,6 @@ export function finalizeState(segments, nodes, subjectiveNow, totalDisplacement 
     experiences,
     eras,
     yetNodes,
-    spanPool: { consumed: totalDisplacement, total: 0 }
+    spanPool: { consumed: totalDisplacement, total: spanPoolTotalMs }
   };
 }

@@ -52,6 +52,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
             const endAgeInput = html.find('input[name="endAge"]');
 
             // Listener: Update Date when Age changes
+            // TTL-compliant: parse via TTL, compute end timestamp, format back
             endAgeInput.on('change', () => {
                 const targetAgeYears = parseFloat(endAgeInput.val());
                 if (isNaN(targetAgeYears)) return;
@@ -62,31 +63,33 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
                 const sVal = dateFromInput.val();
                 if (!sVal) return;
 
-                const startD = new Date(sVal + "T00:00:00");
-                if (isNaN(startD.getTime())) return;
+                const startMs = parseDateToObjectiveMs(sVal);
+                if (!startMs) return;
 
                 // Calculate new End Date based on duration
-                const endD = new Date(startD.getTime() + (durationSecs * 1000));
+                const endMs = startMs + (durationSecs * 1000);
+                const endD = new Date(endMs);
 
-                const y = endD.getFullYear();
-                const m = String(endD.getMonth() + 1).padStart(2, '0');
-                const d = String(endD.getDate()).padStart(2, '0');
+                const y = endD.getUTCFullYear();
+                const m = String(endD.getUTCMonth() + 1).padStart(2, '0');
+                const d = String(endD.getUTCDate()).padStart(2, '0');
 
                 dateToInput.val(`${y}-${m}-${d}`);
             });
 
             // Listener: Update Age when Dates change
+            // TTL-compliant: parse both dates via TTL, compute duration
             const updateAgeFromDates = () => {
                 const sVal = dateFromInput.val();
                 const eVal = dateToInput.val();
                 if (!sVal || !eVal) return;
 
-                const startD = new Date(sVal + "T00:00:00");
-                const endD = new Date(eVal + "T00:00:00");
+                const startMs = parseDateToObjectiveMs(sVal);
+                const endMs = parseDateToObjectiveMs(eVal);
 
-                if (isNaN(startD.getTime()) || isNaN(endD.getTime())) return;
+                if (!startMs || !endMs) return;
 
-                const durationMs = endD.getTime() - startD.getTime();
+                const durationMs = endMs - startMs;
                 const durationSecs = durationMs / 1000;
 
                 const newEndAgeSeconds = viewState.creationStartAgeSeconds + durationSecs;
@@ -157,7 +160,7 @@ export function showCreateEraDialog(viewState, graphData, sheet, svg, durationSe
 Dialog to create a new Experience from drag selection.
 */
 export function showCreateExperienceDialog(viewState, graphData, sheet, svg, durationSeconds, startAgeSeconds) {
-    const dobTs = sheet.actor.system.personal?.dob ? new Date(sheet.actor.system.personal.dob + "T00:00:00").getTime() : Date.now();
+    const dobTs = sheet.actor.system.personal?.dob ? parseDateToObjectiveMs(sheet.actor.system.personal.dob) : Date.now();
     const startStr = convertSecondsToDateString(startAgeSeconds, dobTs);
     const endStr = convertSecondsToDateString(startAgeSeconds + durationSeconds, dobTs);
 

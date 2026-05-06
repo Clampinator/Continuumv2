@@ -2,7 +2,8 @@
  * TEMPORAL KERNEL: VALIDATE SPAN PHYSICS
  * Enforces the physical constraints of jumping through time.
  */
-import { SECONDS_IN_YEAR, MS_PER_SECOND } from '../temporal-engine/constants.js';
+import { getCurrentSpanCapacity } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
+import { MS_PER_SECOND } from '../temporal-engine/constants.js';
 
 /**
  * Returns the maximum allowable arrivalTs for an UP span being edited.
@@ -59,13 +60,14 @@ export function validateSpanPhysics(proposed, context, options = {}) {
     }
 
     // 4. Displacement Pool: Check for Rank capacity (Warning only)
+    // KERNEL: capacity via ranked lookup (accounts for non-linear rank scaling)
     if (record.eventIsSpan) {
         const arrivalY = proposed.arrivalY || proposed.y;
         const departureY = proposed.y;
         const displacement = Math.abs(arrivalY - departureY);
-        const maxCapacity = (spanRank || 0) * SECONDS_IN_YEAR * MS_PER_SECOND;
+        const maxCapacityMs = getCurrentSpanCapacity(spanRank || 0) * MS_PER_SECOND;
 
-        if ((context.currentPool + displacement) > maxCapacity) {
+        if ((context.currentPool + displacement) > maxCapacityMs) {
             return { isValid: true, warning: "Displacement exceeds character's current Rank capacity." };
         }
     }

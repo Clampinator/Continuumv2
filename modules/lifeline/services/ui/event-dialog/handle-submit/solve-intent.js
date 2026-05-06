@@ -1,5 +1,4 @@
-import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
-import { parseDate } from '/systems/continuum-v2/modules/span-graph-utils/provide-span-graph-utils.js';
+import { normalizeDateInput, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { parseSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { createManualSpan } from '/systems/continuum-v2/modules/lifeline/services/spans/create-manual-span.js';
@@ -24,8 +23,7 @@ export function solveIntent(actor, formData, params) {
         const inputAge = (formData.eventAge && formData.eventAge.trim() !== "") ? parseSubjectiveAge(formData.eventAge) : Number(params.ageRaw);
         const inputDate = normalizeDateInput(formData.eventDate);
         const inputTime = formData.eventTime || "12:00:00";
-        const inputDateObj = parseDate(`${inputDate}T${inputTime}`);
-        const inputTs = inputDateObj ? inputDateObj.getTime() : finalTime;
+        const inputTs = parseDateToObjectiveMs(inputDate, inputTime) || finalTime;
         
         const baseAge = (mode === 'edit') ? (existingData.eventAge || 0) : Number(params.ageRaw);
         const baseTime = (mode === 'edit') ? finalTime : Number(params.timeRaw);

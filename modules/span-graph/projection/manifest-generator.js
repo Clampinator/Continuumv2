@@ -160,6 +160,25 @@ export function generateManifest(state, viewport, interaction = null) {
     }
 
     // 4. PROJECT NODES
+    // Build a lookup of span-origin nodes so span-dest nodes can
+    // reference their origin's full span data for tooltip display.
+    const spanOrigins = new Map();
+    for (const node of state.nodes) {
+        if (node.isSpanOrigin && node.id !== 'now') {
+            spanOrigins.set(node.id, node);
+        }
+    }
+
+    // For each segment that starts with a span arrival (isSpanDest), the
+    // previous segment's exitPoint is the span-origin. Store that mapping.
+    const destToOriginMap = new Map();
+    for (let i = 1; i < state.segments.length; i++) {
+        const seg = state.segments[i];
+        if (seg.arrivalNode?.isSpanDest && state.segments[i - 1]?.exitPoint) {
+            destToOriginMap.set(seg.arrivalNode.id, state.segments[i - 1].exitPoint.id);
+        }
+    }
+
     // Determine which nodes are part of the preview (virtual inserted span)
     // so the renderer can apply dashed styling
     const previewExitIndex = state.segments.findIndex(
@@ -179,7 +198,7 @@ export function generateManifest(state, viewport, interaction = null) {
             || (previewExitIndex !== -1 && node.isSpanDest && node.isVirtual
                 && state.segments[previewExitIndex + 1]?.arrivalNode?.id === node.id);
 
-        return {
+        const manifestNode = {
             id: node.id, x: screen.x, y: screen.y,
             type: _resolveNodeType(node),
             record: node.record || node,
@@ -192,6 +211,22 @@ export function generateManifest(state, viewport, interaction = null) {
             eraId: node.eraId || node.record?.eraId || null,
             expId: node.expId || node.record?.expId || null
         };
+
+        // SPAN-ORIGIN: carry arrivalY and worldX/worldY for tooltip display
+        if (node.isSpanOrigin && node.id !== 'now') {
+            manifestNode.arrivalY = node.arrivalY;
+            manifestNode.worldX = node.x;
+            manifestNode.worldY = node.y;
+        }
+
+        // SPAN-DEST: link to the originating span so tooltips can display
+        // departure/arrival/cost data from the span-origin's full record.
+        if (node.isSpanDest) {
+            const originId = destToOriginMap.get(node.id);
+            manifestNode.spanOriginId = originId || null;
+        }
+
+        return manifestNode;
     });
 
     // 5. PROJECT PENDING NODE (NOW-drag behavior)

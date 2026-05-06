@@ -2,6 +2,10 @@ function rid() {
   return foundry.utils.randomID();
 }
 
+import { getCurrentSpanCapacity, computeSpanCost } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
+import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatObjectiveTime } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+
 function eraToYearRange(era) {
   const eraMap = {
     'Ancient': [-4000, -500],
@@ -550,19 +554,14 @@ function eraIdForDate(dateStr, eraKeys, eraEntries) {
   return idx >= 0 ? eraKeys[idx] : eraKeys[0];
 }
 
-const SPAN_POOL_SECONDS = {
-  0: 0,
-  1: 31536000,
-  2: 315360000,
-  3: 3153600000,
-  4: 31536000000,
-  5: 315360000000
-};
+// KERNEL: Span pool capacity and cost computation
+// No inline constants or date arithmetic for span pool math.
 
 function enforceSpanPool(processedEras, spanRank, dob) {
   if (!spanRank || spanRank <= 0) return processedEras;
 
-  const maxPool = SPAN_POOL_SECONDS[spanRank] || 0;
+  // KERNEL: Capacity via ranked lookup
+  const maxPool = getCurrentSpanCapacity(spanRank);
   if (maxPool <= 0) return processedEras;
 
   let spentInCurrentCycle = 0;
@@ -597,41 +596,48 @@ function enforceSpanPool(processedEras, spanRank, dob) {
 
     if (!evt.eventIsSpan) continue;
 
-    const fromTs = new Date(`${evt.eventSpanFromDate || evt.date}T${evt.eventSpanFromTime || evt.time || '12:00:00'}`).getTime() / 1000;
-    const toTs = new Date(`${evt.eventSpanToDate}T${evt.eventSpanToTime || '12:00:00'}`).getTime() / 1000;
+    // TTL: Parse departure and arrival via TTL (not new Date())
+    const fromMs = parseDateToObjectiveMs(
+      evt.eventSpanFromDate || evt.date,
+      evt.eventSpanFromTime || evt.time || '12:00:00'
+    );
+    const toMs = parseDateToObjectiveMs(
+      evt.eventSpanToDate,
+      evt.eventSpanToTime || '12:00:00'
+    );
 
-    if (isNaN(fromTs) || isNaN(toTs)) continue;
+    if (!fromMs || !toMs) continue;
 
-    const spanDurationSeconds = Math.abs(toTs - fromTs);
+    // KERNEL: Span cost via computeSpanCost
+    const spanDurationSeconds = computeSpanCost({ ts: fromMs, arrivalTs: toMs });
 
-if (spanDurationSeconds > 0 && (spentInCurrentCycle + spanDurationSeconds) > maxPool) {
+    if (spanDurationSeconds > 0 && (spentInCurrentCycle + spanDurationSeconds) > maxPool) {
       restCount++;
-      const pad = (n, w = 2) => String(n).padStart(w, '0');
+      const SECONDS_IN_DAY = 86400;
 
-      let restStartSec = fromTs - 86400;
-      let restEndSec = fromTs;
+      let restStartSec = fromMs / 1000 - SECONDS_IN_DAY;
+      let restEndSec = fromMs / 1000;
 
+      // TTL: Parse DOB safely
       if (dob) {
-        const dobTs = new Date(dob + 'T00:00:00').getTime() / 1000;
-        if (restStartSec < dobTs) {
-          restStartSec = dobTs;
-          restEndSec = dobTs + 86400;
+        const dobMs = parseDateToObjectiveMs(dob);
+        const dobSec = dobMs / 1000;
+        if (restStartSec < dobSec) {
+          restStartSec = dobSec;
+          restEndSec = dobSec + SECONDS_IN_DAY;
         }
       }
 
-      const restStartDate = new Date(restStartSec * 1000);
-      const restEndDate = new Date(restEndSec * 1000);
-      const restStartStr = `${restStartDate.getFullYear()}-${pad(restStartDate.getMonth() + 1)}-${pad(restStartDate.getDate())}`;
-      const restStartTimeStr = `${pad(restStartDate.getHours())}:${pad(restStartDate.getMinutes())}:${pad(restStartDate.getSeconds())}`;
-      const restEndStr = `${restEndDate.getFullYear()}-${pad(restEndDate.getMonth() + 1)}-${pad(restEndDate.getDate())}`;
-      const restEndTimeStr = `${pad(restEndDate.getHours())}:${pad(restEndDate.getMinutes())}:${pad(restEndDate.getSeconds())}`;
+      // TTL: Format rest dates via formatObjectiveTime (UTC-safe)
+      const restStartResult = formatObjectiveTime(restStartSec * 1000);
+      const restEndResult = formatObjectiveTime(restEndSec * 1000);
 
       const restStartEvent = {
         id: rid(),
         eventTitle: restCount === 1 ? 'Recovered After Spanning' : `Recovery Period ${restCount}`,
         eventNotes: 'Span pool exhausted. 24-hour recovery before next span.',
-        date: restStartStr,
-        time: restStartTimeStr,
+        date: restStartResult.date,
+        time: restStartResult.time,
         location: evt.eventSpanFromLocation || evt.location || '',
         lat: evt.eventSpanFromLat || null,
         lng: evt.eventSpanFromLng || null,
@@ -647,8 +653,8 @@ if (spanDurationSeconds > 0 && (spentInCurrentCycle + spanDurationSeconds) > max
         id: rid(),
         eventTitle: 'End of Rest',
         eventNotes: 'Rest complete. Span pool refilled.',
-        date: restEndStr,
-        time: restEndTimeStr,
+        date: restEndResult.date,
+        time: restEndResult.time,
         location: evt.eventSpanFromLocation || evt.location || '',
         lat: evt.eventSpanFromLat || null,
         lng: evt.eventSpanFromLng || null,

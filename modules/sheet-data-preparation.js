@@ -2,6 +2,7 @@ import { ITEM_DATA } from '../item-data.js';
 import { getEconomicReport } from './org-economics/get-economic-report.js';
 import { getAttributeLabel } from './attribute-labels.js';
 import { calculateSpanPool } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
+import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
 
 // SPAN POOL: Computed by temporal-kernel/calculate-span-pool.js (pure math).
@@ -11,7 +12,7 @@ import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/t
 function _applySpanPoolStats(context) {
     const spanLevel = Number(context.system.spanning?.span) || 0;
     const dobStr = context.system.personal?.dob;
-    const genesisTs = dobStr ? new Date(dobStr + 'T12:00:00').getTime() : Date.now();
+    const genesisTs = dobStr ? parseDateToObjectiveMs(dobStr) : Date.now();
 
     const allEvents = [];
     context.eras.forEach(era => {

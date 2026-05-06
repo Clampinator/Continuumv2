@@ -1,12 +1,14 @@
 import { getDragMode, constrainMovement } from '/systems/continuum-v2/modules/temporal-kernel/drag-physics.js';
-import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
-import { formatSubjectiveAge, formatDuration } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
-import { calculateSpanPool } from '/systems/continuum-v2/modules/lifeline/services/calculators/calculate-span-pool.js';
+import { computeSpanCost, computePoolAfterSpan } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
+import { timestampToDateString, parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { formatDurationCompact } from '/systems/continuum-v2/modules/temporal-translator/duration-converter.js';
 import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/services/context-finder/find-last-known-location.js';
 
 /**
  * Handles the pointermove event for the Span Graph.
- * DEEP DECIMATION REBUILT: Consistent x/y coordinate isolation.
+ * Trinity: No span pool math here. All computation delegated to Kernel.
+ * This file only converts Kernel output to tooltip display values.
  */
 export function onPointerMove(event, viewport) {
     const rect = viewport.svg.getBoundingClientRect();
@@ -14,7 +16,6 @@ export function onPointerMove(event, viewport) {
     const y = event.clientY - rect.top;
 
     if (!viewport._interaction.isDragging) {
-        // AUTHORITY: Static Hover HUD
         _updateHoverTooltips(viewport, event, x, y);
         viewport._updateGhostNodeHover(x, y);
         return;
@@ -23,8 +24,6 @@ export function onPointerMove(event, viewport) {
     const dx = x - viewport._interaction.startX;
     const dy = y - viewport._interaction.startY;
 
-    // 1. Resolve Move Mode (Threshold Gate)
-    // IMPORTANT: Only set drag-node mode for node drags, not for era creation
     if (!viewport._interaction.hasSignificantMovement) {
         if (Math.hypot(dx, dy) < 5) return;
         viewport._interaction.hasSignificantMovement = true;
@@ -33,9 +32,7 @@ export function onPointerMove(event, viewport) {
         }
     }
 
-    // 2. Perform Movement
     if (viewport._interaction.type === 'create-era') {
-        // ERA CREATION: Compute current age from cursor X position
         const rawWorld = viewport.screenToWorld(x, y);
         const startAge = viewport._interaction.startWorld?.eventAge || 0;
         viewport._interaction.currentWorld = {
@@ -46,19 +43,17 @@ export function onPointerMove(event, viewport) {
     } else if (viewport._interaction.type === 'node') {
         const isNowNode = viewport._interaction.nodeElement?.classList.contains('graph-node-now');
         
-        // AUTHORITY: Recalculate mode on every frame for NOW node to allow smooth axis transitions.
         if (isNowNode) {
-            const history = viewport.latestHistory || [];
-            const lastEvent = history[history.length - 1];
+            const physicsNodes = viewport.latestState?.nodes || [];
+            const lastPhysics = physicsNodes[physicsNodes.length - 1];
             const spanRank = viewport.actor.system.spanning?.span || 0;
             
             viewport._interaction.mode = getDragMode(dx, dy, { 
                 isNow: true, 
-                lastEvent: lastEvent,
+                lastEvent: lastPhysics,
                 spanRank: spanRank 
             });
         } else if (!viewport._interaction.mode) {
-            // Standard nodes lock their mode after the initial threshold.
             viewport._interaction.mode = getDragMode(dx, dy);
         }
 
@@ -66,10 +61,8 @@ export function onPointerMove(event, viewport) {
         const world = constrainMovement(rawWorld, viewport._interaction.startWorld, viewport._interaction.mode);
         viewport._interaction.currentWorld = world;
         
-        // AUTHORITY: Real-time Dragging HUD
         _updateDragTooltip(viewport, x, y);
 
-        // AUTHORITY: The _render pass now handles drag overrides correctly via the viewport's state machine.
         viewport._render();
         
     } else if (viewport._interaction.type === 'pan') {
@@ -83,6 +76,10 @@ export function onPointerMove(event, viewport) {
 
 /**
  * Updates tooltips during static hover.
+ * DATA FLOW: Physics nodes (state.nodes) have x/y/arrivalY coordinates.
+ * Raw facts (latestHistory) have record fields (titles, locations, etc).
+ * We use state.nodes for coordinate calculations and latestHistory
+ * for display strings like eventTitle and eventLocation.
  */
 function _updateHoverTooltips(viewport, event, x, y) {
     const target = event.target;
@@ -93,15 +90,17 @@ function _updateHoverTooltips(viewport, event, x, y) {
         return;
     }
 
-    const history = viewport.latestHistory || [];
     const state = viewport.latestState;
     if (!state) return;
 
+    const physicsNodes = state.nodes || [];
     const eventId = node.dataset.eventId;
     const content = [];
 
     if (node.classList.contains('graph-node-now')) {
         const nowNode = state.nowNode;
+        if (!nowNode) return;
+        const history = viewport.latestHistory || [];
         const dt = timestampToDateString(nowNode.y);
         const location = findLastKnownLocation(history, nowNode.x);
         
@@ -111,28 +110,62 @@ function _updateHoverTooltips(viewport, event, x, y) {
         content.push({ label: 'AGE', value: formatSubjectiveAge(nowNode.x) });
         content.push({ label: 'LOCATION', value: location, color: '#8ecae6' });
     } 
+    else if (node.classList.contains('graph-node-span-dest')) {
+        // SPAN DEST (ARRIVAL) NODE: Look up the span-origin via manifest link.
+        // Manifest nodes carry arrivalY/worldY/worldX for origin nodes
+        // and spanOriginId for dest nodes.
+        const manifestNodes = viewport.latestManifest?.nodes || [];
+        const destManifest = manifestNodes.find(n => n.id === eventId);
+        const originId = destManifest?.spanOriginId;
+        
+        if (originId) {
+            const originManifest = manifestNodes.find(n => n.id === originId);
+            if (originManifest) {
+                const originRecord = originManifest.record || {};
+                // World coordinates from the manifest span-origin enrichment
+                const departureWorld = originManifest.worldY || 0;
+                const arrivalWorld = originManifest.arrivalY || departureWorld;
+                const depDT = timestampToDateString(departureWorld);
+                const arrDT = timestampToDateString(arrivalWorld);
+                const costSeconds = computeSpanCost({ ts: departureWorld, arrivalTs: arrivalWorld });
+                
+                content.push({ label: 'SPAN', value: originRecord.eventTitle || 'Span', color: '#ff00ff' });
+                content.push({ label: 'DEPART', value: `${depDT.date} ${depDT.time}` });
+                content.push({ label: 'ARRIVE', value: `${arrDT.date} ${arrDT.time}` });
+                content.push({ label: 'SPENT', value: formatDurationCompact(costSeconds), color: '#ff6b6b' });
+                if (originManifest.worldX !== undefined) {
+                    content.push({ label: 'AGE', value: formatSubjectiveAge(originManifest.worldX) });
+                }
+                if (originRecord.eventSpanFromLocation) content.push({ label: 'FROM', value: originRecord.eventSpanFromLocation });
+                if (originRecord.eventSpanToLocation) content.push({ label: 'TO', value: originRecord.eventSpanToLocation });
+            }
+        }
+    }
     else {
-        const targetNode = history.find(n => n.id === eventId);
-        if (targetNode) {
-            const record = targetNode.record || targetNode;
-            const dt = timestampToDateString(targetNode.y);
+        // LEVEL or SPAN-ORIGIN node: use physics nodes for coordinates
+        // Physics nodes have x (age), y (departure time), arrivalY (arrival time).
+        // Raw facts in record have display strings (titles, locations, etc).
+        const physicsNode = physicsNodes.find(n => n.id === eventId);
+        if (physicsNode) {
+            const record = physicsNode.record || {};
+            const dt = timestampToDateString(physicsNode.y);
             
-            if (record.eventIsSpan) {
-                const arrDT = timestampToDateString(targetNode.arrivalY);
-                const cost = Math.abs(targetNode.arrivalY - targetNode.y) / 1000;
+            if (physicsNode.isSpanOrigin || record.eventIsSpan) {
+                const arrDT = timestampToDateString(physicsNode.arrivalY || physicsNode.y);
+                const costSeconds = computeSpanCost({ ts: physicsNode.y, arrivalTs: physicsNode.arrivalY || physicsNode.y });
                 
                 content.push({ label: 'SPAN', value: record.eventTitle || 'Span', color: '#ff00ff' });
                 content.push({ label: 'DEPART', value: `${dt.date} ${dt.time}` });
                 content.push({ label: 'ARRIVE', value: `${arrDT.date} ${arrDT.time}` });
-                content.push({ label: 'SPENT', value: formatDuration(cost), color: '#ff6b6b' });
-                content.push({ label: 'AGE', value: formatSubjectiveAge(targetNode.x) });
+                content.push({ label: 'SPENT', value: formatDurationCompact(costSeconds), color: '#ff6b6b' });
+                content.push({ label: 'AGE', value: formatSubjectiveAge(physicsNode.x) });
                 if (record.eventSpanFromLocation) content.push({ label: 'FROM', value: record.eventSpanFromLocation });
-                if (record.eventSpanToLocation) content.push({ label: 'TO', value: record.eventSpanToLocation });
+                if (record.eventSpanToLocation) content.push({ label: 'TO', value: record.eventToLocation });
             } else {
                 content.push({ label: 'EVENT', value: record.eventTitle || 'Unknown', color: '#4da6ff' });
                 content.push({ label: 'DATE', value: dt.date });
                 content.push({ label: 'TIME', value: dt.time });
-                content.push({ label: 'AGE', value: formatSubjectiveAge(targetNode.x) });
+                content.push({ label: 'AGE', value: formatSubjectiveAge(physicsNode.x) });
                 if (record.eventLocation) content.push({ label: 'LOCATION', value: record.eventLocation, color: '#8ecae6' });
             }
         }
@@ -145,10 +178,11 @@ function _updateHoverTooltips(viewport, event, x, y) {
 
 /**
  * Updates tooltips during active dragging.
+ * Trinity: Pool projection via Kernel computePoolAfterSpan, display via TTL.
+ * Uses physics nodes (state.nodes) for coordinates, not raw facts.
  */
 function _updateDragTooltip(viewport, x, y) {
     const world = viewport._interaction.currentWorld;
-    const history = viewport.latestHistory || [];
     const content = [];
 
     if (viewport._interaction.mode === 'level') {
@@ -161,22 +195,41 @@ function _updateDragTooltip(viewport, x, y) {
     else if (viewport._interaction.mode === 'span') {
         const depDT = timestampToDateString(viewport._interaction.startWorld.eventTime);
         const arrDT = timestampToDateString(world.eventTime);
-        const spent = Math.abs(world.eventTime - viewport._interaction.startWorld.eventTime) / 1000;
-        
-        const pool = calculateSpanPool(viewport.actor, history, { 
-            departureTime: viewport._interaction.startWorld.eventTime,
-            arrivalTime: world.eventTime
+
+        // KERNEL: computePoolAfterSpan calculates remaining after proposed span
+        const spanLevel = Number(viewport.actor.system.spanning?.span) || 0;
+        const dobStr = viewport.actor.system.personal?.dob;
+        // Build events array from PHYSICS nodes (have y/arrivalY coordinates)
+        const physicsNodes = viewport.latestState?.nodes || [];
+        const kernelEvents = physicsNodes
+            .filter(n => n.id !== 'now' && !n.isVirtual && !n.isBirth)
+            .map(n => ({
+                id: n.id,
+                eventIsSpan: Boolean(n.isSpanOrigin || n.record?.eventIsSpan),
+                eventIsRest: Boolean(n.isRest || n.record?.eventIsRest),
+                ts: Number(n.y) || 0,
+                arrivalTs: Number(n.arrivalY || n.y) || 0
+            }));
+        // TTL: parse DOB safely
+        const genesisMs = dobStr ? parseDateToObjectiveMs(dobStr) : 0;
+
+        const pool = computePoolAfterSpan({
+            spanLevel,
+            events: kernelEvents,
+            genesisTs: genesisMs,
+            proposedDepartureMs: viewport._interaction.startWorld.eventTime,
+            proposedArrivalMs: world.eventTime
         });
 
         content.push({ label: 'ACTION', value: 'SPANNING...', color: '#ff00ff' });
         content.push({ label: 'AGE', value: formatSubjectiveAge(world.eventAge) });
-        content.push({ label: 'DEPART', value: depDT.date });
-        content.push({ label: 'NOW', value: arrDT.date });
-        content.push({ label: 'SPENT', value: formatDuration(spent) });
+        content.push({ label: 'DEPART', value: `${depDT.date} ${depDT.time}` });
+        content.push({ label: 'NOW', value: `${arrDT.date} ${arrDT.time}` });
+        content.push({ label: 'SPENT', value: formatDurationCompact(pool.costSeconds) });
         content.push({ 
             label: 'REMAINING', 
-            value: formatDuration(pool.remaining / 1000),
-            color: pool.remaining < 0 ? '#ff0000' : '#28a745'
+            value: pool.remainingFormatted,
+            color: pool.isOverSpan ? '#ff0000' : '#28a745'
         });
     }
 

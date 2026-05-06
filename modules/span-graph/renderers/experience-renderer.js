@@ -129,8 +129,9 @@ export class ExperienceRenderer {
     if (typeof document === 'undefined') return null;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'span-graph-experiences');
-    // Allow pointer events so experience labels can receive clicks
-    g.style.pointerEvents = 'auto';
+    // Pass-through by default so nodes/rails receive pointer events.
+    // Individual experience labels override with pointer-events: auto.
+    g.style.pointerEvents = 'none';
     parent.appendChild(g);
     return g;
   }

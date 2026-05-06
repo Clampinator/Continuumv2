@@ -1,26 +1,29 @@
-
-import { SpanPool } from '../../calculators/span-pool.js';
+import { getCurrentSpanCapacity, computeSpanCost } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
 import { getNodeLocation } from '../node-location-master.js';
 import { processSpanEvent } from './process-span-event.js';
 import { processLevelEvent } from './process-level-event.js';
-import { MS_PER_SECOND } from '../../../temporal-engine/constants.js';
 import { projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
 THE DIAGONAL AUTHORITY: Core Mapping Engine.
 Enforces the physical law: 1s Subjective Age (X) = 1000ms Objective Time (Y).
+
+Trinity: Span pool capacity from Kernel getCurrentSpanCapacity.
+Span costs from Kernel computeSpanCost. No inline math.
 */
 export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, actor) {
+    // KERNEL: Pool capacity via ranked lookup
+    const maxSpanPool = getCurrentSpanCapacity(spanLevel);
+
     if (!dobTs || isNaN(dobTs) || dobTs === 0) {
         return {
             levelNodes: [],
-            remainingSpanSeconds: SpanPool.getCapacity(spanLevel),
+            remainingSpanSeconds: maxSpanPool,
             nowNode: { age: 0, time: 0, type: 'init', arrivedVia: 'init' },
             spanRank: spanLevel
         };
     }
 
-    const maxSpanPool = SpanPool.getCapacity(spanLevel);
     let levelNodes = [];
 
     // 1. Genesis
@@ -51,10 +54,10 @@ export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, ac
         if (event.eventIsSpan) {
             const result = processSpanEvent(event, objectiveOffset);
             levelNodes.push(...result.nodes);
-            // Span cost = absolute time jump in seconds
+            // KERNEL: Span cost via computeSpanCost (|arrivalTs - ts| / 1000)
             const originTime = result.nodes[0].time;
             const destTime   = result.nodes[1].time;
-            spentInCurrentCycle += Math.abs(destTime - originTime) / MS_PER_SECOND;
+            spentInCurrentCycle += computeSpanCost({ ts: originTime, arrivalTs: destTime });
             // Spans reset the rail's objective starting point
             objectiveOffset = result.newOffset;
         } else {
@@ -96,6 +99,7 @@ export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, ac
             eraId: lastHistory?.eraId || null,
             expId: lastHistory?.expId || null
         },
+        maxSpanPool,
         spanRank: spanLevel
     };
 }
