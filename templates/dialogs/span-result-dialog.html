@@ -130,6 +130,23 @@
         </div>
     </div>
 
+    {{#if downstreamImpact}}
+    <div id="downstreamImpact" style="margin-top: 8px;">
+        <div class="section-header-compact">Downstream Impact</div>
+        <div class="context-list-scroll" style="max-height: 120px; font-size: 0.85em;">
+            {{#each downstreamImpact}}
+            <div class="context-item" style="padding: 2px 6px;">
+                <span style="color: #ff6b6b; min-width: 100px; display: inline-block;">{{this.title}}</span>
+                <span style="color: #aaa;">{{this.oldDate}}</span>
+                <span style="color: #4da6ff; margin: 0 4px;">-></span>
+                <span style="color: #4da6ff;">{{this.newDate}}</span>
+                <span style="color: #ffd700; margin-left: 6px;">{{this.shift}}</span>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
     <div class="form-row">
         <div class="form-col">
             <label>Era</label>

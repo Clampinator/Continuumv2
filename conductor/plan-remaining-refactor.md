@@ -277,21 +277,32 @@ TTL round-trip could silently place the event at a different position.
 
 ## Item 8: Historical Span Insertion Phase 3 - UI
 
+**Status:** Done
+
 ### Problem
 The Insert Span dialog needs to show before/after objective times for the
 insertion point, so the user can see the downstream impact before committing.
 Currently the dialog just shows departure/arrival fields without context.
 
-### Fix
-- Add a "Downstream Impact" preview section to the span dialog template.
-- When the dialog loads with insertion context, request `buildPreviewHistory` to
-  get the projected state and display affected events with their time shifts.
-- Show: "Event X: 2000-01-01 12:00 -> 2000-01-01 14:00 (+2h)"
+### Fix (Applied)
+- Added "Downstream Impact" section to `span-result-dialog.html` template.
+  Shows a scrollable list of affected events with their old date, new date,
+  and shift magnitude (e.g. "+2.0y", "+3.5d", "+1.0h").
+- Added `_computeDownstreamImpact()` to `open-span-dialog.js` which:
+  1. Computes splice point via `computeSplicePoint`
+  2. Computes displacement via `calculateInsertionDisplacement`
+  3. Builds virtual preview history via `buildPreviewHistory`
+  4. Runs compensation wave via `solveHistoryPhysics`
+  5. Formats shifts using TTL `timestampToDateString`
+- Section only appears when there ARE downstream shifts (>1 second drift).
+- All data uses TTL for formatting - no raw timestamp display.
 
 ### Files
-- `templates/dialogs/span-result-dialog.html` (add impact preview section)
-- `modules/lifeline/services/ui/span-dialog/open-span-dialog.js` (compute preview)
-- `modules/span-graph/projection/manifest-generator.js` (might need preview data)
+- `templates/dialogs/span-result-dialog.html` (downstream impact section)
+- `modules/lifeline/services/ui/span-dialog/open-span-dialog.js`
+  (_computeDownstreamImpact + new imports: buildPreviewHistory, solveHistoryPhysics,
+  calculateInsertionDisplacement, computeSplicePoint, getActorHistory,
+  timestampToDateString, parseObjectiveTime, resolveLocationContext)
 
 ### Tests
 - Dialog template test: impact section renders with at least one affected event.

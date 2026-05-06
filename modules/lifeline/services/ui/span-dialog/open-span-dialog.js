@@ -3,6 +3,15 @@ import { handleSubmit } from '../event-dialog/handle-submit.js';
 import { activateDatePickers } from '/systems/continuum-v2/modules/date-picker.js';
 import { panToLocation, getMapCenterLocation } from '/systems/continuum-v2/modules/span-graph-map.js';
 import { getSheetContext } from '/systems/continuum-v2/modules/span-graph-state.js';
+import { buildPreviewHistory } from '/systems/continuum-v2/modules/temporal-engine/build-preview-history.js';
+import { solveHistoryPhysics } from '/systems/continuum-v2/modules/temporal-kernel/solve-history-physics.js';
+import { calculateInsertionDisplacement } from '/systems/continuum-v2/modules/temporal-kernel/calculate-insertion-displacement.js';
+import { computeSplicePoint } from '/systems/continuum-v2/modules/state/compute-splice-point.js';
+import { getActorHistory } from '/systems/continuum-v2/modules/state/get-actor-history.js';
+import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { parseObjectiveTime } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+import { resolveLocationContext } from '/systems/continuum-v2/modules/temporal-translator/location-resolver.js';
 
 /**
  * REBUILT: Exact functional replica of legacy openEventDialog, 
@@ -30,6 +39,13 @@ export async function openSpanDialog(sheet, params) {
         graphData, 
         eventIsSpan: true 
     });
+
+    // DOWNSTREAM IMPACT PREVIEW: Compute which events shift and by how much
+    // when this span is inserted. Shows the user the consequences before committing.
+    const downstreamImpact = _computeDownstreamImpact(actor, params);
+    if (downstreamImpact.length > 0) {
+        templateData.downstreamImpact = downstreamImpact;
+    }
 
     // Exact legacy eventTitle logic
     const dialogTitle = "Log Span Result";
@@ -197,4 +213,92 @@ export async function openSpanDialog(sheet, params) {
     }, { classes: ["continuum-v2", "dialog"], width: 480 });
 
     dialog.render(true);
+}
+
+/**
+ * Computes the downstream impact of inserting a span at the given coordinates.
+ * Uses buildPreviewHistory to create a virtual history with the span injected,
+ * then solveHistoryPhysics to compute age shifts for downstream events.
+ * Returns an array of { title, oldDate, newDate, shift } for events that shift.
+ *
+ * @param {Actor} actor
+ * @param {Object} params - Must have departure and arrival with eventAge/eventTime
+ * @returns {Array<{title, oldDate, newDate, shift}>}
+ */
+function _computeDownstreamImpact(actor, params) {
+    if (!params.departure || !params.arrival) return [];
+
+    const history = getActorHistory(actor);
+    const dob = actor.system.personal?.dob || '1970-01-01';
+    const birthCtx = resolveLocationContext([], 0, actor);
+    const originTime = parseObjectiveTime(dob, '12:00:00', birthCtx);
+
+    // Compute insertion context (where the span splices into the timeline)
+    // computeSplicePoint takes (snapWorld, physicalNodes, originTime)
+    // physicalNodes = history with physics coordinates applied
+    const physicsShiftsOriginal = solveHistoryPhysics(history, originTime);
+    const physicalNodes = history.map(n => ({
+        ...n,
+        x: Number(n.record?.eventAge || physicsShiftsOriginal[n.id] || n.x || 0),
+        y: Number(n.record?.ts || n.y || 0)
+    }));
+
+    const splicePoint = computeSplicePoint(
+        { eventAge: params.departure.eventAge, eventTime: params.departure.eventTime },
+        physicalNodes,
+        originTime
+    );
+    if (!splicePoint) return [];
+
+    // Compute displacement (how far the span jumps in objective time)
+    const displacementResult = calculateInsertionDisplacement(
+        params.departure.eventAge,
+        params.departure.eventTime,
+        params.arrival.eventTime,
+        physicalNodes
+    );
+    if (!displacementResult) return [];
+
+    // Build virtual history with the span injected
+    const previewHistory = buildPreviewHistory(history, splicePoint, displacementResult);
+    if (!previewHistory || previewHistory.length === 0) return [];
+
+    // Run compensation wave to get age shifts
+    const previewShifts = solveHistoryPhysics(previewHistory, originTime);
+
+    // Format shifted events for display
+    const shifts = [];
+    for (const [id, newAge] of Object.entries(previewShifts)) {
+        if (id === 'preview-insert-span') continue;
+        const node = history.find(n => n.id === id);
+        if (!node) continue;
+
+        const oldAge = Number(node.record?.eventAge || node.x || 0);
+        const ageDiff = newAge - oldAge;
+        // Only show shifts greater than 1 second (rounded)
+        if (Math.abs(ageDiff) < 1) continue;
+
+        const oldTs = Number(node.record?.ts || node.y || 0);
+        const newTs = oldTs + displacementResult.displacement;
+
+        const oldDate = timestampToDateString(oldTs);
+        const newDate = timestampToDateString(newTs);
+
+        // Human-readable shift
+        const absDiff = Math.abs(ageDiff);
+        const shiftStr = absDiff >= 31536000
+            ? `+${(absDiff / 31536000).toFixed(1)}y`
+            : absDiff >= 86400
+            ? `+${(absDiff / 86400).toFixed(1)}d`
+            : `+${(absDiff / 3600).toFixed(1)}h`;
+
+        shifts.push({
+            title: node.record?.eventTitle || 'Event',
+            oldDate: oldDate.date,
+            newDate: newDate.date,
+            shift: shiftStr
+        });
+    }
+
+    return shifts;
 }
