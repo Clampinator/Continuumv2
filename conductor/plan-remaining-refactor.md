@@ -7,7 +7,7 @@ test requirements, and dependency notes.
 
 ## Item 0: Rest Timezone Round-Trip Bug (HOT)
 
-**Status:** In progress (partially fixed, timezone drift remains)
+**Status:** DONE
 
 ### Problem
 `createEndOfRestEvent` (handle-rest-toggle.js) computes `endTs` correctly as an
@@ -58,6 +58,8 @@ None. This is the first item to execute.
 ---
 
 ## Item 1: `updateHistoryRow` Pre-Computed Timestamps (Parallel with Item 0)
+
+**Status:** DONE
 
 ### Problem
 Same round-trip vulnerability as Item 0 but in the update path. Currently
@@ -335,6 +337,47 @@ Label de-confliction, tooltip enhancement, spreadsheet usability.
 Macro-navigation bar with era blocks and scrubber.
 - EraBarRenderer, click-to-pan, bidirectional sync
 - 3 phases in TRACKS.md
+
+### 9e: Character Timeline `new Date()` Purge (DONE)
+
+Replaced remaining `new Date()` calls in the character timeline path with
+TTL `parseDateToObjectiveMs()` to eliminate browser-local-timezone drift.
+
+**Files fixed:**
+- `modules/lifeline/spreadsheet/rebuild-from-spreadsheet.js` - `lastSpanToTs` computation
+- `modules/lifeline/services/segment-generator/generate-ages.js` - era dateFrom/dateTo parsing
+- `modules/lifeline/services/context-finder-logic/find-overlapping-experiences.js` - experience overlap detection
+
+**Tests:** 10 new tests across generate-ages.test.js and find-overlapping-experiences.test.js
+
+---
+
+## Session 2026-05-06: Tooltip Fix + Dead Code Cleanup
+
+### Tooltip Data Flow Fix
+**Root cause**: `on-pointer-move.js` was dead code - never wired to the event system.
+All pointer events flow through `pointer-machine.js`, which had a 3-line generic
+tooltip (EVENT/AGE/DATE). The rich tooltip logic in `on-pointer-move.js` was never executed.
+
+**Fixes applied:**
+- `pointer-machine.js._updateStaticHover`: replaced 3-line generic tooltip with mode-aware
+  hover tooltips (NOW: STATUS/DATE/TIME/AGE/LOCATION, SPAN-DEST: SPAN/DEPART/ARRIVE/SPENT/AGE/
+  FROM/TO, SPAN-ORIGIN: same, LEVEL: EVENT/DATE/TIME/AGE/LOCATION, YET: YET/AGE/DATE/
+  DRIFTING/VIOLATED)
+- `pointer-machine.js._generateHUD`: enriched drag tooltips with DEPART/NOW/SPENT/REMAINING
+  for span drags, TIME/AGING for level drags, and pool projection via `computePoolAfterSpan`
+- `find-last-known-location.js`: fixed data shape mismatch (`e.age` -> `e.record.eventAge`,
+  `e.eventLocation` -> `e.record.eventLocation`) - NOW tooltips now show location correctly
+- Deleted dead `on-pointer-move.js` (never imported)
+- Deleted orphaned `modules/span-graph/ui/tooltips.css` (never loaded, wrong class names)
+- Removed inline `_injectStyles()` from `tooltips.js` - styles consolidated into `span_graph.css`
+- Pointer-events fix: era groups and experience groups default to `pointer-events: none`,
+  era labels and experience labels opt-in with `pointer-events: auto`
+
+### CSS Consolidation
+- Replaced old `.graph-tooltip-group`, `.graph-drag-tooltip-html`, `.graph-drag-tooltip-group`
+  styles in `span_graph.css` with proper `.span-graph-tooltip-group`, `.tooltip-body`,
+  `.tooltip-table .label`, `.tooltip-table .value` selectors
 
 ---
 

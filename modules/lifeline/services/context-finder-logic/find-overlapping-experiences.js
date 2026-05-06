@@ -1,5 +1,9 @@
+import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
+
 /*
 Finds all experiences overlapping a target timestamp.
+TTL: Uses parseDateToObjectiveMs instead of new Date() to avoid browser
+local timezone drift when computing experience date boundaries.
 */
 export function findOverlappingExperiences(actor, targetTime) {
     const relevant = [];
@@ -7,10 +11,10 @@ export function findOverlappingExperiences(actor, targetTime) {
 
     Object.values(allEras).forEach(era => {
         Object.values(era.experiences || {}).forEach(exp => {
-            const start = new Date(exp.dateFrom + "T00:00:00").getTime();
-            let end = exp.dateTo ? new Date(exp.dateTo + "T00:00:00").getTime() : Infinity;
+            const start = parseDateToObjectiveMs(exp.dateFrom, '00:00:00');
+            let end = exp.dateTo ? parseDateToObjectiveMs(exp.dateTo, '00:00:00') : Infinity;
 
-            if (!isNaN(start) && start <= targetTime && targetTime <= end) {
+            if (start && start <= targetTime && targetTime <= end) {
                 relevant.push({
                     eraId: era.id,
                     expId: exp.id,

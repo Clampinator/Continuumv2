@@ -3,6 +3,7 @@ import { submitNewRow } from './submit-spreadsheet-row.js';
 import { processGraphData } from '../../span-graph-data-processor.js';
 import { getSheetContext } from '../../span-graph-state.js';
 import { normalizeDate } from './parse-csv.js';
+import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 function _resolveExpByName(actor, name) {
     if (!name) return null;
@@ -114,8 +115,11 @@ export async function rebuildFromSpreadsheet(sheet, editedEventId = null, formEd
         await submitNewRow(sheet, fv, { batchImport: true, lastSpanToTs, skipGeocode: true });
 
         const d = r.eventIsSpan && r.eventSpanToDate ? normalizeDate(r.eventSpanToDate) : null;
+        // TTL: Use parseDateToObjectiveMs instead of new Date() to avoid
+        // browser local timezone drift. Spans in character-local timezone
+        // must parse consistently regardless of where the browser is.
         lastSpanToTs = (r.eventIsSpan && d)
-            ? new Date(`${d}T${r.eventSpanToTime || '12:00:00'}`).getTime()
+            ? parseDateToObjectiveMs(d, r.eventSpanToTime || '12:00:00')
             : null;
 
         await Promise.resolve();
