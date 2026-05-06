@@ -75,11 +75,13 @@ export class YetRenderer {
       // Violation overrides with shake + glow
       if (yet.isViolated) {
         circle.classList.add('graph-node-yet-violated');
-        // Shake intensity scales with frag count
-        const amp = Math.min(12, 4 + yet.frag * 1.5);
-        const dur = Math.max(0.12, 0.35 - yet.frag * 0.02);
-        circle.style.setProperty('--yet-shake-amp', amp);
-        circle.style.setProperty('--yet-shake-dur', `${dur}s`);
+        // Shake params pre-computed by Kernel (computeYetShakeParams)
+        if (yet.shakeAmplitude != null) {
+          circle.style.setProperty('--yet-shake-amp', yet.shakeAmplitude);
+        }
+        if (yet.shakeDuration != null) {
+          circle.style.setProperty('--yet-shake-dur', yet.shakeDuration);
+        }
       }
 
       this.group.appendChild(circle);
@@ -91,6 +93,7 @@ export class YetRenderer {
    * Particles burst outward in 8 directions with CSS animation.
    */
   _renderParticles(yet) {
+    const durOffset = yet.particleDurationOffset || 0;
     PARTICLE_CONFIGS.forEach((cfg, i) => {
       const rad = (cfg.angle * Math.PI) / 180;
       const tx = Math.cos(rad) * cfg.dist;
@@ -108,7 +111,7 @@ export class YetRenderer {
       p.setAttribute('fill', col);
       p.style.setProperty('--tx', `${tx}px`);
       p.style.setProperty('--ty', `${ty}px`);
-      p.style.setProperty('--dur', `${Math.max(0.3, dur - yet.frag * 0.02)}s`);
+      p.style.setProperty('--dur', `${Math.max(0.3, dur - durOffset)}s`);
       p.style.setProperty('--delay', `${delay}s`);
       this.group.appendChild(p);
     });

@@ -22,3 +22,9 @@ export const MS_IN_YEAR = SECONDS_IN_YEAR * MS_PER_SECOND;
 export const MS_IN_DAY = SECONDS_IN_DAY * MS_PER_SECOND;
 
 export const TARGET_RATIO = -0.00057735;
+
+// UX GUARD: Minimum drag displacement (ms) to open the span dialog.
+// Prevents accidental clicks from triggering insertion. This is NOT a physics rule -
+// sub-minute spans are physically valid. The physics layer rejects zero-displacement
+// spans separately in validateSpanPhysics.
+export const MIN_DRAG_DISPLACEMENT_MS = 60000;

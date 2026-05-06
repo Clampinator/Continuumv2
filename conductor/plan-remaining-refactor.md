@@ -85,33 +85,28 @@ if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
 
 ## Item 2: Purge Displacement Threshold from pointer-machine.js
 
+**Status:** Done
+
 ### Problem
 `pointer-machine.js:406` has a hard-coded `60000` (1-minute) displacement
 threshold that cancels span insertion for near-zero drags. This is a Kernel
 decision (business rule) sitting in the UI/interaction layer. Trinity violation.
 
-### Fix
-- Add `MIN_SPAN_DISPLACEMENT_MS = 60000` constant to
-  `modules/temporal-engine/constants.js`.
-- Move the threshold check into `validateSpanPhysics()` in
-  `modules/temporal-kernel/validate-span-physics.js`.
-- `validateSpanPhysics` already receives `proposed` (with y/arrivalY) and can
-  compute displacement. Add a new validation rule.
-- `pointer-machine.js:_commitInsertSpan()` removes the `displacement < 60000`
-  check and instead relies on `validateSpanPhysics` returning `isValid: false`
-  for zero-displacement spans (which it should already reject since they are
-  not meaningful spans).
-- Actually: zero-displacement spans fail `hasSpanFacts` in the dialog submit
-  anyway. The `60000` threshold is just a UX guard against accidental clicks.
-  The simplest Kernel-consistent approach: move it to `validateSpanPhysics` as
-  a warning-level check, or keep it as a UI interaction guard but comment
-  it as "UX guard, not physics rule."
+### Fix (Applied)
+- Added `MIN_DRAG_DISPLACEMENT_MS = 60000` to `temporal-engine/constants.js`
+  with comment: "UX GUARD, not a physics rule."
+- Added zero-displacement validation (rule 3) to `validateSpanPhysics()` in
+  `modules/temporal-kernel/validate-span-physics.js`. A span where
+  departure === arrival is physically meaningless.
+- `pointer-machine.js` now imports `MIN_DRAG_DISPLACEMENT_MS` and uses it
+  with a comment: "UX GUARD (not physics): Near-zero displacement means the
+  user clicked without meaningful drag."
 
-### Decision Needed
-Is the 60000ms threshold a PHYSICS rule (spans below 1 minute are physically
-meaningless) or a UX guard (preventing accidental clicks from opening dialogs)?
-This determines whether it goes to Kernel or stays in the interaction layer
-with a comment.
+### Decision
+The 60000ms threshold is a UX guard, NOT a physics rule. Sub-minute spans are
+physically valid for Span Rank 1+. The Kernel rejects ZERO-displacement spans
+(departure === arrival), which is a physics constraint. The interaction layer
+keeps the 1-minute UX guard to prevent accidental dialog opens.
 
 ### Files
 - `modules/temporal-engine/constants.js` (add constant)
@@ -127,27 +122,25 @@ with a comment.
 
 ## Item 3: Purge Animation Math from yet-renderer.js
 
+**Status:** Done
+
 ### Problem
 `yet-renderer.js:79-82` computes shake amplitude and duration from `frag` count
-inside the renderer:
-
-```js
-const amp = Math.min(12, 4 + yet.frag * 1.5);
-const dur = Math.max(0.12, 0.35 - yet.frag * 0.02);
-```
-
+inside the renderer. Also line 111: particle duration scaled from `yet.frag`.
 This is logic (not pure coordinate conversion) in the Projector layer. Trinity
-violation: the renderer is deciding HOW MUCH to shake based on raw data, rather
-than receiving pre-computed shake parameters from the manifest.
+violation: the renderer decides HOW MUCH to shake based on raw data, rather than
+receiving pre-computed shake parameters from the manifest.
 
-### Fix
-- Add `computeYetShakeParams(frag)` to `modules/temporal-kernel/yet-physics.js`.
-  Returns `{ shakeAmplitude: number, shakeDuration: string }`.
-- `resolveYetNodes` in `yet-physics.js` already processes each Yet node. Add
-  the shake params to the resolved Yet node objects.
+### Fix (Applied)
+- Added `computeYetShakeParams(frag)` to `yet-physics.js` returning
+  `{ shakeAmplitude, shakeDuration, particleDurationOffset }`.
+- `resolveYetNodes` includes shake params on violated Yet node objects.
 - `manifest-generator.js` passes shake params through to `yetNodes`.
-- `yet-renderer.js` reads `yet.shakeAmplitude` and `yet.shakeDuration` instead
-  of computing them.
+- `yet-renderer.js` reads `yet.shakeAmplitude`/`yet.shakeDuration` instead of
+  computing them. Particles use `yet.particleDurationOffset` instead of
+  computing from `yet.frag`.
+- Added floating-point rounding in `computeYetShakeParams` to avoid display
+  artifacts (e.g. 0.22999... instead of 0.23).
 
 ### Files
 - `modules/temporal-kernel/yet-physics.js` (add computeYetShakeParams)
@@ -163,93 +156,86 @@ than receiving pre-computed shake parameters from the manifest.
 
 ## Item 4: Purge `if(eventIsSpan)` Decision Logic from insert-history-row.js
 
+**Status:** Done
+
 ### Problem
-`insert-history-row.js` has several `if(data.eventIsSpan)` branches that make
-decisions about HOW to process the record based on its type. The State layer
-should not be branching on domain semantics. Examples:
+`insert-history-row.js` had span-specific debug logging blocks and a
+NOW-position ternary (`eventIsSpan ? arrivalTs : ts`) that made the State
+layer decide which timestamp to use based on domain semantics.
 
-- Line 33: `if (data.eventIsSpan) { console.warn('[INSERT-SPAN]...') }` - debug
-  logging gated on span. Not harmful but sets a pattern.
-- Line 131-134: `if (options.isLog)` block that sets `objectiveNow` differently
-  for spans vs levels. This IS state-level routing (determining which timestamp
-  to use for NOW) but the SPAN vs LEVEL decision should come from the Kernel.
-
-### Fix
-- Debug logging: remove span-specific debug blocks or make them generic.
-- NOW update logic (line 133): The rule "NOW = arrivalTs for spans, ts for levels"
-  should come from `validateSpanPhysics` or a new Kernel function
-  `computeNowPosition(atomic)` that returns `{ objectiveNow, subjectiveNow }`.
-- Replace the inline ternary with a Kernel call.
+### Fix (Applied)
+- Removed two `if (data.eventIsSpan)` debug blocks (lines 42-54 and 85-96).
+  These were console.warn calls that only fired for spans, producing noise
+  in production.
+- Created `computeNowPosition(atomic)` in `modules/temporal-kernel/compute-now-position.js`.
+  Returns `{ objectiveNow, subjectiveNow }` where `objectiveNow = arrivalTs`
+  for spans, `ts` for levels. This is a Kernel rule (physics decides which
+  timestamp represents NOW), not a State decision.
+- `insert-history-row.js` now calls `computeNowPosition(atomic)` instead of
+  the inline ternary.
 
 ### Files
-- `modules/state/insert-history-row.js` (remove span-specific branches)
-- `modules/temporal-kernel/compute-now-position.js` (NEW - Kernel function)
-
-### Tests
-- `computeNowPosition(levelEvent)` returns `{ objectiveNow: ts, subjectiveNow: age }`.
-- `computeNowPosition(spanEvent)` returns `{ objectiveNow: arrivalTs, subjectiveNow: age }`.
-- Insert tests: both span and level events produce correct NOW updates.
+- `modules/state/insert-history-row.js` (removed span debug blocks, added Kernel import)
+- `modules/temporal-kernel/compute-now-position.js` (NEW)
+- `tests/temporal-kernel/compute-now-position.test.js` (NEW - 4 tests)
 
 ---
 
 ## Item 5: Purge `if(eventIsSpan)` Decision Logic from update-history-row.js
 
+**Status:** Done
+
 ### Problem
-`update-history-row.js` has span-specific branching:
+`update-history-row.js` had:
+1. `_editArrivalOnly` span data reconstruction (27-43) rebuilding full span
+   data from oldNode.record when the user edits just the arrival node.
+2. Departure delta preservation (56-61) moving arrival by the same delta
+   to conserve span duration.
 
-- Lines 27-43: `_editArrivalOnly` reconstruction - rebuilds full span data when
-  the user edits just the arrival node. This is a data reconstruction rule, not
-  state logic.
-- Lines 56-61: Departure delta preservation - when editing departure, moves
-  arrival by the same delta. This is a PHYSICS rule (span duration conservation)
-  sitting in the State layer.
+Both are domain decisions sitting in the State layer.
 
-### Fix
-- Departure delta preservation: move to `validateSpanPhysics` or a new Kernel
-  function `adjustSpanOnDepartureEdit(atomic, oldRecord)` that returns the
-  corrected `arrivalTs`.
-- `_editArrivalOnly` reconstruction: move to the interaction/dialog layer. The
-  dialog should assemble the complete data object before calling State.
+### Fix (Applied)
+- Created `adjustSpanOnDepartureEdit(newTs, oldTs, oldArrivalTs)` in
+  `modules/temporal-kernel/adjust-span-departure.js`. This is the span
+  duration conservation physics rule, extracted from State.
+- `update-history-row.js` now uses `adjustSpanOnDepartureEdit()` instead of
+  inline delta math.
+- Moved `_editArrivalOnly` reconstruction to `handle-submit.js` (dialog
+  layer). The dialog is responsible for assembling complete form data before
+  calling the State layer. The State layer no longer reconstructs span
+  data from oldNode.record.
+- `_editArrivalOnly` flag still passes through to State so it knows NOT to
+  apply departure-delta preservation for arrival-only edits.
 
 ### Files
-- `modules/state/update-history-row.js` (remove span branches)
-- `modules/temporal-kernel/adjust-span-departure.js` (NEW - Kernel function)
-- `modules/lifeline/services/ui/event-dialog/` (dialog assembles full data)
-
-### Tests
-- `adjustSpanOnDepartureEdit` preserves span duration when departure shifts.
-- `adjustSpanOnDepartureEdit` with zero delta returns unchanged arrivalTs.
+- `modules/state/update-history-row.js` (removed span reconstruction, added Kernel import)
+- `modules/temporal-kernel/adjust-span-departure.js` (NEW)
+- `modules/lifeline/services/ui/event-dialog/handle-submit.js` (moved arrival reconstruction here)
+- `tests/temporal-kernel/adjust-span-departure.test.js` (NEW - 5 tests)
 
 ---
 
 ## Item 6: Purge Semantic Derivation from get-actor-history.js
 
+**Status:** Done
+
 ### Problem
-`get-actor-history.js` line 76 derives `isRestEnd: Boolean(event.isRestEnd)` from
-the raw event data. This is a semantic classification (deciding what KIND of node
-this is) that belongs in the Kernel, not the State layer. State should report
-raw facts; Kernel classifies them.
+`get-actor-history.js` lines 75-76 derived `isRestEnd: Boolean(event.isRestEnd)`
+and `eventIsRest: Boolean(event.eventIsRest)` from raw event data. This is
+semantic classification that belongs in the Kernel, not the State layer.
+State should report raw values; Kernel classifies them.
 
-Similarly, line 75: `eventIsRest: Boolean(event.eventIsRest)` - the State layer
-is normalizing data. While boolean coercion is arguably harmless, it establishes
-a pattern where the State layer interprets data rather than just passing it through.
-
-### Fix
-- `get-actor-history.js`: report raw values without boolean coercion. Pass
-  `eventIsRest: event.eventIsRest, isRestEnd: event.isRestEnd` (preserve original
-  types: boolean, undefined, null, whatever).
-- `establish-history-physics.js` already handles the classification with
-  `isRest = !!record.eventIsRest && !eventIsSpan`. Keep this in Kernel.
-- Other consumers that read `record.eventIsRest` already use `Boolean()` at
-  point-of-use. Ensure no consumer breaks if `eventIsRest` can be `undefined`
-  instead of `false`.
+### Fix (Applied)
+- Removed `Boolean()` coercion from `eventIsRest` and `isRestEnd` in `mapToFact`.
+  These now pass through `event.eventIsRest` and `event.isRestEnd` as-is
+  (may be `undefined` instead of `false`).
+- All downstream consumers already use `!!`, `Boolean()`, or truthiness
+  checks at point-of-use, so no behavioral change.
+- Kernel (`establish-history-physics.js`) already applies
+  `isRest = !!record.eventIsRest && !eventIsSpan`.
 
 ### Files
-- `modules/state/get-actor-history.js` (remove Boolean coercion from mapToFact)
-
-### Tests
-- Verify all downstream consumers handle `undefined` the same as `false`.
-- Add test: `getActorHistory` for event without `isRestEnd` field does NOT add it.
+- `modules/state/get-actor-history.js` (removed Boolean coercion)
 
 ---
 

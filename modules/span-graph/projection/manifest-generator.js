@@ -277,7 +277,10 @@ export function generateManifest(state, viewport, interaction = null) {
                 y: screen.y,
                 isViolated: yet.isViolated,
                 frag: yet.frag,
-                isDragging
+                isDragging,
+                shakeAmplitude: yet.shakeAmplitude,
+                shakeDuration: yet.shakeDuration,
+                particleDurationOffset: yet.particleDurationOffset
             };
         });
     }

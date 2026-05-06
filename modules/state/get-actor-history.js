@@ -72,8 +72,10 @@ function mapToFact(id, event, path, eraId, expId) {
         eventTime: event.eventTime || "12:00:00",
         eventLocation: event.eventLocation || "",
         eventIsSpan,
-        eventIsRest: Boolean(event.eventIsRest),
-        isRestEnd: Boolean(event.isRestEnd),
+        // Passed through as-is: Kernel (establish-history-physics) applies
+        // semantic classification (!eventIsRest && !eventIsSpan).
+        eventIsRest: event.eventIsRest,
+        isRestEnd: event.isRestEnd,
         // Experience linkage - needed so generateExperiences can anchor
         // box corners to the event nodes that open/close each Experience.
         startsExpId: event.startsExpId || null,

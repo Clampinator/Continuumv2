@@ -8,6 +8,7 @@ import { Translator } from '../temporal-translator/temporal-translator.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 import { resolveEventEra } from '../temporal-kernel/resolve-event-era.js';
+import { computeNowPosition } from '../temporal-kernel/compute-now-position.js';
 
 /**
  * STATE: INSERT HISTORY ROW
@@ -38,22 +39,6 @@ export async function insertHistoryRow(actor, data, options = {}) {
     if (Number(data.ts)) atomic.ts = Number(data.ts);
     if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
 
-    // DEBUG: Final atomic coordinates after TTL translation
-    if (data.eventIsSpan) {
-        console.warn('[INSERT-SPAN] 5-ATOMIC (DB write)', JSON.stringify({
-            eventAge: atomic.eventAge,
-            ts: atomic.ts,
-            arrivalTs: atomic.arrivalTs,
-            eventIsSpan: atomic.eventIsSpan,
-            departureMinusArrival: Number(atomic.ts) - Number(atomic.arrivalTs),
-            inputEventSpanFromDate: data.eventSpanFromDate,
-            inputEventSpanFromTime: data.eventSpanFromTime,
-            inputEventSpanToDate: data.eventSpanToDate,
-            inputEventSpanToTime: data.eventSpanToTime
-        }));
-    }
-
-
     const targetNode = { 
         id: newId, 
         x: atomic.eventAge, 
@@ -80,20 +65,6 @@ export async function insertHistoryRow(actor, data, options = {}) {
     // 5. Compensation Wave (Propagate physical changes)
     const virtualHistory = [...history, { ...targetNode, sort }];
     const physicsShifts = solveHistoryPhysics(virtualHistory, originTime);
-
-    // DEBUG: Final node positioned in history sequence
-    if (data.eventIsSpan) {
-        console.warn('[INSERT-SPAN] 7-FINAL (DB record)', JSON.stringify({
-            id: newId,
-            sort,
-            eventAge: atomic.eventAge,
-            ts: atomic.ts,
-            arrivalTs: atomic.arrivalTs,
-            eventIsSpan: atomic.eventIsSpan,
-            departureMinusArrival: Number(atomic.ts) - Number(atomic.arrivalTs),
-            physicsShifts: Object.keys(physicsShifts).length > 0 ? physicsShifts : 'none'
-        }));
-    }
 
     // 6. Database Commit
     const updates = {};
@@ -138,9 +109,11 @@ export async function insertHistoryRow(actor, data, options = {}) {
     }
 
     if (options.isLog) {
-        // AUTHORITY: Sync the Character's Current Fact (Date/Time) to the result of the log.
-        updates['system.personal.objectiveNow'] = atomic.eventIsSpan ? atomic.arrivalTs : atomic.ts;
-        updates['system.personal.subjectiveNow'] = finalRecord.eventAge;
+        // AUTHORITY: Kernel determines NOW position from physics rules.
+        // Level events: NOW = departure ts. Span events: NOW = arrival ts.
+        const nowPos = computeNowPosition(atomic);
+        updates['system.personal.objectiveNow'] = nowPos.objectiveNow;
+        updates['system.personal.subjectiveNow'] = nowPos.subjectiveNow;
     }
 
     await actor.update(updates);

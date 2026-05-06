@@ -2,6 +2,7 @@ import { getActorHistory } from './get-actor-history.js';
 import { resolveNarrativeOrder } from '../temporal-kernel/resolve-narrative-order.js';
 import { solveHistoryPhysics } from '../temporal-kernel/solve-history-physics.js';
 import { validateSpanPhysics } from '../temporal-kernel/validate-span-physics.js';
+import { adjustSpanOnDepartureEdit } from '../temporal-kernel/adjust-span-departure.js';
 import { getLoreContext } from './get-lore-context.js';
 import { Translator } from '../temporal-translator/temporal-translator.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
@@ -21,26 +22,10 @@ export async function updateHistoryRow(actor, recordId, data) {
     const oldNode = history.find(n => n.id === recordId);
     if (!oldNode) return;
 
-    // ARRIVAL EDIT: The user right-clicked the arrival node of a span. The submitted
-    // eventDate/Time is the new arrival time. Reconstruct full span data so that
-    // Translator.toAtomic reads the preserved departure and the new arrival.
-    if (data._editArrivalOnly && oldNode.record?.eventIsSpan) {
-        data = {
-            ...data,
-            _editArrivalOnly: undefined,
-            eventIsSpan: true,
-            eventAge: oldNode.record.eventAge,
-            eventDate: oldNode.record.eventDate,
-            eventTime: oldNode.record.eventTime,
-            eventLocation: oldNode.record.eventLocation,
-            eventSpanFromDate: oldNode.record.eventSpanFromDate || oldNode.record.eventDate,
-            eventSpanFromTime: oldNode.record.eventSpanFromTime || oldNode.record.eventTime,
-            eventSpanFromLocation: oldNode.record.eventSpanFromLocation || "",
-            eventSpanToDate: data.eventDate,
-            eventSpanToTime: data.eventTime,
-            eventSpanToLocation: data.eventSpanToLocation || oldNode.record.eventSpanToLocation || "",
-        };
-    }
+    // ARRIVAL EDIT: The dialog/caller reconstructs full span data before
+    // calling this function. The _editArrivalOnly flag survives to tell
+    // the departure-delta rule (below) not to adjust the arrival timestamp.
+    // Departure edits move both ends; arrival-only edits move only arrival.
 
     // 1. Resolve Origin Time (Birth Authority)
     const dob = actor.system.personal?.dob || "1970-01-01";
@@ -56,13 +41,19 @@ export async function updateHistoryRow(actor, recordId, data) {
     if (Number(data.ts)) atomic.ts = Number(data.ts);
     if (Number(data.arrivalTs)) atomic.arrivalTs = Number(data.arrivalTs);
 
-    // SPAN DEPARTURE EDIT: If the departure ts changed, move the arrival by the same
-    // delta to preserve span duration. Editing the departure node moves both ends
-    // together; only the arrival node edit changes the span length.
+    // SPAN DEPARTURE EDIT: Kernel enforces span duration conservation.
+    // When departure shifts, arrival moves by the same delta. Only
+    // arrival-only edits change the span length. The _editArrivalOnly
+    // flag (now stripped above) prevents this rule from applying to
+    // arrival edits.
     if (!data._editArrivalOnly && oldNode.record?.eventIsSpan && oldNode.record?.arrivalTs) {
-        const departureDelta = atomic.ts - Number(oldNode.record.ts);
-        if (departureDelta !== 0) {
-            atomic = { ...atomic, arrivalTs: Number(oldNode.record.arrivalTs) + departureDelta };
+        const correctedArrival = adjustSpanOnDepartureEdit(
+            atomic.ts,
+            Number(oldNode.record.ts),
+            Number(oldNode.record.arrivalTs)
+        );
+        if (correctedArrival !== Number(oldNode.record.arrivalTs)) {
+            atomic = { ...atomic, arrivalTs: correctedArrival };
         }
     }
 

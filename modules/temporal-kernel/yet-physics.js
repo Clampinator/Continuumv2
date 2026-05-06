@@ -57,6 +57,8 @@ export function resolveYetNodes(theYet, nowAge, nowTime) {
       nowAge, nowTime
     );
 
+    const shake = isViolated ? computeYetShakeParams(frag) : null;
+
     yetNodes.push({
       id,
       description: yet.description || '',
@@ -67,7 +69,10 @@ export function resolveYetNodes(theYet, nowAge, nowTime) {
       isViolated: isViolated && !isFragSuppressed,
       frag,
       isFragSuppressed,
-      isDragging: false
+      isDragging: false,
+      shakeAmplitude: shake?.shakeAmplitude,
+      shakeDuration: shake?.shakeDuration,
+      particleDurationOffset: shake?.particleDurationOffset
     });
   }
 
@@ -112,4 +117,24 @@ function _parseYetTime(date, time) {
   const timeStr = time || '12:00:00';
   const dt = new Date(`${date}T${timeStr}`);
   return isNaN(dt.getTime()) ? 0 : dt.getTime();
+}
+
+/**
+ * Computes visual shake parameters for a violated Yet node.
+ * Shake intensity and particle speed scale with frag count.
+ * This is a Kernel function because the scaling rules (4 + frag*1.5, capped at 12;
+ * 0.02s frag offset per particle) are game design decisions, not renderer concerns.
+ *
+ * @param {number} frag - Frag count for this Yet
+ * @returns {{ shakeAmplitude: number, shakeDuration: string, particleDurationOffset: number }}
+ */
+export function computeYetShakeParams(frag) {
+  const f = frag || 0;
+  const shakeAmplitude = Math.min(12, 4 + f * 1.5);
+  const shakeDurationRaw = Math.max(0.12, 0.35 - f * 0.02);
+  // Round to avoid floating-point display artifacts (e.g. 0.22999... instead of 0.23)
+  const shakeDuration = Math.round(shakeDurationRaw * 1000) / 1000;
+  // Per-particle duration offset: higher frag = shorter particle burst
+  const particleDurationOffset = f * 0.02;
+  return { shakeAmplitude, shakeDuration: `${shakeDuration}s`, particleDurationOffset };
 }

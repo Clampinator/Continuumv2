@@ -140,7 +140,23 @@ export async function handleSubmit(actor, formData, params) {
 
     // 4. Route to Atomic State Layer (Where physics/sorting actually happens)
     if (mode === 'edit' && existingData?.id) {
-        if (existingData._editArrivalOnly) data._editArrivalOnly = true;
+        // ARRIVAL EDIT: When the user right-clicked the arrival node of a span,
+        // reconstruct full span data so Translator.toAtomic reads the preserved
+        // departure and the new arrival. This is dialog logic (assembling the
+        // correct form data), NOT state logic.
+        if (existingData._editArrivalOnly && existingData.record?.eventIsSpan) {
+            data.eventIsSpan = true;
+            data.eventAge = existingData.record.eventAge;
+            data.eventDate = existingData.record.eventDate;
+            data.eventTime = existingData.record.eventTime;
+            data.eventLocation = existingData.record.eventLocation;
+            data.eventSpanFromDate = existingData.record.eventSpanFromDate || existingData.record.eventDate;
+            data.eventSpanFromTime = existingData.record.eventSpanFromTime || existingData.record.eventTime;
+            data.eventSpanFromLocation = existingData.record.eventSpanFromLocation || "";
+            data.eventSpanToDate = data.eventDate;
+            data.eventSpanToTime = data.eventTime;
+            data.eventSpanToLocation = data.eventSpanToLocation || existingData.record.eventSpanToLocation || "";
+        }
         await updateHistoryRow(actor, existingData.id, data);
     } else {
         const isLog = (mode === 'log');

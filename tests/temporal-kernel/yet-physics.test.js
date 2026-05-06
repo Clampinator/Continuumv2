@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveYetNodes, isYetViolated } from '../../modules/temporal-kernel/yet-physics.js';
+import { resolveYetNodes, isYetViolated, computeYetShakeParams } from '../../modules/temporal-kernel/yet-physics.js';
 
 describe('isYetViolated (kernel)', () => {
   // Constants for test timestamps
@@ -235,5 +235,60 @@ describe('resolveYetNodes (kernel)', () => {
     };
     const result = resolveYetNodes(theYet, NOW_AGE, NOW_TIME);
     expect(result[0].frag).toBe(5);
+  });
+
+  it('should compute shake params for violated Yets', () => {
+    const theYet = {
+      yet1: { description: 'Violated', done: false, age: '10', date: '', time: '', frag: 3 }
+    };
+    const result = resolveYetNodes(theYet, NOW_AGE, NOW_TIME);
+    expect(result[0].isViolated).toBe(true);
+    expect(result[0].shakeAmplitude).toBe(8.5);
+    expect(result[0].shakeDuration).toBe('0.29s');
+    expect(result[0].particleDurationOffset).toBe(0.06);
+  });
+
+  it('should not compute shake params for non-violated Yets', () => {
+    const theYet = {
+      yet1: { description: 'Future', done: false, age: '50', date: '', time: '', frag: 2 }
+    };
+    const result = resolveYetNodes(theYet, NOW_AGE, NOW_TIME);
+    expect(result[0].isViolated).toBe(false);
+    expect(result[0].shakeAmplitude).toBeUndefined();
+  });
+});
+
+describe('computeYetShakeParams (kernel)', () => {
+  it('should return base amplitude for frag 0', () => {
+    const result = computeYetShakeParams(0);
+    expect(result.shakeAmplitude).toBe(4);
+    expect(result.shakeDuration).toBe('0.35s');
+    expect(result.particleDurationOffset).toBe(0);
+  });
+
+  it('should scale amplitude with frag count', () => {
+    const result = computeYetShakeParams(6);
+    // 4 + 6 * 1.5 = 13, capped at 12
+    expect(result.shakeAmplitude).toBe(12);
+    // 0.35 - 6 * 0.02 = 0.23
+    expect(result.shakeDuration).toBe('0.23s');
+    expect(result.particleDurationOffset).toBe(0.12);
+  });
+
+  it('should cap amplitude at 12', () => {
+    const result = computeYetShakeParams(20);
+    expect(result.shakeAmplitude).toBe(12);
+  });
+
+  it('should not let duration drop below 0.12s', () => {
+    // 0.35 - 20 * 0.02 = -0.05, clamped to 0.12
+    const result = computeYetShakeParams(20);
+    expect(result.shakeDuration).toBe('0.12s');
+  });
+
+  it('should handle null/undefined frag as 0', () => {
+    const result = computeYetShakeParams(null);
+    expect(result.shakeAmplitude).toBe(4);
+    expect(result.shakeDuration).toBe('0.35s');
   });
 });

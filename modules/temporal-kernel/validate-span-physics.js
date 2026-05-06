@@ -48,7 +48,17 @@ export function validateSpanPhysics(proposed, context, options = {}) {
         };
     }
 
-    // 3. Displacement Pool: Check for Rank capacity (Warning only)
+    // 3. Zero Displacement: A span with no objective displacement is not a span.
+    // Physically meaningless - departure and arrival at the same instant.
+    if (record.eventIsSpan) {
+        const arrivalY = proposed.arrivalY || proposed.y;
+        const departureY = proposed.y;
+        if (arrivalY === departureY) {
+            return { isValid: false, error: "Departure and arrival are the same point. A span must have nonzero displacement." };
+        }
+    }
+
+    // 4. Displacement Pool: Check for Rank capacity (Warning only)
     if (record.eventIsSpan) {
         const arrivalY = proposed.arrivalY || proposed.y;
         const departureY = proposed.y;
@@ -60,7 +70,7 @@ export function validateSpanPhysics(proposed, context, options = {}) {
         }
     }
 
-    // 4. Arrival Ceiling: UP span arrival cannot reach or pass the next event in narrative order.
+    // 5. Arrival Ceiling: UP span arrival cannot reach or pass the next event in narrative order.
     // Only enforced during edits - options.history and options.recordId are provided by update-history-row.
     if (record.eventIsSpan && options.history && options.recordId) {
         const arrivalY = proposed.arrivalY ?? proposed.y;

@@ -14,6 +14,7 @@ import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-tran
 import { timestampToDateString } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
 import { buildPreviewHistory } from '../../temporal-engine/build-preview-history.js';
+import { MIN_DRAG_DISPLACEMENT_MS } from '../../temporal-engine/constants.js';
 
 /**
  * INTERACTION: POINTER MACHINE
@@ -402,8 +403,10 @@ export class PointerMachine {
                 : null
         }));
 
-        // Near-zero displacement: user clicked without meaningful drag. Cancel.
-        if (displacement < 60000) {
+        // UX GUARD (not physics): Near-zero displacement means the user
+        // clicked without meaningful drag. Cancel to prevent accidental
+        // dialog opens. The Kernel separately rejects zero-displacement spans.
+        if (displacement < MIN_DRAG_DISPLACEMENT_MS) {
             this._resetInteraction();
             return;
         }
