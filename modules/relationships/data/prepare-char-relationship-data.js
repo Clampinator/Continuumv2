@@ -23,13 +23,24 @@ export function prepareCharRelationshipData(sheet) {
     // It also overwrites visual properties of manual nodes if they share identity
     syncRelationshipList(actor, nodes, links);
 
-    // 3. Metadata
+    // 3. Sanitize: remove links whose source or target node is missing.
+    // D3 forceLink throws "node not found" if any link references a node
+    // not present in the nodes array. This can happen after a CSV import
+    // wipes actor data and stale networkEdges reference deleted nodes.
+    const nodeIds = new Set(nodes.map(n => n.id));
+    const safeLinks = links.filter(l => {
+        const sId = l.source.id ?? l.source;
+        const tId = l.target.id ?? l.target;
+        return nodeIds.has(sId) && nodeIds.has(tId);
+    });
+
+    // 4. Metadata
     const { minTime, maxTime } = determineTimelineRange(actor);
     const groups = clusterNodesIntoGroups(nodes, actor.system.networkGroups || {});
 
     return { 
         nodes, 
-        links, 
+        links: safeLinks, 
         groups, 
         rootId: actor.id, 
         rootNode, 

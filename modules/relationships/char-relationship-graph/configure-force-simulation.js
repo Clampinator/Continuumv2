@@ -89,6 +89,15 @@ export function configureForceSimulation(data, width, height) {
     const cx = width / 2;
     const cy = height / 2;
 
+    // Safety: ensure every link references existing node IDs.
+    // D3 forceLink throws if source/target nodes are missing.
+    const nodeIds = new Set(data.nodes.map(n => n.id));
+    data.links = data.links.filter(l => {
+        const sId = l.source.id ?? l.source;
+        const tId = l.target.id ?? l.target;
+        return nodeIds.has(sId) && nodeIds.has(tId);
+    });
+
     const root = data.nodes.find(n => n.isRoot);
     if (root) { root.fx = cx; root.fy = cy; }
 
