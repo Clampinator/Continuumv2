@@ -12,6 +12,7 @@
  */
 import { markYetFulfilled } from '/systems/continuum-v2/modules/state/mark-yet-fulfilled.js';
 import { insertHistoryRow } from '/systems/continuum-v2/modules/state/insert-history-row.js';
+import { pushSnapshot } from '/systems/continuum-v2/modules/lifeline/undo-manager.js';
 
 /**
  * Fulfills a Yet by inserting a permanent history row and marking it done.
@@ -26,6 +27,10 @@ export async function fulfillYet(actor, yetId, viewport) {
         console.warn('Continuum | Yet fulfillment failed: Yet not found', yetId);
         return;
     }
+
+    // Capture state before the dual write (history row + yet done flag)
+    // so the entire fulfillment can be undone as one operation
+    pushSnapshot(actor);
 
     // Resolve the NOW node's position for the fulfillment event
     const nowNode = viewport?.latestState?.nowNode;

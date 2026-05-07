@@ -2,6 +2,7 @@ import { insertHistoryRow } from '/systems/continuum-v2/modules/state/insert-his
 import { markYetFulfilled } from '/systems/continuum-v2/modules/state/mark-yet-fulfilled.js';
 import { Sound } from '../../../sound-manager.js';
 import { showYetDialog } from '../../../span-graph-ui-dialogs.js';
+import { pushSnapshot } from '/systems/continuum-v2/modules/lifeline/undo-manager.js';
 
 export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
     const rect = svg.getBoundingClientRect();
@@ -22,6 +23,9 @@ export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
         const yetId = viewState.draggedYetId;
         const yetData = sheet.actor.system.theYet[yetId];
         const now = graphData.nowNode;
+
+        // Capture state before the dual write (history row + yet done flag)
+        pushSnapshot(sheet.actor);
 
         // Identify context for era/expId via the last node
         const lastNode = graphData.levelNodes[graphData.levelNodes.length - 1];

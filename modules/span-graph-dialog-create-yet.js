@@ -6,6 +6,7 @@ import { renderGraph } from './span-graph-render.js';
 import { activateDatePickers } from './date-picker.js';
 import { Sound } from './sound-manager.js';
 import { panToLocation, getMapCenterLocation } from './span-graph-map.js';
+import { pushSnapshot } from '/systems/continuum-v2/modules/lifeline/undo-manager.js';
 
 /**
  * Dialog to create or edit a "Yet" event.
@@ -195,6 +196,9 @@ export function showYetDialog(optionsOrViewState, graphData, sheet, svg, existin
                     const formData = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
                     const id = isEdit ? usedExistingData.id : foundry.utils.randomID();
                     
+                    // Capture state before writing Yet data so creation/edit is undoable
+                    pushSnapshot(usedSheet.actor);
+
                     const updates = {
                         [`system.theYet.${id}.description`]: formData.description,
                         [`system.theYet.${id}.isFragSuppressed`]: formData.isFragSuppressed || false,
@@ -238,6 +242,8 @@ export function showYetDialog(optionsOrViewState, graphData, sheet, svg, existin
                     label: "Delete",
                     icon: '<i class="fas fa-trash"></i>',
                     callback: async () => {
+                        // Capture state before deleting Yet so deletion is undoable
+                        pushSnapshot(usedSheet.actor);
                         await usedSheet.actor.update({ [`system.theYet.-=${usedExistingData.id}`]: null });
                         Sound.delete();
                         if (viewport) {
