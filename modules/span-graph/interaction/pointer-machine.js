@@ -519,29 +519,6 @@ export class PointerMachine {
             return;
         }
 
-        // YET CREATION: Right-click on empty space to the right of NOW
-        // creates a new Yet. The click must be in the future (worldAge > nowAge).
-        const nowNode = this.viewport.latestState?.nowNode;
-        if (nowNode) {
-            const world = this.viewport.screenToWorld(screenPos.x, screenPos.y);
-            if (world.eventAge > nowNode.x + 0.5) {
-                this.state.isPending = true;
-                this.viewport._interaction.isPending = true;
-                const { showYetDialog } = await import('../../span-graph-dialog-create-yet.js');
-                showYetDialog({
-                    sheet: this.actor.sheet,
-                    svg: this.viewport.svg,
-                    worldAge: world.eventAge,
-                    worldTime: world.eventTime,
-                    viewport: this.viewport,
-                    screenPos
-                });
-                this._resetInteraction();
-                this.viewport._render();
-                return;
-            }
-        }
-
         const targetNodeId = event.target.dataset.eventId;
         if (!targetNodeId || targetNodeId === 'now') return;
 
@@ -565,6 +542,37 @@ export class PointerMachine {
         }
 
         await this._openDialog('edit', node.x, node.y, node.record.eventIsSpan, node);
+    }
+
+    /**
+     * DOUBLE-CLICK: Creates a new Yet when double-clicking on empty space
+     * to the right of NOW (the character's future). The double-click must
+     * land in the future zone (worldAge > nowAge + 0.5) to qualify.
+     * Era labels have their own dblclick handler and take priority.
+     */
+    async onDoubleClick(event, screenPos) {
+        if (this.state.isPending) return;
+
+        const nowNode = this.viewport.latestState?.nowNode;
+        if (nowNode) {
+            const world = this.viewport.screenToWorld(screenPos.x, screenPos.y);
+            if (world.eventAge > nowNode.x + 0.5) {
+                this.state.isPending = true;
+                this.viewport._interaction.isPending = true;
+                const { showYetDialog } = await import('../../span-graph-dialog-create-yet.js');
+                showYetDialog({
+                    sheet: this.actor.sheet,
+                    svg: this.viewport.svg,
+                    worldAge: world.eventAge,
+                    worldTime: world.eventTime,
+                    viewport: this.viewport,
+                    screenPos
+                });
+                this._resetInteraction();
+                this.viewport._render();
+                return;
+            }
+        }
     }
 
     async _openDialog(mode, age, time, eventIsSpan = false, existingData = null) {

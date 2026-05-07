@@ -71,13 +71,22 @@ export function activateListeners(viewport) {
         if (!eraId || !viewport.latestState?.eras) return;
         const era = viewport.latestState.eras.find(er => er.id === eraId);
         if (!era) return;
-        // Center on era midpoint (midpoint between startAge and endAge)
         const midAge = era.endAge === Infinity
             ? era.startAge + (era.duration || 0) / 2
             : era.startAge + (era.duration || 0) / 2;
         viewport.centerOnAge(midAge);
     };
     viewport.svg.addEventListener('dblclick', viewport._onEraDblClick);
+
+    // --- DOUBLE-CLICK (Yet creation) ---
+    // Double-click on empty space right of NOW creates a new Yet.
+    // Era label handler runs first; if it consumed the event, this is a no-op.
+    viewport._onYetDblClick = (e) => {
+        if (e.target.closest('.graph-era-label')) return;
+        const rect = viewport.svg.getBoundingClientRect();
+        viewport.pointerMachine.onDoubleClick(e, { x: e.clientX - rect.left, y: e.clientY - rect.top });
+    };
+    viewport.svg.addEventListener('dblclick', viewport._onYetDblClick);
 }
 
 /**
@@ -92,6 +101,7 @@ export function deactivateListeners(viewport) {
     if (viewport._onWheel) viewport.svg.removeEventListener('wheel', viewport._onWheel);
     if (viewport._onContextMenu) viewport.svg.removeEventListener('contextmenu', viewport._onContextMenu);
     if (viewport._onEraDblClick) viewport.svg.removeEventListener('dblclick', viewport._onEraDblClick);
+    if (viewport._onYetDblClick) viewport.svg.removeEventListener('dblclick', viewport._onYetDblClick);
 
     // Window-level listeners (most critical to remove - these fire on every pointer event)
     if (viewport._onPointerMove) window.removeEventListener('pointermove', viewport._onPointerMove);
