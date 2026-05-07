@@ -10,9 +10,14 @@ vi.mock('../../modules/temporal-engine/get-temporal-state.js', () => ({
 import { getActorHistory } from '../../modules/state/get-actor-history.js';
 import { getTemporalState } from '../../modules/temporal-engine/get-temporal-state.js';
 import { calculateAutofocus } from '../../modules/span-graph/viewport/actions/handle-autofocus.js';
+import { SECONDS_IN_YEAR } from '../../modules/temporal-engine/constants.js';
 
 const TARGET_RATIO = -0.00057735;
-const BIRTH_ONLY_ZOOM = 0.00000005;
+const BIRTH_ONLY_VISIBLE_YEARS = 25;
+
+function birthOnlyZoom(containerWidth) {
+  return containerWidth / (BIRTH_ONLY_VISIBLE_YEARS * SECONDS_IN_YEAR);
+}
 
 function makeContainer(w = 800, h = 600) {
   return { getBoundingClientRect: () => ({ width: w, height: h }) };
@@ -37,7 +42,29 @@ describe('calculateAutofocus', () => {
   });
 
   describe('Case 1: Birth-only character', () => {
-    it('positions birth node in lower-left quadrant at fixed zoom', () => {
+    it('positions birth node in lower-left quadrant showing 25 years across X-axis', () => {
+      const originTime = 946684800000;
+      const birthNode = { id: 'birth', isBirth: true, x: 0, y: originTime };
+      const nowNode = { id: 'now', isNow: true, x: 0, y: originTime };
+
+      getActorHistory.mockReturnValue([]);
+      getTemporalState.mockReturnValue({ nodes: [birthNode, nowNode], nowNode });
+
+      const container = makeContainer(800, 600);
+      const expectedZoom = birthOnlyZoom(800);
+      const result = calculateAutofocus(makeActor(), container, () => originTime);
+
+      expect(result.zoom).toBeCloseTo(expectedZoom, 10);
+      expect(result.initialized).toBe(true);
+
+      // Birth at x=0, y=originTime should map to (25% width, 75% height)
+      const screenX = (birthNode.x * result.zoom) + result.panX;
+      const screenY = (birthNode.y * TARGET_RATIO * result.zoom) + result.panY;
+      expect(screenX).toBeCloseTo(200, 0);
+      expect(screenY).toBeCloseTo(450, 0);
+    });
+
+    it('visible age range spans exactly 25 years', () => {
       const originTime = 946684800000;
       const birthNode = { id: 'birth', isBirth: true, x: 0, y: originTime };
       const nowNode = { id: 'now', isNow: true, x: 0, y: originTime };
@@ -48,14 +75,9 @@ describe('calculateAutofocus', () => {
       const container = makeContainer(800, 600);
       const result = calculateAutofocus(makeActor(), container, () => originTime);
 
-      expect(result.zoom).toBe(BIRTH_ONLY_ZOOM);
-      expect(result.initialized).toBe(true);
-
-      // Birth at x=0, y=originTime should map to (25% width, 75% height)
-      const screenX = (birthNode.x * result.zoom) + result.panX;
-      const screenY = (birthNode.y * TARGET_RATIO * result.zoom) + result.panY;
-      expect(screenX).toBeCloseTo(200, 0);
-      expect(screenY).toBeCloseTo(450, 0);
+      const visibleAgeSeconds = 800 / result.zoom;
+      const visibleAgeYears = visibleAgeSeconds / SECONDS_IN_YEAR;
+      expect(visibleAgeYears).toBeCloseTo(25, 0);
     });
   });
 
@@ -75,7 +97,6 @@ describe('calculateAutofocus', () => {
       expect(result.initialized).toBe(true);
       expect(result.zoom).toBeGreaterThan(0);
 
-      // Verify midpoint is at screen center
       const midX = (0 + 63072000) / 2;
       const midY = (originTime + originTime + 63072000000) / 2;
       const screenMidX = (midX * result.zoom) + result.panX;
@@ -84,9 +105,8 @@ describe('calculateAutofocus', () => {
       expect(screenMidY).toBeCloseTo(300, 0);
     });
 
-    it('floors zoom at BIRTH_ONLY_ZOOM when computed zoom is smaller', () => {
+    it('floors zoom at 25-year visible width when computed zoom is smaller', () => {
       const originTime = 946684800000;
-      // Enormous ranges that would produce a zoom smaller than the floor
       const birthNode = { id: 'birth', isBirth: true, x: 0, y: 0 };
       const nowNode = { id: 'now', isNow: true, x: 1e12, y: 1e15 };
       const eventNode = { id: 'event1', x: 5e11, y: 5e14 };
@@ -95,9 +115,10 @@ describe('calculateAutofocus', () => {
       getTemporalState.mockReturnValue({ nodes: [birthNode, eventNode, nowNode], nowNode });
 
       const container = makeContainer(800, 600);
+      const minZoom = birthOnlyZoom(800);
       const result = calculateAutofocus(makeActor(), container, () => 0);
 
-      expect(result.zoom).toBe(BIRTH_ONLY_ZOOM);
+      expect(result.zoom).toBeCloseTo(minZoom, 10);
     });
   });
 

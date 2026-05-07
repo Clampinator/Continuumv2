@@ -3,9 +3,21 @@
 /*==================================*/
 
 .span-graph-wrapper .graph-grid-lines line {
-    stroke: rgba(255, 255, 255, 0.1); 
+    stroke: rgba(255, 255, 255, 0.2); 
     stroke-width: 1px;
     shape-rendering: crispEdges;
+}
+
+.span-graph-wrapper .graph-grid-lines line.grid-major.decade {
+    stroke: rgba(255, 255, 255, 0.3);
+}
+
+.span-graph-wrapper .graph-grid-lines line.grid-major.century {
+    stroke: rgba(255, 255, 255, 0.4);
+}
+
+.span-graph-wrapper .graph-grid-lines line.grid-major.millennium {
+    stroke: rgba(255, 255, 255, 0.5);
 }
 
 .span-graph-wrapper .graph-axis-labels text {

@@ -1,4 +1,4 @@
-import { TARGET_RATIO } from './constants.js';
+import { TARGET_RATIO, SECONDS_IN_DECADE, SECONDS_IN_CENTURY, SECONDS_IN_MILLENNIUM } from './constants.js';
 
 /**
  * Coordinate utilities for projecting between World Space and Screen Space.
@@ -63,13 +63,17 @@ export function screenToWorld(x, y, viewState) {
 /**
  * Determines the appropriate grid step (in seconds) for the Age axis,
  * based on the current zoom level. Finer zoom = smaller steps.
+ * Each band is 10x the previous, matching the 10x zoom-factor jump.
  *
  * @param {number} zoom - The current zoom factor from the view state.
- * @returns {number} Age grid step in seconds (3600, 86400, 2592000, or 31536000).
+ * @returns {number} Age grid step in seconds.
  */
 export function calculateGridStep(zoom) {
-    if (zoom > 0.001) return 3600;
-    if (zoom > 0.0001) return 86400;
-    if (zoom > 0.00001) return 2592000;
-    return 31536000;
+    if (zoom > 0.001) return 3600;            // 1 hour
+    if (zoom > 0.0001) return 86400;          // 1 day
+    if (zoom > 0.00001) return 2592000;       // 30 days
+    if (zoom > 0.000001) return 31536000;     // 1 year
+    if (zoom > 0.0000001) return SECONDS_IN_DECADE;    // 1 decade
+    if (zoom > 0.00000001) return SECONDS_IN_CENTURY;  // 1 century
+    return SECONDS_IN_MILLENNIUM;             // 1 millennium
 }

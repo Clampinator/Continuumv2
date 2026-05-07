@@ -1,8 +1,8 @@
 import { getActorHistory } from '../../../state/get-actor-history.js';
 import { getTemporalState } from '../../../temporal-engine/get-temporal-state.js';
-import { TARGET_RATIO } from '../../../temporal-engine/constants.js';
+import { TARGET_RATIO, SECONDS_IN_YEAR } from '../../../temporal-engine/constants.js';
 
-const BIRTH_ONLY_ZOOM = 0.00000005;
+const BIRTH_ONLY_VISIBLE_YEARS = 25;
 const CONTENT_PADDING = 0.15;
 
 /**
@@ -35,16 +35,18 @@ export function calculateAutofocus(actor, container, getOriginTime) {
     const isBirthOnly = nodes.filter(n => n.id !== 'birth' && n.id !== 'now').length === 0;
 
     if (isBirthOnly) {
-        // CASE 1: Birth-only - position birth node in lower-left quadrant
+        // CASE 1: Birth-only - show 25 subjective years across X-axis,
+        // place birth node in lower-left quadrant
         const targetX = birthNode?.x || 0;
         const targetY = birthNode?.y || 0;
         const targetScreenX = rect.width * 0.25;
         const targetScreenY = rect.height * 0.75;
+        const birthOnlyZoom = rect.width / (BIRTH_ONLY_VISIBLE_YEARS * SECONDS_IN_YEAR);
 
         return {
-            zoom: BIRTH_ONLY_ZOOM,
-            panX: targetScreenX - (targetX * BIRTH_ONLY_ZOOM),
-            panY: targetScreenY - (targetY * TARGET_RATIO * BIRTH_ONLY_ZOOM),
+            zoom: birthOnlyZoom,
+            panX: targetScreenX - (targetX * birthOnlyZoom),
+            panY: targetScreenY - (targetY * TARGET_RATIO * birthOnlyZoom),
             initialized: true
         };
     }
@@ -66,7 +68,9 @@ export function calculateAutofocus(actor, container, getOriginTime) {
 
     const zoomX = usableWidth / rangeX;
     const zoomY = usableHeight / (rangeY * Math.abs(TARGET_RATIO));
-    const finalZoom = Math.max(Math.min(zoomX, zoomY), BIRTH_ONLY_ZOOM);
+    // Never zoom out past the birth-only default (25 years across X)
+    const minZoom = rect.width / (BIRTH_ONLY_VISIBLE_YEARS * SECONDS_IN_YEAR);
+    const finalZoom = Math.max(Math.min(zoomX, zoomY), minZoom);
 
     // Center the midpoint on screen
     const panX = (rect.width / 2) - (midpointX * finalZoom);
