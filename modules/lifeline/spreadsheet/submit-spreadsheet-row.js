@@ -5,9 +5,13 @@ import { updateHistoryRow } from '../../state/update-history-row.js';
 import { resolveEventEra } from '../../temporal-kernel/resolve-event-era.js';
 import { parseObjectiveTime } from '../../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
+import { resolveDefaultLocation } from '../../temporal-kernel/resolve-default-location.js';
+import { cascadeLocationUpdate } from '../../temporal-kernel/cascade-location-update.js';
+import { getActorHistory } from '../../state/get-actor-history.js';
 
 /**
  * Processes a single field update on an existing event row.
+ * For location fields, detects manual changes and triggers cascade.
  * @param {Actor} actor - The actor being updated.
  * @param {string} eventId - The ID of the event.
  * @param {string} field - The field being changed.
@@ -22,6 +26,50 @@ export async function submitSpreadsheetRow(actor, eventId, field, value) {
     }
 
     pushSnapshot(actor);
+
+    // LOCATION CASCADE: When a location field is changed directly in the
+    // spreadsheet, this is a manual edit. We need to route through
+    // updateHistoryRow so it can set the inheritance flag and cascade
+    // to downstream events. A raw path write bypasses all of that.
+    const locationFields = ['eventLocation', 'eventSpanFromLocation', 'eventSpanToLocation'];
+    if (locationFields.includes(field)) {
+        // Build a minimal data object with the location change so updateHistoryRow
+        // can detect it, set the inheritance flag, and cascade.
+        // We need to read the current record to preserve other fields.
+        const history = getActorHistory(actor);
+        const node = history.find(n => n.id === eventId);
+        if (!node) return;
+        const rec = node.record || {};
+
+        const updateData = {
+            eventTitle: rec.eventTitle || '',
+            eventNotes: rec.eventNotes || '',
+            eventIsSpan: Boolean(rec.eventIsSpan),
+            eventIsRest: Boolean(rec.eventIsRest),
+            eventAge: rec.eventAge || 0,
+            eventDate: rec.eventDate || '',
+            eventTime: rec.eventTime || '12:00:00',
+            eventLocation: rec.eventLocation || '',
+            eventSpanFromDate: rec.eventSpanFromDate || '',
+            eventSpanFromTime: rec.eventSpanFromTime || '12:00:00',
+            eventSpanFromLocation: rec.eventSpanFromLocation || '',
+            eventSpanToDate: rec.eventSpanToDate || '',
+            eventSpanToTime: rec.eventSpanToTime || '12:00:00',
+            eventSpanToLocation: rec.eventSpanToLocation || '',
+            eraId: node.eraId,
+            expId: node.expId
+        };
+
+        // Apply the field change
+        updateData[field] = value;
+
+        // Set the corresponding inheritance flag to false (manual edit)
+        if (field === 'eventLocation') updateData.locationInherited = false;
+        if (field === 'eventSpanFromLocation') updateData.spanFromLocationInherited = false;
+        if (field === 'eventSpanToLocation') updateData.spanToLocationInherited = false;
+
+        return await updateHistoryRow(actor, eventId, updateData);
+    }
 
     const targetPath = `${path}.${field}`;
 
@@ -116,6 +164,21 @@ export async function submitNewRow(sheet, fv, options = {}) {
     }
 
     // Build data payload matching the structure expected by insertHistoryRow
+    // LOCATION AUTO-FILL: If no location was provided, resolve the default
+    // from the most recent event in history.
+    const historyForLoc = getActorHistory(actor);
+    const defaultLoc = resolveDefaultLocation(historyForLoc, eventAge, actor);
+
+    const eventLocation = fv.location || '';
+    const spanFromLocation = fv.eventSpanFromLocation || '';
+    const spanToLocation = fv.eventSpanToLocation || '';
+
+    // INHERITANCE FLAGS: true if the location matches the default (auto-filled)
+    // or is empty (no override). false if the user explicitly set a different value.
+    const locInherited = eventLocation === '' || eventLocation === defaultLoc.location;
+    const spanFromInherited = spanFromLocation === '' || spanFromLocation === defaultLoc.location;
+    const spanToInherited = spanToLocation === '' || spanToLocation === defaultLoc.location;
+
     const data = {
         eventTitle: fv.eventTitle || (eventIsSpan ? 'New Span' : 'New Event'),
         eventNotes: fv.eventNotes || '',
@@ -126,30 +189,34 @@ export async function submitNewRow(sheet, fv, options = {}) {
 
         eventDate: fv.date || fv.eventSpanFromDate || '',
         eventTime: fv.time || '12:00:00',
-        eventLocation: fv.location || '',
+        eventLocation: eventLocation || defaultLoc.location,
+        lat: fv.lat ?? (eventLocation ? null : defaultLoc.lat),
+        lng: fv.lng ?? (eventLocation ? null : defaultLoc.lng),
+        zoom: fv.zoom ?? (eventLocation ? null : defaultLoc.zoom),
 
         eventSpanFromDate: fv.eventSpanFromDate || '',
         eventSpanFromTime: fv.eventSpanFromTime || '12:00:00',
-        eventSpanFromLocation: fv.eventSpanFromLocation || '',
+        eventSpanFromLocation: spanFromLocation || defaultLoc.location,
+        eventSpanFromLat: fv.eventSpanFromLat ?? (spanFromLocation ? null : defaultLoc.lat),
+        eventSpanFromLng: fv.eventSpanFromLng ?? (spanFromLocation ? null : defaultLoc.lng),
+        eventSpanFromZoom: fv.eventSpanFromZoom ?? (spanFromLocation ? null : defaultLoc.zoom),
+
         eventSpanToDate: fv.eventSpanToDate || '',
         eventSpanToTime: fv.eventSpanToTime || '12:00:00',
-        eventSpanToLocation: fv.eventSpanToLocation || '',
+        eventSpanToLocation: spanToLocation || defaultLoc.location,
+        eventSpanToLat: fv.eventSpanToLat ?? (spanToLocation ? null : defaultLoc.lat),
+        eventSpanToLng: fv.eventSpanToLng ?? (spanToLocation ? null : defaultLoc.lng),
+        eventSpanToZoom: fv.eventSpanToZoom ?? (spanToLocation ? null : defaultLoc.zoom),
 
         eraId,
         expId,
         startsExpId,
         endsExpId: null,
 
-        // Location fields for map pin
-        lat: fv.lat ?? null,
-        lng: fv.lng ?? null,
-        zoom: fv.zoom ?? null,
-        eventSpanFromLat: fv.eventSpanFromLat ?? null,
-        eventSpanFromLng: fv.eventSpanFromLng ?? null,
-        eventSpanFromZoom: fv.eventSpanFromZoom ?? null,
-        eventSpanToLat: fv.eventSpanToLat ?? null,
-        eventSpanToLng: fv.eventSpanToLng ?? null,
-        eventSpanToZoom: fv.eventSpanToZoom ?? null
+        // LOCATION INHERITANCE FLAGS
+        locationInherited: locInherited,
+        spanFromLocationInherited: spanFromInherited,
+        spanToLocationInherited: spanToInherited
     };
 
     try {

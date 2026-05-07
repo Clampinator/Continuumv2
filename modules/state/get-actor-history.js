@@ -97,7 +97,25 @@ function mapToFact(id, event, path, eraId, expId) {
         arrivalTs: event.arrivalTs,
         // GOAL LINKAGE: Carries goal IDs linked to this event so the
         // Projector can draw dotted connection lines on hover.
-        linkedGoalIds: (event.linkedGoalIds || []).concat(event.linkedGoalId ? [event.linkedGoalId] : [])
+        linkedGoalIds: (event.linkedGoalIds || []).concat(event.linkedGoalId ? [event.linkedGoalId] : []),
+        // LOCATION INHERITANCE: Whether the location was auto-filled from
+        // the most recent upstream location (true) or manually set by the
+        // user (false). Default true for backward compat: events created
+        // before this feature are treated as inherited and eligible for
+        // cascade updates. Three flags for independent cascade control.
+        locationInherited: event.locationInherited !== false,
+        spanFromLocationInherited: event.spanFromLocationInherited !== false,
+        spanToLocationInherited: event.spanToLocationInherited !== false,
+        // Geo coordinates passed through for location auto-fill and cascade
+        lat: event.lat ?? null,
+        lng: event.lng ?? null,
+        zoom: event.zoom ?? null,
+        eventSpanFromLat: event.eventSpanFromLat ?? null,
+        eventSpanFromLng: event.eventSpanFromLng ?? null,
+        eventSpanFromZoom: event.eventSpanFromZoom ?? null,
+        eventSpanToLat: event.eventSpanToLat ?? null,
+        eventSpanToLng: event.eventSpanToLng ?? null,
+        eventSpanToZoom: event.eventSpanToZoom ?? null
     };
 
     return {

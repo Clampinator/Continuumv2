@@ -6,6 +6,9 @@ import { resolveContext } from './handle-submit/resolve-context.js';
 import { handleNewExperience } from './handle-submit/experience-lifecycle.js';
 import { processExperienceLifecycle } from './handle-submit/experience-lifecycle.js';
 import { pushSnapshot } from '../../../../lifeline/undo-manager.js';
+import { resolveLocationInheritance } from '../../../../temporal-kernel/resolve-location-inheritance.js';
+import { cascadeLocationUpdate } from '../../../../temporal-kernel/cascade-location-update.js';
+import { getActorHistory } from '../../../../state/get-actor-history.js';
 
 /**
  * AUTHORITATIVE SUBMIT HANDLER
@@ -71,31 +74,33 @@ export async function handleSubmit(actor, formData, params) {
     const spanDisabled = Boolean(formData.spanDisabled || params.spanDisabled);
     const eventIsSpan = spanDisabled ? false : Boolean(formData.eventIsSpan || params.eventIsSpan || hasSpanFacts);
 
-    // DEBUG: Span insert confirmed - compare drag coords vs form data
-    if (params.mode === 'insert' && eventIsSpan) {
-        const dragDeparture = params.departure ? { age: params.departure.eventAge, time: params.departure.eventTime } : null;
-        const dragArrival = params.arrival ? { age: params.arrival.eventAge, time: params.arrival.eventTime } : null;
-        console.warn('[INSERT-SPAN] 4-CONFIRMED (dialog submit)', JSON.stringify({
-            eventIsSpan,
-            spanDisabled,
-            hasSpanFacts,
-            formDataEventIsSpan: formData.eventIsSpan,
-            paramsEventIsSpan: params.eventIsSpan,
-            eventAge: formData.eventAge || params.ageRaw || 0,
-            eventSpanFromDate: formData.eventSpanFromDate,
-            eventSpanFromTime: formData.eventSpanFromTime,
-            eventSpanToDate: formData.eventSpanToDate,
-            eventSpanToTime: formData.eventSpanToTime,
-            dragDeparture,
-            dragArrival,
-            dragDepartureMinusArrival: dragDeparture && dragArrival ? dragDeparture.time - dragArrival.time : null,
-            insertionContext: params.insertionContext
-                ? { departureAge: params.insertionContext.departureAge, departureTime: params.insertionContext.departureTime }
-                : null
-        }));
-    }
+    // LOCATION INHERITANCE: The Kernel is the sole authority for determining
+    // whether a location was inherited (auto-filled) or manually set.
+    // The UI is a dumb pipe - it passes form values through without
+    // interpreting them. The Kernel resolves the default location at
+    // this age, parses the eventAge (which may be a formatted string
+    // from the form), and compares submitted values against the default.
+    const historyForInheritance = getActorHistory(actor);
+    const oldRecord = (mode === 'edit' && existingData) ? (existingData.record || existingData) : null;
 
-    const data = {
+    const inheritance = resolveLocationInheritance(
+        historyForInheritance,
+        {
+            eventAge: formData.eventAge || params.ageRaw || 0,
+            eventLocation: formData.eventLocation || formData.eventSpanFromLocation || "",
+            eventSpanFromLocation: formData.eventSpanFromLocation || "",
+            eventSpanToLocation: formData.eventSpanToLocation || ""
+        },
+        oldRecord,
+        actor
+    );
+
+    const eventLocation = formData.eventLocation || formData.eventSpanFromLocation || "";
+    const eventSpanFromLocation = formData.eventSpanFromLocation || "";
+    const eventSpanToLocation = formData.eventSpanToLocation || "";
+
+    // data must be let because the _editArrivalOnly path reassigns it
+    let data = {
         eventTitle: formData.eventTitle || (eventIsSpan ? "New Span" : "New Event"),
         eventNotes: formData.eventNotes || "",
         eventIsSpan: eventIsSpan,
@@ -107,16 +112,16 @@ export async function handleSubmit(actor, formData, params) {
         // Level Facts (Departure plane)
         eventDate: formData.eventDate || formData.eventSpanFromDate || "",
         eventTime: formData.eventTime || formData.eventSpanFromTime || "12:00:00",
-        eventLocation: formData.eventLocation || formData.eventSpanFromLocation || "",
+        eventLocation,
 
         // Span Facts (Departure/Arrival)
         eventSpanFromDate: formData.eventSpanFromDate || "",
         eventSpanFromTime: formData.eventSpanFromTime || "12:00:00",
-        eventSpanFromLocation: formData.eventSpanFromLocation || "",
+        eventSpanFromLocation,
         
         eventSpanToDate: formData.eventSpanToDate || "",
         eventSpanToTime: formData.eventSpanToTime || "12:00:00",
-        eventSpanToLocation: formData.eventSpanToLocation || "",
+        eventSpanToLocation,
 
         // Structural Facts
         eraId: targetEraId,
@@ -135,7 +140,12 @@ export async function handleSubmit(actor, formData, params) {
         // close just happened.
         endsExpId: closedExpObjects.length > 0
             ? closedExpObjects[0].expId
-            : (existingData?.record?.endsExpId || existingData?.endsExpId || null)
+            : (existingData?.record?.endsExpId || existingData?.endsExpId || null),
+
+        // LOCATION INHERITANCE FLAGS (from Kernel)
+        locationInherited: inheritance.locationInherited,
+        spanFromLocationInherited: inheritance.spanFromLocationInherited,
+        spanToLocationInherited: inheritance.spanToLocationInherited
     };
 
     // 4. Route to Atomic State Layer (Where physics/sorting actually happens)
@@ -167,6 +177,13 @@ export async function handleSubmit(actor, formData, params) {
             const arrivalDate = data.eventDate;
             const arrivalTime = data.eventTime;
             const arrivalLocation = data.eventSpanToLocation || existingData.record.eventSpanToLocation || "";
+            // Recompute spanToLocationInherited for arrival-only edit:
+            // if the arrival location differs from the old record, it was
+            // manually changed -> false. If unchanged, preserve old flag.
+            const oldSpanToLoc = existingData.record.eventSpanToLocation || '';
+            const arrivalLocInherited = arrivalLocation === oldSpanToLoc
+                ? (existingData.record.spanToLocationInherited !== false)
+                : false;
             data = {
                 ...data,
                 _editArrivalOnly: true,
@@ -181,9 +198,75 @@ export async function handleSubmit(actor, formData, params) {
                 eventSpanToDate: arrivalDate,
                 eventSpanToTime: arrivalTime,
                 eventSpanToLocation: arrivalLocation,
+                // Preserve level and spanFrom flags; recompute spanTo
+                locationInherited: existingData.record.locationInherited !== false,
+                spanFromLocationInherited: existingData.record.spanFromLocationInherited !== false,
+                spanToLocationInherited: arrivalLocInherited,
             };
         }
-        await updateHistoryRow(actor, existingData.id, data);
+        await updateHistoryRow(actor, existingData.id, { ...data, _skipLocationCascade: true });
+
+        // LOCATION CASCADE: When a location is manually changed on edit,
+        // propagate the new location to all downstream events that inherited
+        // their location from the edited event or its predecessors. Each
+        // cascade (level, spanFrom, spanTo) walks independently and stops
+        // at the first manually-set location.
+        //
+        // SEMANTIC BRIDGE: When a level event's location changes, the "where
+        // you are now" has changed. Downstream spans should inherit this new
+        // location for BOTH their departure (From) and arrival (To), not just
+        // the level field. So a level location change triggers all three
+        // cascades with the same values. A span-specific change only triggers
+        // the corresponding cascade plus the level cascade (because the level
+        // location mirrors the departure on span events).
+        const levelChanged = data.locationInherited === false;
+        const spanFromChanged = data.spanFromLocationInherited === false;
+        const spanToChanged = data.spanToLocationInherited === false;
+
+        // Any location change at all triggers the cascade
+        const anyLocationChanged = levelChanged || spanFromChanged || spanToChanged;
+
+        if (anyLocationChanged) {
+            const postUpdateHistory = getActorHistory(actor);
+
+            // Build cascade values: when the level location changed, it
+            // represents the character's new "current location". Downstream
+            // span events should inherit it for both From and To. When a
+            // span-specific location changed, only that cascade fires (plus
+            // level for the mirror effect on span events).
+            const levelVals = levelChanged
+                ? { eventLocation: data.eventLocation, lat: data.lat ?? null, lng: data.lng ?? null, zoom: data.zoom ?? null }
+                : null;
+
+            // Level change drives all three cascades.
+            // Span-specific change drives only that span cascade.
+            const spanFromVals = levelChanged
+                ? { eventLocation: data.eventLocation, lat: data.lat ?? null, lng: data.lng ?? null, zoom: data.zoom ?? null }
+                : spanFromChanged
+                    ? { eventLocation: data.eventSpanFromLocation, lat: data.eventSpanFromLat ?? null, lng: data.eventSpanFromLng ?? null, zoom: data.eventSpanFromZoom ?? null }
+                    : null;
+
+            const spanToVals = levelChanged
+                ? { eventLocation: data.eventLocation, lat: data.lat ?? null, lng: data.lng ?? null, zoom: data.zoom ?? null }
+                : spanToChanged
+                    ? { eventLocation: data.eventSpanToLocation, lat: data.eventSpanToLat ?? null, lng: data.eventSpanToLng ?? null, zoom: data.eventSpanToZoom ?? null }
+                    : null;
+
+            const cascadeUpdates = cascadeLocationUpdate(
+                postUpdateHistory, existingData.id,
+                levelVals, spanFromVals, spanToVals
+            );
+
+            if (cascadeUpdates.length > 0) {
+                const cascadeDbUpdates = {};
+                for (const cu of cascadeUpdates) {
+                    for (const [field, value] of Object.entries(cu.fields)) {
+                        cascadeDbUpdates[`${cu.path}.${field}`] = value;
+                    }
+                }
+                await actor.update(cascadeDbUpdates);
+            }
+        }
     } else {
         const isLog = (mode === 'log');
         await insertHistoryRow(actor, data, { isLog });

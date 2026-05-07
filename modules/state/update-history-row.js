@@ -7,6 +7,7 @@ import { getLoreContext } from './get-lore-context.js';
 import { Translator } from '../temporal-translator/temporal-translator.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
+import { cascadeLocationUpdate } from '../temporal-kernel/cascade-location-update.js';
 
 /**
  * STATE: UPDATE HISTORY ROW
@@ -119,7 +120,19 @@ export async function updateHistoryRow(actor, recordId, data) {
         sort, 
         eventAge: physicsShifts[recordId] !== undefined ? physicsShifts[recordId] : atomic.eventAge, 
         ts: atomic.ts, 
-        arrivalTs: atomic.arrivalTs 
+        arrivalTs: atomic.arrivalTs,
+        // LOCATION INHERITANCE: Pass through from caller. If the caller
+        // (dialog or spreadsheet) determined these flags, keep them.
+        // If not provided, preserve the old record's flags.
+        locationInherited: data.locationInherited !== undefined
+            ? data.locationInherited !== false
+            : (oldNode.record?.locationInherited !== false),
+        spanFromLocationInherited: data.spanFromLocationInherited !== undefined
+            ? data.spanFromLocationInherited !== false
+            : (oldNode.record?.spanFromLocationInherited !== false),
+        spanToLocationInherited: data.spanToLocationInherited !== undefined
+            ? data.spanToLocationInherited !== false
+            : (oldNode.record?.spanToLocationInherited !== false)
     };
 
     const oldPath = oldNode.path;
@@ -150,5 +163,62 @@ export async function updateHistoryRow(actor, recordId, data) {
     }
 
     await actor.update(updates);
+
+    // 7. Location Cascade (propagate location changes to inherited downstream events)
+    // Detect if any location field changed compared to the old record and whether
+    // the change was manual (locationInherited -> false). The dialog path handles
+    // cascade in handle-submit.js, but for direct calls (spreadsheet), we must
+    // also cascade here. The _skipLocationCascade flag lets the dialog suppress
+    // double-cascade since it already handles it.
+    //
+    // SEMANTIC BRIDGE: A level location change represents "where you are now".
+    // Downstream spans should inherit the new location for BOTH From and To.
+    // So a level change triggers all three cascades with the same values.
+    if (!data._skipLocationCascade) {
+        const oldRec = oldNode.record || {};
+        const levelChanged = finalRecord.eventLocation !== (oldRec.eventLocation || '')
+            && finalRecord.locationInherited === false;
+        const spanFromChanged = finalRecord.eventSpanFromLocation !== (oldRec.eventSpanFromLocation || oldRec.eventLocation || '')
+            && finalRecord.spanFromLocationInherited === false;
+        const spanToChanged = finalRecord.eventSpanToLocation !== (oldRec.eventSpanToLocation || '')
+            && finalRecord.spanToLocationInherited === false;
+
+        const anyLocationChanged = levelChanged || spanFromChanged || spanToChanged;
+
+        if (anyLocationChanged) {
+            const postUpdateHistory = getActorHistory(actor);
+            const levelVals = levelChanged
+                ? { eventLocation: finalRecord.eventLocation, lat: finalRecord.lat ?? null, lng: finalRecord.lng ?? null, zoom: finalRecord.zoom ?? null }
+                : null;
+            // Level change drives all three cascades.
+            // Span-specific change drives only that span cascade.
+            const spanFromVals = levelChanged
+                ? { eventLocation: finalRecord.eventLocation, lat: finalRecord.lat ?? null, lng: finalRecord.lng ?? null, zoom: finalRecord.zoom ?? null }
+                : spanFromChanged
+                    ? { eventLocation: finalRecord.eventSpanFromLocation, lat: finalRecord.eventSpanFromLat ?? null, lng: finalRecord.eventSpanFromLng ?? null, zoom: finalRecord.eventSpanFromZoom ?? null }
+                    : null;
+            const spanToVals = levelChanged
+                ? { eventLocation: finalRecord.eventLocation, lat: finalRecord.lat ?? null, lng: finalRecord.lng ?? null, zoom: finalRecord.zoom ?? null }
+                : spanToChanged
+                    ? { eventLocation: finalRecord.eventSpanToLocation, lat: finalRecord.eventSpanToLat ?? null, lng: finalRecord.eventSpanToLng ?? null, zoom: finalRecord.eventSpanToZoom ?? null }
+                    : null;
+
+            const cascadeUpdates = cascadeLocationUpdate(
+                postUpdateHistory, recordId,
+                levelVals, spanFromVals, spanToVals
+            );
+
+            if (cascadeUpdates.length > 0) {
+                const cascadeDbUpdates = {};
+                for (const cu of cascadeUpdates) {
+                    for (const [field, value] of Object.entries(cu.fields)) {
+                        cascadeDbUpdates[`${cu.path}.${field}`] = value;
+                    }
+                }
+                await actor.update(cascadeDbUpdates);
+            }
+        }
+    }
+
     return { id: recordId, committedTs: atomic.ts, committedArrivalTs: atomic.arrivalTs, committedAge: atomic.eventAge };
 }

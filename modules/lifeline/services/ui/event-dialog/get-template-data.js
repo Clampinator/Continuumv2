@@ -3,6 +3,7 @@ import { buildContextOptions } from '../build-context-options.js';
 import { getActorHistory } from '../../../../state/get-actor-history.js';
 import { getLoreContext } from '../../../../state/get-lore-context.js';
 import { resolveEventEra } from '../../../../temporal-kernel/resolve-event-era.js';
+import { resolveDefaultLocation } from '../../../../temporal-kernel/resolve-default-location.js';
 
 /**
  * TEMPLATE DATA PROVIDER
@@ -78,24 +79,6 @@ export function getTemplateData(actor, params) {
         eventTitle: record.eventTitle || (effectiveEventIsSpan ? "Span" : "Event")
     };
 
-    // DEBUG: Template data resolution for insert-span
-    if (mode === 'insert' && effectiveEventIsSpan) {
-        console.warn('[INSERT-SPAN] 3-TEMPLATE DATA (dialog render)', JSON.stringify({
-            effectiveEventIsSpan,
-            spanDisabled,
-            isBreathBlocked,
-            predecessorId: predecessor?.id,
-            predecessorIsSpanOrigin: predecessor?.isSpanOrigin,
-            ts: departureTime,
-            arrivalTs: arrivalTime,
-            departureMinusArrival: departureTime - arrivalTime,
-            paramsDeparture: params.departure ? { eventAge: params.departure.eventAge, eventTime: params.departure.eventTime } : null,
-            paramsArrival: params.arrival ? { eventAge: params.arrival.eventAge, eventTime: params.arrival.eventTime } : null,
-            paramsTimeRaw: params.timeRaw,
-            paramsAgeRaw: params.ageRaw
-        }));
-    }
-
     // 4. TRANSLATION GATEWAY
     // The UI does not know how to format strings. It asks the Translator.
     const history = getActorHistory(actor);
@@ -103,24 +86,45 @@ export function getTemplateData(actor, params) {
     const humanStrings = Translator.toHuman(rawFacts, history, actor);
 
     // 5. Fact Assembly
+    // LOCATION AUTO-FILL: For new events (insert/log), resolve the most
+    // recent location from history so the dialog shows it as the default.
+    // For edit mode, use the existing record values.
+    const isNewEvent = mode !== 'edit';
+    const defaultLoc = isNewEvent
+        ? resolveDefaultLocation(history, rawFacts.eventAge, actor)
+        : {
+            location: record.eventLocation || '',
+            lat: record.lat ?? null,
+            lng: record.lng ?? null,
+            zoom: record.zoom ?? null
+        };
+
     const data = {
         ...humanStrings,
         eventDate: humanStrings.date,
         eventTime: humanStrings.time,
-        eventLocation: record.eventLocation || humanStrings.locationContext.location || "",
+        eventLocation: record.eventLocation || defaultLoc.location || humanStrings.locationContext.location || "",
         mode,
         id: existingData?.id || null,
         eventNotes: record.eventNotes || "",
         eventIsRest: Boolean(record.eventIsRest),
         
         // Level Facts
-        lat: record.lat, lng: record.lng, zoom: record.zoom,
+        lat: record.lat ?? defaultLoc.lat,
+        lng: record.lng ?? defaultLoc.lng,
+        zoom: record.zoom ?? defaultLoc.zoom,
 
         // Span Facts
-        eventSpanFromLocation: record.eventSpanFromLocation || "",
-        eventSpanFromLat: record.eventSpanFromLat, eventSpanFromLng: record.eventSpanFromLng, eventSpanFromZoom: record.eventSpanFromZoom,
-        eventSpanToLocation: record.eventSpanToLocation || "",
-        eventSpanToLat: record.eventSpanToLat, eventSpanToLng: record.eventSpanToLng, eventSpanToZoom: record.eventSpanToZoom,
+        // Departure inherits the most recent location (character is "here")
+        eventSpanFromLocation: record.eventSpanFromLocation || defaultLoc.location || "",
+        eventSpanFromLat: record.eventSpanFromLat ?? defaultLoc.lat,
+        eventSpanFromLng: record.eventSpanFromLng ?? defaultLoc.lng,
+        eventSpanFromZoom: record.eventSpanFromZoom ?? defaultLoc.zoom,
+        // Arrival also inherits for consistency (user can override)
+        eventSpanToLocation: record.eventSpanToLocation || defaultLoc.location || "",
+        eventSpanToLat: record.eventSpanToLat ?? defaultLoc.lat,
+        eventSpanToLng: record.eventSpanToLng ?? defaultLoc.lng,
+        eventSpanToZoom: record.eventSpanToZoom ?? defaultLoc.zoom,
 
         // UI Helpers
         eraName: contextResult.eraName,

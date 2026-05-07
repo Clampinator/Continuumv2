@@ -98,6 +98,13 @@ export async function insertHistoryRow(actor, data, options = {}) {
         eventAge: atomic.eventAge,
         ts: atomic.ts,
         arrivalTs: atomic.arrivalTs,
+        // LOCATION INHERITANCE: Pass through from the dialog's comparison
+        // of the submitted location against the default. These flags control
+        // whether cascade updates will modify this event. Default true for
+        // backward compat (events without the flag are treated as inherited).
+        locationInherited: data.locationInherited !== false,
+        spanFromLocationInherited: data.spanFromLocationInherited !== false,
+        spanToLocationInherited: data.spanToLocationInherited !== false,
         createdAt: Date.now()
     };
 
