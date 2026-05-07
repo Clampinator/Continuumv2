@@ -189,24 +189,56 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
                 }
             }
 
-            // ELASTIC EXPANSION: Chain events can push the start boundary earlier
-            // than the opener node (e.g. a re-opened experience where a mid-chain
-            // event predates the opener). However, for CLOSED experiences the end
-            // boundary is authoritative (dateTo or closer node) and must NOT be
-            // shrunk by chain events that end before it. Ongoing experiences can
-            // still be expanded by chain events since they extend to NOW.
+            // ELASTIC EXPANSION: Chain events expand the bounding box outward
+            // from the anchored start/end corners. "Outward" means away from
+            // the center of the box, so:
+            //   - startAge moves toward the LOWER age (younger) if a chain event
+            //     is younger than the current start
+            //   - endAge moves toward the HIGHER age (older) if a chain event is
+            //     older than the current end
+            //   - startTime and endTime expand in the direction each one points
+            //
+            // DIRECTION-AWARE: Experiences can extend upward on the graph
+            // (endTime < startTime) when a character spans backward in time.
+            // The expansion must respect the directional polarity of each axis
+            // rather than blindly applying Math.min/Math.max, which would flip
+            // an upward experience into a downward one.
+            //
+            // For CLOSED experiences, the end boundary is authoritative (dateTo or
+            // closer node) and must NOT be shrunk by chain events. Ongoing
+            // experiences can be expanded by chain events since they extend to NOW.
             if (chain.length > 0) {
                 const firstAge = _age(chain[0]);
                 const firstTime = _openTime(chain[0]);
+                // Expand start toward younger age
                 if (firstAge !== null) startAge = Math.min(startAge, firstAge);
-                if (firstTime !== null) startTime = Math.min(startTime, firstTime);
+                // Expand start time toward the direction it's "pointing":
+                // if startTime > endTime (upward experience), expand start
+                // toward LATER times; otherwise expand toward EARLIER times.
+                if (firstTime !== null) {
+                    if (startTime >= endTime) {
+                        startTime = Math.max(startTime, firstTime);
+                    } else {
+                        startTime = Math.min(startTime, firstTime);
+                    }
+                }
                 // Only expand the end boundary if the experience is ongoing.
                 // Closed experiences have an authoritative end from dateTo/closer.
                 if (isOngoing) {
                     const lastAge = _age(chain[chain.length - 1]);
                     const lastTime = _time(chain[chain.length - 1]);
+                    // Expand end toward older age
                     if (lastAge !== null) endAge = Math.max(endAge, lastAge);
-                    if (lastTime !== null) endTime = Math.max(endTime, lastTime);
+                    // Expand end time outward from the center:
+                    // if endTime >= startTime (downward experience), expand
+                    // toward LATER times; otherwise expand toward EARLIER times.
+                    if (lastTime !== null) {
+                        if (endTime >= startTime) {
+                            endTime = Math.max(endTime, lastTime);
+                        } else {
+                            endTime = Math.min(endTime, lastTime);
+                        }
+                    }
                 }
             }
 

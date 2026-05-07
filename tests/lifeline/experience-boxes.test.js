@@ -603,4 +603,126 @@ describe('Experience Box Geometry Engine', () => {
       expect(exp1.endTime).toBe(closerTime);
       expect(exp1.isClosed).toBe(true);
   });
+
+  // UPWARD EXPERIENCE TESTS: endTime < startTime (character spans backward in time)
+
+  it('should preserve endTime < startTime for upward-spanning closed experiences', () => {
+      // Character started an experience in 2025, then spanned back to 2020 and
+      // closed it there. The end-point is ABOVE the start on the Y-axis.
+      const startTime = new Date('2025-01-01T12:00:00Z').getTime();
+      const endTime = new Date('2020-01-01T12:00:00Z').getTime();
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Upward Closed', dateFrom: '2025-01-01', dateTo: '2020-01-01' }
+          }
+      }];
+      const levelNodes = [
+          { age: SECONDS_IN_YEAR * 5, time: startTime, expId: 'exp1',
+            record: { startsExpId: 'exp1' } },
+          { age: SECONDS_IN_YEAR * 10, time: endTime, expId: 'exp1',
+            record: { isExpEnd: true } }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 12, time: new Date('2022-01-01T12:00:00Z').getTime() };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      const exp1 = results.find(r => r.id === 'exp1');
+
+      // endTime must remain BELOW startTime - the experience extends upward
+      expect(exp1.endTime).toBeLessThan(exp1.startTime);
+      expect(exp1.startTime).toBe(startTime);
+      expect(exp1.endTime).toBe(endTime);
+      expect(exp1.isClosed).toBe(true);
+  });
+
+  it('should preserve endTime < startTime for upward-spanning ongoing experiences', () => {
+      // Character opened an experience at year 2025, then spanned back to 2020.
+      // NOW is at year 2020 (above the start). The ongoing box must extend upward.
+      const startTime = new Date('2025-01-01T12:00:00Z').getTime();
+      const nowTime = new Date('2020-06-01T12:00:00Z').getTime();
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Upward Ongoing', dateFrom: '2025-01-01', dateTo: '' }
+          }
+      }];
+      const levelNodes = [
+          { age: SECONDS_IN_YEAR * 5, time: startTime, expId: 'exp1',
+            record: { startsExpId: 'exp1' } }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 10, time: nowTime };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      const exp1 = results.find(r => r.id === 'exp1');
+
+      // endTime must be less than startTime - the box extends upward
+      expect(exp1.isOngoing).toBe(true);
+      expect(exp1.endTime).toBeLessThan(exp1.startTime);
+      expect(exp1.endTime).toBe(nowTime);
+      expect(exp1.startTime).toBe(startTime);
+  });
+
+  it('should preserve endTime < startTime with elastic expansion for upward ongoing experience', () => {
+      // Upward ongoing experience with chain events that span the time range.
+      // Elastic expansion must not flip the startTime/endTime relationship.
+      const startTime = new Date('2025-01-01T12:00:00Z').getTime();
+      const chainTime = new Date('2023-01-01T12:00:00Z').getTime();
+      const nowTime = new Date('2020-06-01T12:00:00Z').getTime();
+      const sortedEras = [{
+          id: 'era1',
+          experiences: {
+              'exp1': { id: 'exp1', name: 'Upward Elastic', dateFrom: '2025-01-01', dateTo: '' }
+          }
+      }];
+      const levelNodes = [
+          { age: SECONDS_IN_YEAR * 5, time: startTime, expId: 'exp1',
+            record: { startsExpId: 'exp1' } },
+          { age: SECONDS_IN_YEAR * 7, time: chainTime, expId: 'exp1' }
+      ];
+      const nowNode = { age: SECONDS_IN_YEAR * 10, time: nowTime };
+
+      const results = generateExperiences(sortedEras, levelNodes, nowNode);
+      const exp1 = results.find(r => r.id === 'exp1');
+
+      // The endTime must remain less than startTime - upward direction preserved
+      expect(exp1.isOngoing).toBe(true);
+      expect(exp1.endTime).toBeLessThan(exp1.startTime);
+  });
+
+  it('should render upward experience box with positive height in manifest', async () => {
+      // Verify that an upward experience (endTime < startTime) produces a valid
+      // screen-space bounding box with non-negative width and height in the
+      // manifest generator. The Math.abs/Math.min in projection handles this.
+      const state = {
+          segments: [],
+          nodes: [],
+          experiences: [{
+              id: 'exp1',
+              name: 'Upward Manifest',
+              eraId: 'era1',
+              startAge: 0,
+              endAge: 200,
+              startTime: 1700000000000,
+              endTime: 1600000000000,
+              isOngoing: false,
+              isClosed: true,
+              opacity: 0.5,
+              bonus: 1
+          }],
+          eras: []
+      };
+
+      // Mock viewport: simple linear transform with inverted Y (larger time = smaller Y)
+      const viewport = {
+          worldToScreen: (x, y) => ({ x: x * 0.1, y: y * -0.0001 + 200000 }),
+          container: { getBoundingClientRect: () => ({ width: 800, height: 600 }) }
+      };
+
+      const { generateManifest } = await import('../../modules/span-graph/projection/manifest-generator.js');
+      const manifest = generateManifest(state, viewport);
+
+      expect(manifest.experiences).toHaveLength(1);
+      expect(manifest.experiences[0].width).toBeGreaterThanOrEqual(0);
+      expect(manifest.experiences[0].height).toBeGreaterThanOrEqual(0);
+  });
 });

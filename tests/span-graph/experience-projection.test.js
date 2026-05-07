@@ -12,7 +12,8 @@ function createMockViewport(panX = 0, panY = 0, zoom = 0.1) {
       x: (x * zoom) + panX,
       y: (y * zoom * 0.001) + panY
     }),
-    viewState: { panX, panY, zoom }
+    viewState: { panX, panY, zoom },
+    container: { getBoundingClientRect: () => ({ width: 800, height: 600 }) }
   };
 }
 
@@ -121,5 +122,63 @@ describe('Manifest Generator: Experience Projection', () => {
     expect(manifest.experiences).toHaveLength(2);
     expect(manifest.experiences[0].id).toBe('a');
     expect(manifest.experiences[1].id).toBe('b');
+  });
+
+  it('should project upward experience (endTime < startTime) with correct screen box', () => {
+    // When endTime < startTime, the experience extends upward on the graph.
+    // The manifest generator must still produce a valid screen-space bounding
+    // box with non-negative width and height via Math.abs/Math.min.
+    const state = createMockState([{
+      id: 'exp1',
+      name: 'Upward Exp',
+      eraId: 'era1',
+      startAge: 0,
+      endAge: 100,
+      // startTime > endTime: character spanned backward in objective time
+      startTime: 2000,
+      endTime: 1000,
+      isOngoing: false,
+      isClosed: true,
+      opacity: 0.8,
+      bonus: 1
+    }]);
+
+    const viewport = createMockViewport();
+    const manifest = generateManifest(state, viewport);
+
+    expect(manifest.experiences).toHaveLength(1);
+    const projected = manifest.experiences[0];
+
+    // Height must be non-negative even when endTime < startTime
+    expect(projected.height).toBeGreaterThanOrEqual(0);
+    expect(projected.width).toBeGreaterThanOrEqual(0);
+    // Domain properties pass through
+    expect(projected.isClosed).toBe(true);
+    expect(projected.opacity).toBe(0.8);
+  });
+
+  it('should project upward ongoing experience with valid bounding box', () => {
+    // Ongoing experience where NOW is above the start (character spanned back)
+    const state = createMockState([{
+      id: 'exp2',
+      name: 'Upward Ongoing',
+      eraId: 'era1',
+      startAge: 10,
+      endAge: 50,
+      startTime: 1600000000000,
+      endTime: 1500000000000,
+      isOngoing: true,
+      isClosed: false,
+      opacity: 1.0,
+      bonus: 3
+    }]);
+
+    const viewport = createMockViewport();
+    const manifest = generateManifest(state, viewport);
+
+    expect(manifest.experiences).toHaveLength(1);
+    expect(manifest.experiences[0].height).toBeGreaterThanOrEqual(0);
+    expect(manifest.experiences[0].width).toBeGreaterThanOrEqual(0);
+    expect(manifest.experiences[0].isOngoing).toBe(true);
   });
 });
