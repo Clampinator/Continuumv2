@@ -125,7 +125,19 @@ export class SpanGraphViewport {
       if (updates) this.setViewState(updates);
   }
 
-  setViewState(newState) { this.viewState = { ...this.viewState, ...newState }; this._render(); }
+   setViewState(newState) { this.viewState = { ...this.viewState, ...newState }; this._render(); }
+
+   // AUTOCENTER: Re-attempt autofocus on each render until it succeeds.
+   // The Lifeline section starts collapsed, so the container has zero size
+   // on first open. Once the user expands it, _render fires but autoFocus
+   // already returned null. This ensures birth node lands in the lower-left
+   // quadrant the first time the graph has real dimensions.
+   _ensureAutofocus() {
+       if (this.viewState.initialized) return;
+       const rect = this.container.getBoundingClientRect();
+       if (rect.width === 0 || rect.height === 0) return;
+       this.autoFocus();
+   }
 
   /**
    * Centers the viewport on a specific subjective age.
@@ -196,7 +208,10 @@ export class SpanGraphViewport {
       this.latestManifest = generateManifest(this.latestState, this, interaction);
 
       // 4. THE DUMB PIPE PUSH
-      renderViewport(this, this.latestState, this.latestManifest); 
+      renderViewport(this, this.latestState, this.latestManifest);
+
+      // 5. AUTOCENTER: First render with real dimensions triggers autofocus.
+      this._ensureAutofocus();
   }
 
   worldToScreen(xCoord, yCoordinate) {
