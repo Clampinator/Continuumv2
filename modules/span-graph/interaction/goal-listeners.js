@@ -8,6 +8,7 @@
  */
 import { showCreateGoalDialog } from '../../span-graph-dialog-create-goal.js';
 import { showEditGoalDialog } from '../../span-graph-ui-dialogs.js';
+import { linkGoalToEvent } from '/systems/continuum-v2/modules/state/link-goal-to-event.js';
 
 let _goalFadeTimeout = null;
 
@@ -181,36 +182,12 @@ export function attachGoalListeners(html, viewport) {
             }
 
             if (droppedNode && viewport.actor) {
-                // Use eraId/expId from manifest node for path construction
                 const eraId = droppedNode.eraId;
                 const expId = droppedNode.expId;
                 const eventId = droppedNode.id;
 
                 if (eraId && eventId) {
-                    let eventData, eventPath, legacyPath;
-                    if (expId) {
-                        eventData = viewport.actor.system.eras[eraId]?.experiences[expId]?.events[eventId];
-                        eventPath = `system.eras.${eraId}.experiences.${expId}.events.${eventId}.linkedGoalIds`;
-                        legacyPath = `system.eras.${eraId}.experiences.${expId}.events.${eventId}.linkedGoalId`;
-                    } else {
-                        eventData = viewport.actor.system.eras[eraId]?.events[eventId];
-                        eventPath = `system.eras.${eraId}.events.${eventId}.linkedGoalIds`;
-                        legacyPath = `system.eras.${eraId}.events.${eventId}.linkedGoalId`;
-                    }
-
-                    if (eventData) {
-                        const existingGoals = eventData.linkedGoalIds || [];
-                        if (eventData.linkedGoalId) existingGoals.push(eventData.linkedGoalId);
-
-                        if (!existingGoals.includes(goalId)) {
-                            const updatedGoals = [...new Set([...existingGoals, goalId])];
-                            await viewport.actor.update({
-                                [eventPath]: updatedGoals,
-                                [legacyPath]: null
-                            });
-                            ui.notifications.info('Goal linked to event.');
-                        }
-                    }
+                    await linkGoalToEvent(viewport.actor, goalId, eraId, expId, eventId);
                 }
             }
 
