@@ -193,14 +193,9 @@ export async function openSpanDialog(sheet, params) {
         buttons: buttons,
         default: "save",
         close: () => {
-            // Revert NOW node position only on cancel
-            if (!confirmed && params.mode === 'log' && viewState.dragStartWorld) {
-                if (graphData.nowNode) {
-                    graphData.nowNode.eventAge = viewState.dragStartWorld.eventAge;
-                    graphData.nowNode.eventTime = viewState.dragStartWorld.eventTime;
-                }
-            }
-
+            // On cancel, the NOW node reverts to its DB value automatically
+            // when the viewport re-reads from the actor on the next render.
+            // No manual mutation needed.
             viewState.interactionMode = 'pan';
             viewState.isCommittingLog = false;
 

@@ -39,10 +39,7 @@ export async function handleNodeDrop(event, svg, sheet, viewState, graphData) {
         return;
     }
 
-    // INVALID / TOO SMALL: revert
-    graphData.nowNode.age = viewState.dragStartWorld.age;
-    graphData.nowNode.time = viewState.dragStartWorld.time;
-
+    // INVALID / TOO SMALL: re-render from DB state (NOW reverts automatically)
     if (movedDist <= 5) {
         ClickHandler.handle(viewState.pointerDownTarget, sheet, false);
     }

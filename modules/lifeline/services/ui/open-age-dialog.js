@@ -171,11 +171,9 @@ export async function openEventDialog(sheet, params) {
         buttons: buttons,
         default: "save",
         close: () => {
-            if (!confirmed && params.mode === 'log' && viewState.dragStartWorld) {
-                graphData.nowNode.age = viewState.dragStartWorld.age;
-                graphData.nowNode.time = viewState.dragStartWorld.time;
-            }
-
+            // On cancel, the NOW node reverts to its DB value automatically
+            // when renderGraph re-reads from actor data on the next render.
+            // No manual mutation needed.
             viewState.interactionMode = 'pan';
             const svg = sheet.element.find('.span-graph-svg')[0];
             if (svg) renderGraph(svg, viewState, graphData);

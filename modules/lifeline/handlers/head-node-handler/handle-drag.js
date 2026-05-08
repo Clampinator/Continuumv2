@@ -26,7 +26,8 @@ export function handleDrag(event, rect, viewState, graphData) {
     viewState.activeDragType = mode;
     viewState.isDragValid = isValid;
     
-    // Update the visual head node
+    // VISUAL PREVIEW ONLY: Not committed to DB. The NOW node reverts
+    // if the drag is cancelled or the dialog is dismissed.
     graphData.nowNode.age = constrained.age;
     graphData.nowNode.time = constrained.time;
 
