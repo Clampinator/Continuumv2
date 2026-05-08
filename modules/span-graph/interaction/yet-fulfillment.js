@@ -1,21 +1,14 @@
 /**
- * YET FULFILLMENT HANDLER
- * When a Yet node is dragged onto the NOW node, it fulfills the loop:
- * creates a permanent history event at the NOW position and marks the Yet as done.
- 
- * This is the spacetime loop closure mechanic - the character has reached
- * the point in their life where the Yet event was always meant to happen.
- * The fulfillment event becomes a permanent record in the history.
- *
- * State layer authority: insertHistoryRow creates the event,
- * markYetFulfilled sets the flag. Both go through the DB.
+ * YET FULFILLMENT HANDLER (UI LAYER)
+ * When a Yet node is dragged onto the NOW node, it fulfills the loop.
+ * This is now a thin UI delegate: it reads the NOW position from the
+ * viewport and passes it to the Engine command, which owns all domain
+ * decisions (record structure, era resolution, undo atomicity).
  */
-import { markYetFulfilled } from '/systems/continuum-v2/modules/state/mark-yet-fulfilled.js';
-import { insertHistoryRow } from '/systems/continuum-v2/modules/state/insert-history-row.js';
-import { pushSnapshot } from '/systems/continuum-v2/modules/lifeline/undo-manager.js';
+import { fulfillYetCommand } from '/systems/continuum-v2/modules/temporal-engine/commands/fulfill-yet.js';
 
 /**
- * Fulfills a Yet by inserting a permanent history row and marking it done.
+ * Fulfills a Yet by delegating to the Engine command.
  *
  * @param {Actor} actor - The Foundry actor
  * @param {string} yetId - The ID of the Yet to fulfill
@@ -28,33 +21,8 @@ export async function fulfillYet(actor, yetId, viewport) {
         return;
     }
 
-    // Capture state before the dual write (history row + yet done flag)
-    // so the entire fulfillment can be undone as one operation
-    pushSnapshot(actor);
-
-    // Resolve the NOW node's position for the fulfillment event
     const nowNode = viewport?.latestState?.nowNode;
-    if (nowNode) {
-        // Find the era and experience containing the NOW node
-        const targetEraId = nowNode.eraId || Object.keys(actor.system.eras || {})[0];
-        const targetExpId = nowNode.expId || null;
+    if (!nowNode) return;
 
-        const record = {
-            eventTitle: `Fulfillment: ${yetData.description || 'Yet event'}`,
-            eventNotes: 'Closed the spacetime loop by fulfilling the Yet.',
-            eventAge: nowNode.x,
-            eventIsSpan: false,
-            eraId: targetEraId,
-            expId: targetExpId,
-            isYetFulfillment: true
-        };
-
-        await insertHistoryRow(actor, record);
-    }
-
-    await markYetFulfilled(actor, yetId);
-
-    ui.notifications.info(
-        `Loop Closed: "${yetData.description || 'Yet event'}" fulfilled.`
-    );
+    await fulfillYetCommand(actor, yetId, nowNode);
 }

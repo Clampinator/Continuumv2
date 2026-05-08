@@ -1,8 +1,6 @@
-import { insertHistoryRow } from '/systems/continuum-v2/modules/state/insert-history-row.js';
-import { markYetFulfilled } from '/systems/continuum-v2/modules/state/mark-yet-fulfilled.js';
+import { fulfillYetCommand } from '/systems/continuum-v2/modules/temporal-engine/commands/fulfill-yet.js';
 import { Sound } from '../../../sound-manager.js';
 import { showYetDialog } from '../../../span-graph-ui-dialogs.js';
-import { pushSnapshot } from '/systems/continuum-v2/modules/lifeline/undo-manager.js';
 
 export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
     const rect = svg.getBoundingClientRect();
@@ -19,36 +17,23 @@ export async function handleYetDrop(event, svg, sheet, viewState, graphData) {
     viewState.isYetFulfillmentTarget = false;
 
     if (targetNode) {
-        // MILESTONE 5: FULFILLMENT LOOP
         const yetId = viewState.draggedYetId;
-        const yetData = sheet.actor.system.theYet[yetId];
-        const now = graphData.nowNode;
+        const yetData = sheet.actor.system.theYet?.[yetId];
+        if (!yetData) return;
 
-        // Capture state before the dual write (history row + yet done flag)
-        pushSnapshot(sheet.actor);
-
-        // Identify context for era/expId via the last node
+        // Build nowNode in legacy {age, time} format; the Engine command
+        // normalizes via x ?? age so both shapes work
         const lastNode = graphData.levelNodes[graphData.levelNodes.length - 1];
-        const targetEraId = lastNode?.eraId || Object.keys(sheet.actor.system.eras || {})[0];
-        const targetExpId = lastNode?.expId || null;
-
-        // Create the fulfillment event via State layer
-        const record = {
-            eventTitle: `Fulfillment: ${yetData.description}`,
-            eventNotes: 'Closed the spacetime loop by fulfilling the Yet.',
-            eventAge: now.age,
-            eventIsSpan: false,
-            eraId: targetEraId,
-            expId: targetExpId,
-            isYetFulfillment: true
+        const nowNode = {
+            age: graphData.nowNode.age,
+            time: graphData.nowNode.time,
+            eraId: lastNode?.eraId || Object.keys(sheet.actor.system.eras || {})[0],
+            expId: lastNode?.expId || null
         };
 
-        await insertHistoryRow(sheet.actor, record);
-        await markYetFulfilled(sheet.actor, yetId);
+        await fulfillYetCommand(sheet.actor, yetId, nowNode);
 
         Sound.confirm();
-        ui.notifications.info(`Loop Closed: "${yetData.description}" fulfilled.`);
-
         viewState.interactionMode = 'pan';
         sheet.render();
     } else if (!viewState.hasMovedSignificantDistance) {
