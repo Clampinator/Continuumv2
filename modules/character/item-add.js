@@ -38,7 +38,7 @@ export async function handleCharacterItemAdd(sheet, event) {
             updates[`system.relationships.${newId}`] = { id: newId, name: "", relationshipType: "Acquaintance", importance: "Social", when: "", where: "" };
             break;
         case 'spanningAbility':
-            updates[`system.spanning.abilities.${newId}`] = { id: newId, name: "", description: "" };
+            updates[`system.spanning.abilities.${newId}`] = { id: newId, name: "", description: "", value: 0 };
             break;
         case 'metabilityApplication':
             updates[`system.metabilities.applications.${newId}`] = { id: newId, name: "", description: "" };

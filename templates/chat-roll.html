@@ -45,6 +45,13 @@
       </div>
       {{/if}}
 
+      {{#if abilityName}}
+      <div class="grid-cell" style="grid-column: span 3; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,242,255,0.05);">
+          <span class="cell-label" style="color: #67e8f9;">Ability: {{abilityName}}</span>
+          <span class="cell-value" style="color: #67e8f9;">{{numberFormat abilityBonus sign=true}}</span>
+      </div>
+      {{/if}}
+
       {{#if (gt armorPenalty 0)}}
       <div class="grid-cell" style="grid-column: span 3; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(255,165,0,0.05);">
           <span class="cell-label" style="color: #fb923c;">Armor/Weight Penalty</span>

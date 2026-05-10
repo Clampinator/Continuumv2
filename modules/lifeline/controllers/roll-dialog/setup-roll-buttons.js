@@ -82,10 +82,12 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
             weaponType: btn.closest('.combat-subsection')?.find('h3').text().toLowerCase().includes('melee') ? 'melee' : 'ranged'
         });
 
+        const isSpanning = key === 'spanning';
         html.find('.rolling-attribute-name').text(btn.text());
         html.find('.dialog-resonance-section').toggle(!isMeta && !isVehicle);
         html.find('.dialog-push-section').toggle(!!isMeta || !!isVehicle);
-        html.find('.dialog-gear-section').toggle(!isMeta);
+        html.find('.dialog-gear-section').toggle(!isMeta && !isSpanning);
+        html.find('.dialog-spanning-ability-section').toggle(isSpanning);
         html.find('.dialog-modifier-section').toggle(!!isMeta);
         html.find('input[name="resonance_choice"][value="none"]').prop('checked', true);
 
@@ -151,6 +153,16 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
             const sel = html.find('.experience-resonance-select').empty().append('<option value="0">Select Experience...</option>');
             if (isWeapon) sel.append('<option value="1">Generic Experience (+1)</option>');
             exps.forEach(ex => sel.append(`<option value="${ex.bonus}">${ex.name} (+${ex.bonus})</option>`));
+
+            if (isSpanning) {
+                const abilSelect = html.find('.spanning-ability-select').empty();
+                abilSelect.append('<option value="0">None (+0)</option>');
+                const abilities = sheet.actor.system.spanning?.abilities || {};
+                Object.values(abilities).forEach(ab => {
+                    const val = Number(ab.value) || 0;
+                    if (ab.name) abilSelect.append(`<option value="${val}">${ab.name} (+${val})</option>`);
+                });
+            }
         }
 
         injectBenefitButtons(html, sheet.actor, benefitRef);

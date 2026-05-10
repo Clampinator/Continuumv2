@@ -21,7 +21,7 @@ export async function performRollAction(params) {
         finalTarget, rollType, flavorText, actor, isApRoll,
         weaponId, weaponType, attributeName, baseValue,
         sitMod, resonanceName, resBonus, pushBonus, gearName, gearBonus,
-        benefitBonus = 0
+        benefitBonus = 0, abilityName = null, abilityBonus = 0
     } = params;
 
     // 1. Roll Evaluation
@@ -115,7 +115,7 @@ export async function performRollAction(params) {
         const activeRank = Number(foundry.utils.getProperty(actor.system, `metabilities.${cleanAttrKey}.value`)) || 0;
         mathSummary = `Highest ${highestRank} + Active ${activeRank} + App ${resBonus} + Mod ${sitMod}${pushBonus !== 0 ? ` + Push ${pushBonus}` : ''}${gearBonus ? ` + Gear ${gearBonus}` : ''} = TN ${finalTarget}`;
     } else {
-        mathSummary = `Base ${rawAttrVal} + Mod ${sitMod} + Res ${resBonus}${benefitBonus > 0 ? ` + Ben ${benefitBonus}` : ''}${gearBonus ? ` + Gear ${gearBonus}` : ''} - IP ${ipPenalty}${armorPenalty > 0 ? ` - ARM ${armorPenalty}` : ''}${mindPenalty > 0 ? ` - APP ${mindPenalty}` : ''} = TN ${finalTarget}`;
+        mathSummary = `Base ${rawAttrVal} + Mod ${sitMod} + Res ${resBonus}${benefitBonus > 0 ? ` + Ben ${benefitBonus}` : ''}${gearBonus ? ` + Gear ${gearBonus}` : ''}${abilityBonus > 0 ? ` + Abil ${abilityBonus}` : ''} - IP ${ipPenalty}${armorPenalty > 0 ? ` - ARM ${armorPenalty}` : ''}${mindPenalty > 0 ? ` - APP ${mindPenalty}` : ''} = TN ${finalTarget}`;
     }
 
     const displayAttr = attributeName ? getAttributeLabel(attributeName).toUpperCase() : 'CHECK';
@@ -204,6 +204,8 @@ export async function performRollAction(params) {
         mitigation,
         consequence,
         gearName: gearName || null,
-        gearBonus: gearBonus || 0
+        gearBonus: gearBonus || 0,
+        abilityName: abilityName || null,
+        abilityBonus: abilityBonus || 0
     });
 }

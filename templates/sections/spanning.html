@@ -71,7 +71,15 @@
       {{#each spanningAbilities as |ability|}}
       <div class="spanning-ability-item" data-id="{{ability.id}}">
         <div class="spanning-ability-content">
-            <input type="text" class="spanning-ability-name" name="system.spanning.abilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Ability Name" />
+            <div class="spanning-ability-header">
+                <input type="text" class="spanning-ability-name" name="system.spanning.abilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Ability Name" />
+                <select class="spanning-ability-value" name="system.spanning.abilities.{{ability.id}}.value" data-tooltip="Ability proficiency (0-3)">
+                    <option value="0" {{#if (eq ability.value 0)}}selected{{/if}}>0</option>
+                    <option value="1" {{#if (eq ability.value 1)}}selected{{/if}}>1</option>
+                    <option value="2" {{#if (eq ability.value 2)}}selected{{/if}}>2</option>
+                    <option value="3" {{#if (eq ability.value 3)}}selected{{/if}}>3</option>
+                </select>
+            </div>
             <textarea name="system.spanning.abilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe ability...">{{ability.description}}</textarea>
         </div>
         <div class="spanning-ability-controls">

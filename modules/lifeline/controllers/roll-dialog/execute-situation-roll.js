@@ -61,9 +61,18 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
         }
     }
 
+    // Spanning ability bonus (replaces gear for span rolls)
+    let abilityBonus = 0;
+    let abilityName = null;
+    if (key === 'spanning') {
+        const abilSelect = html.find('.spanning-ability-select');
+        abilityBonus = Number(abilSelect.val()) || 0;
+        if (abilityBonus > 0) abilityName = abilSelect.find('option:selected').text().split(' (+')[0];
+    }
+
     const sitMod = Number(html.find('input[name="situational_modifier"]').val()) || 0;
     const benefitBonus = benefitRef ? benefitRef.bonus : 0;
-    const total = Math.floor(base + bonus + appBonus + sitMod + benefitBonus + gearBonus);
+    const total = Math.floor(base + bonus + appBonus + sitMod + benefitBonus + gearBonus + abilityBonus);
 
     const resSelect = html.find('.experience-resonance-select');
     const isExpSelected = resSelect.val() !== "0";
@@ -93,7 +102,9 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
         resBonus: Math.floor(isMeta ? appBonus : bonus),
         benefitBonus: Math.floor(benefitBonus),
         gearName,
-        gearBonus: Math.floor(gearBonus)
+        gearBonus: Math.floor(gearBonus),
+        abilityName,
+        abilityBonus: Math.floor(abilityBonus)
     });
 
     content.removeData('gearName');
