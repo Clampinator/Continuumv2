@@ -5,33 +5,33 @@
 
 const RANGED_WEAPON_RAW_DATA = {
   "none": { ammo: 0, rof: 0, conceal: 0, damageD: 0, damageC: 0, damageB: 0, damageA: 0, damageG: 0, damageF: 0, damageE: 0, weight: 0 },
-  "Derringer": { ammo: 2, rof: 1, conceal: -4, damageG: 2, damageF: 3, damageE: 3, damageD: 2, damageC: 2, damageB: 3, damageA: 4, weight: 0.3 },
+  "Derringer": { ammo: 2, rof: 1, conceal: -4, damageG: 2, damageF: 3, damageE: 3, damageD: 2, damageC: 2, damageB: 3, damageA: 4, weight: 0 },
   "Revolver": { ammo: 6, rof: 1, conceal: -2, damageG: 2, damageF: 3, damageE: 3, damageD: 2, damageC: 4, damageB: 4, damageA: 5, weight: 1.0 },
-  "Semi-Auto": { ammo: 15, rof: 2, conceal: -2, damageG: 3, damageF: 3, damageE: 3, damageD: 2, damageC: 4, damageB: 4, damageA: 5, weight: 0.8 },
-  "Heavy Pistol": { ammo: 12, rof: 1, conceal: 0, damageG: 3, damageF: 4, damageE: 5, damageD: 4, damageC: 6, damageB: 6, damageA: 8, weight: 1.2 },
-  "Hunting Rifle": { ammo: 8, rof: 1, conceal: 6, damageG: 3, damageF: 4, damageE: 5, damageD: 4, damageC: 6, damageB: 7, damageA: 9, weight: 3.5 },
-  "Shotgun": { ammo: 8, rof: 1, conceal: 4, damageG: 5, damageF: 5, damageE: 6, damageD: 5, damageC: 7, damageB: 8, damageA: 10, weight: 3.5 },
-  "Shotgun (Solid Slugs)": { ammo: 8, rof: 1, conceal: 4, damageG: 7, damageF: 7, damageE: 10, damageD: 8, damageC: 12, damageB: 12, damageA: 20, weight: 3.5 },
-  "Assault Rifle": { ammo: 40, rof: 5, conceal: 0, damageG: 5, damageF: 4, damageE: 6, damageD: 4, damageC: 7, damageB: 7, damageA: 9, weight: 3.5 },
-  "SMG": { ammo: 30, rof: 3, conceal: 0, damageG: 3, damageF: 3, damageE: 4, damageD: 4, damageC: 4, damageB: 5, damageA: 6, weight: 2.5 },
-  "LMG": { ammo: 100, rof: 10, conceal: 4, damageG: 4, damageF: 4, damageE: 5, damageD: 5, damageC: 6, damageB: 7, damageA: 8, weight: 10.0 },
-  "HMG": { ammo: 100, rof: 10, conceal: 6, damageG: 5, damageF: 5, damageE: 6, damageD: 6, damageC: 7, damageB: 8, damageA: 10, weight: 35.0 },
-  "Taser": { ammo: 2, rof: 1, conceal: -1, damageG: 2, damageF: 2, damageE: 2, damageD: 1, damageC: 2, damageB: 2, damageA: 4, weight: 0.5 },
-  "Crossbow": { ammo: 1, rof: 1, conceal: 6, damageG: 3, damageF: 3, damageE: 4, damageD: 3, damageC: 5, damageB: 7, damageA: 7, weight: 2.5 }
+  "Semi-Auto": { ammo: 15, rof: 2, conceal: -2, damageG: 3, damageF: 3, damageE: 3, damageD: 2, damageC: 4, damageB: 4, damageA: 5, weight: 1 },
+  "Heavy Pistol": { ammo: 12, rof: 1, conceal: 0, damageG: 3, damageF: 4, damageE: 5, damageD: 4, damageC: 6, damageB: 6, damageA: 8, weight: 1 },
+  "Hunting Rifle": { ammo: 8, rof: 1, conceal: 6, damageG: 3, damageF: 4, damageE: 5, damageD: 4, damageC: 6, damageB: 7, damageA: 9, weight: 3 },
+  "Shotgun": { ammo: 8, rof: 1, conceal: 4, damageG: 5, damageF: 5, damageE: 6, damageD: 5, damageC: 7, damageB: 8, damageA: 10, weight: 3 },
+  "Shotgun (Solid Slugs)": { ammo: 8, rof: 1, conceal: 4, damageG: 7, damageF: 7, damageE: 10, damageD: 8, damageC: 12, damageB: 12, damageA: 20, weight: 3 },
+  "Assault Rifle": { ammo: 40, rof: 5, conceal: 0, damageG: 5, damageF: 4, damageE: 6, damageD: 4, damageC: 7, damageB: 7, damageA: 9, weight: 3 },
+  "SMG": { ammo: 30, rof: 3, conceal: 0, damageG: 3, damageF: 3, damageE: 4, damageD: 4, damageC: 4, damageB: 5, damageA: 6, weight: 2 },
+  "LMG": { ammo: 100, rof: 10, conceal: 4, damageG: 4, damageF: 4, damageE: 5, damageD: 5, damageC: 6, damageB: 7, damageA: 8, weight: 5 },
+  "HMG": { ammo: 100, rof: 10, conceal: 6, damageG: 5, damageF: 5, damageE: 6, damageD: 6, damageC: 7, damageB: 8, damageA: 10, weight: 15 },
+  "Taser": { ammo: 2, rof: 1, conceal: -1, damageG: 2, damageF: 2, damageE: 2, damageD: 1, damageC: 2, damageB: 2, damageA: 4, weight: 0 },
+  "Crossbow": { ammo: 1, rof: 1, conceal: 6, damageG: 3, damageF: 3, damageE: 4, damageD: 3, damageC: 5, damageB: 7, damageA: 7, weight: 3 }
 };
 
 const MELEE_WEAPON_DATA = {
   "none": { conceal: 0, damage: 0, weight: 0 },
   "Punch": { conceal: -4, damage: 0, weight: 0 },
   "Kick": { conceal: -4, damage: 1, weight: 0 },
-  "Knife": { conceal: -4, damage: 1, weight: 0.3 },
-  "Sword (Small)": { conceal: -1, damage: 2, weight: 0.8 },
-  "Sword (Medium)": { conceal: 1, damage: 3, weight: 1.2 },
-  "Sword (Large)": { conceal: 3, damage: 4, weight: 1.8 },
+  "Knife": { conceal: -4, damage: 1, weight: 0 },
+  "Sword (Small)": { conceal: -1, damage: 2, weight: 1 },
+  "Sword (Medium)": { conceal: 1, damage: 3, weight: 1 },
+  "Sword (Large)": { conceal: 3, damage: 4, weight: 2 },
   "Club": { conceal: 1, damage: 1, weight: 1.0 },
-  "Staff": { conceal: 5, damage: 1, weight: 1.5 },
-  "Spear": { conceal: 6, damage: 3, weight: 2.0 },
-  "Polearm": { conceal: 5, damage: 4, weight: 2.5 }
+  "Staff": { conceal: 5, damage: 1, weight: 1 },
+  "Spear": { conceal: 6, damage: 3, weight: 2 },
+  "Polearm": { conceal: 5, damage: 4, weight: 2 }
 };
 
 const ARMOR_DATA = {

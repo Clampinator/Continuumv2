@@ -18,33 +18,16 @@ import { ITEM_DATA } from '../../../../../item-data.js';
 export function calculateQuickPenalty(actor) {
     if (!actor || actor.type !== 'character') return 0;
 
-    // 1. Armor Contribution: Max IP * Encumbrance Multiplier
+    // 1. Armor Contribution: Enc. value directly (no IP multiplication)
     const armorItems = actor.system.combat?.armor || {};
     const armorLoad = Object.values(armorItems).reduce((total, armor) => {
-        const itemMaxIp = Math.max(
-            Number(armor.ipA) || 0,
-            Number(armor.ipB) || 0,
-            Number(armor.ipC) || 0,
-            Number(armor.ipD) || 0,
-            Number(armor.ipE) || 0,
-            Number(armor.ipF) || 0,
-            Number(armor.ipG) || 0
-        );
-        
-        // ENCUMBRANCE AS MULTIPLIER:
-        // We look for a live value, then a database fallback. 
-        // 0 is now a valid multiplier (weightless). We only default to 1.0 if the value is NaN.
-        let multiplier = parseFloat(armor.encumbrance);
-        
-        if (isNaN(multiplier)) {
+        let enc = parseFloat(armor.encumbrance);
+        if (isNaN(enc)) {
             const dbEntry = ITEM_DATA.armor[armor.name] || {};
-            multiplier = parseFloat(dbEntry.encumbrance);
+            enc = parseFloat(dbEntry.encumbrance);
         }
-        
-        // Final fallback for missing data
-        if (isNaN(multiplier)) multiplier = 1.0;
-
-        return total + (itemMaxIp * multiplier);
+        if (isNaN(enc)) enc = 0;
+        return total + enc;
     }, 0);
 
     // 2. Physical Weight Contribution (kg)

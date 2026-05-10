@@ -58,14 +58,13 @@ function _calculateArmorSummary(context) {
         armorSummary.totalIpE += Number(armor.ipE) || 0;
         armorSummary.totalIpF += Number(armor.ipF) || 0;
         armorSummary.totalIpG += Number(armor.ipG) || 0;
-        const itemMaxIp = Math.max(Number(armor.ipA) || 0, Number(armor.ipB) || 0, Number(armor.ipC) || 0, Number(armor.ipD) || 0, Number(armor.ipE) || 0, Number(armor.ipF) || 0, Number(armor.ipG) || 0);
-        let multiplier = parseFloat(armor.encumbrance);
-        if (isNaN(multiplier)) {
+        let enc = parseFloat(armor.encumbrance);
+        if (isNaN(enc)) {
             const dbEntry = ITEM_DATA.armor[armor.name] || {};
-            multiplier = parseFloat(dbEntry.encumbrance);
+            enc = parseFloat(dbEntry.encumbrance);
         }
-        if (isNaN(multiplier)) multiplier = 1.0;
-        armorLoad += (itemMaxIp * multiplier);
+        if (isNaN(enc)) enc = 0;
+        armorLoad += enc;
     });
     let weaponWeight = 0;
     context.rangedWeapons.forEach(w => { if (w.carried) weaponWeight += (Number(w.weight) || (ITEM_DATA.rangedWeapons[w.name]?.weight || 0)); });
