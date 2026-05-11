@@ -6,9 +6,9 @@ import { calculateExperienceBonus } from '/systems/continuum-v2/modules/temporal
 
 /**
  * Calculates current resonance bonuses for all experiences on an actor.
- * Uses the two-axis bonus (duration + distance, capped at +3) matching
- * the Continuum RPG mechanic: how long AND how recently you did something
- * both contribute to recall ability.
+ * Uses The Forgetting (lesser of duration, distance) matching
+ * the Continuum RPG mechanic: you remember the LESSER of how
+ * long you did something and how recently you did it.
  *
  * @param {Actor} actor
  * @returns {Array} List of { name, bonus, yearsSince }
@@ -38,7 +38,7 @@ export function calculateResonanceBonuses(actor) {
         const startAge = data.startAge !== undefined ? data.startAge : endAge;
         const isOngoing = !!data.isOngoing;
 
-        // Two-axis bonus: duration + distance, capped at +3
+        // The Forgetting: bonus is lesser of duration and distance
         const bonus = calculateExperienceBonus(isOngoing, endAge, startAge, nowAge);
 
         // Years since ended (for display in the dropdown)

@@ -5,6 +5,7 @@ import { projectNodes } from './project-nodes.js';
 import { anchorSegments } from './anchor-segments.js';
 import { finalizeState } from './finalize-state.js';
 import { establishHistoryPhysics } from '../temporal-kernel/establish-history-physics.js';
+import { recoverMissingAges } from './recover-missing-ages.js';
 
 /**
  * AUTHORITATIVE TEMPORAL STATE ENGINE
@@ -12,14 +13,27 @@ import { establishHistoryPhysics } from '../temporal-kernel/establish-history-ph
  * ENFORCES: Atomization Law (Delegates to single-purpose units).
  * ENFORCES: Singular Identity (No overlapping nodes).
  * ENFORCES: Umbilical Cord (Establishes physics from raw facts).
+ *
+ * REPLACES: The legacy lifeline-engine pipeline
+ * (modules/lifeline/services/lifeline-engine/). That pipeline walks
+ * events, accumulates offset, and projects ages - the same physics
+ * this function orchestrates via establishHistoryPhysics. The Kernel
+ * coordinate resolution is now in
+ * modules/temporal-kernel/resolve-event-coordinates.js (H8).
  */
 export function getTemporalState(historyFacts, subjectiveNow = null, originTime = 0, actor = null, isSpanIntent = false) {
     // 1. DATA PREPARATION (ADI Enforcement)
     const eras = extractEras(actor);
     
+    // 1.5 AGE RECOVERY
+    // Legacy data may have null eventAge. Recover via two-pass rail-offset
+    // projection before the Kernel establishes physics. This ensures every
+    // fact entering establishHistoryPhysics has a numeric eventAge.
+    const recoveredFacts = recoverMissingAges(historyFacts, originTime);
+
     // 2. PHYSICS ESTABLISHMENT (The Umbilical Cord)
     // AUTHORITY: The Engine establishes x, y, and arrivalY from raw database facts.
-    const physicalNodes = establishHistoryPhysics(historyFacts, originTime, subjectiveNow, actor, isSpanIntent);
+    const physicalNodes = establishHistoryPhysics(recoveredFacts, originTime, subjectiveNow, actor, isSpanIntent);
 
     const segments = calculateSegments(physicalNodes, originTime);
 

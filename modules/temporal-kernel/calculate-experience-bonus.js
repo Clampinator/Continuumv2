@@ -10,8 +10,18 @@
  *   DISTANCE AXIS (how long ago it ended, relative to NOW):
  *     <2yr = +3, 2-5yr = +2, 5-10yr = +1, >10yr = 0
  *
- *   Combined: duration + distance, hard-capped at +3.
- *   Ongoing experiences always get distance = +3.
+ *   THE FORGETTING: Duration gives a maximum possible bonus, but
+ *   distance determines what you actually remember. The bonus is
+ *   the LOWER of the two axes - you can never resonate above how
+ *   recently you used the skill, no matter how long you practiced.
+ *
+ *   Examples:
+ *     5yr experience ended 1yr ago: duration=+3, distance=+3 -> +3
+ *     5yr experience ended 7yr ago: duration=+3, distance=+1 -> +1
+ *     5yr experience ended 15yr ago: duration=+3, distance=+0 -> +0
+ *     6mo experience ended 6mo ago: duration=+1, distance=+3 -> +1
+ *
+ *   Ongoing experiences always get distance = +3 (still doing it).
  *
  * This is the authoritative bonus calculation used by both the span-graph
  * render pipeline (generate-experiences.js for The Forgetting opacity)
@@ -25,12 +35,13 @@
  * @param {number} endAge - End subjective age in seconds
  * @param {number} startAge - Start subjective age in seconds
  * @param {number} nowAge - Current NOW subjective age in seconds (use levelingAge)
- * @returns {number} Capped bonus value (0-3)
+ * @returns {number} Bonus value (0-3)
  */
 export function calculateExperienceBonus(isOngoing, endAge, startAge, nowAge) {
   const SECONDS_PER_YEAR = 31536000;
 
-  // DURATION AXIS: How long the character was in this experience
+  // DURATION AXIS: How long the character was in this experience.
+  // This sets the maximum possible resonance.
   const durationSeconds = endAge - startAge;
   const durationYears = durationSeconds / SECONDS_PER_YEAR;
 
@@ -40,6 +51,8 @@ export function calculateExperienceBonus(isOngoing, endAge, startAge, nowAge) {
     : 3;
 
   // DISTANCE AXIS: How far in the subjective past the experience ended.
+  // This caps what you can actually remember. The Forgetting means
+  // even a long-ago mastery fades if you haven't used it recently.
   // Ongoing experiences are always "recent" -> distance = 0 years -> +3.
   const distanceYears = isOngoing ? 0 : Math.max(0, (nowAge - endAge) / SECONDS_PER_YEAR);
   const distanceBonus = distanceYears < 2 ? 3
@@ -47,8 +60,10 @@ export function calculateExperienceBonus(isOngoing, endAge, startAge, nowAge) {
     : distanceYears <= 10 ? 1
     : 0;
 
-  // Hard cap: no skill check bonus can exceed +3 in Continuum
-  return Math.min(durationBonus + distanceBonus, 3);
+  // THE FORGETTING: You remember the LESSER of how long you did it
+  // and how recently. A 5-year stint from 15 years ago is as good as
+  // gone; a 6-month crash course from yesterday is a +1, not a +3.
+  return Math.min(durationBonus, distanceBonus);
 }
 
 /**

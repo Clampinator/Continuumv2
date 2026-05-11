@@ -5,11 +5,18 @@ import { processLevelEvent } from './process-level-event.js';
 import { projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
+DEPRECATED: This module is being replaced by the temporal-engine pipeline
+(get-temporal-state.js). Do not add new features here. Port existing
+callers to the engine pipeline.
+
 THE DIAGONAL AUTHORITY: Core Mapping Engine.
 Enforces the physical law: 1s Subjective Age (X) = 1000ms Objective Time (Y).
 
 Trinity: Span pool capacity from Kernel getCurrentSpanCapacity.
 Span costs from Kernel computeSpanCost. No inline math.
+
+Coordinate resolution is now delegated to the Kernel functions in
+modules/temporal-kernel/resolve-event-coordinates.js (H8).
 */
 export function calculateLifelineCoordinates(orderedEvents, dobTs, spanLevel, actor) {
     // KERNEL: Pool capacity via ranked lookup

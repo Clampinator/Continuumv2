@@ -259,8 +259,8 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
                 opacity = Math.max(0.1, 1.0 - (yearsSince / 15) * 0.9);
             }
 
-            // MECHANICAL VALUES: Duration and distance for the Two-Axis Bonus
-            // must use the leveling age, not the span-inflated visual age.
+            // MECHANICAL VALUES: Duration and distance for The Forgetting
+            // bonus. The bonus is the lesser of the two axes - you remember
             // For ongoing experiences, the effective duration is how long the
             // character has subjectively been in the experience, not where the
             // visual box ends on the graph.
