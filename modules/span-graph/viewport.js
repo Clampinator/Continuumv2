@@ -12,8 +12,8 @@ import { computeAxisLabels } from './projection/compute-axis-labels.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 import { TARGET_RATIO } from '../temporal-engine/constants.js';
-import { getActorHistory } from '../state/get-actor-history.js';
 import { getTemporalState } from '../temporal-engine/get-temporal-state.js';
+import { buildRenderContext } from './projection/build-render-context.js';
 import { generateManifest } from './projection/manifest-generator.js';
 import { PointerMachine } from './interaction/pointer-machine.js';
 
@@ -39,6 +39,11 @@ export class SpanGraphViewport {
     this.latestState = null;
     this.latestManifest = null;
 
+    // Committed history baseline captured each render cycle.
+    // Used by viewport._render() to build preview history during
+    // insert-span drags, preventing preview stacking across frames.
+    this._baseHistory = null;
+
     // THE INTERACTION MACHINE
     this.pointerMachine = new PointerMachine(this);
 
@@ -58,7 +63,8 @@ export class SpanGraphViewport {
         currentWorld: null,
         startWorld: null,
         nodeElement: null,
-        previewHistory: null,
+        insertionContext: null,
+        displacementResult: null,
         yetDrag: null
     };
 
@@ -154,65 +160,51 @@ export class SpanGraphViewport {
    * AUTHORITATIVE MASTER RENDER PASS
    * Gathers data and pushes it through the Dumb Pipe.
    */
-  _render() { 
-      if (!this.actor || !this.container) return;
+   _render() { 
+       if (!this.actor || !this.container) return;
 
-      // GATE: Skip render when the character has no birth or inception data.
-      // Without an origin timestamp all coordinates are meaningless, and the
-      // render pass would produce an empty or broken graph.
-      const personal = this.actor.system.personal || {};
-      const structure = this.actor.system.structure || {};
-      const hasCharOrigin = personal.dob && personal.birthLocation;
-      const hasOrgOrigin = structure.inceptionDate && structure.locality;
-      if (!hasCharOrigin && !hasOrgOrigin) return;
+       // GATE: Skip render when the character has no birth or inception data.
+       // Without an origin timestamp all coordinates are meaningless, and the
+       // render pass would produce an empty or broken graph.
+       const personal = this.actor.system.personal || {};
+       const structure = this.actor.system.structure || {};
+       const hasCharOrigin = personal.dob && personal.birthLocation;
+       const hasOrgOrigin = structure.inceptionDate && structure.locality;
+       if (!hasCharOrigin && !hasOrgOrigin) return;
 
-      const interaction = this._interaction;
-      const isDraggingNow = interaction.isDragging || interaction.isPending;
-      
-      // 1. STATE (Database Pass)
-      // PREVIEW STATE: When inserting a span, use the preview history
-      // (which contains the virtual span entry) instead of the raw DB history.
-      // This runs the full temporal engine pipeline on the virtual state,
-      // producing correct upstream node shifts without a separate overlay.
-      const isInsertSpan = interaction.mode === 'insert-span' && interaction.isDragging;
-      if (isInsertSpan && interaction.previewHistory) {
-          this.latestHistory = interaction.previewHistory;
-      } else {
-          this.latestHistory = getActorHistory(this.actor);
-      }
+        // 1. PROJECTION: Build render context (history, subjectiveNow, isSpanIntent)
+        // The viewport delegates all state assembly and NOW-node injection to
+        // buildRenderContext - a pure function that never mutates DB state.
+        const { history, subjectiveNow, originTime: builtOrigin, isSpanIntent } = buildRenderContext(
+            this.actor, this._interaction, this._baseHistory, this.latestState?.nodes,
+            () => this._getOriginTime()
+        );
+        this.latestHistory = history;
 
-      // HANDSHAKE: Inject Live Drag facts into the virtual history array
-      // AUTHORITY: We update the 'objectiveNow' Fact, allowing the Kernel to derive physics.
-      if (isDraggingNow && interaction.activeNodeId === 'now' && interaction.currentWorld) {
-          const nowNode = this.latestHistory.find(n => n.id === 'now');
-          if (nowNode) {
-              nowNode.record.objectiveNow = interaction.currentWorld.eventTime;
-          }
-      }
+        // Capture committed baseline for future preview builds.
+        // Only updated when NOT in insert-span drag, so each preview
+        // build starts from the same committed state.
+        const isInsertSpan = this._interaction.mode === 'insert-span'
+            && this._interaction.isDragging
+            && !this._interaction.isPending;
+        if (!isInsertSpan) {
+            this._baseHistory = this.latestHistory;
+        }
 
-      const originTime = this._getOriginTime();
-      
-      // AUTHORITY: Use the injected virtual history for the entire render pass.
-      // If we are NOT dragging the NOW node, we pass null so the Kernel calculates its physical Age.
-      // WE HAVE REMOVED THE FALLBACK TO subjectiveNow FROM THE DATABASE.
-      const subjectiveNow = (isDraggingNow && interaction.activeNodeId === 'now') 
-          ? interaction.currentWorld.eventAge 
-          : null;
+        const originTime = builtOrigin;
 
-      const isSpanIntent = (isDraggingNow && interaction.activeNodeId === 'now' && interaction.mode === 'span');
+       // 2. KERNEL (Physics Pass)
+       this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor, isSpanIntent);
 
-      // 2. KERNEL (Physics Pass)
-      this.latestState = getTemporalState(this.latestHistory, subjectiveNow, originTime, this.actor, isSpanIntent);
+       // 3. PROJECTOR (UI Pass)
+       this.latestManifest = generateManifest(this.latestState, this, this._interaction);
 
-      // 3. PROJECTOR (UI Pass)
-      this.latestManifest = generateManifest(this.latestState, this, interaction);
+       // 4. THE DUMB PIPE PUSH
+       renderViewport(this, this.latestState, this.latestManifest);
 
-      // 4. THE DUMB PIPE PUSH
-      renderViewport(this, this.latestState, this.latestManifest);
-
-      // 5. AUTOCENTER: First render with real dimensions triggers autofocus.
-      this._ensureAutofocus();
-  }
+       // 5. AUTOCENTER: First render with real dimensions triggers autofocus.
+       this._ensureAutofocus();
+   }
 
   worldToScreen(xCoord, yCoordinate) {
     const { panX, panY, zoom } = this.viewState;

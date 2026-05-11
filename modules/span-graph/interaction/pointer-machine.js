@@ -16,7 +16,7 @@ import { timestampToDateString, parseDateToObjectiveMs } from '/systems/continuu
 import { formatDurationCompact } from '/systems/continuum-v2/modules/temporal-translator/duration-converter.js';
 import { findLastKnownLocation } from '/systems/continuum-v2/modules/lifeline/services/context-finder/find-last-known-location.js';
 import { openExperienceEditDialog } from '../../span-graph-dialog-experience.js';
-import { buildPreviewHistory } from '../../temporal-engine/build-preview-history.js';
+
 import { MIN_DRAG_DISPLACEMENT_MS } from '../../temporal-engine/constants.js';
 
 /**
@@ -39,9 +39,7 @@ export class PointerMachine {
             currentWorld: { eventAge: 0, eventTime: 0 },
             mode: null, activeNodeId: null, ghostSnap: null,
             // INSERT-SPAN: Context for interactive span insertion from rail click
-            insertionContext: null,
-            // Committed history captured at pointer-down as preview baseline
-            baseHistory: null
+            insertionContext: null
         };
     }
 
@@ -113,12 +111,6 @@ export class PointerMachine {
         
         const target = event.target;
         this.state.activeNodeId = target.dataset.eventId || null;
-
-        // Capture the committed history at pointer-down time as the base
-        // for any preview builds. This prevents preview stacking if the
-        // drag spans multiple render frames (each buildPreviewHistory
-        // call must start from the same committed baseline).
-        this.state.baseHistory = this.viewport.latestHistory || [];
 
         // RULE: Snapping to Origin
         if (this.state.activeNodeId) {
@@ -255,16 +247,9 @@ export class PointerMachine {
             eventTime: displacementResult.arrivalTime
         };
 
-        // PREVIEW STATE: Build a virtual history with the span injected
-        // so the temporal engine pipeline produces the correct preview
-        // state automatically. Always use the committed base history
-        // captured at pointer-down to prevent preview stacking.
-        const baseHistory = this.state.baseHistory || [];
-        const previewHistory = buildPreviewHistory(
-            baseHistory, this.state.insertionContext, displacementResult
-        );
-
-        // SYNC VIEWPORT: Provide preview history for the render pipeline
+        // SYNC VIEWPORT: Provide drag context for the render pipeline.
+        // Preview history is now built in viewport._render() using
+        // viewport._baseHistory as the committed baseline.
         this.viewport._interaction = {
             isDragging: true,
             mode: 'insert-span',
@@ -272,8 +257,7 @@ export class PointerMachine {
             currentWorld: this.state.currentWorld,
             startWorld: this.state.startWorld,
             insertionContext: this.state.insertionContext,
-            displacementResult: displacementResult,
-            previewHistory: previewHistory
+            displacementResult: displacementResult
         };
 
         // HUD: Show displacement info during insertion drag
@@ -647,7 +631,7 @@ export class PointerMachine {
             isDragging: false, isPending: false, mode: null, 
             activeNodeId: null, currentWorld: null, startWorld: null,
             insertionContext: null, displacementResult: null,
-            previewHistory: null, yetDrag: null
+            yetDrag: null
         };
     }
 

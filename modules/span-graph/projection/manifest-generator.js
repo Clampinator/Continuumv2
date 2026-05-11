@@ -28,7 +28,7 @@ export function generateManifest(state, viewport, interaction = null) {
 
     if (!state || !state.segments) return manifest;
 
-    const isInteracting = interaction?.isDragging || interaction?.isPending;
+    const isInteracting = interaction?.isDragging && !interaction?.isPending;
     const isNowNode = interaction?.activeNodeId === 'now';
     const liveWorld = interaction?.currentWorld;
     const liveMode = interaction?.mode;
