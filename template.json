@@ -70,7 +70,8 @@
         "deliberateFrag": 0,
         "naturalFrag": 0,
         "skills": {},
-        "abilities": {}
+        "abilities": {},
+        "natSpanAbilities": {}
       },
       "theYet": {},
       "favors": {},

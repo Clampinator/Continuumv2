@@ -27,6 +27,14 @@ const LVL_OFFSETS = [
 ];
 const LVL_VALUES = [1, 2, 3];
 
+const ABILITY_OFFSETS = [
+    Math.round(-(10 * VP)) + BO,  // value 0
+    Math.round(-(9 * VP)) + BO,   // value 1
+    Math.round(-(8 * VP)) + BO,   // value 2
+    Math.round(-(7 * VP)) + BO    // value 3
+];
+const ABILITY_VALUES = [0, 1, 2, 3];
+
 function _closest(offsets, top) {
     let best = 0, bestDist = Infinity;
     offsets.forEach((off, i) => {
@@ -164,7 +172,121 @@ function _initLevels(html, sheet) {
     });
 }
 
+// SPAN ABILITY SPINNERS (0-3)
+
+function _initSpanAbilities(html, sheet) {
+    html.find('.spanning-ability-spinner').each(function() {
+        const viewport = $(this);
+        const abilityId = viewport.data('spanability');
+        if (!abilityId) return;
+        const val = Math.max(0, Math.min(3, Number(viewport.siblings('.spanning-ability-value-input').val()) || 0));
+        const idx = ABILITY_VALUES.indexOf(val);
+        viewport.find('.attribute-spinner-image').css('top', `${ABILITY_OFFSETS[idx >= 0 ? idx : 0]}px`);
+    });
+
+    html.find('.spanning-ability-spinner').off('.spanAbilitySpinner').on('pointerdown.spanAbilitySpinner', (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+
+        const viewport = $(e.currentTarget);
+        const abilityId = viewport.data('spanability');
+        if (!abilityId) return;
+
+        const hidden = viewport.siblings('.spanning-ability-value-input');
+        const img = viewport.find('.attribute-spinner-image');
+
+        const startY = e.pageY;
+        const startTop = parseInt(img.css('top'), 10);
+        img.css('transition', 'none');
+        viewport.addClass('active');
+
+        let lastIdx = -1;
+
+        const onMove = (me) => {
+            const raw = Math.max(ABILITY_OFFSETS[0], Math.min(ABILITY_OFFSETS[3], startTop + (me.pageY - startY)));
+            img.css('top', `${raw}px`);
+            const idx = _closest(ABILITY_OFFSETS, raw);
+            if (lastIdx !== -1 && idx !== lastIdx) Sound.tick();
+            lastIdx = idx;
+        };
+
+        const onUp = () => {
+            img.css('transition', 'top 0.15s ease-out');
+            viewport.removeClass('active');
+            $(document).off('.spanAbilityDrag');
+
+            const idx = _closest(ABILITY_OFFSETS, parseInt(img.css('top'), 10));
+            const val = ABILITY_VALUES[idx];
+            img.css('top', `${ABILITY_OFFSETS[idx]}px`);
+            hidden.val(val);
+
+            const stored = Number(sheet.actor.system.spanning?.abilities?.[abilityId]?.value) || 0;
+            if (val !== stored) sheet.actor.update({ [`system.spanning.abilities.${abilityId}.value`]: val });
+        };
+
+        $(document).on('pointermove.spanAbilityDrag', onMove).on('pointerup.spanAbilityDrag', onUp);
+    });
+}
+
+// NAT SPAN ABILITY SPINNERS (0-3)
+
+function _initNatSpanAbilities(html, sheet) {
+    html.find('.nat-span-ability-spinner').each(function() {
+        const viewport = $(this);
+        const abilityId = viewport.data('natspanability');
+        if (!abilityId) return;
+        const val = Math.max(0, Math.min(3, Number(viewport.siblings('.nat-span-ability-value-input').val()) || 0));
+        const idx = ABILITY_VALUES.indexOf(val);
+        viewport.find('.attribute-spinner-image').css('top', `${ABILITY_OFFSETS[idx >= 0 ? idx : 0]}px`);
+    });
+
+    html.find('.nat-span-ability-spinner').off('.natSpanAbilitySpinner').on('pointerdown.natSpanAbilitySpinner', (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+
+        const viewport = $(e.currentTarget);
+        const abilityId = viewport.data('natspanability');
+        if (!abilityId) return;
+
+        const hidden = viewport.siblings('.nat-span-ability-value-input');
+        const img = viewport.find('.attribute-spinner-image');
+
+        const startY = e.pageY;
+        const startTop = parseInt(img.css('top'), 10);
+        img.css('transition', 'none');
+        viewport.addClass('active');
+
+        let lastIdx = -1;
+
+        const onMove = (me) => {
+            const raw = Math.max(ABILITY_OFFSETS[0], Math.min(ABILITY_OFFSETS[3], startTop + (me.pageY - startY)));
+            img.css('top', `${raw}px`);
+            const idx = _closest(ABILITY_OFFSETS, raw);
+            if (lastIdx !== -1 && idx !== lastIdx) Sound.tick();
+            lastIdx = idx;
+        };
+
+        const onUp = () => {
+            img.css('transition', 'top 0.15s ease-out');
+            viewport.removeClass('active');
+            $(document).off('.natSpanAbilityDrag');
+
+            const idx = _closest(ABILITY_OFFSETS, parseInt(img.css('top'), 10));
+            const val = ABILITY_VALUES[idx];
+            img.css('top', `${ABILITY_OFFSETS[idx]}px`);
+            hidden.val(val);
+
+            const stored = Number(sheet.actor.system.spanning?.natSpanAbilities?.[abilityId]?.value) || 0;
+            if (val !== stored) sheet.actor.update({ [`system.spanning.natSpanAbilities.${abilityId}.value`]: val });
+        };
+
+        $(document).on('pointermove.natSpanAbilityDrag', onMove).on('pointerup.natSpanAbilityDrag', onUp);
+    });
+}
+
 export function initializeAppSpinners(html, sheet) {
     _initIngredients(html, sheet);
     _initLevels(html, sheet);
+    _initSpanAbilities(html, sheet);
+    _initNatSpanAbilities(html, sheet);
 }

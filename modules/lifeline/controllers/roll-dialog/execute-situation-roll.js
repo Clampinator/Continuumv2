@@ -11,7 +11,7 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
     const isVehicle = content.data('isVehicleRoll');
 
     let base = RollMath.calculateBaseTarget(sheet.actor, key);
-    if (['quick', 'spanning'].includes(key)) {
+    if (['quick', 'spanning', 'naturalSpan'].includes(key)) {
         base -= RollMath.getQuickPenalty(sheet.actor);
     }
 
@@ -66,6 +66,10 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
     let abilityName = null;
     if (key === 'spanning') {
         const abilSelect = html.find('.spanning-ability-select');
+        abilityBonus = Number(abilSelect.val()) || 0;
+        if (abilityBonus > 0) abilityName = abilSelect.find('option:selected').text().split(' (+')[0];
+    } else if (key === 'naturalSpan') {
+        const abilSelect = html.find('.nat-span-ability-select');
         abilityBonus = Number(abilSelect.val()) || 0;
         if (abilityBonus > 0) abilityName = abilSelect.find('option:selected').text().split(' (+')[0];
     }

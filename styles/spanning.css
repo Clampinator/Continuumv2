@@ -53,6 +53,104 @@
 }
 
 /* Label style for Spanning blocks that don't use a button */
+button.nat-span-add {
+  background-color: #2a3a4a;
+  border-color: #4a7a9b;
+  color: #8bbcdb;
+}
+
+button.nat-span-add:hover {
+  background-color: #324555;
+  border-color: #5a8aab;
+  color: #aad0ed;
+}
+
+.nat-span-abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.nat-span-ability-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: #1e2e3a;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #4a7a9b;
+}
+
+.nat-span-ability-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nat-span-ability-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nat-span-ability-name {
+  flex-grow: 1;
+  font-weight: bold;
+}
+
+.nat-span-ability-content textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 40px;
+  display: block;
+  background-color: #162230;
+  color: #fff;
+  border: 1px solid #4a7a9b;
+  border-radius: 4px;
+  padding: 5px;
+  font-family: inherit;
+}
+
+.attribute-spinner-viewport.nat-span-ability-spinner {
+  width: 36px;
+  height: 36px !important;
+  flex-shrink: 0;
+}
+
+.attribute-spinner-viewport.nat-span-ability-spinner .attribute-spinner-image {
+  height: calc(1100% + 15px);
+}
+
+.nat-span-ability-controls {
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+.nat-span-ability-controls .item-delete {
+  color: #8bbcdb;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: color 0.2s ease;
+}
+
+.nat-span-ability-controls .item-delete:hover {
+  color: #ff6060;
+}
+
+button.roll-nat-span {
+  background-color: #2a3a4a;
+  border-color: #4a7a9b;
+  color: #8bbcdb;
+}
+
+button.roll-nat-span:hover:not(:disabled) {
+  background-color: #324555;
+  border-color: #5a8aab;
+  color: #aad0ed;
+}
+
 .spanning-label {
   display: flex;
   align-items: center;
@@ -137,8 +235,25 @@
   gap: 5px;
 }
 
+.spanning-ability-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .spanning-ability-name {
+  flex-grow: 1;
   font-weight: bold;
+}
+
+.attribute-spinner-viewport.spanning-ability-spinner {
+  width: 36px;
+  height: 36px !important;
+  flex-shrink: 0;
+}
+
+.attribute-spinner-viewport.spanning-ability-spinner .attribute-spinner-image {
+  height: calc(1100% + 15px);
 }
 
 .spanning-ability-content textarea {

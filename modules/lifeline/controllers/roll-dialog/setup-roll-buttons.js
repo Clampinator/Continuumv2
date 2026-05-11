@@ -83,11 +83,13 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
         });
 
         const isSpanning = key === 'spanning';
+        const isNatSpan = key === 'naturalSpan';
         html.find('.rolling-attribute-name').text(btn.text());
         html.find('.dialog-resonance-section').toggle(!isMeta && !isVehicle);
         html.find('.dialog-push-section').toggle(!!isMeta || !!isVehicle);
-        html.find('.dialog-gear-section').toggle(!isMeta && !isSpanning);
+        html.find('.dialog-gear-section').toggle(!isMeta && !isSpanning && !isNatSpan);
         html.find('.dialog-spanning-ability-section').toggle(isSpanning);
+        html.find('.dialog-nat-span-ability-section').toggle(isNatSpan);
         html.find('.dialog-modifier-section').toggle(!!isMeta);
         html.find('input[name="resonance_choice"][value="none"]').prop('checked', true);
 
@@ -158,6 +160,15 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
                 const abilSelect = html.find('.spanning-ability-select').empty();
                 abilSelect.append('<option value="0">None (+0)</option>');
                 const abilities = sheet.actor.system.spanning?.abilities || {};
+                Object.values(abilities).forEach(ab => {
+                    const val = Number(ab.value) || 0;
+                    if (ab.name) abilSelect.append(`<option value="${val}">${ab.name} (+${val})</option>`);
+                });
+            }
+            if (isNatSpan) {
+                const abilSelect = html.find('.nat-span-ability-select').empty();
+                abilSelect.append('<option value="0">None (+0)</option>');
+                const abilities = sheet.actor.system.spanning?.natSpanAbilities || {};
                 Object.values(abilities).forEach(ab => {
                     const val = Number(ab.value) || 0;
                     if (ab.name) abilSelect.append(`<option value="${val}">${ab.name} (+${val})</option>`);

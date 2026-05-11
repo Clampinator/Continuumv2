@@ -94,7 +94,7 @@ export async function performRollAction(params) {
     const wounds = actor.system.combat?.wounds ?? {};
     const ipPenalty = Object.values(wounds).reduce((total, wound) => total + (Number(wound.ip) || 0), 0);
     let armorPenalty = 0;
-    if (['quick', 'spanning'].includes(cleanAttrKey)) {
+    if (['quick', 'spanning', 'naturalSpan'].includes(cleanAttrKey)) {
         armorPenalty = RollMath.getQuickPenalty(actor);
     }
     let mindPenalty = 0;
@@ -174,7 +174,7 @@ export async function performRollAction(params) {
 
     // 9. Reporting
     return postToChat(actor, flavorText, {
-        whisperGM: isMeta,
+        whisperGM: isMeta || attributeName === 'naturalSpan',
         actorImg: actor.img,
         actorName: actor.name,
         attributeName: displayAttr,

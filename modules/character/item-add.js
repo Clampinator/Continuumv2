@@ -40,6 +40,9 @@ export async function handleCharacterItemAdd(sheet, event) {
         case 'spanningAbility':
             updates[`system.spanning.abilities.${newId}`] = { id: newId, name: "", description: "", value: 0 };
             break;
+        case 'natSpanAbility':
+            updates[`system.spanning.natSpanAbilities.${newId}`] = { id: newId, name: "", description: "", value: 0 };
+            break;
         case 'metabilityApplication':
             updates[`system.metabilities.applications.${newId}`] = { id: newId, name: "", description: "" };
             break;

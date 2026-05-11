@@ -10,6 +10,9 @@
     <div class="spanning-controls">
       <button type="button" class="spanning-help" eventTitle="Help"><i class="fas fa-question"></i></button>
       <button type="button" class="item-add" data-type="spanningAbility" data-tooltip="Add Ability"><i class="fas fa-plus"></i> Ability</button>
+      {{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
+      <button type="button" class="item-add nat-span-add" data-type="natSpanAbility" data-tooltip="Add Natural Span Ability"><i class="fas fa-plus"></i> Natural Span Ability</button>
+      {{/if}}
     </div>
   </div>
 
@@ -30,7 +33,7 @@
       <!-- Natural Span Block -->
       {{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
       <div class="attribute-block">
-        <div class="spanning-label">Nat Span</div>
+        <button type="button" class="roll-attribute roll-nat-span" data-attribute="naturalSpan" data-tooltip="Roll Natural Span">Nat Span</button>
         <div class="attribute-spinner-viewport" data-attribute="naturalSpan">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Natural Span Spinner">
         </div>
@@ -73,12 +76,10 @@
         <div class="spanning-ability-content">
             <div class="spanning-ability-header">
                 <input type="text" class="spanning-ability-name" name="system.spanning.abilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Ability Name" />
-                <select class="spanning-ability-value" name="system.spanning.abilities.{{ability.id}}.value" data-tooltip="Ability proficiency (0-3)">
-                    <option value="0" {{#if (eq ability.value 0)}}selected{{/if}}>0</option>
-                    <option value="1" {{#if (eq ability.value 1)}}selected{{/if}}>1</option>
-                    <option value="2" {{#if (eq ability.value 2)}}selected{{/if}}>2</option>
-                    <option value="3" {{#if (eq ability.value 3)}}selected{{/if}}>3</option>
-                </select>
+                <div class="attribute-spinner-viewport spanning-ability-spinner" data-spanability="{{ability.id}}" data-tooltip="Ability proficiency (0-3)">
+                    <img src="assets/Continuum%20UI/AttributesCounter.png" class="attribute-spinner-image" alt="Ability Value">
+                </div>
+                <input type="hidden" class="spanning-ability-value-input" name="system.spanning.abilities.{{ability.id}}.value" value="{{ability.value}}" />
             </div>
             <textarea name="system.spanning.abilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe ability...">{{ability.description}}</textarea>
         </div>
@@ -88,5 +89,28 @@
       </div>
       {{/each}}
     </div>
+
+    <!-- Repeating Natural Span Abilities List -->
+    {{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
+    <div class="nat-span-abilities-list">
+      {{#each natSpanAbilities as |ability|}}
+      <div class="nat-span-ability-item" data-id="{{ability.id}}">
+        <div class="nat-span-ability-content">
+            <div class="nat-span-ability-header">
+                <input type="text" class="nat-span-ability-name" name="system.spanning.natSpanAbilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Natural Span Ability Name" />
+                <div class="attribute-spinner-viewport nat-span-ability-spinner" data-natspanability="{{ability.id}}" data-tooltip="Ability proficiency (0-3)">
+                    <img src="assets/Continuum%20UI/AttributesCounter.png" class="attribute-spinner-image" alt="Ability Value">
+                </div>
+                <input type="hidden" class="nat-span-ability-value-input" name="system.spanning.natSpanAbilities.{{ability.id}}.value" value="{{ability.value}}" />
+            </div>
+            <textarea name="system.spanning.natSpanAbilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe ability...">{{ability.description}}</textarea>
+        </div>
+        <div class="nat-span-ability-controls">
+            <a class="item-delete {{#unless (isDeletable ability 'natSpanAbility')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable ability 'natSpanAbility')}}Cannot delete an element with content{{else}}Delete Natural Span Ability{{/unless}}" data-type="natSpanAbility" data-id="{{ability.id}}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
   </div>
 </div>

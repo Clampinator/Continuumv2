@@ -205,6 +205,7 @@ export async function prepareCharacterData(sheet, options) {
 
     context.metabilityApplications = Object.entries(context.system.metabilities?.applications || {}).map(([id, app]) => ({ id, ...app }));
     context.spanningAbilities = Object.entries(context.system.spanning?.abilities || {}).map(([id, ability]) => ({ id, ...ability }));
+    context.natSpanAbilities = Object.entries(context.system.spanning?.natSpanAbilities || {}).map(([id, ability]) => ({ id, ...ability }));
     
     const mapVehicles = (collection, type, key) => Object.entries(collection || {}).map(([id, v]) => ({ id, type, systemKey: key, ...v }));
     context.vehicles = [...mapVehicles(context.system.vehicles, 'vehicle', 'vehicles'), ...mapVehicles(context.system.airVehicles, 'airVehicle', 'airVehicles'), ...mapVehicles(context.system.waterVehicles, 'waterVehicle', 'waterVehicles')];

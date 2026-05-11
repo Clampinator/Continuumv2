@@ -32,6 +32,9 @@ export async function handleCharacterItemDelete(sheet, event) {
         case 'spanningAbility':
             updates[`system.spanning.abilities.-=${id}`] = null;
             break;
+        case 'natSpanAbility':
+            updates[`system.spanning.natSpanAbilities.-=${id}`] = null;
+            break;
         case 'metabilityApplication':
             updates[`system.metabilities.applications.-=${id}`] = null;
             break;

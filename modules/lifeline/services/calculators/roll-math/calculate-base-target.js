@@ -17,6 +17,10 @@ export function calculateBaseTarget(actor, key) {
         const quick = Number(foundry.utils.getProperty(actor.system, 'attributes.quick.value')) || 0;
         const span = Number(foundry.utils.getProperty(actor.system, 'spanning.span')) || 0;
         base = quick + span;
+    } else if (key === 'naturalSpan') {
+        const quick = Number(foundry.utils.getProperty(actor.system, 'attributes.quick.value')) || 0;
+        const natSpan = Number(foundry.utils.getProperty(actor.system, 'spanning.naturalSpan')) || 0;
+        base = quick + natSpan;
     } else if (key === 'willpowerTemp') {
         base = Number(foundry.utils.getProperty(actor.system, 'attributes.willpower.temp')) || 0;
     } else if (key === 'willpowerPerm') {

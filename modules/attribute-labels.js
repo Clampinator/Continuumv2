@@ -9,7 +9,8 @@ export function getAttributeLabel(key) {
         body: 'Force',
         mind: 'Analyze',
         eq: 'Relate',
-        quick: 'Move'
+        quick: 'Move',
+        naturalspan: 'Nat Span'
     };
     const clean = (key || '').replace('meta-', '').toLowerCase();
     return labels[clean] || (clean.charAt(0).toUpperCase() + clean.slice(1));
