@@ -35,6 +35,10 @@ export class SpanGraphViewport {
     this.actor = actor;
     
     // PERSISTENT DATA AUTHORITY
+    // The render loop (_render) rebuilds these on every pass. All interaction
+    // handlers (PointerMachine, listeners) read from these caches rather than
+    // re-deriving state from raw actor data. This is the Trinity contract:
+    // the viewport never calls flattenEvents or getTemporalState outside _render.
     this.latestHistory = [];
     this.latestState = null;
     this.latestManifest = null;
@@ -247,8 +251,4 @@ export class SpanGraphViewport {
     this.container = null;
     this.actor = null;
   }
-
-  // REWIRED TO INTERACTION MACHINE
-  _updateGhostNodeHover(x, y) { /* Deprecated */ }
-  _handleGhostNodeClick() { /* Deprecated */ }
 }
