@@ -1,6 +1,6 @@
 import { ReferenceResolver } from './reference-resolver.js';
 import { parseDate } from '../../span-graph-utils/provide-span-graph-utils.js';
-import { computeRailOffset } from './chronology/compute-rail-offset.js';
+import { computeRailOffset } from '/systems/continuum-v2/modules/temporal-engine/compute-rail-offset.js';
 import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*

@@ -1,12 +1,16 @@
-
-import { ReferenceResolver } from '../reference-resolver.js';
-import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
-import { computeRailOffset } from './compute-rail-offset.js';
+import { resolveOrigin } from '/systems/continuum-v2/modules/lifeline/services/reference-resolver/resolve-origin.js';
+import { parseDate } from '../span-graph-utils/provide-span-graph-utils.js';
+import { computeRailOffset } from '/systems/continuum-v2/modules/temporal-engine/compute-rail-offset.js';
 import { projectSubjectiveAge, projectObjectiveTime } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
-REINDEX LIFELINE NODES (Chronology Authority)
+STATE: REINDEX LIFELINE NODES (Chronology Authority)
 Enforces Age-First ordering to preserve the Diagonal Authority.
+Assembles nodes from actor data, sorts them, computes sort values,
+and generates DB updates.
+
+MIGRATED FROM modules/lifeline/services/chronology/reindex-lifeline-nodes.js
+as part of H7 (Trinity violation: State logic misplaced in UI layer).
 */
 export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData = null, options = {}) {
   const system = actor.system;
@@ -14,7 +18,7 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
   const stream = [];
   const pendingNodes = options.pendingNodes || [];
 
-  const dobTs = ReferenceResolver.resolveOrigin(actor);
+  const dobTs = resolveOrigin(actor);
 
   const _resolveAge = (event) => {
     if (event.eventAge !== undefined && event.eventAge !== null && !isNaN(Number(event.eventAge))) {
@@ -99,7 +103,7 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
   const dbNowAge = system.personal?.subjectiveNow;
   const dbNowTime = system.personal?.objectiveNow;
   const lastEventAge = stream.reduce((max, e) => (e.age > max ? e.age : max), 0);
-  
+
   let effectiveNowAge = 0;
   let effectiveNowTime = 0;
 
@@ -131,13 +135,13 @@ export function reindexLifelineNodes(actor, targetNodeId, targetIndex, nodeData 
   // We use Time as a secondary key to ensure stable bracketing during insertions.
   others.sort((a, b) => {
     if (a.age !== b.age) return a.age - b.age;
-    
+
     // AUTHORITY: The "Now" node must always be the absolute end of history for a given age.
     if (a.isNow) return 1;
     if (b.isNow) return -1;
 
     if (a.time !== b.time) return a.time - b.time;
-    
+
     return ((a.sort || 0) - (b.sort || 0)) ||
            ((a.created || 0) - (b.created || 0)) ||
            String(a.id).localeCompare(String(b.id));

@@ -1,14 +1,17 @@
-
-import { ReferenceResolver } from '../reference-resolver.js';
-import { parseDate } from '../../../span-graph-utils/provide-span-graph-utils.js';
+import { resolveOrigin } from '/systems/continuum-v2/modules/lifeline/services/reference-resolver/resolve-origin.js';
+import { parseDate } from '../span-graph-utils/provide-span-graph-utils.js';
 import { projectSubjectiveAge, projectObjectiveTime, computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /*
+STATE: REPAIR SORT ORDER
 Detects and corrects sort values that conflict with the age-based chronological order.
 Also corrects subjectiveNow when it was auto-snapped to the last event's pre-repair age.
 Run once per actor per session to fix data created before the max-prevSort algorithm fix.
 
 Returns a dot-path updates object. Empty object means no repair needed.
+
+MIGRATED FROM modules/lifeline/services/chronology/repair-sort-order.js
+as part of H7 (Trinity violation: State logic misplaced in UI layer).
 */
 export function repairSortOrder(actor) {
     const rawEras = actor.system.eras || {};
@@ -51,7 +54,7 @@ export function repairSortOrder(actor) {
     // Current engine order (sort -> createdAt -> id)
     const bySort = [...entries].sort((a, b) => {
         if (a.sort !== b.sort) return a.sort - b.sort;
-        if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt;
+        if (a.createdAt !== b.createdAt) return b.createdAt - a.createdAt;
         return a.id.localeCompare(b.id);
     });
 
@@ -73,7 +76,7 @@ export function repairSortOrder(actor) {
     // After the sort repair, the engine will compute ages from dates on the current rail.
     // If subjectiveNow was auto-snapped to the last event's old stored age, it is now
     // stale - update it to the last event's corrected position so NOW does not float.
-    const dobTs = ReferenceResolver.resolveOrigin(actor);
+    const dobTs = resolveOrigin(actor);
     if (dobTs) {
         const oldLastAge = byAge[byAge.length - 1].age;
         const subjectiveNow = Number(actor.system.personal?.subjectiveNow);

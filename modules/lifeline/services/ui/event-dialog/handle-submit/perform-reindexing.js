@@ -1,4 +1,4 @@
-import { reindexLifelineNodes } from '../../../chronology/reindex-lifeline-nodes.js';
+import { reindexLifelineNodes } from '/systems/continuum-v2/modules/state/reindex-lifeline-nodes.js';
 
 /**
  * Reindexes the lifeline to determine the authoritative Age and Sort sequence.

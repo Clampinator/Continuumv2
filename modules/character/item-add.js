@@ -1,5 +1,5 @@
 
-import { reindexLifelineNodes } from '../lifeline/services/chronology/reindex-lifeline-nodes.js';
+import { reindexLifelineNodes } from '/systems/continuum-v2/modules/state/reindex-lifeline-nodes.js';
 import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 export async function handleCharacterItemAdd(sheet, event) {

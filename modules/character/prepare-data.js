@@ -176,8 +176,13 @@ export async function prepareCharacterData(sheet, options) {
         context.eras.sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
     }
 
-    // CALCULATED AGE - uses TTL formatSubjectiveAge for consistent output
-    const subjectiveNowSecs = Number(context.system.personal?.subjectiveNow) || 0;
+    // CALCULATED AGE - prefer the viewport's computed NOW node age
+    // (which accounts for span displacement) over the stale DB value.
+    // Falls back to subjectiveNow on first render before viewport exists.
+    const nowAge = sheet._spanGraphViewport?.latestState?.nowNode?.x;
+    const subjectiveNowSecs = (nowAge != null)
+        ? Number(nowAge)
+        : (Number(context.system.personal?.subjectiveNow) || 0);
     context.calculatedAge = {
         years: Math.floor(subjectiveNowSecs / SECONDS_IN_YEAR),
         days:  Math.floor((subjectiveNowSecs % SECONDS_IN_YEAR) / SECONDS_IN_DAY)

@@ -1,5 +1,5 @@
 
-import { reindexLifelineNodes } from '../lifeline/services/chronology/reindex-lifeline-nodes.js';
+import { reindexLifelineNodes } from '/systems/continuum-v2/modules/state/reindex-lifeline-nodes.js';
 
 export async function handleCharacterEventAdd(sheet, event) {
     const button = event.target.closest('.event-add');

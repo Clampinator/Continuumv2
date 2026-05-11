@@ -1,5 +1,5 @@
 import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.esm.js';
-import { reindexLifelineNodes } from './modules/lifeline/services/chronology/reindex-lifeline-nodes.js';
+import { reindexLifelineNodes } from './modules/state/reindex-lifeline-nodes.js';
 import { timestampToDateString } from './modules/temporal-translator/coordinate-converter.js';
 
 /*

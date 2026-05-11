@@ -1,8 +1,8 @@
 import { ReferenceResolver } from '../services/reference-resolver.js';
 import { normalizeDateInput } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { parseDate } from '../../span-graph-utils/provide-span-graph-utils.js';
-import { computeRailOffset } from '../services/chronology/compute-rail-offset.js';
-import { reindexLifelineNodes } from '../services/chronology/reindex-lifeline-nodes.js';
+import { computeRailOffset } from '/systems/continuum-v2/modules/temporal-engine/compute-rail-offset.js';
+import { reindexLifelineNodes } from '/systems/continuum-v2/modules/state/reindex-lifeline-nodes.js';
 import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 function _parseTs(dateStr, timeStr) {

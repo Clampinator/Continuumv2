@@ -1,13 +1,13 @@
-import { calculateSegments } from '../../../temporal-engine/calculate-segments.js';
-import { resolveCoordinates } from '../../../temporal-engine/resolve-coordinates.js';
-import { ReferenceResolver } from '../reference-resolver.js';
-import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
-import { computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
+import { resolveOrigin } from '/systems/continuum-v2/modules/lifeline/services/reference-resolver/resolve-origin.js';
+import { projectSubjectiveAge, computeOffsetFromArrival } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
 
 /**
- * TEMPORAL RECONCILER (The Ultimate Authority)
+ * ENGINE: TEMPORAL RECONCILER (The Ultimate Authority)
  * Resolves proposed changes to a character's lifeline by walking the entire physical
  * journey and generating a complete, synchronized set of database updates.
+ *
+ * MIGRATED FROM modules/lifeline/services/chronology/temporal-reconciler.js
+ * as part of H7 (Trinity violation: Engine logic misplaced in UI layer).
  */
 export const TemporalReconciler = {
     /**
@@ -19,8 +19,8 @@ export const TemporalReconciler = {
      */
     reconcile(actor, proposedNode, options = {}) {
         const updates = {};
-        const dobTs = ReferenceResolver.resolveOrigin(actor);
-        
+        const dobTs = resolveOrigin(actor);
+
         // 1. Gather all existing events EXCEPT the one being replaced
         const rawEras = actor.system.eras || {};
         const history = [];
@@ -47,7 +47,7 @@ export const TemporalReconciler = {
             const ageA = Number(a.age) || 0;
             const ageB = Number(b.age) || 0;
             if (ageA !== ageB) return ageA - ageB;
-            
+
             const timeA = Number(a.ts || a.time || 0);
             const timeB = Number(b.ts || b.time || 0);
             return timeA - timeB;
@@ -60,7 +60,7 @@ export const TemporalReconciler = {
 
         history.forEach((node, index) => {
             const nodeTime = Number(node.ts || node.time || 0);
-            
+
             // Derive true Subjective Age from fixed Objective Time and current rail offset
             const trueAge = projectSubjectiveAge(nodeTime, currentOffset);
             const trueSort = runningSort;
