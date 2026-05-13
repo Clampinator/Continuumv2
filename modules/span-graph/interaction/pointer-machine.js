@@ -125,17 +125,23 @@ export class PointerMachine {
 
             // INSERT-SPAN: If ghost-snap exists at pointer down, initiate span insertion.
             // The ghost-snap already identified the exact point on the rail.
+            // RANK GATE: Characters with Span Rank 0 cannot span. Skip
+            // insertionContext so the drag becomes a regular pan instead
+            // of a span insertion. Level events via click still work.
             const snap = this.viewport._interaction?.ghostSnap;
             if (snap && snap.world) {
-                const history = this.viewport.latestState?.nodes || [];
-                const originTime = this.viewport._getOriginTime();
-                const splicePoint = computeSplicePoint(snap.world, history, originTime);
-                this.state.insertionContext = splicePoint;
-                // Override startWorld to the rail-projected point for perfect vertical lock
-                this.state.startWorld = {
-                    eventAge: splicePoint.departureAge,
-                    eventTime: splicePoint.departureTime
-                };
+                const spanRank = Number(this.actor?.system?.spanning?.span) || 0;
+                if (spanRank >= 1) {
+                    const history = this.viewport.latestState?.nodes || [];
+                    const originTime = this.viewport._getOriginTime();
+                    const splicePoint = computeSplicePoint(snap.world, history, originTime);
+                    this.state.insertionContext = splicePoint;
+                    // Override startWorld to the rail-projected point for perfect vertical lock
+                    this.state.startWorld = {
+                        eventAge: splicePoint.departureAge,
+                        eventTime: splicePoint.departureTime
+                    };
+                }
             }
         }
         
@@ -373,6 +379,15 @@ export class PointerMachine {
      * If displacement is near-zero (< 1 minute), cancels the insertion.
      */
     async _commitInsertSpan() {
+        // DEFENSE-IN-DEPTH: Span Rank 0 cannot commit a span insertion.
+        // This should never be reached because onDown blocks insertionContext
+        // for Rank 0, but guard here to prevent any path that sets it.
+        const spanRank = Number(this.actor?.system?.spanning?.span) || 0;
+        if (spanRank < 1) {
+            this._resetInteraction();
+            return;
+        }
+
         const ctx = this.state.insertionContext;
         const arrival = this.state.currentWorld;
         const displacement = Math.abs(arrival.eventTime - ctx.departureTime);
