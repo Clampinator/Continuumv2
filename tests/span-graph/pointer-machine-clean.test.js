@@ -47,3 +47,77 @@ describe('PointerMachine: Clean Refactor', () => {
         expect(mockViewport._interaction).toHaveProperty('ghostSnap');
     });
 });
+
+describe('PointerMachine: NOW Node Right-Click', () => {
+    let mockViewport;
+    let machine;
+
+    const lastRealEvent = {
+        id: 'evt-last',
+        x: 25,
+        y: 2500,
+        record: { eventIsSpan: false, eventTitle: 'Last Event' }
+    };
+
+    beforeEach(() => {
+        mockViewport = {
+            actor: { system: { eras: {} } },
+            latestHistory: [],
+            latestManifest: {
+                rails: [],
+                hud: { lastRealEvent }
+            },
+            latestState: {
+                nodes: [
+                    { id: 'birth', x: 0, y: 0, isVirtual: false, record: {} },
+                    { id: 'evt-last', x: 25, y: 2500, isVirtual: false, record: { eventIsSpan: false } }
+                ]
+            },
+            _interaction: { ghostSnap: null, isPending: false },
+            _render: vi.fn(),
+            screenToWorld: vi.fn((x, y) => ({ eventAge: x, eventTime: y })),
+            worldToScreen: vi.fn((x, y) => ({ x, y }))
+        };
+        machine = new PointerMachine(mockViewport);
+        // Stub _openDialog so we can spy on what it receives
+        machine._openDialog = vi.fn();
+    });
+
+    it('should open edit dialog for lastRealEvent when right-clicking NOW node', async () => {
+        const event = { target: { dataset: { eventId: 'now' }, closest: () => null } };
+        const screenPos = { x: 250, y: 250 };
+
+        await machine.onRightClick(event, screenPos);
+
+        expect(machine._openDialog).toHaveBeenCalledWith(
+            'edit',
+            lastRealEvent.x,
+            lastRealEvent.y,
+            lastRealEvent.record.eventIsSpan,
+            lastRealEvent
+        );
+    });
+
+    it('should do nothing when right-clicking NOW node with no lastRealEvent', async () => {
+        mockViewport.latestManifest.hud.lastRealEvent = null;
+        const event = { target: { dataset: { eventId: 'now' }, closest: () => null } };
+        const screenPos = { x: 250, y: 250 };
+
+        await machine.onRightClick(event, screenPos);
+
+        expect(machine._openDialog).not.toHaveBeenCalled();
+    });
+
+    it('should open edit dialog for a regular node when right-clicking it (not NOW)', async () => {
+        const node = { id: 'evt-1', x: 10, y: 1000, record: { eventIsSpan: false }, isSpanDest: false };
+        mockViewport.latestState.nodes = [node];
+        const event = { target: { dataset: { eventId: 'evt-1' }, closest: () => null } };
+        const screenPos = { x: 100, y: 100 };
+
+        await machine.onRightClick(event, screenPos);
+
+        expect(machine._openDialog).toHaveBeenCalledWith(
+            'edit', 10, 1000, false, node
+        );
+    });
+});

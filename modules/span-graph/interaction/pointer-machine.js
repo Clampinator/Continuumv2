@@ -519,7 +519,19 @@ export class PointerMachine {
         }
 
         const targetNodeId = event.target.dataset.eventId;
-        if (!targetNodeId || targetNodeId === 'now') return;
+        if (!targetNodeId) return;
+
+        // RIGHT-CLICK ON NOW NODE: The NOW node is synthetic (no DB record).
+        // Instead of blocking, edit the last real event underneath it.
+        if (targetNodeId === 'now') {
+            const lastEvent = this.viewport.latestManifest?.hud?.lastRealEvent;
+            if (!lastEvent) return;
+            this.state.isPending = true;
+            this.viewport._interaction.isPending = true;
+            await this._openDialog('edit', lastEvent.x, lastEvent.y,
+                lastEvent.record?.eventIsSpan, lastEvent);
+            return;
+        }
 
         const node = (this.viewport.latestState?.nodes || []).find(n => n.id === targetNodeId);
         if (!node) return;

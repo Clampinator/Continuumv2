@@ -256,9 +256,12 @@ export function generateManifest(state, viewport, interaction = null) {
     });
 
     // 7. HUD ALIGNMENT
+    // Expose the last real event so the pointer machine can open an
+    // edit dialog for it when the user right-clicks the NOW node.
     const historyNodes = state.nodes.filter(n => !n.isVirtual && n.id !== 'now');
-    const lastEvent = historyNodes.pop() || { x: 0 };
-    manifest.hud.creationStartX = viewport.worldToScreen(lastEvent.x, 0).x;
+    const lastEvent = historyNodes[historyNodes.length - 1] || null;
+    manifest.hud.creationStartX = viewport.worldToScreen(lastEvent?.x || 0, 0).x;
+    manifest.hud.lastRealEvent = lastEvent;
 
     // 8. ERA CREATION DRAG RECT
     // Visible only when dragging out a new era

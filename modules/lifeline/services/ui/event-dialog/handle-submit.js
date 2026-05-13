@@ -6,9 +6,11 @@ import { resolveContext } from './handle-submit/resolve-context.js';
 import { handleNewExperience } from './handle-submit/experience-lifecycle.js';
 import { processExperienceLifecycle } from './handle-submit/experience-lifecycle.js';
 import { pushSnapshot } from '../../../../lifeline/undo-manager.js';
+import { classifyEventType } from '../../../../temporal-kernel/classify-event-type.js';
 import { resolveLocationInheritance } from '../../../../temporal-kernel/resolve-location-inheritance.js';
 import { cascadeLocationUpdate } from '../../../../temporal-kernel/cascade-location-update.js';
 import { getActorHistory } from '../../../../state/get-actor-history.js';
+import { computeNowPosition } from '../../../../temporal-kernel/compute-now-position.js';
 
 /**
  * AUTHORITATIVE SUBMIT HANDLER
@@ -62,17 +64,23 @@ export async function handleSubmit(actor, formData, params) {
 
     // 3. Prepare the Fact Pass (Raw inputs from UI)
 
-    // AUTHORITY: Check for physical evidence of a Span (Vertical Displacement).
-    // If the Arrival facts differ from the Departure facts, it IS a span.
-    const hasSpanFacts = (formData.eventSpanToDate && formData.eventSpanToDate !== formData.eventSpanFromDate) ||
-                         (formData.eventSpanToTime && formData.eventSpanToTime !== formData.eventSpanFromTime);
-
-    // HANDSHAKE: Honor the intent from the drag (params) OR the manual override (checkbox).
-    // PHYSICS VETO: If the dialog was opened with spanDisabled (Level Breath or Rank 0),
-    // force eventIsSpan to false regardless of user intent. The span checkbox is
-    // disabled in the template, but we also enforce it here as a safety net.
-    const spanDisabled = Boolean(formData.spanDisabled || params.spanDisabled);
-    const eventIsSpan = spanDisabled ? false : Boolean(formData.eventIsSpan || params.eventIsSpan || hasSpanFacts);
+    // KERNEL AUTHORITY: Classify the event type from raw form facts.
+    // The Kernel determines hasSpanFacts and applies the physics veto.
+    // The UI passes raw values through without interpreting them.
+    const { eventIsSpan, hasSpanFacts } = classifyEventType(
+        {
+            eventIsSpan: formData.eventIsSpan || params.eventIsSpan,
+            eventSpanFromDate: formData.eventSpanFromDate,
+            eventSpanToDate: formData.eventSpanToDate,
+            eventSpanFromTime: formData.eventSpanFromTime,
+            eventSpanToTime: formData.eventSpanToTime,
+            eventDate: formData.eventDate || formData.eventSpanFromDate,
+            eventTime: formData.eventTime || formData.eventSpanFromTime,
+            eventLocation: formData.eventLocation || formData.eventSpanFromLocation,
+            eventSpanFromLocation: formData.eventSpanFromLocation
+        },
+        { spanDisabled: Boolean(formData.spanDisabled || params.spanDisabled) }
+    );
 
     // LOCATION INHERITANCE: The Kernel is the sole authority for determining
     // whether a location was inherited (auto-filled) or manually set.
@@ -99,10 +107,18 @@ export async function handleSubmit(actor, formData, params) {
     const eventSpanFromLocation = formData.eventSpanFromLocation || "";
     const eventSpanToLocation = formData.eventSpanToLocation || "";
 
+    // EDIT PRESERVATION: When editing, preserve the existing eventNotes if the
+    // form field is empty. FormDataExtended may return an empty string for a
+    // textarea that wasn't properly populated, or the user may have cleared it.
+    // In either case, we must not overwrite existing notes with an empty string
+    // unless the form explicitly had content. For new events, use form value directly.
+    const existingNotes = (mode === 'edit' && existingData) ? (existingData.record?.eventNotes || existingData.record?.description || "") : "";
+    const preservingNotes = formData.eventNotes || formData.description || existingNotes || "";
+
     // data must be let because the _editArrivalOnly path reassigns it
     let data = {
         eventTitle: formData.eventTitle || (eventIsSpan ? "New Span" : "New Event"),
-        eventNotes: formData.eventNotes || "",
+        eventNotes: preservingNotes,
         eventIsSpan: eventIsSpan,
         eventIsRest: Boolean(formData.eventIsRest),
         
@@ -205,6 +221,25 @@ export async function handleSubmit(actor, formData, params) {
             };
         }
         await updateHistoryRow(actor, existingData.id, { ...data, _skipLocationCascade: true });
+
+        // NOW SYNC: When editing the last event in history, its timestamps
+        // determine the NOW position. Edit mode does not call
+        // computeNowPosition (unlike insert's isLog path), so we must
+        // sync manually. Without this, objectiveNow retains the old
+        // arrival/departure time and the NOW node drifts away from the
+        // last event after a span arrival edit.
+        const postEditHistory = getActorHistory(actor);
+        const lastRealEvent = postEditHistory
+            .filter(n => !n.isNow && !n.isBirth)
+            .pop();
+        if (lastRealEvent && lastRealEvent.id === existingData.id) {
+            const atomic = lastRealEvent.record;
+            const nowPos = computeNowPosition(atomic);
+            await actor.update({
+                'system.personal.objectiveNow': nowPos.objectiveNow,
+                'system.personal.subjectiveNow': nowPos.subjectiveNow
+            });
+        }
 
         // LOCATION CASCADE: When a location is manually changed on edit,
         // propagate the new location to all downstream events that inherited
