@@ -137,4 +137,43 @@ describe('resolveDefaultLocation', () => {
     expect(result.lng).toBeNull();
     expect(result.zoom).toBeNull();
   });
+
+  // BOUNDARY-TRACE: null-age facts MUST NOT match age-0 comparisons.
+  // H4 changed getActorHistory to preserve null eventAge instead of
+  // defaulting to 0. resolveDefaultLocation must exclude null-age
+  // events from the reverse walk rather than treating them as age-0.
+  it('excludes events with null eventAge from location resolution', () => {
+    const history = [
+      makeFact('e-null', 1, { eventAge: null, eventLocation: 'Nowhere', eventIsSpan: false }),
+      makeFact('e-real', 2, { eventAge: 30, eventLocation: 'Paris', eventIsSpan: false, lat: 48.86, lng: 2.35 }),
+    ];
+    // null-age event should not match any target age
+    const result = resolveDefaultLocation(history, 0);
+    // Only e-real at age 30 is excluded (30 > 0), so e-null must also
+    // be excluded (null age). Falls through to Unknown.
+    expect(result.location).toBe('Unknown');
+  });
+
+  it('does not treat null eventAge as age-0 when walking backward', () => {
+    const history = [
+      makeFact('e-null', 1, { eventAge: null, eventLocation: 'GhostTown', eventIsSpan: false, lat: 0, lng: 0 }),
+      makeFact('e-real', 2, { eventAge: 50, eventLocation: 'Paris', eventIsSpan: false, lat: 48.86, lng: 2.35 }),
+    ];
+    // At targetAge=100, both events qualify by age, but the null-age
+    // event must be excluded from matching. Only Paris should be found.
+    const result = resolveDefaultLocation(history, 100);
+    expect(result.location).toBe('Paris');
+    expect(result.lat).toBe(48.86);
+  });
+
+  it('skips null-age events and finds location from known-age event', () => {
+    const history = [
+      makeFact('e-null', 1, { eventAge: null, eventLocation: 'VoidCity', eventIsSpan: false }),
+      makeFact('e-real', 2, { eventAge: 20, eventLocation: 'London', eventIsSpan: false, lat: 51.5, lng: -0.12 }),
+    ];
+    // At targetAge=25, e-real(20) qualifies. e-null is excluded.
+    const result = resolveDefaultLocation(history, 25);
+    expect(result.location).toBe('London');
+    expect(result.lat).toBe(51.5);
+  });
 });

@@ -28,6 +28,13 @@ export const HELP_TEXT = {
                 <li><strong>Define Eras:</strong> Drag the <strong>Blue Bar</strong> at the very bottom of the graph to manually define the duration of a new Age.</li>
             </ul>
 
+            <h4 style="margin-top: 10px; color: #fff;">Undo & Redo</h4>
+            <ul style="margin-bottom: 10px; padding-left: 20px;">
+                <li><strong>Undo:</strong> Click <i class="fas fa-undo"></i> or press <strong>Ctrl+Z</strong> to revert the last change to your Lifeline. Restores eras, Yet markers, and the NOW position in one step. Up to 50 steps are kept per session.</li>
+                <li><strong>Redo:</strong> Click <i class="fas fa-redo"></i> or press <strong>Ctrl+Y</strong> to re-apply the last undone change.</li>
+                <li><strong>Note:</strong> Making a new change clears the redo stack. Undo history is session-only and is lost on page reload.</li>
+            </ul>
+
             <h4 style="margin-top: 10px; color: #fff;">Goals & The Yet</h4>
             <ul style="margin-bottom: 10px; padding-left: 20px;">
                 <li><strong>Link Goals:</strong> Drag a Goal chip from the top bank onto any Event Node to link them. A yellow star will appear.</li>
@@ -37,6 +44,7 @@ export const HELP_TEXT = {
 
             <h4 style="margin-top: 10px; color: #fff;">Data Tools</h4>
             <ul style="margin-bottom: 10px; padding-left: 20px;">
+                <li><strong>Spreadsheet:</strong> Click <i class="fas fa-table"></i> to open the Lifeline Spreadsheet for bulk editing, CSV import/export, and batch operations on your timeline.</li>
                 <li><strong>Export/Import:</strong> Use <i class="fas fa-file-export"></i> and <i class="fas fa-file-import"></i> to save your timeline to a JSON file or restore it.</li>
                 <li><strong>Debug:</strong> Click <i class="fas fa-bug"></i> to copy raw graph data to your clipboard for troubleshooting.</li>
             </ul>

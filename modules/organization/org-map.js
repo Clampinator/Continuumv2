@@ -877,9 +877,9 @@ async function showInitiateConflictDialog(sheet, unitData, locationActor, lat, l
             </div>
             <div class="form-group" id="newConflictOpGroup" style="display:none">
                 <label>Operation Name</label>
-                <input type="text" name="newOpName" value="Operation: ${locationActor.name}"/>
+                    <input type="text" name="newOpName" value="Operation: ${locationActor.name}"/>
             </div>
-            <div class="form-group"><label>eventNotes</label><textarea name="description"></textarea></div>
+            <div class="form-group"><label>Description</label><textarea name="description"></textarea></div>
         </form>
     `;
 
@@ -1015,7 +1015,7 @@ async function showEstablishDeploymentDialog(sheet, unitData, lat, lng) {
                 <label>Operation Name</label>
                 <input type="text" name="newOpName" value="Deployment"/>
             </div>
-            <div class="form-group"><label>eventNotes</label><textarea name="description"></textarea></div>
+            <div class="form-group"><label>Description</label><textarea name="description"></textarea></div>
         </form>
     `;
 

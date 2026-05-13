@@ -127,7 +127,10 @@ function _furthestEventAge(era, startAge) {
     // arrives at eventAge + span displacement, but for era boundary
     // purposes we use eventAge (departure) since that's when the event
     // starts within the era.
-    const age = Number(evt.eventAge) || 0;
+    // Events with null/unknown age are skipped - they have no valid
+    // position and must not anchor era boundaries at age-0.
+    if (evt.eventAge === null || evt.eventAge === undefined) return;
+    const age = Number(evt.eventAge);
     if (age > maxAge) maxAge = age;
   };
 

@@ -18,7 +18,7 @@ import { generateManifest } from './projection/manifest-generator.js';
 import { PointerMachine } from './interaction/pointer-machine.js';
 
 // ATOMIZED ACTIONS
-import { calculateAutofocus } from './viewport/actions/handle-autofocus.js';
+import { handleAutofocus } from './viewport/actions/handle-autofocus.js';
 import { renderViewport } from './viewport/actions/handle-rendering.js';
 import { autoCenter } from './actions/auto-center.js';
 
@@ -123,15 +123,11 @@ export class SpanGraphViewport {
    }
 
   autoFocus() {
-      if (!this.actor) return null;
-      // GATE: No origin data means autofocus has no meaningful center.
-      const personal = this.actor.system.personal || {};
-      const structure = this.actor.system.structure || {};
-      const hasCharOrigin = personal.dob && personal.birthLocation;
-      const hasOrgOrigin = structure.inceptionDate && structure.locality;
-      if (!hasCharOrigin && !hasOrgOrigin) return null;
+      // GATE: No cached state means the render pass hasn't run yet,
+      // or the character lacks origin data (render skips in that case).
+      if (!this.latestState?.nodes?.length) return null;
 
-      const updates = calculateAutofocus(this.actor, this.container, () => this._getOriginTime());
+      const updates = handleAutofocus(this);
       if (updates) this.setViewState(updates);
   }
 

@@ -22,7 +22,7 @@
           <th style="width:95px">Date</th>
           <th style="width:65px">Time</th>
           <th style="min-width:180px">eventTitle</th>
-          <th style="min-width:240px">eventNotes</th>
+          <th style="min-width:240px">Notes</th>
           <th style="min-width:150px">Location</th>
           <th style="width:100px">Era</th>
           <th style="width:120px">Experience</th>
@@ -40,7 +40,7 @@
                 <input class="lss-field lss-n-date"     style="width:95px"  placeholder="YYYY-MM-DD" eventTitle="Date (required)"/>
                 <input class="lss-field lss-n-time"     style="width:65px"  placeholder="HH:MM"      eventTitle="Time (optional)"/>
                 <input class="lss-field lss-n-eventTitle"    style="min-width:180px; flex:1;" placeholder="eventTitle" eventTitle="eventTitle"/>
-                <input class="lss-field lss-n-eventNotes"    style="min-width:240px; flex:2;" placeholder="eventNotes" eventTitle="eventNotes"/>
+                <input class="lss-field lss-n-eventNotes"    style="min-width:240px; flex:2;" placeholder="Notes" eventTitle="Notes"/>
                 <input class="lss-field lss-n-location" style="min-width:150px; flex:1;" placeholder="Location" eventTitle="Location"/>
                 <button type="button" class="lss-map-pin-btn" eventTitle="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>
                 <label class="lss-check-label" eventTitle="Expand for span and experience options">
@@ -117,7 +117,7 @@
            <td><input class="lss-field lss-field-date" data-field="eventDate" value="{{date}}" placeholder="YYYY-MM-DD"/></td>
           <td><input class="lss-field lss-field-time" data-field="eventTime" value="{{time}}" placeholder="HH:MM"/></td>
           <td><input class="lss-field lss-field-eventTitle" data-field="eventTitle" value="{{eventTitle}}" placeholder="eventTitle"/></td>
-          <td><input class="lss-field lss-field-eventNotes" data-field="eventNotes" value="{{eventNotes}}" placeholder="eventNotes"/></td>
+          <td><input class="lss-field lss-field-eventNotes" data-field="eventNotes" value="{{eventNotes}}" placeholder="Notes"/></td>
            <td style="display:flex; align-items:center; gap:2px;">
              <input class="lss-field lss-field-location" data-field="eventLocation" value="{{location}}" placeholder="Location" style="flex:1;"/>
              <button type="button" class="lss-map-pin-btn lss-row-map-pin-btn" eventTitle="Pin location to map"><i class="fas fa-map-marker-alt"></i></button>

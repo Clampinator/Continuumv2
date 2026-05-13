@@ -194,4 +194,41 @@ describe('computeEraBoundaries', () => {
     expect(result[0].endAge).toBeGreaterThan(4 * YR);
     expect(result[0].endAge).toBeLessThan(6 * YR);
   });
+
+  // BOUNDARY-TRACE: null eventAge MUST NOT be treated as age-0.
+  // H4 changed getActorHistory to preserve null eventAge. Era boundary
+  // computation must skip events with null/unknown ages rather than
+  // anchoring era boundaries at age-0.
+  it('should skip events with null eventAge when computing boundaries', () => {
+    const eras = {
+      'era1': {
+        name: 'Childhood',
+        age: 0,
+        events: {
+          'evt-null': { eventTitle: 'Unknown age', eventAge: null },
+          'evt-real': { eventTitle: 'Known event', eventAge: 5 * YR }
+        }
+      },
+      'era2': { name: 'Adulthood', age: 10 * YR }
+    };
+    const result = computeEraBoundaries(eras);
+    // The null-age event must not extend era1's boundary to age-0.
+    // era1 should end at era2 start (10yr).
+    expect(result[0].endAge).toBe(10 * YR);
+  });
+
+  it('should not extend auto-era boundary based on null-age events', () => {
+    const eras = {
+      'era1': {
+        name: 'Childhood',
+        age: 0,
+        events: {
+          'evt-null': { eventTitle: 'Unknown age', eventAge: null }
+        }
+      }
+    };
+    const result = computeEraBoundaries(eras);
+    // Only era, no dateTo, no events with known ages = ends at Infinity
+    expect(result[0].endAge).toBe(Infinity);
+  });
 });

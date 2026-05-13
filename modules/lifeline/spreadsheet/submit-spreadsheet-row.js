@@ -7,6 +7,7 @@ import { parseObjectiveTime } from '../../temporal-translator/coordinate-convert
 import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
 import { resolveDefaultLocation } from '../../temporal-kernel/resolve-default-location.js';
 import { cascadeLocationUpdate } from '../../temporal-kernel/cascade-location-update.js';
+import { classifyEventType } from '../../temporal-kernel/classify-event-type.js';
 import { getActorHistory } from '../../state/get-actor-history.js';
 
 /**
@@ -88,23 +89,23 @@ export async function submitSpreadsheetRow(actor, eventId, field, value) {
 export async function submitNewRow(sheet, fv, options = {}) {
     const actor = sheet.actor;
 
-    // Determine span status from the explicit flag or span-specific facts.
-    // Only treat as span if: (a) the flag is set, OR (b) span has both a From and To
-    // that differ from each other AND from the level date. A level event that merely
-    // has an arrival timestamp equal to its departure should NOT become a span.
-    const eventIsSpan = Boolean(fv.eventIsSpan);
-
-    // For imported spans where only To dates are provided, the From dates come from
-    // the level fields (date/time). Transfer those to the span fields.
-    if (eventIsSpan && !fv.eventSpanFromDate && fv.date) {
-        fv.eventSpanFromDate = fv.date;
-    }
-    if (eventIsSpan && !fv.eventSpanFromTime && fv.time) {
-        fv.eventSpanFromTime = fv.time;
-    }
-    if (eventIsSpan && !fv.eventSpanFromLocation && fv.location) {
-        fv.eventSpanFromLocation = fv.location;
-    }
+    // KERNEL AUTHORITY: Classify the event type from raw form facts.
+    // The Kernel determines whether this is a Span or Level event,
+    // and normalizes span From fields when they are missing.
+    const { eventIsSpan, normalizedFacts } = classifyEventType(
+        {
+            eventIsSpan: Boolean(fv.eventIsSpan),
+            eventSpanFromDate: fv.eventSpanFromDate || '',
+            eventSpanToDate: fv.eventSpanToDate || '',
+            eventSpanFromTime: fv.eventSpanFromTime || '',
+            eventSpanToTime: fv.eventSpanToTime || '',
+            eventDate: fv.date || '',
+            eventTime: fv.time || '',
+            eventLocation: fv.location || '',
+            eventSpanFromLocation: fv.eventSpanFromLocation || ''
+        },
+        { spanDisabled: false }
+    );
 
     // Resolve era/experience
     const eras = actor.system.eras || {};
@@ -150,9 +151,9 @@ export async function submitNewRow(sheet, fv, options = {}) {
     const birthCtx = resolveLocationContext([], 0, actor);
     const birthTs = parseObjectiveTime(dob, '12:00:00', birthCtx);
 
-    // Resolve the departure timestamp from form values
-    const depDate = eventIsSpan ? (fv.eventSpanFromDate || fv.date) : fv.date;
-    const depTime = eventIsSpan ? (fv.eventSpanFromTime || fv.time || '12:00:00') : (fv.time || '12:00:00');
+    // Resolve the departure timestamp from normalized facts
+    const depDate = eventIsSpan ? normalizedFacts.eventSpanFromDate : (fv.date || '');
+    const depTime = eventIsSpan ? normalizedFacts.eventSpanFromTime : (fv.time || '12:00:00');
 
     let eventAge = fv.subjectiveAge || 0;
     if (!eventAge && depDate) {
@@ -170,7 +171,7 @@ export async function submitNewRow(sheet, fv, options = {}) {
     const defaultLoc = resolveDefaultLocation(historyForLoc, eventAge, actor);
 
     const eventLocation = fv.location || '';
-    const spanFromLocation = fv.eventSpanFromLocation || '';
+    const spanFromLocation = normalizedFacts.eventSpanFromLocation;
     const spanToLocation = fv.eventSpanToLocation || '';
 
     // INHERITANCE FLAGS: true if the location matches the default (auto-filled)
@@ -194,8 +195,8 @@ export async function submitNewRow(sheet, fv, options = {}) {
         lng: fv.lng ?? (eventLocation ? null : defaultLoc.lng),
         zoom: fv.zoom ?? (eventLocation ? null : defaultLoc.zoom),
 
-        eventSpanFromDate: fv.eventSpanFromDate || '',
-        eventSpanFromTime: fv.eventSpanFromTime || '12:00:00',
+        eventSpanFromDate: normalizedFacts.eventSpanFromDate,
+        eventSpanFromTime: normalizedFacts.eventSpanFromTime || '12:00:00',
         eventSpanFromLocation: spanFromLocation || defaultLoc.location,
         eventSpanFromLat: fv.eventSpanFromLat ?? (spanFromLocation ? null : defaultLoc.lat),
         eventSpanFromLng: fv.eventSpanFromLng ?? (spanFromLocation ? null : defaultLoc.lng),

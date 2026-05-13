@@ -67,7 +67,8 @@ function mapToFact(id, event, path, eraId, expId) {
     const eventIsSpan = Boolean(event.eventIsSpan);
     const fact = {
         eventTitle: event.eventTitle || "",
-        eventAge: event.eventAge || 0,
+        eventNotes: event.eventNotes || event.description || "",
+        eventAge: (event.eventAge !== undefined && event.eventAge !== null) ? Number(event.eventAge) : null,
         eventDate: event.eventDate || "",
         eventTime: event.eventTime || "12:00:00",
         eventLocation: event.eventLocation || "",

@@ -106,7 +106,7 @@ export function getTemplateData(actor, params) {
         eventLocation: record.eventLocation || defaultLoc.location || humanStrings.locationContext.location || "",
         mode,
         id: existingData?.id || null,
-        eventNotes: record.eventNotes || "",
+        eventNotes: record.eventNotes || record.description || "",
         eventIsRest: Boolean(record.eventIsRest),
         
         // Level Facts

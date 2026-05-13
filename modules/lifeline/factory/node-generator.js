@@ -17,7 +17,7 @@ export const NodeGenerator = {
             expSort: config.expSort || 0,
             sort: config.sort || 0,
             eventTitle: config.eventTitle || "Node",
-            eventNotes: config.eventNotes || "",
+            eventNotes: config.eventNotes || config.description || "",
             linkedGoalIds: config.linkedGoalIds || [],
             isRestStart: !!config.isRestStart,
             isRestEnd: !!config.isRestEnd,

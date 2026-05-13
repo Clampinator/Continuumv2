@@ -25,16 +25,19 @@ export function resolveDefaultLocation(history, targetAge, actor = null) {
     return applyFallback(UNKNOWN, actor);
   }
 
-  // Filter events at or before the target age
+  // Filter events with a known age at or before the target age.
+  // Events with null/unknown age are excluded - they have no valid position
+  // on the timeline and must not match age-0 comparisons.
   const pastEvents = history.filter(e => {
-    const age = Number(e.record?.eventAge || e.age || 0);
-    return age <= targetAge;
+    const age = e.record?.eventAge ?? e.age ?? null;
+    if (age === null || age === undefined) return false;
+    return Number(age) <= targetAge;
   });
 
   // Sort descending by age then sort to walk backward from target
   pastEvents.sort((a, b) => {
-    const ageA = Number(a.record?.eventAge || a.age || 0);
-    const ageB = Number(b.record?.eventAge || b.age || 0);
+    const ageA = Number(a.record?.eventAge ?? a.age ?? 0);
+    const ageB = Number(b.record?.eventAge ?? b.age ?? 0);
     const ageDiff = ageB - ageA;
     if (ageDiff !== 0) return ageDiff;
     return (Number(b.sort) || 0) - (Number(a.sort) || 0);

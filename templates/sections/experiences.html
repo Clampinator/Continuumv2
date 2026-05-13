@@ -74,7 +74,7 @@
                                   </div>
                                   <input type="time" class="event-time-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.time" value="{{event.time}}" />
                               </div>
-                              <textarea name="system.eras.{{event.eraId}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Event eventNotes">{{event.eventNotes}}</textarea>
+                              <textarea name="system.eras.{{event.eraId}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Notes">{{event.eventNotes}}</textarea>
                           </div>
                           <div class="event-controls">
                               <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}Cannot delete an element with content{{else}}Delete Event{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{event.eraId}}"><i class="fas fa-trash"></i></a>
@@ -228,7 +228,7 @@
                         <i class="fas fa-map-marker-alt"></i> <span>Spacetime Link</span>
                     </div>
                     {{/if}}
-<textarea name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Event eventNotes">{{event.eventNotes}}</textarea>
+<textarea name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Notes">{{event.eventNotes}}</textarea>
                   </div>
                   <div class="event-controls">
                     {{#if (or @root.isGM @root.playersCanSeeSpan)}}

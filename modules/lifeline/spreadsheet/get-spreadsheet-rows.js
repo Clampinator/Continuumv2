@@ -1,30 +1,36 @@
-import { flattenEvents } from '../../span-graph-data-processor.js';
+import { getActorHistory } from '../../state/get-actor-history.js';
 import { getTemporalState } from '../../temporal-engine/get-temporal-state.js';
 import { Translator } from '../../temporal-translator/temporal-translator.js';
 import { parseObjectiveTime } from '../../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../../temporal-translator/location-resolver.js';
 
 /**
- * Reads actor.system.eras, flattens all events using the new Temporal Engine,
- * and prepares them for spreadsheet rendering.
- * 
+ * Reads actor.system.eras, flattens all events using the Temporal Engine
+ * pipeline (getActorHistory + getTemporalState), and prepares them for
+ * spreadsheet rendering.
+ *
+ * TRINITY COMPLIANCE: Uses the canonical State -> Engine pipeline instead
+ * of the deprecated flattenEvents data processor which violated Trinity
+ * boundaries by performing TTL date parsing and Kernel physics recovery
+ * inside a data extraction function.
+ *
  * @param {Actor} actor - The Foundry VTT actor.
  * @returns {Object} {rows, allExperiences, allEras}
  */
 export function getSpreadsheetRows(actor) {
     const rawEras = actor.system.eras || {};
     const subjectiveNow = Number(actor.system.personal?.subjectiveNow) || 0;
-    
+
     // AUTHORITY: Resolve Birth Date timestamp as Origin Time
     const dob = actor.system.personal?.dob || "1970-01-01";
     // For Birth, we establish the context from Age 0
     const birthCtx = resolveLocationContext([], 0, actor);
     const originTime = parseObjectiveTime(dob, "12:00:00", birthCtx);
 
-    // 1. Get Flattened canonical history
-    const history = flattenEvents(rawEras, actor);
+    // 1. Get canonical history (State layer - no physics, no parsing)
+    const history = getActorHistory(actor);
 
-    // 2. Process through the new Temporal Engine (Brain)
+    // 2. Process through the Temporal Engine (Kernel layer)
     const state = getTemporalState(history, subjectiveNow, originTime, actor);
 
     // 3. Prep Metadata lookups

@@ -91,8 +91,8 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
 
             <div class="form-row">
                 <div class="form-col">
-                    <label>eventNotes</label>
-                    <textarea name="eventNotes" style="min-height: 80px;">${data.eventNotes || ''}</textarea>
+                    <label>Description</label>
+                    <textarea name="eventNotes" style="min-height: 80px;">${data.eventNotes || data.description || ''}</textarea>
                 </div>
             </div>
 
@@ -135,7 +135,7 @@ export function openEventEditDialog(data, sheet, viewState, graphData) {
                     const updatedEvent = {
                         ...data,
                         eventTitle: formData.eventTitle,
-                        eventNotes: formData.eventNotes,
+                        eventNotes: formData.eventNotes || '',
                         age: parseSubjectiveAge(formData.eventAge),
                         eventIsRest: !data.eventIsSpan && formData.eventIsRest,
                         eraId: targetEraId,

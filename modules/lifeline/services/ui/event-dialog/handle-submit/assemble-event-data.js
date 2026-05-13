@@ -22,7 +22,7 @@ export function assembleEventData(formData, params) {
     const eventData = {
         id: newId,
         eventTitle: formData.eventTitle,
-        eventNotes: formData.eventNotes,
+        eventNotes: formData.eventNotes || formData.description || '',
         eventIsRest: Boolean(formData.eventIsRest && !eventIsSpan),
         eventIsSpan: eventIsSpan,
         age: authoritativeAge,

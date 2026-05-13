@@ -405,7 +405,7 @@ function buildEvents(foundryJson, wizardData, ages, geoMap, addLog) {
     const eventObj = {
       id: eventId,
       eventTitle: evt.eventTitle || 'Event',
-      eventNotes: evt.eventNotes || '',
+      eventNotes: evt.eventNotes || evt.description || '',
       date: evt.date || '',
       time: evt.time || '12:00:00',
       location: evt.location || '',
