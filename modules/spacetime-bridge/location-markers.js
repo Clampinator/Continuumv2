@@ -75,6 +75,9 @@ function _makeEl(tokenSrc, color) {
         backgroundImage: `url("${tokenSrc}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        // Desaturate marker to distinguish from the interactive proxy
+        // token - these are reference pins, not the draggable token
+        filter: 'grayscale(0.7) opacity(0.7)',
         border: `2px solid ${color}`,
         boxShadow: '0 1px 4px rgba(0,0,0,0.8)',
         cursor: 'pointer',

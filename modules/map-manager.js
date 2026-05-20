@@ -226,6 +226,23 @@ export async function getActorTokenLocation(actor) {
     const stApi = game.modules.get('spacetime')?.api;
     const sliderMs = stApi?.getCurrentTimestamp?.() ?? null;
 
+    // If a proxy token was manually dragged, its latlng is the
+    // authoritative position - the player physically placed it there.
+    // The manuallyPlaced flag is set on token drag and cleared when
+    // the timeline scrubber commits interpolated positions.
+    for (const scene of game.scenes) {
+        for (const tokenDoc of scene.tokens) {
+            if (tokenDoc.actorId !== actor.id) continue;
+            if (!tokenDoc.getFlag('spacetime', 'isProxy')) continue;
+            if (!tokenDoc.getFlag('spacetime', 'manuallyPlaced')) continue;
+            const latlng = tokenDoc.getFlag('spacetime', 'latlng');
+            if (latlng?.lat != null && latlng?.lng != null) {
+                const formattedAddress = await reverseGeocode(Number(latlng.lat), Number(latlng.lng));
+                return { lat: Number(latlng.lat), lng: Number(latlng.lng), zoom: 12, formattedAddress, manuallyPlaced: true };
+            }
+        }
+    }
+
     // Primary: interpolate from lifeline waypoints at the current slider time
     if (sliderMs != null) {
         const { waypoints, keyframes } = getLifelineEvents(actor);
@@ -241,7 +258,7 @@ export async function getActorTokenLocation(actor) {
     }
 
     // Fallback: scan SpaceTime tokens for this actor across all scenes.
-    // Check latlng (manually dragged position) first, then keyframes.
+    // Check latlng (interpolated position from last scrub) first, then keyframes.
     const effectiveMs = sliderMs ?? Date.now();
     for (const scene of game.scenes) {
         for (const tokenDoc of scene.tokens) {

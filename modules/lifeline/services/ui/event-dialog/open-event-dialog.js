@@ -15,6 +15,29 @@ export async function openEventDialog(sheet, params) {
 
     const templateData = getTemplateData(actor, params);
 
+    // TOKEN-FIRST: For new events (log/insert), auto-fill location
+    // fields from the proxy token's current position on the SpaceTime
+    // map. This is the primary geographic workflow - drag the token,
+    // then create the event. Edit mode uses the existing event's data.
+    if (params.mode !== 'edit') {
+        const tokenPos = await getActorTokenLocation(actor);
+        if (tokenPos) {
+            // Level event location
+            if (templateData.lat == null) templateData.lat = tokenPos.lat;
+            if (templateData.lng == null) templateData.lng = tokenPos.lng;
+            if (!templateData.eventLocation && tokenPos.formattedAddress) {
+                templateData.eventLocation = tokenPos.formattedAddress;
+            }
+            templateData.zoom = templateData.zoom ?? tokenPos.zoom ?? 12;
+            // Span departure inherits the same position
+            if (templateData.eventSpanFromLat == null) templateData.eventSpanFromLat = tokenPos.lat;
+            if (templateData.eventSpanFromLng == null) templateData.eventSpanFromLng = tokenPos.lng;
+            if (!templateData.eventSpanFromLocation && tokenPos.formattedAddress) {
+                templateData.eventSpanFromLocation = tokenPos.formattedAddress;
+            }
+        }
+    }
+
     const dialogTitle = {
         'edit': templateData.eventIsSpan ? "Edit Span" : "Edit Event",
         'insert': "Insert Event into History",
