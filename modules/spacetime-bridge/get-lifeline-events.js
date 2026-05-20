@@ -1,10 +1,12 @@
 /*
 Extracts located events from an actor's lifeline, sorted by objective date.
-Returns { waypoints, segments } for drawing on the SpaceTime map.
+Returns { waypoints, segments, keyframes } for drawing on the SpaceTime map.
 
-Waypoint: { ms, lat, lng, eventTitle, subjectiveAge }
+Waypoint: { ms, lat, lng, eventTitle, subjectiveAge, spanId, spanRole }
 Segment:  { fromMs, toMs, fromLat, fromLng, toLat, toLng, type }
   type: 'solid' | 'dashed' | 'dotted'
+Keyframes: deduplicated waypoints where level events at the same ms
+  override span endpoints (character's actual location wins).
 */
 
 function parseDateToMs(date, time) {
@@ -101,25 +103,47 @@ function buildSegments(waypoints, allEvents) {
     return segments;
 }
 
+/*
+Deduplicate waypoints for keyframe/interpolation use.
+When a level event and a span endpoint share the same objective time,
+the level event's location is authoritative - it represents where the
+character actually is after arriving. The span endpoint represents
+where the character materialized via spanning, which can differ from
+where they end up (e.g. span arrives at Jacarezinho but the
+corresponding arrival level event records Jacarepaguá).
+
+Segments still use the full waypoint list (span FROM->TO pairs must
+be intact for dashed-line rendering). Only position-interpolation
+consumers (keyframes, clock indicator) need the deduplicated list.
+*/
+function deduplicateForKeyframes(waypoints) {
+    if (waypoints.length === 0) return waypoints;
+    const result = [];
+    let i = 0;
+    while (i < waypoints.length) {
+        let j = i;
+        while (j < waypoints.length && waypoints[j].ms === waypoints[i].ms) j++;
+        const group = waypoints.slice(i, j);
+        // Level events (spanId === null) represent the character's
+        // settled location. If one exists at this ms, use it exclusively.
+        const levelWp = group.find(wp => wp.spanId === null);
+        if (levelWp) {
+            result.push(levelWp);
+        } else {
+            // All span endpoints at this ms - keep them all
+            // (multiple spans can arrive at the same objective time)
+            for (const wp of group) result.push(wp);
+        }
+        i = j;
+    }
+    return result;
+}
+
 export function getLifelineEvents(actor) {
     const allEvents = collectAllEvents(actor);
     const waypoints = buildWaypoints(allEvents);
     waypoints.sort((a, b) => a.ms - b.ms);
     const segments = buildSegments(waypoints, allEvents);
-
-    // DIAGNOSTIC: Log waypoint/segment counts and sample lat/lng values
-    // to verify that location data flows from actor events to the bridge.
-    const locatedEvents = allEvents.filter(ev =>
-        ev.eventIsSpan
-            ? (ev.eventSpanFromLat != null || ev.eventSpanToLat != null)
-            : (ev.lat != null)
-    );
-    console.debug(
-        `[Continuum Bridge] getLifelineEvents(${actor.name}):`,
-        `${allEvents.length} events, ${locatedEvents.length} located,`,
-        `${waypoints.length} waypoints, ${segments.length} segments`,
-        waypoints.length > 0 ? `sample: lat=${waypoints[0].lat}, lng=${waypoints[0].lng}` : '(no waypoints)'
-    );
-
-    return { waypoints, segments };
+    const keyframes = deduplicateForKeyframes(waypoints);
+    return { waypoints, segments, keyframes };
 }

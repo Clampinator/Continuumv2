@@ -124,33 +124,36 @@ function drawArrow(g, px, direction, color) {
 }
 
 export function drawActorLifeline(svg, data, map, sliderMs, startMs, endMs, color, tokenImg, actorId) {
-    const { waypoints, segments } = data;
+    const { waypoints, segments, keyframes } = data;
     if (waypoints.length === 0) return;
 
     const g = el('g', { 'data-actor-id': actorId });
 
-    // Draw path segments
+    // Draw path segments (uses full waypoints for dashed span lines)
     for (const seg of segments) {
         drawSegment(g, seg, map, color, startMs, endMs);
     }
 
     // Draw clock indicator at current slider position
-    const pos = interpolatePosition(waypoints, sliderMs, map);
+    // Uses deduplicated keyframes so span-TO endpoints at the
+    // same ms as level events don't cause the clock to jump.
+    const kf = keyframes || waypoints;
+    const pos = interpolatePosition(kf, sliderMs, map);
     if (pos) drawClock(svg, g, pos, sliderMs, tokenImg, actorId, color);
 
     // Boundary arrows where lifeline extends beyond the timeline bracket
-    const firstMs = waypoints[0].ms;
-    const lastMs  = waypoints[waypoints.length - 1].ms;
+    const firstMs = kf[0].ms;
+    const lastMs  = kf[kf.length - 1].ms;
 
     if (firstMs < startMs) {
-        const firstInBracket = waypoints.find(w => w.ms >= startMs);
+        const firstInBracket = kf.find(w => w.ms >= startMs);
         if (firstInBracket) {
             const px = map.project([firstInBracket.lng, firstInBracket.lat]);
             drawArrow(g, px, 'before', color);
         }
     }
     if (lastMs > endMs) {
-        const lastInBracket = [...waypoints].reverse().find(w => w.ms <= endMs);
+        const lastInBracket = [...kf].reverse().find(w => w.ms <= endMs);
         if (lastInBracket) {
             const px = map.project([lastInBracket.lng, lastInBracket.lat]);
             drawArrow(g, px, 'after', color);

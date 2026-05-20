@@ -425,7 +425,7 @@ export async function importFromCsv(app) {
                 eventSpanFromTime: fv.eventSpanFromTime || '12:00:00',
                 eventSpanFromLocation: fv.eventSpanFromLocation || '',
                 eventSpanToDate: fv.eventSpanToDate || '',
-                eventSpanToTime: fv.eventToTime || '12:00:00',
+                eventSpanToTime: fv.eventSpanToTime || '12:00:00',
                 eventSpanToLocation: fv.eventSpanToLocation || '',
                 ts,
                 arrivalTs,

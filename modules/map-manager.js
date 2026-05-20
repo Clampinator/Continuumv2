@@ -228,9 +228,9 @@ export async function getActorTokenLocation(actor) {
 
     // Primary: interpolate from lifeline waypoints at the current slider time
     if (sliderMs != null) {
-        const { waypoints } = getLifelineEvents(actor);
-        if (waypoints.length > 0) {
-            const pos = _interpolateLatLng(waypoints, sliderMs);
+        const { keyframes } = getLifelineEvents(actor);
+        if (keyframes.length > 0) {
+            const pos = _interpolateLatLng(keyframes, sliderMs);
             if (pos) {
                 const formattedAddress = await reverseGeocode(pos.lat, pos.lng);
                 return { lat: pos.lat, lng: pos.lng, zoom: 12, formattedAddress, timestampMs: sliderMs };
