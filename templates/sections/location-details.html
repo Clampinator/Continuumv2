@@ -1,0 +1,67 @@
+<div class="section-container">
+    <input type="checkbox" id="toggle-location-details-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-location-details-" actor.id))}}checked{{/if}}>
+    <div class="section-header-row">
+        <label for="toggle-location-details-{{actor.id}}" class="section-heading-toggle">
+            <h2 class="section-heading">Location Details</h2>
+        </label>
+        {{#if isGM}}
+        <label class="location-reveal-toggle" eventTitle="{{#if revealedOnOrgMap}}Hide from player Org Maps{{else}}Reveal on player Org Maps{{/if}}">
+            <input type="checkbox" class="reveal-on-org-map sheet-hidden" {{#if revealedOnOrgMap}}checked{{/if}} />
+            <i class="fas {{#if revealedOnOrgMap}}fa-eye{{else}}fa-eye-slash{{/if}}"></i>
+            <span>Org Map</span>
+        </label>
+        {{/if}}
+    </div>
+    
+    <div class="section-content">
+        <div class="columns">
+            <div class="column">
+                <div class="form-row">
+                    <label>Location Name</label>
+                    <input type="text" name="system.details.name" value="{{system.details.name}}" placeholder="Name of the Location">
+                </div>
+                <div class="form-row">
+                    <label>Locality</label>
+                    <input type="text" name="system.details.locality" value="{{system.details.locality}}" placeholder="Specific Region/City">
+                </div>
+                <div class="form-row">
+                    <label>Society</label>
+                    <input type="text" name="system.details.society" value="{{system.details.society}}" placeholder="Dominant Society">
+                </div>
+            </div>
+            <div class="column">
+                <div class="form-row">
+                    <label>Coordinates</label>
+                    <div style="display: flex; gap: 4px; width: 100%; align-items: center;">
+                        <input type="number" step="any" name="system.map.lat" value="{{system.map.lat}}" placeholder="Latitude" style="flex: 1;" eventTitle="Latitude">
+                        <input type="number" step="any" name="system.map.lng" value="{{system.map.lng}}" placeholder="Longitude" style="flex: 1;" eventTitle="Longitude">
+                        <button type="button" class="geocode-location-btn" eventTitle="Geocode location name to fill coordinates" style="flex: 0 0 auto; padding: 2px 8px;"><i class="fas fa-map-marker-alt"></i></button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Temporal Target (Year)</label>
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <input type="number" name="system.details.year" value="{{system.details.year}}" placeholder="Year" style="flex: 1;">
+                        <select name="system.details.era" style="width: 80px;">
+                            <option value="CE" {{#if (eq system.details.era "CE")}}selected{{/if}}>CE</option>
+                            <option value="BCE" {{#if (eq system.details.era "BCE")}}selected{{/if}}>BCE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Continent</label>
+                    <select name="system.details.continent">
+                        <option value="">Global Scope</option>
+                        <option value="Africa" {{#if (eq system.details.continent "Africa")}}selected{{/if}}>Africa</option>
+                        <option value="Antarctica" {{#if (eq system.details.continent "Antarctica")}}selected{{/if}}>Antarctica</option>
+                        <option value="Asia" {{#if (eq system.details.continent "Asia")}}selected{{/if}}>Asia</option>
+                        <option value="Europe" {{#if (eq system.details.continent "Europe")}}selected{{/if}}>Europe</option>
+                        <option value="North America" {{#if (eq system.details.continent "North America")}}selected{{/if}}>North America</option>
+                        <option value="Oceania" {{#if (eq system.details.continent "Oceania")}}selected{{/if}}>Oceania</option>
+                        <option value="South America" {{#if (eq system.details.continent "South America")}}selected{{/if}}>South America</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

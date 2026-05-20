@@ -1,0 +1,220 @@
+<form class="continuum-dialog-form event-node-editor" autocomplete="off">
+    <style>
+        .event-node-editor { display: flex; flex-direction: column; gap: 10px; }
+        .editor-stats-row { display: flex; gap: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; font-family: monospace; font-size: 0.9em; margin-bottom: 5px; }
+        .editor-stat-item { flex: 1; text-align: center; }
+        .editor-stat-item label { display: block; font-size: 0.7em; color: #aaa; margin-bottom: 2px; text-transform: uppercase; }
+        .editor-stat-item span { font-weight: bold; color: #4da6ff; }
+        .form-row { display: flex; gap: 10px; width: 100%; align-items: flex-end; }
+        .form-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .form-col label { font-size: 0.8em; font-weight: bold; color: #ccc; }
+        .context-list-scroll { max-height: 220px; overflow-y: auto; background: #111; border: 1px solid #444; padding: 5px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .context-item { display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 3px; transition: background 0.15s; }
+        .context-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .context-item input[type="radio"], .context-item input[type="checkbox"] { margin: 0; width: 16px; height: 16px; flex-shrink: 0; }
+        .context-item label { cursor: pointer; flex: 1; font-size: 0.9em; color: #eee; margin: 0; user-select: none; }
+        .context-item.optgroup-header { font-weight: bold; color: #4da6ff; border-bottom: 1px solid #333; margin-top: 10px; margin-bottom: 4px; padding-bottom: 2px; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; pointer-events: none; }
+        .context-item.sub-item { padding-left: 24px; }
+        .context-item.sub-item label { color: #ff6b6b; font-size: 0.85em; }
+        .input-with-btn { display: flex; align-items: center; width: 100%; gap: 5px; }
+        .input-with-btn input { flex: 1; }
+        .geo-btn { flex: 0 0 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: #333; border: 1px solid #555; color: #8ecae6; border-radius: 4px; cursor: pointer; }
+        .geo-btn:hover { background: #444; color: #fff; }
+        .multi-hint { font-size: 0.75em; color: #8ecae6; font-style: italic; margin-top: -2px; margin-bottom: 4px; }
+        .section-header-compact { font-size: 0.75em; font-weight: bold; color: #ff00ff; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,0,255,0.2); padding-bottom: 2px; margin-bottom: 5px; }
+    </style>
+
+    {{#if isLogMode}}
+    <div class="editor-stats-row">
+        <div class="editor-stat-item"><label>Age</label><span>{{ageFormatted}}</span></div>
+        <div class="editor-stat-item"><label>Spent</label><span>{{ageDeltaFormatted}}</span></div>
+        <div class="editor-stat-item"><label>Objective</label><span>{{timeDeltaFormatted}}</span></div>
+    </div>
+    {{else}}
+    <div class="form-row">
+        <div class="form-col">
+            <label>Subjective Age</label>
+            <input type="text" name="eventAge" value="{{ageFormatted}}">
+        </div>
+    </div>
+    {{/if}}
+
+    <div id="spanFields" {{#unless eventIsSpan}}style="display:none"{{/unless}}>
+        <div class="section-header-compact">Origin (From)</div>
+        <div class="form-row">
+            <div class="form-col">
+                <label>Date</label>
+                <div class="date-picker-container">
+                    <input type="text" class="date-text-input" name="eventSpanFromDate" value="{{eventSpanFromDate}}" placeholder="YYYY-MM-DD" />
+                    <i class="fas fa-calendar-alt date-picker-icon"></i>
+                    <input type="date" class="date-picker-hidden" tabindex="-1" />
+                </div>
+            </div>
+            <div class="form-col">
+                <label>Time</label>
+                <input type="time" step="1" name="eventSpanFromTime" value="{{eventSpanFromTime}}"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-col">
+                <label>Origin Location</label>
+                <div class="input-with-btn">
+                    <input type="text" name="eventSpanFromLocation" value="{{eventSpanFromLocation}}" placeholder="e.g. Origin point" />
+                    <input type="hidden" name="spanFromLat" value="{{spanFromLat}}" />
+                    <input type="hidden" name="spanFromLng" value="{{spanFromLng}}" />
+                    <input type="hidden" name="spanFromZoom" value="{{spanFromZoom}}" />
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header-compact" style="margin-top: 10px;">Destination (To)</div>
+        <div class="form-row">
+            <div class="form-col">
+                <label>Date</label>
+                <div class="date-picker-container">
+                    <input type="text" class="date-text-input" name="eventSpanToDate" value="{{eventSpanToDate}}" placeholder="YYYY-MM-DD" />
+                    <i class="fas fa-calendar-alt date-picker-icon"></i>
+                    <input type="date" class="date-picker-hidden" tabindex="-1" />
+                </div>
+            </div>
+            <div class="form-col">
+                <label>Time</label>
+                <input type="time" step="1" name="eventSpanToTime" value="{{eventSpanToTime}}"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-col">
+                <label>Destination Location</label>
+                <div class="input-with-btn">
+                    <input type="text" name="eventSpanToLocation" value="{{eventSpanToLocation}}" placeholder="e.g. Destination point" />
+                    <input type="hidden" name="spanToLat" value="{{spanToLat}}" />
+                    <input type="hidden" name="spanToLng" value="{{spanToLng}}" />
+                    <input type="hidden" name="spanToZoom" value="{{spanToZoom}}" />
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventFields" {{#if eventIsSpan}}style="display:none"{{/if}}>
+        <div class="form-row">
+            <div class="form-col">
+                <label>Objective Date</label>
+                <div class="date-picker-container">
+                    <input type="text" class="date-text-input" name="eventDate" value="{{date}}" placeholder="YYYY-MM-DD" />
+                    <i class="fas fa-calendar-alt date-picker-icon"></i>
+                    <input type="date" class="date-picker-hidden" tabindex="-1" />
+                </div>
+            </div>
+            <div class="form-col">
+                <label>Objective Time</label>
+                <input type="time" step="1" name="eventTime" value="{{time}}"/>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-col">
+                <label>Location</label>
+                <div class="input-with-btn">
+                    <input type="text" name="eventLocation" value="{{location}}" placeholder="e.g. Paris" />
+                    <input type="hidden" name="eventLat" value="{{lat}}" />
+                    <input type="hidden" name="eventLng" value="{{lng}}" />
+                    <input type="hidden" name="eventZoom" value="{{zoom}}" />
+                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{#if downstreamImpact}}
+    <div id="downstreamImpact" style="margin-top: 8px;">
+        <div class="section-header-compact">Downstream Impact</div>
+        <div class="context-list-scroll" style="max-height: 120px; font-size: 0.85em;">
+            {{#each downstreamImpact}}
+            <div class="context-item" style="padding: 2px 6px;">
+                <span style="color: #ff6b6b; min-width: 100px; display: inline-block;">{{this.title}}</span>
+                <span style="color: #aaa;">{{this.oldDate}}</span>
+                <span style="color: #4da6ff; margin: 0 4px;">-></span>
+                <span style="color: #4da6ff;">{{this.newDate}}</span>
+                <span style="color: #ffd700; margin-left: 6px;">{{this.shift}}</span>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    <div class="form-row">
+        <div class="form-col">
+            <label>Era</label>
+            <span class="era-name-display" style="font-size: 0.95em; color: #4da6ff; font-weight: bold;">{{eraName}}</span>
+            <input type="hidden" name="eraId" value="{{eraId}}" />
+        </div>
+    </div>
+
+    {{#if experienceOptions}}
+    <div class="form-row">
+        <div class="form-col">
+            <label>Experience</label>
+            <p class="multi-hint">Which experience within this era?</p>
+            <div class="context-list-scroll">
+                {{{experienceOptions}}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
+    {{#if lifecycleHtml}}
+    <div class="form-row">
+        <div class="form-col">
+            <div class="context-list-scroll">
+                {{{lifecycleHtml}}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
+    <div class="form-row" id="newExpGroup" style="display:none;">
+        <div class="form-col">
+            <label>New Experience Name</label>
+            <input type="text" name="newExpName" value="{{defaultNewExpName}}"/>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-col">
+            <label>eventTitle</label>
+            <input type="text" name="eventTitle" value="{{eventTitle}}" autofocus />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-col">
+            <label>Description</label>
+            <textarea name="eventNotes" style="min-height: 80px;">{{eventNotes}}</textarea>
+        </div>
+    </div>
+
+    <div class="form-row" style="align-items: center; gap: 15px;">
+        {{#if canSeeSpan}}
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <input type="checkbox" name="eventIsSpan" id="editorIsSpan" {{#if eventIsSpan}}checked{{/if}} />
+            <label for="editorIsSpan" style="margin-bottom:0; font-weight: bold; color: #ff00ff; cursor: pointer;">Is Span</label>
+        </div>
+        {{/if}}
+        {{#if eventIsSpan}}
+        <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+            <input type="checkbox" name="isPulled" id="editorIsPulled" {{#if isPulled}}checked{{/if}} />
+            <label for="editorIsPulled" style="margin-bottom:0; font-weight: bold; color: #ffaaff; cursor: pointer;">Pulled</label>
+            <span style="font-size: 0.7em; color: #999; margin-left: 2px;">Another spanner carried you</span>
+        </div>
+        {{/if}}
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <input type="checkbox" name="eventIsRest" id="editorIsRest" {{#if eventIsRest}}checked{{/if}} {{#if eventIsSpan}}disabled{{/if}} />
+            <label for="editorIsRest" style="margin-bottom:0; font-weight: bold; color: #28a745; cursor: pointer;">24h Rest</label>
+        </div>
+    </div>
+</form>

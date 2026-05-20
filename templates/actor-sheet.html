@@ -1,0 +1,205 @@
+<form class="{{cssClass}}" autocomplete="off" data-fraternity="{{fraternityClass}}">
+  <!-- The <form> tag is the root element for the entire sheet -->
+
+  {{> "systems/continuum-v2/templates/sections/personal.html"}}
+
+  {{> "systems/continuum-v2/templates/sections/attributes.html"}}
+
+  <!-- Dialog Popup -->
+  <input type="checkbox" class="sheet-hidden" id="dialog_flag" />
+  <div class="dialog-overlay">
+    <!-- NEW: Container for info boxes on the left -->
+    <div class="metability-info-container metability-info-left">
+      <!-- JS will populate this area -->
+    </div>
+
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h3>
+          <span>{{actor.name}}</span> rolls <span class="rolling-attribute-name"></span>
+        </h3>
+      </div>
+      <div class="dialog-rows-container">
+        <div class="dialog-row">
+          <label>Situational Modifier</label>
+          <input type="number" name="situational_modifier" value="0" />
+        </div>
+
+        <!-- Resonance Section (for Attributes) -->
+        <div class="dialog-row-column dialog-resonance-section">
+          <h4>Resonance</h4>
+          <!-- Experience Dropdown for Resonance -->
+          <div class="resonance-experience-container">
+            <select class="experience-resonance-select" name="experience_resonance">
+                <option value="0">Select Experience...</option>
+            </select>
+          </div>
+          <div class="resonance-buttons">
+            <input type="radio" name="resonance_choice" data-resonance-group="resonance_choice" value="none" id="res-none" checked="checked" /><label for="res-none">None</label>
+            <input type="radio" name="resonance_choice" data-resonance-group="resonance_choice" value="slight" id="res-slight" /><label for="res-slight">Slight</label>
+            <input type="radio" name="resonance_choice" data-resonance-group="resonance_choice" value="firm" id="res-firm" /><label for="res-firm">Firm</label>
+            <input type="radio" name="resonance_choice" data-resonance-group="resonance_choice" value="strong" id="res-strong" /><label for="res-strong">Strong</label>
+          </div>
+        </div>
+
+        <!-- Push Section (for Metabilities/Vehicles) -->
+        <div class="dialog-row-column dialog-push-section">
+            <h4>Push <span class="push-modifier-display">(+0)</span></h4>
+            <div class="push-slider-container">
+                                <img src="systems/continuum-v2/assets/metability-push-slider.png" class="push-slider-background" alt="Slider Background">
+                <div class="push-slider-pointer">
+                    <!-- The pointer graphic is applied via CSS -->
+                </div>
+                <div class="push-slider-zones">
+                    <div class="push-zone" data-rank="1"></div>
+                    <div class="push-zone" data-rank="2"></div>
+                    <div class="push-zone" data-rank="3"></div>
+                    <div class="push-zone" data-rank="4"></div>
+                    <div class="push-zone" data-rank="5"></div>
+                </div>
+            </div>
+
+            <!-- NEW: Application Dropdown for Metability Rolls -->
+            <div class="dialog-row metability-application-selection" style="margin-top: 10px;">
+                <label>Active Application</label>
+                <select name="active_application" class="metability-application-select">
+                    <option value="0">None (+0)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Gear Section (between Resonance and Situation) -->
+        <div class="dialog-row-column dialog-gear-section" style="display: none;">
+          <h4>Gear</h4>
+          <div class="gear-select-container">
+            <select name="gear_select" class="gear-select">
+              <option value="">None</option>
+            </select>
+          </div>
+          <div class="gear-slider-row">
+            <label class="gear-slider-label">Modifier</label>
+            <div class="gear-slider-container">
+              <img src="systems/continuum-v2/assets/Dice%20Roller%20Bonus%20Slider.png" class="push-slider-background" alt="Bonus Modifier Slider">
+              <div class="push-slider-pointer"></div>
+              <div class="push-slider-zones">
+                <div class="push-zone" data-rank="-4"></div>
+                <div class="push-zone" data-rank="-3"></div>
+                <div class="push-zone" data-rank="-2"></div>
+                <div class="push-zone" data-rank="-1"></div>
+                <div class="push-zone" data-rank="0"></div>
+                <div class="push-zone" data-rank="1"></div>
+                <div class="push-zone" data-rank="2"></div>
+                <div class="push-zone" data-rank="3"></div>
+                <div class="push-zone" data-rank="4"></div>
+              </div>
+            </div>
+            <span class="gear-slider-value">0</span>
+          </div>
+        </div>
+
+        <!-- Spanning Ability Section (for Span rolls only) -->
+        <div class="dialog-row-column dialog-spanning-ability-section" style="display: none;">
+          <h4>Ability</h4>
+          <div class="spanning-ability-select-container">
+            <select name="spanning_ability" class="spanning-ability-select">
+              <option value="0">None (+0)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Natural Span Ability Section (for Nat Span rolls only) -->
+        <div class="dialog-row-column dialog-nat-span-ability-section" style="display: none;">
+          <h4>Ability</h4>
+          <div class="nat-span-ability-select-container">
+            <select name="nat_span_ability" class="nat-span-ability-select">
+              <option value="0">None (+0)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Benefit bonus buttons - populated dynamically from selected diceBonus benefits -->
+        <div class="benefit-buttons-container dialog-row-column" style="display: none;">
+          <h4>Benefits</h4>
+          <div class="benefit-roll-buttons"></div>
+          <div class="benefit-bonus-display"></div>
+        </div>
+
+        <!-- Modifier Section (for Metability rolls) -->
+        <div class="dialog-row-column dialog-modifier-section" style="display: none;">
+          <h4>Modifier</h4>
+          <div class="gear-slider-row">
+            <div class="gear-slider-container">
+              <img src="systems/continuum-v2/assets/Dice%20Roller%20Bonus%20Slider.png" class="push-slider-background" alt="Bonus Modifier Slider">
+              <div class="push-slider-pointer"></div>
+              <div class="push-slider-zones">
+                <div class="push-zone" data-rank="-4"></div>
+                <div class="push-zone" data-rank="-3"></div>
+                <div class="push-zone" data-rank="-2"></div>
+                <div class="push-zone" data-rank="-1"></div>
+                <div class="push-zone" data-rank="0"></div>
+                <div class="push-zone" data-rank="1"></div>
+                <div class="push-zone" data-rank="2"></div>
+                <div class="push-zone" data-rank="3"></div>
+                <div class="push-zone" data-rank="4"></div>
+              </div>
+            </div>
+            <span class="gear-slider-value">+0</span>
+          </div>
+        </div>
+
+        <div class="dialog-row-column">
+          <h4>Situation</h4>
+          <div class="situation-buttons">
+            <button type="button" class="situation-roll-button" data-roll-type="advantage">Advantage</button>
+            <button type="button" class="situation-roll-button" data-roll-type="normal">Normal</button>
+            <button type="button" class="situation-roll-button" data-roll-type="disadvantage">Disadvantage</button>
+          </div>
+        </div>
+      </div>
+      <!-- UPDATED: Footer now only contains the cancel button for a cleaner look -->
+      <div class="dialog-footer">
+        <button type="button" class="dialog-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <!-- NEW: Container for info boxes on the right -->
+    <div class="metability-info-container metability-info-right">
+      <!-- JS will populate this area -->
+    </div>
+  </div>
+
+  {{> "systems/continuum-v2/templates/sections/background.html"}}
+
+  {{#if showGoalsSection}}
+  {{> "systems/continuum-v2/templates/sections/goals.html"}}
+  {{/if}}
+
+
+  {{#if (or @root.isGM @root.playersCanSeeSpan)}}
+  {{> "systems/continuum-v2/templates/sections/spanning.html"}}
+  {{/if}}
+
+  {{> "systems/continuum-v2/templates/sections/metabilities.html"}}
+
+  {{#if showAgesSection}}
+  {{> "systems/continuum-v2/templates/sections/experiences.html"}}
+  {{/if}}
+
+  {{> "systems/continuum-v2/templates/sections/span_graph.html"}}
+
+  {{> "systems/continuum-v2/templates/sections/combat.html"}}
+
+  {{#if (or @root.isGM @root.playersCanSeeSpan)}}
+  {{> "systems/continuum-v2/templates/sections/the_yet.html"}}
+  {{/if}}
+
+  {{#if showRelationshipsSection}}
+  {{> "systems/continuum-v2/templates/sections/relationships.html"}}
+  {{/if}}
+  
+  {{> "systems/continuum-v2/templates/sections/char-relationships-map.html"}}
+
+  {{> "systems/continuum-v2/templates/sections/vehicles.html"}}
+
+  <!-- Don't forget to close the form tag at the end -->
+</form>

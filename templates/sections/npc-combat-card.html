@@ -1,0 +1,47 @@
+<div class="npc-combat-card" data-combatant-id="{{id}}">
+    <!-- Row 1: ID & Attributes -->
+    <div class="card-primary-row">
+        <div class="npc-identity">
+            <img class="npc-portrait" src="{{img}}" eventTitle="{{name}}">
+            <span class="npc-name">{{name}}</span>
+        </div>
+        
+        <div class="npc-ap-readout" data-tooltip="Action Points Gain">
+            <span class="ap-value">{{#if flags.ap}}{{flags.ap}}{{else}}—{{/if}}</span>
+        </div>
+
+        <div class="npc-attr-rolls">
+            <button type="button" class="npc-roll-btn" data-attribute="body" eventTitle="Roll Force AP">F</button>
+            <button type="button" class="npc-roll-btn" data-attribute="mind" eventTitle="Roll Analyze AP">A</button>
+            <button type="button" class="npc-roll-btn" data-attribute="eq" eventTitle="Roll Relate AP">R</button>
+            <button type="button" class="npc-roll-btn" data-attribute="quick" eventTitle="Roll Move AP">M</button>
+        </div>
+    </div>
+
+    <!-- Row 2: Adaptive Phase Control Boxes -->
+    <div class="card-secondary-row">
+        <div class="phase-control-container">
+            {{#each phases as |p|}}
+            <div class="phase-box {{p.mode}}" data-phase-index="{{p.index}}">
+                {{#if p.isActive}}
+                    <div class="action-cluster">
+                        <i class="fas fa-clock npc-declare-btn" data-action="defer" eventTitle="Defer"></i>
+                        <i class="fas fa-running npc-declare-btn" data-action="flee" eventTitle="Flee"></i>
+                        <i class="fas fa-shield-alt npc-declare-btn" data-action="defend" eventTitle="Defend"></i>
+                        <i class="fas fa-swords npc-declare-btn" data-action="fight" eventTitle="Fight"></i>
+                    </div>
+                {{else if (or p.isLocked p.isHistorical)}}
+                    <div class="locked-action">
+                        {{#if (eq p.chosenIcon "defer")}}<i class="fas fa-clock"></i>{{/if}}
+                        {{#if (eq p.chosenIcon "flee")}}<i class="fas fa-running"></i>{{/if}}
+                        {{#if (eq p.chosenIcon "defend")}}<i class="fas fa-shield-alt"></i>{{/if}}
+                        {{#if (eq p.chosenIcon "fight")}}<i class="fas fa-swords"></i>{{/if}}
+                    </div>
+                {{else}}
+                    <span class="phase-num">{{p.index}}</span>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</div>

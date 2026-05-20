@@ -1,0 +1,225 @@
+<!--=================-->
+<!-- BACKGROUND & GEAR & GOALS SECTION -->
+<!--=================-->
+<div class="section-container">
+
+  <input type="checkbox" id="toggle-background-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-background-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-background-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Background & Gear</h2>
+    </label>
+    <div class="background-controls">
+      <button type="button" class="background-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+  <div class="section-content collapsible">
+  <!-- Stuff Column -->
+      <div class="stuff-column">
+        <h3>Stuff</h3>
+        <div class="assets-row">
+          <label>Assets: $</label>
+          <input type="text" name="system.combat.assets" value="{{system.combat.assets}}" />
+        </div>
+<textarea name="system.combat.stuff" class="js-auto-expand" placeholder="List equipment, contacts, eventNotes, etc.">{{system.combat.stuff}}</textarea>
+      </div>
+<textarea name="system.background" class="background-textarea js-auto-expand" spellcheck="true" placeholder="Write your character's background...">{{system.background}}</textarea>
+
+    <!-- INTEGRATED GEAR SECTION -->
+    <div class="gear-integration">
+        <div class="gear-header">
+            <h3>Gear</h3>
+            <div class="gear-controls">
+                <div class="gear-summary">
+                    <span>Carried: <strong>{{totalGearWeight}}</strong> / Limit: <strong>{{spanWeightLimit}}</strong></span>
+                </div>
+                <button type="button" class="gear-help" eventTitle="Gear Help"><i class="fas fa-question"></i></button>
+            </div>
+        </div>
+
+        <!-- GEAR TYPE TABS -->
+        <div class="gear-tabs">
+            <input type="radio" class="sheet-hidden gear-tab-radio" name="gear-tab-{{actor.id}}" id="gear-tab-firearms-{{actor.id}}" value="firearms" />
+            <input type="radio" class="sheet-hidden gear-tab-radio" name="gear-tab-{{actor.id}}" id="gear-tab-tech-{{actor.id}}" value="tech" />
+            <input type="radio" class="sheet-hidden gear-tab-radio" name="gear-tab-{{actor.id}}" id="gear-tab-tools-{{actor.id}}" value="tools" />
+            <input type="radio" class="sheet-hidden gear-tab-radio" name="gear-tab-{{actor.id}}" id="gear-tab-vehicles-{{actor.id}}" value="vehicles" />
+            <div class="gear-tab-labels">
+                <label for="gear-tab-firearms-{{actor.id}}" class="gear-tab-label">Firearms</label>
+                <label for="gear-tab-tech-{{actor.id}}" class="gear-tab-label">Technology</label>
+                <label for="gear-tab-tools-{{actor.id}}" class="gear-tab-label">Tools</label>
+                <label for="gear-tab-vehicles-{{actor.id}}" class="gear-tab-label">Vehicles</label>
+            </div>
+
+            <!-- FIREARMS TAB -->
+            <div class="gear-tab-content gear-tab-firearms">
+                {{#if firearmItems}}
+                <div class="gear-item-header">
+                    <div class="item-name">Item</div>
+                    <div class="item-bonus">Bonus</div>
+                    <div class="item-aspects">Aspects</div>
+                    <div class="item-qty">Qty</div>
+                    <div class="item-weight">Wt</div>
+                    <div class="item-carried">Carried</div>
+                    <div class="item-controls"></div>
+                </div>
+                {{/if}}
+                {{#each firearmItems as |item|}}
+                <div class="gear-item" data-id="{{item._id}}" data-gear-type="firearm">
+                    <div class="item-image" style="background-image: url('{{item.img}}')"></div>
+                    <div class="item-name">
+                        <a class="roll-gear" data-item-id="{{item.id}}"><i class="fas fa-dice-d20"></i> {{item.name}}</a>
+                    </div>
+                    <div class="item-bonus">+{{item.computedBonus}}</div>
+                    <div class="item-aspects">
+                        <span eventTitle="{{item.aspectLabels.aspect1}}">{{item.aspectLabels.aspect1}} {{item.system.aspects.aspect1}}</span>
+                        <span eventTitle="{{item.aspectLabels.aspect2}}">{{item.aspectLabels.aspect2}} {{item.system.aspects.aspect2}}</span>
+                        <span eventTitle="{{item.aspectLabels.aspect3}}">{{item.aspectLabels.aspect3}} {{item.system.aspects.aspect3}}</span>
+                    </div>
+                    <div class="item-qty">{{item.system.quantity}}</div>
+                    <div class="item-weight">{{item.system.weight}}</div>
+                    <div class="item-carried">
+                        <input type="checkbox" class="gear-carried-toggle" data-item-id="{{item.id}}" {{#if item.system.carried}}checked{{/if}} />
+                    </div>
+                    <div class="item-controls">
+                        <a class="item-edit" eventTitle="Edit Item"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" eventTitle="Delete Item"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless firearmItems}}
+                <div class="empty-placeholder">Drag a Firearm item from the sidebar to add it.</div>
+                {{/unless}}
+            </div>
+
+            <!-- TECHNOLOGY TAB -->
+            <div class="gear-tab-content gear-tab-tech">
+                {{#if techItems}}
+                <div class="gear-item-header">
+                    <div class="item-name">Item</div>
+                    <div class="item-bonus">Bonus</div>
+                    <div class="item-aspects">Aspects</div>
+                    <div class="item-qty">Qty</div>
+                    <div class="item-weight">Wt</div>
+                    <div class="item-carried">Carried</div>
+                    <div class="item-controls"></div>
+                </div>
+                {{/if}}
+                {{#each techItems as |item|}}
+                <div class="gear-item" data-id="{{item._id}}" data-gear-type="technology">
+                    <div class="item-image" style="background-image: url('{{item.img}}')"></div>
+                    <div class="item-name">
+                        <a class="roll-gear" data-item-id="{{item.id}}"><i class="fas fa-dice-d20"></i> {{item.name}}</a>
+                    </div>
+                    <div class="item-bonus">+{{item.computedBonus}}</div>
+                    <div class="item-aspects">
+                        <span eventTitle="Speed">Spd {{item.system.aspects.aspect1}}</span>
+                        <span eventTitle="Capacity">Cap {{item.system.aspects.aspect2}}</span>
+                        <span eventTitle="Connectivity">Con {{item.system.aspects.aspect3}}</span>
+                    </div>
+                    <div class="item-qty">{{item.system.quantity}}</div>
+                    <div class="item-weight">{{item.system.weight}}</div>
+                    <div class="item-carried">
+                        <input type="checkbox" class="gear-carried-toggle" data-item-id="{{item.id}}" {{#if item.system.carried}}checked{{/if}} />
+                    </div>
+                    <div class="item-controls">
+                        <button type="button" class="gear-use-btn" data-item-id="{{item.id}}" eventTitle="Use {{item.name}}">Use</button>
+                        <a class="item-edit" eventTitle="Edit Item"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" eventTitle="Delete Item"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless techItems}}
+                <div class="empty-placeholder">Drag a Technology item from the sidebar to add it.</div>
+                {{/unless}}
+            </div>
+
+            <!-- TOOLS TAB -->
+            <div class="gear-tab-content gear-tab-tools">
+                {{#if toolItems}}
+                <div class="gear-item-header">
+                    <div class="item-name">Item</div>
+                    <div class="item-bonus">Bonus</div>
+                    <div class="item-aspects">Aspects</div>
+                    <div class="item-qty">Qty</div>
+                    <div class="item-weight">Wt</div>
+                    <div class="item-carried">Carried</div>
+                    <div class="item-controls"></div>
+                </div>
+                {{/if}}
+                {{#each toolItems as |item|}}
+                <div class="gear-item" data-id="{{item._id}}" data-gear-type="tool">
+                    <div class="item-image" style="background-image: url('{{item.img}}')"></div>
+                    <div class="item-name">
+                        <a class="roll-gear" data-item-id="{{item.id}}"><i class="fas fa-dice-d20"></i> {{item.name}}</a>
+                    </div>
+                    <div class="item-bonus">+{{item.computedBonus}}</div>
+                    <div class="item-aspects">
+                        <span eventTitle="Quality">Qlt {{item.system.aspects.aspect1}}</span>
+                        <span eventTitle="Versatility">Vrs {{item.system.aspects.aspect2}}</span>
+                        <span eventTitle="Durability">Dur {{item.system.aspects.aspect3}}</span>
+                    </div>
+                    <div class="item-qty">{{item.system.quantity}}</div>
+                    <div class="item-weight">{{item.system.weight}}</div>
+                    <div class="item-carried">
+                        <input type="checkbox" class="gear-carried-toggle" data-item-id="{{item.id}}" {{#if item.system.carried}}checked{{/if}} />
+                    </div>
+                    <div class="item-controls">
+                        <button type="button" class="gear-use-btn" data-item-id="{{item.id}}" eventTitle="Use {{item.name}}">Use</button>
+                        <a class="item-edit" eventTitle="Edit Item"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" eventTitle="Delete Item"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless toolItems}}
+                <div class="empty-placeholder">Drag a Tool item from the sidebar to add it.</div>
+                {{/unless}}
+            </div>
+
+            <!-- VEHICLES TAB -->
+            <div class="gear-tab-content gear-tab-vehicles">
+                {{#if vehicleGearItems}}
+                <div class="gear-item-header">
+                    <div class="item-name">Item</div>
+                    <div class="item-bonus">Bonus</div>
+                    <div class="item-aspects">Aspects</div>
+                    <div class="item-vehicle-class">Class</div>
+                    <div class="item-qty">Qty</div>
+                    <div class="item-weight">Wt</div>
+                    <div class="item-carried">Carried</div>
+                    <div class="item-controls"></div>
+                </div>
+                {{/if}}
+                {{#each vehicleGearItems as |item|}}
+                <div class="gear-item" data-id="{{item._id}}" data-gear-type="vehicle">
+                    <div class="item-image" style="background-image: url('{{item.img}}')"></div>
+                    <div class="item-name">
+                        <a class="roll-gear" data-item-id="{{item.id}}"><i class="fas fa-dice-d20"></i> {{item.name}}</a>
+                    </div>
+                    <div class="item-bonus">+{{item.computedBonus}}</div>
+                    <div class="item-aspects">
+                        <span eventTitle="Handling">Hnd {{item.system.aspects.aspect1}}</span>
+                        <span eventTitle="Acceleration">Acc {{item.system.aspects.aspect2}}</span>
+                        <span eventTitle="Prestige">Prs {{item.system.aspects.aspect3}}</span>
+                    </div>
+                    <div class="item-vehicle-class">
+                        {{#if (eq item.system.vehicleClass "air")}}Air{{else if (eq item.system.vehicleClass "water")}}Water{{else}}Land{{/if}}
+                    </div>
+                    <div class="item-qty">{{item.system.quantity}}</div>
+                    <div class="item-weight">{{item.system.weight}}</div>
+                    <div class="item-carried">
+                        <input type="checkbox" class="gear-carried-toggle" data-item-id="{{item.id}}" {{#if item.system.carried}}checked{{/if}} />
+                    </div>
+                    <div class="item-controls">
+                        <a class="item-edit" eventTitle="Edit Item"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" eventTitle="Delete Item"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless vehicleGearItems}}
+                <div class="empty-placeholder">Drag a Vehicle item from the sidebar to add it.</div>
+                {{/unless}}
+            </div>
+        </div>
+    </div>
+  </div>
+
+</div>

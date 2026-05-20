@@ -1,0 +1,93 @@
+
+<!--====================-->
+<!-- ATTRIBUTES SECTION -->
+<!--====================-->
+<div class="section-container">
+      <input type="checkbox" id="toggle-attributes-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-attributes-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+      <label for="toggle-attributes-{{actor.id}}" class="section-heading-toggle">
+          <h2 class="section-heading">Attributes</h2>
+      </label>
+      <div class="attributes-controls">
+        <button type="button" class="attributes-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      </div>
+  </div>
+  <div class="attributes-container">
+    <!-- Character Image -->
+    <div class="character-image-wrapper">
+      <div class="character-image-container">
+        <img class="character-image" src="{{actor.img}}" data-edit="img" eventTitle="{{actor.name}}"/>
+      </div>
+      <button type="button" class="token-image-pick" eventTitle="Set Token Image"></button>
+    </div>
+
+    <div class="attributes-single-row">
+      <!-- Body Block -->
+      <div class="attribute-block">
+        <button type="button" class="roll-attribute" data-attribute="body" data-tooltip="Roll Force">Force</button>
+        <div class="attribute-spinner-viewport" data-attribute="body">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Body Value Spinner">
+        </div>
+        <input type="hidden" name="system.attributes.body.value" value="{{system.attributes.body.value}}">
+      </div>
+
+      <!-- Mind Block -->
+      <div class="attribute-block">
+        <button type="button" class="roll-attribute" data-attribute="mind" data-tooltip="Roll Analyze">Analyze</button>
+        <div class="attribute-spinner-viewport" data-attribute="mind">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Mind Value Spinner">
+        </div>
+        <input type="hidden" name="system.attributes.mind.value" value="{{system.attributes.mind.value}}">
+      </div>
+
+      <!-- EQ Block -->
+      <div class="attribute-block">
+        <button type="button" class="roll-attribute" data-attribute="eq" data-tooltip="Roll Relate">Relate</button>
+        <div class="attribute-spinner-viewport" data-attribute="eq">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="EQ Value Spinner">
+        </div>
+        <input type="hidden" name="system.attributes.eq.value" value="{{system.attributes.eq.value}}">
+      </div>
+
+      <!-- Quick Block -->
+      <div class="attribute-block">
+        <button type="button" class="roll-attribute" data-attribute="quick" data-tooltip="Roll Move">Move</button>
+        <div class="attribute-spinner-viewport" data-attribute="quick">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Quick Value Spinner">
+        </div>
+        <input type="hidden" name="system.attributes.quick.value" value="{{system.attributes.quick.value}}">
+      </div>
+
+      <!-- Willpower Column -->
+      <div class="willpower-column">
+        <div class="attribute-block willpower-block">
+          <button type="button" class="roll-attribute" data-attribute="willpowerTemp" data-tooltip="Roll Temp Will">Temp Will</button>
+          <div class="attribute-spinner-viewport" data-attribute="willpowerTemp">
+            <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Temp Will Value Spinner">
+          </div>
+          <input type="hidden" name="system.attributes.willpower.temp" value="{{system.attributes.willpower.temp}}">
+        </div>
+        <div class="attribute-block willpower-block">
+          <button type="button" class="roll-attribute" data-attribute="willpowerPerm" data-tooltip="Roll Perm Will">Perm Will</button>
+          <div class="attribute-spinner-viewport" data-attribute="willpowerPerm">
+            <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Perm Will Value Spinner">
+          </div>
+          <input type="hidden" name="system.attributes.willpower.perm" value="{{system.attributes.willpower.perm}}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits Box -->
+    <div class="benefits-limits-container">
+      <h3>Benefits</h3>
+      <div class="benefits-scroll-list">
+        {{#each benefitsList}}
+        <label class="benefit-item" eventTitle="{{description}}">
+          <input type="checkbox" class="benefit-checkbox" data-benefit-id="{{id}}" {{#if selected}}checked{{/if}}>
+          {{name}}
+        </label>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</div>

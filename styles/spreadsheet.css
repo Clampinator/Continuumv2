@@ -1,0 +1,57 @@
+.lifeline-spreadsheet .lss-wrap { display:flex; flex-direction:column; height:100%; overflow:hidden; font-size:12px; }
+.lifeline-spreadsheet .lss-toolbar { display:flex; align-items:center; gap:10px; padding:6px 8px; background:#1e1e1e; border-bottom:1px solid #444; flex-shrink:0; }
+.lifeline-spreadsheet .lss-toolbar button { background:#333; border:1px solid #555; color:#ccc; padding:3px 10px; border-radius:3px; cursor:pointer; font-size:11px; }
+.lifeline-spreadsheet .lss-toolbar button:hover { background:#444; }
+.lifeline-spreadsheet .lss-count { color:#888; margin-left:auto; font-size:11px; }
+.lifeline-spreadsheet .lss-scroll { flex:1; overflow-y:auto; }
+.lifeline-spreadsheet table { width:100%; border-collapse:collapse; table-layout:auto; min-width:1000px; }
+.lifeline-spreadsheet thead th { background:#252525; color:#aaa; font-size:11px; font-weight:bold; text-align:left; padding:4px 6px; border-bottom:1px solid #444; position:sticky; top:0; z-index:2; }
+.lifeline-spreadsheet .lss-new-row-tr { background:#1a1a2a; }
+.lifeline-spreadsheet .lss-new-row-tr td { padding:4px 3px; }
+.lifeline-spreadsheet .lss-event-row td { padding:2px 3px; border-bottom:1px solid #2a2a2a; vertical-align:middle; }
+.lifeline-spreadsheet .lss-event-row:hover td { background:#282828; }
+.lifeline-spreadsheet .lss-event-row.is-span td { border-left:2px solid #4da6ff; }
+.lifeline-spreadsheet .lss-expanded-row td { padding:8px; background:#1e1e28; border-bottom:2px solid #333; }
+.lifeline-spreadsheet .lss-expanded-row.hidden { display:none; }
+.lifeline-spreadsheet .lss-field { width:100%; background:#222; border:1px solid #444; color:#ddd; padding:2px 5px; font-size:11px; border-radius:2px; box-sizing:border-box; }
+.lifeline-spreadsheet .lss-field:focus { border-color:#4da6ff; outline:none; }
+/* Field-type minimum widths so text is always readable */
+.lifeline-spreadsheet .lss-field-date { min-width:95px; }
+.lifeline-spreadsheet .lss-field-time { min-width:65px; }
+.lifeline-spreadsheet .lss-field-title { min-width:180px; }
+.lifeline-spreadsheet .lss-field-notes { min-width:240px; }
+.lifeline-spreadsheet .lss-field-location { min-width:150px; }
+.lifeline-spreadsheet .lss-age-cell { color:#7af; font-size:11px; font-family:monospace; white-space:nowrap; text-align:right; padding-right:6px; min-width:70px; }
+.lifeline-spreadsheet .lss-exp-badge { background:#3a3a1a; border:1px solid #666; color:#cc9; padding:1px 5px; border-radius:10px; font-size:10px; }
+.lifeline-spreadsheet .lss-era-badge { background:#1a2a3a; border:1px solid #3a5a7a; color:#7af; padding:1px 5px; border-radius:10px; font-size:10px; }
+.lifeline-spreadsheet .lss-span-badge { color:#4da6ff; font-size:10px; }
+.lifeline-spreadsheet .lss-action-btn { background:none; border:none; color:#666; cursor:pointer; padding:2px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; }
+.lifeline-spreadsheet .lss-action-btn:hover { color:#ccc; }
+.lifeline-spreadsheet .lss-add-btn { background:#1a3a1a; border:1px solid #3a6a3a; color:#7c7; padding:3px 10px; border-radius:3px; cursor:pointer; font-size:11px; }
+.lifeline-spreadsheet .lss-add-btn:hover { background:#2a4a2a; }
+.lifeline-spreadsheet .lss-exp-section { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
+.lifeline-spreadsheet .lss-span-section { margin-top:6px; border:1px solid #444; padding:6px; border-radius:3px; }
+.lifeline-spreadsheet .lss-span-row { display:flex; gap:6px; align-items:center; margin-bottom:4px; }
+.lifeline-spreadsheet .lss-span-label { color:#aaa; font-size:11px; width:30px; flex-shrink:0; }
+.lifeline-spreadsheet .lss-expand-inner { display:flex; flex-direction:column; gap:4px; }
+.lifeline-spreadsheet .lss-check-label { display:flex; align-items:center; gap:6px; color:#bbb; font-size:11px; cursor:pointer; }
+.lifeline-spreadsheet .lss-save-row-btn { background:#1a2a3a; border:1px solid #3a5a7a; color:#7af; padding:3px 12px; border-radius:3px; cursor:pointer; font-size:11px; margin-top:6px; }
+.lifeline-spreadsheet .lss-map-pin-btn { background:#2a3a1a; border:1px solid #4a6a2a; color:#7c7; padding:3px; width:22px; height:22px; border-radius:3px; cursor:pointer; font-size:11px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.lifeline-spreadsheet .lss-map-pin-btn:hover { background:#3a4a2a; }
+.lifeline-spreadsheet .lss-map-pin-btn.pinned { background:#1a3a3a; border-color:#3a6a6a; color:#7cc; }
+.lifeline-spreadsheet select.lss-field { height:22px; }
+.lifeline-spreadsheet .hidden { display:none !important; }
+.lifeline-spreadsheet .lss-section-label { color:#888; font-size:10px; font-weight:bold; letter-spacing:0.05em; text-transform:uppercase; margin-top:4px; }
+.lifeline-spreadsheet .lss-import-btn  { background:#1a2a3a; border:1px solid #3a5a7a; color:#7af; }
+.lifeline-spreadsheet .lss-import-btn:hover  { background:#243444; }
+.lifeline-spreadsheet .lss-export-btn  { background:#1a3a2a; border:1px solid #3a7a5a; color:#7fb; }
+.lifeline-spreadsheet .lss-export-btn:hover  { background:#243c30; }
+.lifeline-spreadsheet .lss-template-btn { background:#2a1a3a; border:1px solid #5a3a7a; color:#b7f; }
+.lifeline-spreadsheet .lss-template-btn:hover { background:#38284a; }
+.lifeline-spreadsheet .lss-drag-handle { color:#555; cursor:grab; padding:2px 4px; font-size:11px; user-select:none; }
+.lifeline-spreadsheet .lss-drag-handle:hover { color:#aaa; }
+.lifeline-spreadsheet .lss-event-row.sortable-ghost { opacity:0.4; background:#2a3a4a; }
+.lifeline-spreadsheet .lss-event-row.sortable-chosen { background:#1a2a3a; }
+.lifeline-spreadsheet .lss-event-row.sortable-drag { opacity:0.8; }
+.lifeline-spreadsheet input[type="checkbox"].lss-row-select,
+.lifeline-spreadsheet input[type="checkbox"].lss-select-all { margin:0; cursor:pointer; width:14px; height:14px; }

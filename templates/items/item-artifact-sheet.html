@@ -1,0 +1,30 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <header class="sheet-header">
+        <img class="profile-img" src="{{item.img}}" data-edit="img" eventTitle="{{item.name}}"/>
+        <div class="header-fields">
+            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+            <div class="grid grid-2col">
+                <div class="resource">
+                    <label class="resource-label">Rarity</label>
+                    <select name="system.rarity">
+                        <option value="common" {{#if (eq system.rarity "common")}}selected{{/if}}>Common</option>
+                        <option value="uncommon" {{#if (eq system.rarity "uncommon")}}selected{{/if}}>Uncommon</option>
+                        <option value="rare" {{#if (eq system.rarity "rare")}}selected{{/if}}>Rare</option>
+                        <option value="unique" {{#if (eq system.rarity "unique")}}selected{{/if}}>Unique</option>
+                    </select>
+                </div>
+                <div class="resource">
+                    <label class="resource-label">Power Level</label>
+                    <input type="text" name="system.powerLevel" value="{{system.powerLevel}}" data-dtype="Number"/>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="sheet-body">
+        <div class="description">
+            <h3>Description</h3>
+            {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+        </div>
+    </div>
+</form>

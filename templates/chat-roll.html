@@ -1,0 +1,173 @@
+
+<div class="continuum-roll-card">
+
+  <!-- ATTACKER DATA SECTION -->
+  <div class="attacker-section">
+    <div class="roll-banner-header">
+      <i class="fas fa-satellite-dish"></i>
+      <span class="header-text">
+          {{#if weaponName}}
+              {{weaponName}}
+          {{else}}
+              {{attributeName}}
+          {{/if}}
+          READOUT
+      </span>
+      <div class="roll-result-badge {{resultClass}}">
+          {{#if (eq resultClass "critical")}}<i class="fas fa-certificate"></i>{{/if}}
+          {{#if (eq resultClass "success")}}<i class="fas fa-check-circle"></i>{{/if}}
+          {{#if (eq resultClass "failure")}}<i class="fas fa-times-circle"></i>{{/if}}
+          {{#if (eq resultClass "critical-failure")}}<i class="fas fa-skull"></i>{{/if}}
+          {{#if (eq resultClass "critical")}}<span>Critical<br>Success</span>
+          {{else if (eq resultClass "critical-failure")}}<span>Critical<br>Failure</span>
+          {{else}}<span>{{resultText}}</span>{{/if}}
+      </div>
+    </div>
+
+    <div class="tactical-grid">
+      <div class="grid-cell">
+        <span class="cell-label">{{attributeName}}</span>
+        <span class="cell-value">{{rawAttribute}}</span>
+      </div>
+      <div class="grid-cell">
+        <span class="cell-label">Situational Mod</span>
+        <span class="cell-value">{{numberFormat sitMod sign=true}}</span>
+      </div>
+      <div class="grid-cell">
+        <span class="cell-label">{{resonanceName}}</span>
+        <span class="cell-value">{{numberFormat resBonus sign=true}}</span>
+      </div>
+
+      {{#if gearName}}
+      <div class="grid-cell" style="grid-column: span 3; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,242,255,0.05);">
+          <span class="cell-label" style="color: #67e8f9;">Gear: {{gearName}}</span>
+          <span class="cell-value" style="color: #67e8f9;">{{numberFormat gearBonus sign=true}}</span>
+      </div>
+      {{/if}}
+
+      {{#if abilityName}}
+      <div class="grid-cell" style="grid-column: span 3; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,242,255,0.05);">
+          <span class="cell-label" style="color: #67e8f9;">Ability: {{abilityName}}</span>
+          <span class="cell-value" style="color: #67e8f9;">{{numberFormat abilityBonus sign=true}}</span>
+      </div>
+      {{/if}}
+
+      {{#if (gt armorPenalty 0)}}
+      <div class="grid-cell" style="grid-column: span 3; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(255,165,0,0.05);">
+          <span class="cell-label" style="color: #fb923c;">Armor/Weight Penalty</span>
+          <span class="cell-value" style="color: #fb923c;">-{{armorPenalty}}</span>
+      </div>
+      {{/if}}
+
+      {{#if (gt mindPenalty 0)}}
+      <div class="grid-cell" style="grid-column: span 3; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(147,197,253,0.05);">
+          <span class="cell-label" style="color: #93c5fd;">Running Applications</span>
+          <span class="cell-value" style="color: #93c5fd;">-{{mindPenalty}}</span>
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- LOWER SECTION: portrait left, data right -->
+    <div class="roll-lower">
+      <div class="roll-portrait">
+        <img src="{{actorImg}}" alt="{{actorName}}" eventTitle="{{actorName}}">
+      </div>
+      <div class="roll-lower-body">
+
+        <div class="grid-cell" style="border-top: 1px solid rgba(255,255,255,0.05); background: rgba(255,0,0,0.05);">
+            <span class="cell-label" style="color: #f87171;">Wound Penalty (IP)</span>
+            <span class="cell-value" style="color: #f87171;">-{{ipPenalty}}</span>
+        </div>
+
+        <div class="grid-cell target">
+          <span class="cell-label">Target Number</span>
+          <span class="cell-value">{{targetNumber}}</span>
+        </div>
+
+        <div class="dice-data-row">
+          <div class="dice-tray">
+              {{#each diceResults}}
+                <div class="die {{#if this.discarded}}discarded{{/if}}">{{this.value}}</div>
+              {{/each}}
+          </div>
+          <div class="total-hexagon-container">
+              <span class="cell-label">Total</span>
+              <div class="total-hexagon">
+                  <span class="total-val">{{roll.total}}</span>
+              </div>
+          </div>
+        </div>
+
+        <div class="math-logic-breakdown" style="padding: 0 14px 10px 14px; font-family: 'Consolas', monospace; font-size: 0.65rem; color: #64748b; text-align: center; font-style: italic;">
+            <i class="fas fa-microchip" style="font-size: 0.6rem; opacity: 0.5;"></i> {{mathSummary}}
+        </div>
+
+        {{#if consequence}}
+        <div class="consequence-overlay" style="margin: 0 12px 10px 12px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-bolt" style="color: #ef4444;"></i>
+            <div style="flex: 1;">
+                <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: #ef4444; font-weight: bold;">Metability Backlash</div>
+                <div style="font-size: 0.85rem; color: #fecaca;">-{{consequence.value}} {{consequence.label}}</div>
+            </div>
+        </div>
+        {{/if}}
+
+        {{#if hitLocation}}
+        <div class="combat-hud-overlay">
+          <div class="hud-item location">
+              <span class="hud-label"><i class="fas fa-crosshairs"></i> Location</span>
+              <span class="hud-value">[{{hitLocation}}] {{locationName}}</span>
+          </div>
+          <div class="hud-item damage">
+              <span class="hud-label"><i class="fas fa-burst"></i> Base Damage</span>
+              <span class="hud-value">{{damageDealt}} IP</span>
+          </div>
+        </div>
+        {{/if}}
+
+      </div><!-- end roll-lower-body -->
+    </div><!-- end roll-lower -->
+  </div>
+
+  <!-- DEFENDER DATA SECTION -->
+  {{#if defenderName}}
+  <div class="defender-section" style="border-top: 1px solid #374151; margin-top: 5px;">
+    <div class="roll-banner-header" style="background: rgba(244, 63, 94, 0.1); border-bottom: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; text-shadow: 0 0 8px rgba(244, 63, 94, 0.6);">
+      <i class="fas fa-shield-halved"></i>
+      <span class="header-text">DEFENDER READOUT</span>
+    </div>
+
+    <div class="combat-hud-overlay" style="margin: 8px 12px 12px 12px;">
+      <div class="hud-item defender">
+          <span class="hud-label">Target</span>
+          <span class="hud-value">{{defenderName}}</span>
+      </div>
+      <div class="hud-item protection">
+          <span class="hud-label">Armor Protection</span>
+          <span class="hud-value">{{defenderProtection}} IP</span>
+      </div>
+
+      {{#if mitigation}}
+      <div class="mitigation-breakdown" style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+          <div class="hud-item result">
+              <span class="hud-label" style="color: #fb923c;">Damage Through Armor</span>
+              <span class="hud-value" style="color: #fb923c; font-size: 1.2rem;">
+                  {{mitigation.passedDamage}} IP ({{mitigation.damageType}})
+              </span>
+          </div>
+
+          <div class="action-buttons-row" style="margin-top: 10px; display: flex; gap: 5px;">
+              <button class="apply-combat-result"
+                      data-action="apply-damage"
+                      eventTitle="Apply damage and degradation to {{defenderName}}"
+                      style="flex: 1; font-size: 0.75rem; background: #334155; color: #fff; border: 1px solid #475569; padding: 6px;">
+                  <i class="fas fa-user-injured"></i> Apply Results
+              </button>
+          </div>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+  {{/if}}
+
+</div>

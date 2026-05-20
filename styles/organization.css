@@ -1,0 +1,1022 @@
+﻿
+/* Organization Sheet Specific Styles */
+
+/* --- Layout --- */
+.organization-sheet-form .columns-3 {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    width: 100%;
+}
+
+.organization-sheet-form .columns-3 .column {
+    flex: 1 1 30%; 
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Points Display in Structure */
+.organization-sheet-form .points-display {
+    background: transparent;
+    border: none;
+    color: #fdcb6e;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: right;
+    padding-right: 5px;
+    box-shadow: none; 
+}
+
+/* --- Organization Attributes --- */
+.organization-sheet-form .attributes-container {
+    justify-content: space-around;
+    display: flex;
+    gap: 10px;
+}
+
+/* Force (Red) */
+.organization-sheet-form .attr-force {
+    border-top: 3px solid #d63031 !important;
+}
+.organization-sheet-form .attr-force button.roll-attribute {
+    color: #fab1a0;
+}
+
+/* Intel (Blue) */
+.organization-sheet-form .attr-intel {
+    border-top: 3px solid #0984e3 !important;
+}
+.organization-sheet-form .attr-intel button.roll-attribute {
+    color: #74b9ff;
+}
+
+/* Influence (Purple) */
+.organization-sheet-form .attr-influence {
+    border-top: 3px solid #6c5ce7 !important;
+}
+.organization-sheet-form .attr-influence button.roll-attribute {
+    color: #a29bfe;
+}
+
+/* Comms (Green/Teal) */
+.organization-sheet-form .attr-comms {
+    border-top: 3px solid #00b894 !important;
+}
+.organization-sheet-form .attr-comms button.roll-attribute {
+    color: #55efc4;
+}
+
+/* Reputation (Grey) */
+.organization-sheet-form .attr-internalReputation,
+.organization-sheet-form .attr-externalReputation {
+    border-top: 3px solid #b2bec3 !important;
+}
+
+/* Stacked Morale / Reputation column */
+.organization-sheet-form .attribute-column-dual {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+}
+/* Each block inside needs enough width for two mini spinners */
+.organization-sheet-form .attribute-column-dual .attribute-block {
+    min-width: 110px;
+}
+
+/* Rep double-spinner layout */
+.organization-sheet-form .rep-spinner-pair {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    justify-content: center;
+    width: 100%;
+}
+.organization-sheet-form .rep-spinner-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+.organization-sheet-form .rep-spinner-label {
+    font-size: 0.6em;
+    color: #b2bec3;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+/* No zoom on rep spinners — zoom corrupts drag coordinates in Chromium.
+   Size is controlled directly via width/height in org-attributes.css. */
+/* Temp spinner slightly dimmed to distinguish from Perm */
+.organization-sheet-form .rep-spinner-col:first-child .attribute-spinner-viewport {
+    opacity: 0.75;
+}
+
+/* Attribute section header stat chips */
+.organization-sheet-form .attr-stat-chip {
+    font-size: 0.78em;
+    color: #b2bec3;
+    white-space: nowrap;
+    padding: 1px 4px;
+}
+.organization-sheet-form .attr-stat-chip strong {
+    color: #dfe6e9;
+}
+.organization-sheet-form .attr-stat-chip.penalty strong {
+    color: #ff8080;
+}
+.organization-sheet-form .attr-controls-divider {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: #555;
+    margin: 0 4px;
+    vertical-align: middle;
+}
+
+/* Roll AP buttons specific styling */
+.organization-sheet-form .roll-ap {
+    font-size: 0.8em;
+    padding: 2px 5px;
+    margin-top: 5px;
+}
+
+/* --- Methods & Operations --- */
+.organization-sheet-form .methods-section .era-item {
+    background-color: #2d3436;
+    border: 1px solid #636e72;
+}
+
+.organization-sheet-form .methods-section .era-header {
+    border-bottom-color: #636e72;
+}
+
+.organization-sheet-form .methods-section .experience-item {
+    background-color: #353b48; 
+    border: 1px solid #2f3640;
+}
+
+/* --- Conflict Section --- */
+.organization-sheet-form .combat-item[data-type="orgConflictPhysical"] {
+    border-left: 3px solid #d63031;
+}
+.organization-sheet-form .combat-item[data-type="orgConflictEspionage"] {
+    border-left: 3px solid #0984e3;
+}
+.organization-sheet-form .combat-item[data-type="orgConflictOnline"] {
+    border-left: 3px solid #00b894;
+}
+.organization-sheet-form .combat-item[data-type="orgConflictPsyops"] {
+    border-left: 3px solid #6c5ce7;
+}
+
+/* --- Aspect cells (cost/cap display) --- */
+.organization-sheet-form .aspect-cell {
+    flex: 1 1 80px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.organization-sheet-form .aspect-cell input[type="number"] {
+    flex: 1;
+    min-width: 0;
+}
+.organization-sheet-form .aspect-cap {
+    font-size: 0.7em;
+    color: #888;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.organization-sheet-form .aspect-cell.over-cap input[type="number"] {
+    border-color: #e55 !important;
+    color: #ff8080;
+}
+.organization-sheet-form .aspect-cell.over-cap .aspect-cap {
+    color: #e55;
+}
+
+/* --- Unit cost column --- */
+.organization-sheet-form .unit-cost-cell {
+    flex: 0 0 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+    line-height: 1.3;
+}
+.organization-sheet-form .cost-mp { color: #74b9ff; }
+.organization-sheet-form .cost-rp { color: #55efc4; }
+
+/* --- Unit type hint label in subsection header --- */
+.organization-sheet-form .unit-type-hint {
+    font-size: 0.75em;
+    color: #8ecae6;
+    margin-left: 6px;
+    opacity: 0.8;
+    cursor: default;
+}
+
+/* --- Psyop Campaign tracker --- */
+.psyop-campaigns-subsection { margin-top: 8px; }
+
+.psyop-campaign-list { display: flex; flex-direction: column; gap: 8px; }
+
+.psyop-campaign {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.psyop-campaign-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.psyop-campaign-name {
+    flex: 1 1 140px;
+    font-weight: bold;
+}
+.psyop-campaign-target {
+    flex: 1 1 120px;
+    color: #aaa;
+    font-style: italic;
+}
+.psyop-phase-count {
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #ffd700;
+    white-space: nowrap;
+}
+.psyop-bonus-label {
+    flex: 1 1 200px;
+    font-size: 0.8em;
+    color: #8ecae6;
+    font-style: italic;
+}
+
+.psyop-phase-track {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.psyop-phase-pip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background: rgba(0,0,0,0.2);
+    min-width: 52px;
+    transition: background 0.15s;
+}
+.psyop-phase-pip input[type="checkbox"] { display: none; }
+.psyop-phase-pip .phase-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #666;
+    line-height: 1;
+}
+.psyop-phase-pip .phase-name {
+    font-size: 0.6em;
+    color: #777;
+    text-align: center;
+    line-height: 1.2;
+}
+.psyop-phase-pip.complete {
+    background: rgba(140, 202, 230, 0.15);
+    border-color: #8ecae6;
+}
+.psyop-phase-pip.complete .phase-number { color: #8ecae6; }
+.psyop-phase-pip.complete .phase-name   { color: #aad4e8; }
+.psyop-phase-pip:hover { background: rgba(255,255,255,0.08); }
+
+.psyop-empty-hint {
+    color: #666;
+    font-style: italic;
+    font-size: 0.85em;
+    padding: 4px 0;
+}
+
+/* Wounds penalty row */
+.wounds-penalty-row {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85em;
+    color: #aaa;
+    padding-top: 4px;
+}
+.wounds-penalty-row strong { color: #ff8080; }
+
+/* Unit count chip (N/cap in subsection headers) */
+.unit-count-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: bold;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #555;
+    color: #aaa;
+    cursor: default;
+}
+.unit-count-chip.at-cap {
+    background: rgba(214, 48, 49, 0.2);
+    border-color: #d63031;
+    color: #ff8080;
+}
+
+/* Size dropdown when current value is above org tier */
+select.size-over-cap {
+    border-color: #fdcb6e !important;
+    color: #fdcb6e;
+}
+option.size-over-cap {
+    color: #fdcb6e;
+    font-style: italic;
+}
+
+/* --- Background for Organization Sheet --- */
+.continuum-v2.sheet.organization .window-content {
+    background: radial-gradient(circle at center, #2c2c2c 0%, #1a1a1a 100%);
+    background-color: #1a1a1a;
+    
+    --section-header-opacity: 0.7;
+    --section-content-opacity: 0.95;
+    color: #eee;
+}
+
+/* --- Section Headers --- */
+.organization-sheet-form h3 {
+    border-bottom: 1px solid #555;
+    margin-bottom: 5px;
+    padding-bottom: 2px;
+    color: #ccc;
+}
+
+/* --- Structural Panel Styling --- */
+.continuum-v2.sheet.organization .section-header-row {
+    background-color: rgba(42, 42, 42, var(--section-header-opacity));
+    padding: 10px;
+    border-radius: 10px;
+    transition: border-radius 0.2s ease-in-out;
+    color: #eee;
+}
+
+.continuum-v2.sheet.organization .section-heading {
+    color: #d0d0d0;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.continuum-v2.sheet.organization .section-container > .section-content {
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(42, 42, 42, var(--section-content-opacity));
+    padding: 10px;
+    margin-top: 2px;
+    border-radius: 10px;
+    color: #eee;
+}
+
+.continuum-v2.sheet.organization .section-container:has(> .event-toggle-checkbox:checked) .section-header-row {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.continuum-v2.sheet.organization .section-container > .section-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-image: url('../assets/Eras/Era_Piscean.jpg'); 
+    background-size: cover;
+    background-position: center;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+}
+
+.continuum-v2.sheet.organization input[type="text"],
+.continuum-v2.sheet.organization input[type="number"],
+.continuum-v2.sheet.organization select,
+.continuum-v2.sheet.organization textarea {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+/* --- Operational Map Layout --- */
+.org-map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 0;
+    align-items: center;
+}
+
+.org-map-legend .legend-item.hq       { color: #FFD700; }
+.org-map-legend .legend-item.physical  { color: #E32017; }
+.org-map-legend .legend-item.espionage { color: #4a90d9; }
+.org-map-legend .legend-item.psyops   { color: #c46bb0; }
+.org-map-legend .legend-item.online   { color: #00b050; }
+.org-map-legend .legend-item.location { color: #F5A623; }
+
+.org-map-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.org-operational-map {
+    width: 100%;
+    height: 500px;
+    background-color: #050508;
+}
+
+/* Location Search Panel */
+.map-search-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.map-search-input {
+    width: 220px;
+    background: rgba(20, 25, 35, 0.92) !important;
+    border: 1px solid #444 !important;
+    border-right: none !important;
+    color: #eee !important;
+    font-size: 0.85em;
+    padding: 5px 10px !important;
+    border-radius: 6px 0 0 6px !important;
+    outline: none;
+    margin: 0 !important;
+    height: 32px;
+    box-sizing: border-box;
+}
+
+.map-search-input::placeholder { color: #666; }
+
+.map-search-input.map-search-error {
+    border-color: #e32017 !important;
+    color: #ff8080 !important;
+}
+
+.map-search-btn {
+    background: rgba(30, 35, 50, 0.95);
+    border: 1px solid #444;
+    border-left: none;
+    color: #8ecae6;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0 6px 6px 0;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.map-search-btn:hover { background: rgba(50, 60, 80, 0.95); color: #fff; }
+
+/* --- Operational Map Controls --- */
+.org-map-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Timeline bar — full width under the map */
+.map-timeline-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: rgba(15, 18, 28, 0.95);
+    border: 1px solid #333;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    margin-top: -1px;
+}
+
+.map-time-range-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.map-time-range-input--end {
+    align-items: flex-end;
+}
+
+.map-time-range-input label {
+    font-size: 0.68em;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    width: auto;
+}
+
+.map-time-range-input input[type="date"] {
+    width: 130px;
+    background: #1a1c26 !important;
+    border: 1px solid #444 !important;
+    color: #ccc !important;
+    font-size: 0.78em;
+    padding: 3px 6px !important;
+    border-radius: 4px !important;
+    height: 26px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-family: monospace;
+}
+
+.map-time-range-input input[type="date"]:focus {
+    border-color: #ffd700 !important;
+    outline: none;
+    color: #fff !important;
+}
+
+.map-timeline-track {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.map-time-label {
+    font-size: 0.75em;
+    color: #ffd700;
+    font-family: monospace;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    min-height: 1em;
+    text-align: center;
+}
+
+.map-time-slider {
+    width: 100%;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #3a3a4a;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.map-time-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffd700;
+    border: 2px solid #111;
+    cursor: ew-resize;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+
+.map-time-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffd700;
+    border: 2px solid #111;
+    cursor: ew-resize;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+
+.map-time-slider:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* --- Unit Settings Button --- */
+.unit-settings-btn {
+    flex: 0 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: color 0.15s ease, transform 0.3s ease;
+}
+
+.unit-settings-btn:hover {
+    color: #aaa;
+    transform: rotate(45deg);
+}
+
+.unit-settings-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Legend Items as Toggles */
+.org-map-legend .legend-item {
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+.org-map-legend .legend-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.org-map-legend .legend-item.legend-hidden {
+    opacity: 0.3;
+    filter: grayscale(1);
+    text-decoration: line-through;
+}
+
+/* --- Commander Slot --- */
+.commander-slot {
+    flex: 0 0 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #555;
+    font-size: 0.8em;
+    border-radius: 3px;
+    transition: color 0.15s, background-color 0.15s;
+    position: relative;
+    user-select: none;
+}
+
+.commander-slot:hover {
+    color: #aaa;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.commander-slot.has-commander {
+    color: #ffd700;
+}
+
+.commander-slot.has-commander:hover {
+    color: #ff8c00;
+}
+
+.commander-name {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.commander-slot:hover .commander-name {
+    display: block;
+}
+
+/* ─────────────────────────────────────────────────── */
+/* ORG OPERATIONAL LIFELINE                           */
+/* ─────────────────────────────────────────────────── */
+
+/*
+ * Layout: map-background is in-flow with explicit height (like the old
+ * .org-operational-map). This gives the wrapper a definite height so the
+ * absolutely-positioned SVG container overlay can resolve dimensions.
+ * height:100% on position:absolute inside a height:auto container fails —
+ * the old working code always used an explicit pixel height on the map div.
+ */
+.org-lifeline-wrapper {
+    background-color: #050508;
+    padding: 0;
+    border-radius: 0 0 5px 5px;
+    border: 1px solid #333;
+    border-top: 1px solid #444;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* Map background — in-flow block with explicit height.
+   Google Maps needs a container with definite pixel dimensions. */
+.org-lifeline-map-background {
+    display: block;
+    width: 100%;
+    height: 500px;
+    background-color: #050508;
+    pointer-events: none;
+    opacity: 0.2;
+    transition: opacity 0.3s ease;
+}
+
+.org-lifeline-wrapper.map-mode .org-lifeline-map-background {
+    pointer-events: auto;
+    opacity: 1.0;
+}
+
+/* Reticle crosshair when in map-mode */
+.org-lifeline-wrapper.map-mode::before,
+.org-lifeline-wrapper.map-mode::after {
+    content: '';
+    position: absolute;
+    z-index: 11;
+    pointer-events: none;
+}
+.org-lifeline-wrapper.map-mode::before {
+    top: 0; left: 50%;
+    width: 1px; height: 500px;
+    background: rgba(255,255,255,0.35);
+}
+.org-lifeline-wrapper.map-mode::after {
+    top: 250px; left: 0;
+    width: 100%; height: 1px;
+    background: rgba(255,255,255,0.35);
+}
+
+/* SVG container — absolutely positioned overlay on top of the map.
+   Works because the wrapper now has a definite height from the in-flow map div. */
+.org-lifeline-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 500px;
+    z-index: 1;
+}
+
+/* In map-mode: dim the SVG so the map shows through.
+   The SVG itself retains pointer-events so left-drag still pans the timeline. */
+.org-lifeline-wrapper.map-mode .org-lifeline-container {
+    pointer-events: none;
+    opacity: 0.15;
+}
+.org-lifeline-wrapper.map-mode .org-lifeline-svg {
+    pointer-events: auto;
+}
+
+.org-lifeline-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Toggle button active state */
+.org-lifeline-toggle-map.active {
+    background: #3a5a4a;
+    border-color: #00782A;
+    color: #00e050;
+}
+
+/* ── Axis labels (mirrors .span-graph-wrapper rules in span_graph.css) ── */
+.org-lifeline-wrapper .graph-axis-labels text {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 10px;
+    fill: #667;
+    pointer-events: none;
+    user-select: none;
+    text-anchor: middle;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 4px #000;
+    font-weight: bold;
+}
+.org-lifeline-wrapper .graph-axis-labels .y-axis-label {
+    text-anchor: start;
+    alignment-baseline: hanging;
+}
+.org-lifeline-wrapper .graph-axis-title {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    fill: #4da6ff;
+    opacity: 0.8;
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: 1px;
+    text-shadow: 0 0 3px #000;
+}
+
+/* Org lifeline era period bands */
+.org-lifeline-wrapper .graph-era-column {
+    fill:   rgba(0, 100, 255, 0.07);
+    stroke: rgba(0, 100, 255, 0.18);
+    stroke-width: 1;
+}
+.org-lifeline-wrapper .graph-era-label {
+    fill: #4da6ff;
+    font-size: 11px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    text-anchor: middle;
+    pointer-events: none;
+    opacity: 0.75;
+    text-shadow: 0 0 4px #000, 0 0 4px #000;
+}
+
+/* ── Operation creation strip ────────────────────────────────────────────── */
+.org-lifeline-wrapper .org-operation-strip {
+    fill:   rgba(255, 180, 0, 0.07);
+    stroke: rgba(255, 180, 0, 0.2);
+    stroke-width: 1;
+    cursor: col-resize;
+    transition: fill 0.15s;
+}
+.org-lifeline-wrapper .org-operation-strip:hover {
+    fill: rgba(255, 180, 0, 0.15);
+}
+.org-lifeline-wrapper .org-operation-strip-label {
+    fill: rgba(255, 180, 0, 0.7);
+    font-family: 'Consolas', 'Monaco', monospace;
+    opacity: 0.5;
+    user-select: none;
+}
+.org-lifeline-wrapper .org-operation-ghost {
+    fill:         rgba(255, 180, 0, 0.10);
+    stroke:       rgba(255, 200, 80, 0.55);
+    stroke-width: 1;
+    stroke-dasharray: 5 3;
+}
+
+/* ── Experience / Operation blocks ───────────────────────────────────────── */
+.org-lifeline-wrapper .graph-exp-label {
+    text-anchor: start;
+    fill: #4da6ff;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    pointer-events: all;
+}
+.org-lifeline-wrapper .graph-experience-rect {
+    pointer-events: none;
+}
+
+/* ── Age creation strip ──────────────────────────────────────────────────── */
+.org-lifeline-wrapper .org-age-strip {
+    fill:   rgba(0, 100, 255, 0.08);
+    stroke: rgba(0, 100, 255, 0.2);
+    stroke-width: 1;
+    cursor: col-resize;
+    transition: fill 0.15s;
+}
+.org-lifeline-wrapper .org-age-strip:hover {
+    fill: rgba(0, 100, 255, 0.18);
+}
+.org-lifeline-wrapper .org-age-strip-label {
+    fill: #4da6ff;
+    font-family: 'Consolas', 'Monaco', monospace;
+    opacity: 0.5;
+    user-select: none;
+}
+.org-lifeline-wrapper .org-age-ghost {
+    fill:         rgba(0, 100, 255, 0.12);
+    stroke:       rgba(100, 180, 255, 0.55);
+    stroke-width: 1;
+    stroke-dasharray: 5 3;
+}
+
+/* ── Segment hover / insert ghost ───────────────────────────────────────── */
+.org-lifeline-wrapper .graph-node-insert-ghost {
+    r: 6px;
+    opacity: 0.9;
+    animation: org-ghost-pulse 1.2s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes org-ghost-pulse {
+    0%,  100% { opacity: 0.9; r: 6px;  }
+    50%        { opacity: 0.5; r: 8px;  }
+}
+
+/* ── Org lifeline node sizing ────────────────────────────────────────────── */
+.org-lifeline-wrapper .subway-node.active {
+    r: 5px;
+}
+.org-lifeline-wrapper .subway-node.active-head {
+    r: 7px;
+    stroke-width: 3px;
+    animation: graph-node-pulse 3s infinite ease-in-out;
+}
+.org-lifeline-wrapper .subway-node.dimmed {
+    r: 3px;
+}
+
+/* Fix pulse animation pivot: without these the scale() transform uses the
+   SVG viewport origin (0,0) as the centre, not the circle's own centre.   */
+.org-lifeline-wrapper .graph-node-now {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+/* ── Cross-layer connector SVG ───────────────────────────────────────────── */
+/* Sits above the dimmed SVG container AND the map; never intercepts events. */
+.org-lifeline-wrapper .org-lifeline-connector-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 500px;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible;
+}
+
+.org-connector-line {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+    stroke-linecap: round;
+    opacity: 0.85;
+    animation: connectorFadeIn 0.12s ease;
+}
+
+@keyframes connectorFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 0.85; }
+}
+
+/* Legend chips in the HUD bar */
+.org-lifeline-legend-item {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 2px 6px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 3px;
+    user-select: none;
+}
+
+/* ─────────────────────────────────────────────────── */
+/* Keyframe dot track on the time slider (legacy)     */
+/* ─────────────────────────────────────────────────── */
+/* --- Keyframe dot track on the time slider --- */
+.map-timeline-track {
+    position: relative;
+}
+
+.slider-keyframes {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    margin-top: 3px;
+    pointer-events: none;
+}
+
+.slider-keyframe-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    top: 2px;
+    transform: translateX(-50%);
+    opacity: 0.85;
+    box-shadow: 0 0 3px rgba(0,0,0,0.8);
+    pointer-events: auto;
+    cursor: default;
+}

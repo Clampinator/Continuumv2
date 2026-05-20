@@ -1,0 +1,8 @@
+{
+  "track_id": "era_data_decoupling_20260424",
+  "type": "refactor",
+  "status": "new",
+  "created_at": "2026-04-24T18:30:00Z",
+  "updated_at": "2026-04-24T18:30:00Z",
+  "description": "Update the Temporal Engine to gather Era names, colors, and durations, passing them to the Projector as pure state. Remove all direct actor object access from manifest-generator.js to strictly enforce Authoritative Data Isolation (ADI)."
+}

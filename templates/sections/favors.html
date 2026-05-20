@@ -1,0 +1,59 @@
+
+
+<!-- =============== -->
+<!-- FAVORS SECTION  -->
+<!-- =============== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-favors-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-favors-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-favors-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Favors</h2>
+    </label>
+    <div class="favors-controls">
+      <button type="button" class="favors-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="favor" data-tooltip="Add Favor"><i class="fas fa-plus"></i> Add</button>
+    </div>
+  </div>
+
+  <div class="favors-list">
+    <!-- Header Row -->
+    <div class="favor-item-header">
+      <div class="favor-description">Favor</div>
+      <div class="favor-importance">Importance</div>
+      <div class="favor-when">When</div>
+      <div class="favor-controls"></div> <!-- Spacer for delete button -->
+    </div>
+
+    <!-- Repeating Items List -->
+    {{#each favors as |favor|}}
+    <div class="favor-item" data-id="{{favor.id}}" {{#if favor.displayColor}}style="background-color: {{favor.displayColor}};"{{/if}}>
+      <div class="favor-description">
+        <input type="text" name="system.favors.{{favor.id}}.description" value="{{favor.description}}" placeholder="A favor owed or to be collected..."/>
+      </div>
+      <div class="favor-importance">
+        <select name="system.favors.{{favor.id}}.importance">
+          <option value="" disabled {{#unless favor.importance}}selected{{/unless}}>Select...</option>
+          <option value="Critical" {{#if (eq favor.importance "Critical")}}selected{{/if}}>Critical</option>
+          <option value="Extremely Important" {{#if (eq favor.importance "Extremely Important")}}selected{{/if}}>Extremely Important</option>
+          <option value="Very Important" {{#if (eq favor.importance "Very Important")}}selected{{/if}}>Very Important</option>
+          <option value="Important" {{#if (eq favor.importance "Important")}}selected{{/if}}>Important</option>
+          <option value="Moderately Important" {{#if (eq favor.importance "Moderately Important")}}selected{{/if}}>Moderately Important</option>
+          <option value="Less Important" {{#if (eq favor.importance "Less Important")}}selected{{/if}}>Less Important</option>
+          <option value="Unimportant" {{#if (eq favor.importance "Unimportant")}}selected{{/if}}>Unimportant</option>
+          <option value="Done" {{#if (eq favor.importance "Done")}}selected{{/if}}>Done</option>
+        </select>
+      </div>
+      <div class="favor-when">
+        <div class="date-picker-container">
+            <input type="text" class="date-text-input" name="system.favors.{{favor.id}}.when" value="{{favor.when}}" placeholder="YYYY-MM-DD" />
+            <i class="fas fa-calendar-alt date-picker-icon"></i>
+            <input type="date" class="date-picker-hidden" tabindex="-1" />
+        </div>
+      </div>
+      <div class="favor-controls">
+        <a class="item-delete {{#unless (isDeletable favor 'favor')}}disabled{{/unless}}" eventTitle="{{#unless (isDeletable favor 'favor')}}Cannot delete an element with content{{else}}Delete Favor{{/unless}}" data-type="favor" data-id="{{favor.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>

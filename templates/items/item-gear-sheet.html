@@ -1,0 +1,113 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <header class="sheet-header">
+        <img class="profile-img" src="{{item.img}}" data-edit="img" eventTitle="{{item.name}}"/>
+        <div class="header-fields">
+            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+            <div class="grid grid-2col">
+                <div class="resource">
+                    <label class="resource-label">Quantity</label>
+                    <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"/>
+                </div>
+                <div class="resource">
+                    <label class="resource-label">Weight (kg)</label>
+                    <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number"/>
+                </div>
+            </div>
+            <div class="grid grid-2col" style="margin-top: 5px; align-items: center;">
+                <div class="resource">
+                    <label class="resource-label">Gear Type</label>
+                    <select name="system.gearType" class="gear-type-select">
+                        <option value="firearm" {{#if (eq system.gearType "firearm")}}selected{{/if}}>Firearm</option>
+                        <option value="technology" {{#if (eq system.gearType "technology")}}selected{{/if}}>Technology</option>
+                        <option value="tool" {{#if (eq system.gearType "tool")}}selected{{/if}}>Tool</option>
+                        <option value="vehicle" {{#if (eq system.gearType "vehicle")}}selected{{/if}}>Vehicle</option>
+                    </select>
+                </div>
+                <div class="resource">
+                    <label class="resource-label">Carried</label>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <input type="checkbox" name="system.carried" {{#if system.carried}}checked{{/if}} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="gear-vehicle-class-section" style="display: {{#if (eq system.gearType "vehicle")}}block{{else}}none{{/if}}; margin-top: 10px;">
+        <label class="resource-label">Vehicle Class</label>
+        <div class="gear-vehicle-class-radios">
+            <label class="gear-vehicle-class-radio">
+                <input type="radio" name="system.vehicleClass" value="land" {{#if (eq system.vehicleClass "land")}}checked{{/if}} />
+                <span>Land</span>
+            </label>
+            <label class="gear-vehicle-class-radio">
+                <input type="radio" name="system.vehicleClass" value="air" {{#if (eq system.vehicleClass "air")}}checked{{/if}} />
+                <span>Air</span>
+            </label>
+            <label class="gear-vehicle-class-radio">
+                <input type="radio" name="system.vehicleClass" value="water" {{#if (eq system.vehicleClass "water")}}checked{{/if}} />
+                <span>Water</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="gear-aspects-section" style="margin-top: 10px;">
+        <div class="gear-aspects-header">
+            <h3>Aspects</h3>
+            <div class="gear-computed-bonus">Bonus: <strong>+{{computedBonus}}</strong></div>
+        </div>
+
+        <div class="gear-firearm-model-section" style="display: {{#if (eq system.gearType "firearm")}}flex{{else}}none{{/if}}; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <label class="resource-label" style="flex: 0 0 auto;">Firearm Model</label>
+            <select name="system.firearmModel" class="firearm-model-select">
+                <option value="">-- None --</option>
+                {{#each rangedWeaponModels as |model|}}
+                <option value="{{model}}" {{#if (eq ../system.firearmModel model)}}selected{{/if}}>{{model}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        {{#if selectedFirearmStats}}
+        <div class="gear-firearm-stats" style="display: {{#if (eq system.gearType "firearm")}}grid{{else}}none{{/if}}; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; font-size: 0.8em; color: #aaa;">
+            <div class="gear-stat-cell"><label>Ammo</label><span>{{selectedFirearmStats.ammo}}</span></div>
+            <div class="gear-stat-cell"><label>RoF</label><span>{{selectedFirearmStats.rof}}</span></div>
+            <div class="gear-stat-cell"><label>Conc.</label><span>{{selectedFirearmStats.conceal}}</span></div>
+            <div class="gear-stat-cell"><label>Wt.</label><span>{{selectedFirearmStats.weight}}</span></div>
+        </div>
+        {{/if}}
+
+        <div class="gear-aspects-grid">
+            <div class="gear-aspect-row">
+                <label class="gear-aspect-label">{{aspectLabels.aspect1}}</label>
+                <div class="gear-aspect-stepper">
+                    <button type="button" class="gear-aspect-btn gear-aspect-dec" data-aspect="aspect1">&minus;</button>
+                    <span class="gear-aspect-value">{{system.aspects.aspect1}}</span>
+                    <button type="button" class="gear-aspect-btn gear-aspect-inc" data-aspect="aspect1">+</button>
+                </div>
+            </div>
+            <div class="gear-aspect-row">
+                <label class="gear-aspect-label">{{aspectLabels.aspect2}}</label>
+                <div class="gear-aspect-stepper">
+                    <button type="button" class="gear-aspect-btn gear-aspect-dec" data-aspect="aspect2">&minus;</button>
+                    <span class="gear-aspect-value">{{system.aspects.aspect2}}</span>
+                    <button type="button" class="gear-aspect-btn gear-aspect-inc" data-aspect="aspect2">+</button>
+                </div>
+            </div>
+            <div class="gear-aspect-row">
+                <label class="gear-aspect-label">{{aspectLabels.aspect3}}</label>
+                <div class="gear-aspect-stepper">
+                    <button type="button" class="gear-aspect-btn gear-aspect-dec" data-aspect="aspect3">&minus;</button>
+                    <span class="gear-aspect-value">{{system.aspects.aspect3}}</span>
+                    <button type="button" class="gear-aspect-btn gear-aspect-inc" data-aspect="aspect3">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sheet-body">
+        <div class="description">
+            <h3>Description</h3>
+            {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+        </div>
+    </div>
+</form>

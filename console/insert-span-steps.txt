@@ -1,0 +1,5 @@
+﻿07:58:12.512 pointer-machine.js:278 [INSERT-SPAN] 1-INITIATED (drag end) {departureAge: 9325196722.023409, departureTime: 4163502130023.409, arrivalAge: 9325196722.023409, arrivalTime: 2952383044328.0957, displacement: 1211119085695.3135, …}
+07:58:12.513 pointer-machine.js:371 [INSERT-SPAN] 2-DIALOG OPENING {mode: 'insert', ageRaw: 9325196722.023409, timeRaw: 2952383044328.0957, eventIsSpan: true, spanDisabled: false, …}
+07:58:12.513 get-template-data.js:72 [INSERT-SPAN] 3-TEMPLATE DATA (dialog render) {effectiveEventIsSpan: true, spanDisabled: false, isBreathBlocked: false, predecessorId: 'dFXOEkzWHeopjAO3', predecessorIsSpanOrigin: false, …}
+07:58:14.168 handle-submit.js:74 [INSERT-SPAN] 4-CONFIRMED (dialog submit) {eventIsSpan: true, spanDisabled: false, hasSpanFacts: true, formDataEventIsSpan: true, paramsEventIsSpan: true, …}
+07:58:14.168 insert-history-row.js:33 [INSERT-SPAN] 5-ATOMIC (DB write) {eventAge: 9325196722, ts: 4163502130000, arrivalTs: 2952383044000, eventIsSpan: true, departureMinusArrival: 1211119086000, …}

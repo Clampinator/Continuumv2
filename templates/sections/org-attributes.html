@@ -1,0 +1,147 @@
+
+<!--======================-->
+<!-- ATTRIBUTES SECTION -->
+<!--======================-->
+<div class="section-container">
+  <input type="checkbox" id="toggle-org-attributes-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-attributes-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-org-attributes-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Attributes</h2>
+    </label>
+    <div class="org-attributes-controls">
+      <!-- Derived stat chips -->
+      <span class="attr-stat-chip" data-tooltip="Maximum rating for any single aspect, set by org Size.">
+        Size cap: <strong>{{fiscal.sizeAspectCap}}</strong>
+      </span>
+      <span class="attr-stat-chip {{#if (lt system.conflict.summary.mipPenalty 0)}}penalty{{/if}}"
+        data-tooltip="Manpower Impairment: penalises Force and Intel rolls.">
+        MIP: <strong>{{system.conflict.summary.mipPenalty}}</strong>
+      </span>
+      <span class="attr-stat-chip {{#if (lt system.conflict.summary.ripPenalty 0)}}penalty{{/if}}"
+        data-tooltip="Reputation Impairment: penalises Influence and Comms rolls.">
+        RIP: <strong>{{system.conflict.summary.ripPenalty}}</strong>
+      </span>
+      <span class="attr-stat-chip {{#if (lt repPool.remaining 0)}}penalty{{/if}}"
+        data-tooltip="Reputation pool = Size + Budget ({{repPool.total}} pts). Distribute between Morale Perm and Reputation Perm.">
+        Rep pool: <strong>{{repPool.spent}}</strong>/{{repPool.total}}
+      </span>
+      <span class="attr-controls-divider"></span>
+      <!-- MP pool -->
+      <div class="ap-pool-readout {{#if (lt fiscal.mp.remaining 0)}}negative{{/if}}" data-tooltip="Manpower Pool: Size × 10. Spent on unit activation and aspects.">
+        MP: <strong>{{fiscal.mp.spent}}</strong> / {{fiscal.mp.total}}
+      </div>
+      <!-- RP pool -->
+      <div class="ap-pool-readout {{#if (lt fiscal.rp.remaining 0)}}negative{{/if}}" data-tooltip="Resource Pool: Budget × 10. Spent on unit activation and aspects.">
+        RP: <strong>{{fiscal.rp.spent}}</strong> / {{fiscal.rp.total}}
+      </div>
+      {{#if fiscal.overextension.isOverextended}}
+      <div class="ap-pool-readout negative" data-tooltip="Overextended! {{#if fiscal.overextension.severe}}Severe: –2 to rolls, no new units.{{else}}–1 to rolls.{{/if}} MP over: {{fiscal.overextension.mpOver}} · RP over: {{fiscal.overextension.rpOver}}">
+        ⚠ Overextended
+      </div>
+      {{/if}}
+      <button type="button" class="org-attributes-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+  <div class="section-content">
+    <div class="attributes-container">
+      <!-- Organization Image -->
+      <div class="character-image-container">
+        <img class="character-image" src="{{actor.img}}" data-edit="img" eventTitle="{{actor.name}}"/>
+      </div>
+
+      <div class="attributes-single-row">
+        <!-- Force Block (derived from Physical unit aspects) -->
+        <div class="attribute-block attr-force">
+          <button type="button" class="roll-attribute" data-attribute="force"
+            data-tooltip="Derived from Physical units&#10;Σ aspects / 5&#10;MIP penalty: {{system.conflict.summary.mipPenalty}}">Force</button>
+          <span class="curve-label derived-label">Physical</span>
+          <div class="attribute-spinner-viewport" data-attribute="force" data-derived="true">
+            <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Force Value Spinner">
+          </div>
+          <input type="hidden" class="derived-attr-input" data-attribute="force" value="{{system.attributes.force.value}}">
+        </div>
+
+        <!-- Intel Block (derived from Espionage unit aspects) -->
+        <div class="attribute-block attr-intel">
+          <button type="button" class="roll-attribute" data-attribute="intel"
+            data-tooltip="Derived from Espionage units&#10;Σ aspects / 5&#10;MIP penalty: {{system.conflict.summary.mipPenalty}}">Intel</button>
+          <span class="curve-label derived-label">Espionage</span>
+          <div class="attribute-spinner-viewport" data-attribute="intel" data-derived="true">
+            <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Intel Value Spinner">
+          </div>
+          <input type="hidden" class="derived-attr-input" data-attribute="intel" value="{{system.attributes.intel.value}}">
+        </div>
+
+        <!-- Influence Block (derived from Psyops unit aspects) -->
+        <div class="attribute-block attr-influence">
+          <button type="button" class="roll-attribute" data-attribute="influence"
+            data-tooltip="Derived from Psyops units&#10;Σ aspects / 4&#10;RIP penalty: {{system.conflict.summary.ripPenalty}}">Influence</button>
+          <span class="curve-label derived-label">Psyops</span>
+          <div class="attribute-spinner-viewport" data-attribute="influence" data-derived="true">
+            <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Influence Value Spinner">
+          </div>
+          <input type="hidden" class="derived-attr-input" data-attribute="influence" value="{{system.attributes.influence.value}}">
+        </div>
+
+        <!-- Comms Block (derived from Online unit aspects) -->
+        <div class="attribute-block attr-comms">
+          <button type="button" class="roll-attribute" data-attribute="comms"
+            data-tooltip="Derived from Online units&#10;Σ aspects / 5&#10;RIP penalty: {{system.conflict.summary.ripPenalty}}">Comms</button>
+          <span class="curve-label derived-label">Online</span>
+          <div class="attribute-spinner-viewport" data-attribute="comms" data-derived="true">
+            <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Comms Value Spinner">
+          </div>
+          <input type="hidden" class="derived-attr-input" data-attribute="comms" value="{{system.attributes.comms.value}}">
+        </div>
+
+        <!-- Morale + Reputation — stacked vertically, spinners side-by-side inside each -->
+        <div class="attribute-column-dual">
+
+          <div class="attribute-block attr-internalReputation">
+            <button type="button" class="roll-attribute" data-attribute="internalReputation"
+              data-tooltip="Perm caps Cohesion / Integrity / Sympathizers / Ruthlessness.&#10;Temp: spend for +Force / +Intel rolls. Resets to Perm on downtime.">Morale</button>
+            <div class="rep-spinner-pair">
+              <div class="rep-spinner-col">
+                <span class="rep-spinner-label">Temp</span>
+                <div class="attribute-spinner-viewport" data-attribute="internalReputationTemp">
+                  <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Morale Temp Spinner">
+                </div>
+                <input type="hidden" name="system.attributes.internalReputation.temp" value="{{system.attributes.internalReputation.temp}}">
+              </div>
+              <div class="rep-spinner-col">
+                <span class="rep-spinner-label">Perm</span>
+                <div class="attribute-spinner-viewport" data-attribute="internalReputationPerm">
+                  <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Morale Perm Spinner">
+                </div>
+                <input type="hidden" name="system.attributes.internalReputation.perm" value="{{system.attributes.internalReputation.perm}}">
+              </div>
+            </div>
+          </div>
+
+          <div class="attribute-block attr-externalReputation">
+            <button type="button" class="roll-attribute" data-attribute="externalReputation"
+              data-tooltip="Prestige. Perm gates unit tiers &amp; recovery rate.&#10;Temp: spend for +Influence / +Comms rolls (costs 1 RP/pt). Resets to Perm on downtime.">Reputation</button>
+            <div class="rep-spinner-pair">
+              <div class="rep-spinner-col">
+                <span class="rep-spinner-label">Temp</span>
+                <div class="attribute-spinner-viewport" data-attribute="externalReputationTemp">
+                  <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Reputation Temp Spinner">
+                </div>
+                <input type="hidden" name="system.attributes.externalReputation.temp" value="{{system.attributes.externalReputation.temp}}">
+              </div>
+              <div class="rep-spinner-col">
+                <span class="rep-spinner-label">Perm</span>
+                <div class="attribute-spinner-viewport" data-attribute="externalReputationPerm">
+                  <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Reputation Perm Spinner">
+                </div>
+                <input type="hidden" name="system.attributes.externalReputation.perm" value="{{system.attributes.externalReputation.perm}}">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

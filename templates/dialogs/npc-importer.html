@@ -1,0 +1,82 @@
+<form autocomplete="off">
+  <div class="form-group">
+    <label>AI-Generated NPC JSON</label>
+    <div class="eventNotes" style="margin-bottom: 10px;">
+      <p>
+        Use an AI to generate an NPC. Give it the prompt below, then paste the resulting JSON here after you have answered the AI's questions.
+      </p>
+      <details>
+        <summary><strong>Click to view the AI prompt</strong></summary>
+        <div style="position: relative;">
+          <!-- The pre tag now has an ID for the JS and an inline style to ensure text is selectable -->
+<!-- In npc-importer.html -->
+<pre id="npc-prompt-text" style="user-select: text; cursor: text; background: #222; padding: 10px; border-radius: 5px; white-space: pre-wrap; word-break: break-word; margin-top: 5px; padding-right: 40px;">
+You are a Continuum Archival AI. Your purpose is to help me create a new Non-Player Character (NPC) for the Continuum RPG.
+
+Do not generate the final JSON immediately. Instead, you will act as an interactive wizard. Follow these steps precisely:
+
+1.  Acknowledge my request and state that you need some core information to begin the character creation process.
+2.  Ask me the following questions. Wait for my answers before proceeding.
+
+    *   What is the character's approximate **Age** and **Era** (Ancient, Medieval, Modern)?
+    *   What is their **Fraternity**?
+    *   Are they a **Spanner** or a **Leveler**?
+    *   Are they a **Continuum** agent or a **Narcissist**?
+    *   What is their **Span**? (If they are a Leveler, this will be 0).
+    *   Is the character **Operant** or **Latent**?
+    *   If **Operant**, which Metabilities do they possess and at what rank (1-5)? A "Strong" character should have at least three Metabilities. (e.g., `Farsense 3, Redaction 2, PK 1`)
+    *   Are their Attributes **Normal** (all around 4), or are they **Exceptional** in some way? (e.g., "High Mind and EQ, but low Body").
+
+3.  Once I have provided the answers, you will begin a two-part creation process.
+
+    **Part 1: Narrative Generation**
+    First, using my answers and your extensive knowledge of the Continuum setting, write a compelling, multi-paragraph narrative backstory for the character. This narrative is the single source of truth. After the main narrative, write a separate, concise list of 2-3 bullet points for the Game Master containing secrets, plot hooks, or hidden motivations.
+
+    **Part 2: Data Generation**
+    Second, after generating the text, you will meticulously extract data *from the narrative you just wrote* to generate the final output. This output will consist of a JSON object and an image prompt.
+
+4.  When generating the JSON, adhere to these requirements:
+    *   The `background` field MUST contain the entire narrative you wrote.
+    *   The `eventNotes` field MUST contain only the GM-facing plot hooks.
+    *   Generate **at least 5** `relationships`. Ensure they are varied and not all the same type (e.g., not all siblings).
+    *   Generate **at least 3** `favors` (owed by or to the NPC).
+    *   Generate **at least 5** `experiences`, each with **at least 2** nested `events`. These must be thematically appropriate for the character's age, era, and background.
+    *   **Crucially, the character's name must not be "Vance" or contain the name "Vance".**
+
+5.  Present all of this information in a single, clean JSON code block. Do not include any explanations or markdown formatting outside of the JSON block.
+6.  **After** the JSON block, add a section labeled `🎨 IMAGE PROMPT`. In this section, create a detailed, descriptive prompt suitable for an AI image generator like Midjourney or DALL-E, based on the character's narrative.
+
+**Example Output Structure:**
+
+```json
+
+{
+  "name": "NPC Name",
+  "personal": {
+    "dob": "1985-10-26",
+    "invitationDate": "2012-05-11"
+  },
+  "concept": "...",
+  "background": "A detailed narrative about the character...",
+  // ... all other JSON data ...
+}
+photorealistic portrait of a 47-year-old European American man, quiet and unassuming, meticulous, wearing a simple button-down shirt, in a dimly lit city records archive, soft neutral lighting, high detail, 8k --ar 2:3
+</pre>
+
+          <!-- This button is expected by the activateListeners function in continuum.js -->
+          <button type="button" class="copy-prompt-btn" eventTitle="Copy Prompt" style="position: absolute; top: 10px; right: 10px; padding: 4px 8px; font-size: 0.9em; border: 1px solid #555; background: #3a3a3a; color: #ccc; cursor: pointer;">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </details>
+    </div>
+
+    <textarea name="npcJson" style="width: 100%; height: 350px; resize: vertical; font-family: monospace;"></textarea>
+  </div>
+
+  <footer class="sheet-footer flexrow">
+    <button type="submit" name="submit">
+      <i class="fas fa-file-import"></i> Import NPC
+    </button>
+  </footer>
+</form>

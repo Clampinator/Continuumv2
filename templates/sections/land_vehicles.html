@@ -1,0 +1,49 @@
+
+<!-- ===================== -->
+<!-- LAND VEHICLES SECTION -->
+<!-- ===================== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-vehicles-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-vehicles-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-vehicles-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Land Vehicles</h2>
+    </label>
+    <div class="land-vehicles-controls">
+      <button type="button" class="land-vehicles-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="vehicle" data-tooltip="Add Land Vehicle"><i class="fas fa-plus"></i> Add</button>
+    </div>
+  </div>
+
+  <div class="vehicles-list">
+    <div class="vehicle-item-header">
+      <div class="vehicle-name">Vehicle</div>
+      <div class="vehicle-drive">Drive</div>
+      <div class="vehicle-stat">Mass (t)</div>
+      <div class="vehicle-stat">IP</div>
+      <div class="vehicle-stat">Armor</div>
+      <div class="vehicle-stat">Passengers</div>
+      <div class="vehicle-controls"></div>
+    </div>
+    {{#each vehicles as |vehicle|}}
+    <div class="vehicle-item" data-id="{{vehicle.id}}" data-type="vehicles">
+      <div class="vehicle-name">
+<select name="system.vehicles.{{vehicle.id}}.name" class="vehicle-select">
+  {{#each (lookup @root.allVehicleData "Land Vehicles") as |stats key|}}
+    <option value="{{key}}" {{#if (eq key ../name)}}selected{{/if}}>{{key}}</option>
+  {{/each}}
+</select>
+      </div>
+      <div class="vehicle-drive">
+        <button type="button" class="roll-vehicle" data-id="{{vehicle.id}}">Drive</button>
+      </div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.mass}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.ip}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.armor}}</span></div>
+      <div class="vehicle-stat"><span class="vehicle-stat-display">{{vehicle.passengers}}</span></div>
+      <div class="vehicle-controls">
+        <a class="item-delete {{#unless (isDeletable vehicle 'vehicle')}}disabled{{/unless}}" eventTitle="{{#unless (isDeletable vehicle 'vehicle')}}Cannot delete an element with content{{else}}Delete Vehicle{{/unless}}" data-type="vehicle" data-id="{{vehicle.id}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>

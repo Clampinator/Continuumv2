@@ -1,0 +1,13 @@
+/*==========================*/
+/* COMBAT MASTER STYLES     */
+/*==========================*/
+
+/* 
+   This file acts as the primary registry for the fragmented combat system styles.
+   Imports are relative to the styles directory.
+*/
+
+@import url("combat-ranged-weapons.css");
+@import url("combat-melee-weapons.css");
+@import url("combat-armor.css");
+@import url("combat-wounds.css");

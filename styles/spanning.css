@@ -1,0 +1,286 @@
+
+
+
+/*==========================*/
+/* SPANNING SECTION         */
+/*==========================*/
+
+/* Header Controls Alignment */
+.section-header-row .spanning-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Reset margin for Add button inside container */
+.section-header-row .spanning-controls .item-add {
+    margin-left: 0 !important;
+}
+
+/* Help button styling */
+.spanning-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.spanning-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.spanning-static-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch; /* Ensure blocks are same height */
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Label style for Spanning blocks that don't use a button */
+button.nat-span-add {
+  background-color: #2a3a4a;
+  border-color: #4a7a9b;
+  color: #8bbcdb;
+}
+
+button.nat-span-add:hover {
+  background-color: #324555;
+  border-color: #5a8aab;
+  color: #aad0ed;
+}
+
+.nat-span-abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.nat-span-ability-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: #1e2e3a;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #4a7a9b;
+}
+
+.nat-span-ability-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nat-span-ability-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nat-span-ability-name {
+  flex-grow: 1;
+  font-weight: bold;
+}
+
+.nat-span-ability-content textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 40px;
+  display: block;
+  background-color: #162230;
+  color: #fff;
+  border: 1px solid #4a7a9b;
+  border-radius: 4px;
+  padding: 5px;
+  font-family: inherit;
+}
+
+.attribute-spinner-viewport.nat-span-ability-spinner {
+  width: 36px;
+  height: 36px !important;
+  flex-shrink: 0;
+}
+
+.attribute-spinner-viewport.nat-span-ability-spinner .attribute-spinner-image {
+  height: calc(1100% + 15px);
+}
+
+.nat-span-ability-controls {
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+.nat-span-ability-controls .item-delete {
+  color: #8bbcdb;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: color 0.2s ease;
+}
+
+.nat-span-ability-controls .item-delete:hover {
+  color: #ff6060;
+}
+
+button.roll-nat-span {
+  background-color: #2a3a4a;
+  border-color: #4a7a9b;
+  color: #8bbcdb;
+}
+
+button.roll-nat-span:hover:not(:disabled) {
+  background-color: #324555;
+  border-color: #5a8aab;
+  color: #aad0ed;
+}
+
+.spanning-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 8px 0; /* Matches button vertical padding */
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #ccc;
+  text-align: center;
+  line-height: 1;
+  background-color: #3a3a3a;
+  border: 1px solid #555;
+  border-radius: 4px;
+}
+
+/* New Summary Row Styles */
+.spanning-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #3a3a3a;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  margin-bottom: 10px;
+}
+
+.recalculate-span {
+  flex-shrink: 0;
+  width: auto;
+  padding: 6px 12px;
+}
+
+.span-remaining-display {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: monospace;
+  font-size: 1.1em;
+  justify-content: flex-end;
+}
+
+.span-remaining-display label {
+  color: #aaa;
+  font-weight: bold;
+}
+
+.span-remaining-display span {
+  color: #fff;
+  font-weight: bold;
+}
+
+.span-remaining-display.over-span span {
+  color: #ff6060;
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.spanning-abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.spanning-ability-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: #3a3a3a;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #2c2c2c;
+}
+
+.spanning-ability-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.spanning-ability-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spanning-ability-name {
+  flex-grow: 1;
+  font-weight: bold;
+}
+
+.attribute-spinner-viewport.spanning-ability-spinner {
+  width: 36px;
+  height: 36px !important;
+  flex-shrink: 0;
+}
+
+.attribute-spinner-viewport.spanning-ability-spinner .attribute-spinner-image {
+  height: calc(1100% + 15px);
+}
+
+.spanning-ability-content textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 40px;
+  display: block;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px;
+  font-family: inherit;
+}
+
+.spanning-ability-controls {
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+.spanning-ability-controls .item-delete {
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: color 0.2s ease;
+}
+
+.spanning-ability-controls .item-delete:hover {
+  color: #ff6060;
+}

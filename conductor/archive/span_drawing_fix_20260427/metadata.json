@@ -1,0 +1,8 @@
+{
+  "track_id": "span_drawing_fix_20260427",
+  "type": "bugfix",
+  "status": "new",
+  "created_at": "2026-04-27T10:00:00Z",
+  "updated_at": "2026-04-27T10:00:00Z",
+  "description": "Fix Span drawing logic to handle departure/arrival nodes and multiple rails using eventAge/eventTime standard."
+}

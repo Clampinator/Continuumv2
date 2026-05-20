@@ -1,0 +1,117 @@
+
+<!-- ================== -->
+<!-- SPAN GRAPH SECTION -->
+<!-- ================== -->
+<div class="section-container">
+  <input type="checkbox" id="toggle-span-graph-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-span-graph-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-span-graph-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Lifeline</h2>
+    </label>
+    <!-- Controls for the graph -->
+    <div class="span-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
+        <button type="button" class="lifeline-undo" title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+        <button type="button" class="lifeline-redo" title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+        <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div>
+        <!-- <button type="button" class="toggle-map-mode" title="Toggle Map Interaction (Spacebar)"><i class="fas fa-map-marked-alt"></i></button> -->
+        <!-- <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div> -->
+        <button type="button" class="lifeline-spreadsheet-btn" title="Spreadsheet Editor"><i class="fas fa-table"></i></button>
+        <div style="width: 1px; height: 16px; background: #444; margin: 0 4px;"></div>
+        <button type="button" class="export-lifeline" title="Export Lifeline (JSON)"><i class="fas fa-file-export"></i></button>
+        <button type="button" class="import-lifeline" title="Import Lifeline (JSON)"><i class="fas fa-file-import"></i></button>
+        <!-- <button type="button" class="debug-graph-data" title="Copy Debug Data"><i class="fas fa-bug"></i></button> -->
+        <button type="button" class="reset-graph-view" title="Zoom to Fit"><i class="fas fa-compress-arrows-alt"></i></button>
+        <!-- <button type="button" class="fix-rail-offsets" title="Fix Rail Offsets (clear corrupt Reconciliation Loops)"><i class="fas fa-wrench"></i></button> -->
+        <!-- <button type="button" class="toggle-archived-goals" title="Show Archived Goals"><i class="fas fa-eye"></i></button> -->
+        <button type="button" class="span-graph-help" title="Help"><i class="fas fa-question"></i></button>
+    </div>
+  </div>
+  
+  <div class="section-content">
+    
+    {{#unless (or (and system.personal.dob system.personal.birthLocation) (and system.structure.inceptionDate system.structure.locality))}}
+    <div class="span-graph-dob-warning-overlay">
+        <div class="warning-message-box">
+            <h3><i class="fas fa-exclamation-triangle"></i> Data Required</h3>
+            <p>The Lifeline cannot be initialized without a reference point.</p>
+            <p>Please enter Inception/Birth Date and Location in the <em>Personal/Structure</em> section above.</p>
+        </div>
+    </div>
+    {{/unless}}
+
+    <!-- HTML GOAL HUD (The Bank) -->
+    <div class="graph-goal-hud-container {{#unless (or (and system.personal.dob system.personal.birthLocation) (and system.structure.inceptionDate system.structure.locality))}}blurred-content{{/unless}}">
+      {{#if (eq actor.type "organization")}}
+        <span style="font-size:0.8em; font-weight:bold; color:#aaa; margin-right:5px;">UNITS:</span>
+      {{else}}
+        <button type="button" class="goal-hud-add" eventTitle="Create New Goal"><i class="fas fa-plus"></i> Goal</button>
+        {{#each goals as |goal|}}
+            {{#unless (eq goal.importance "Achieved")}}
+            <div class="goal-hud-chip" data-id="{{goal.id}}" data-importance="{{goal.importance}}">
+                <span class="goal-hud-text">{{goal.description}}</span>
+            </div>
+            {{/unless}}
+        {{/each}}
+      {{/if}}
+    </div>
+
+    <!-- ORGANIZATION UNIT SELECTOR (Only visible for orgs) -->
+    {{#if (eq actor.type "organization")}}
+    <div class="graph-goal-hud-container" id="org-unit-selector-container">
+        <!-- JS populates this -->
+    </div>
+    {{/if}}
+
+    <div class="span-graph-wrapper {{#unless (or (and system.personal.dob system.personal.birthLocation) (and system.structure.inceptionDate system.structure.locality))}}blurred-content{{/unless}}">
+        
+        <!-- NEW: Map Background Container with Unique ID per Actor -->
+        <div id="lifeline-map-background-{{actor.id}}" class="lifeline-map-background"></div>
+
+        <!-- AUTHORITY: The new SVG Viewport is instantiated here. 
+             All legacy static SVG elements have been removed to prevent interaction blocking. -->
+        <div class="span-graph-container"></div>
+        
+        <!-- Instructions Footer -->
+        <div class="graph-instructions">
+        <span><i class="fas fa-arrows-alt"></i> Pan/Zoom</span>
+        {{#if (eq actor.type "organization")}}
+            <span><i class="fas fa-subway"></i> Select Unit to Drag</span>
+        {{else}}
+            <span><i class="fas fa-mouse-pointer"></i> Drag Bar = Era</span>
+            <span><i class="fas fa-bolt"></i> Head = Span</span>
+        {{/if}}
+        <span style="color: #ffd700;"><i class="fas fa-hand-paper"></i> <strong>Hold Space</strong> = Map</span>
+        </div>
+    </div>
+  </div>
+  
+  <!-- Archived Goals Panel (toggled by eye button in toolbar) -->
+  {{#if resolvedGoals.length}}
+  <div class="archived-goals-panel section-container">
+    <div class="section-header-row">
+      <h2 class="section-heading">Archived Goals</h2>
+    </div>
+    <div class="section-content">
+      <div class="goals-list">
+        {{#each resolvedGoals as |goal|}}
+        <div class="goal-item goal-item--resolved" data-id="{{goal.id}}">
+          <div class="goal-row">
+            <i class="fas fa-check-circle goal-resolved-icon"></i>
+            <span class="goal-description goal-description--resolved">{{goal.description}}</span>
+          </div>
+          {{#if goal.condition}}
+          <div class="goal-row">
+            <label class="goal-label">by...</label>
+            <span class="goal-condition--resolved">{{goal.condition}}</span>
+          </div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  <!-- Global Drag Proxy for Goals -->
+  <div id="graph-drag-proxy" class="goal-hud-chip" style="display: none; position: fixed; pointer-events: none; z-index: 9999;"></div>
+</div>

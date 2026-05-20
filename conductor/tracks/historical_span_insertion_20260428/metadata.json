@@ -1,0 +1,8 @@
+{
+  "track_id": "historical_span_insertion_20260428",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-28T12:15:00Z",
+  "updated_at": "2026-04-28T12:15:00Z",
+  "description": "Historical Span Insertion: Logic for inserting spans into the character's past and calculating downstream impact."
+}

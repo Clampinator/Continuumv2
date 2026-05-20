@@ -1,0 +1,48 @@
+
+  <!--===================-->
+  <!-- MANDATES SECTION -->
+  <!--===================-->
+  <div class="section-container">
+  <input type="checkbox" id="toggle-org-mandates-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-mandates-" actor.id))}}checked{{/if}}>
+  <div class="section-header-row">
+    <label for="toggle-org-mandates-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Mandates</h2>
+    </label>
+    <div class="org-mandates-controls">
+      <button type="button" class="org-mandates-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="mandate" data-tooltip="Add a new Mandate"><i class="fas fa-plus"></i> Add</button>
+    </div>
+  </div>
+    <div class="section-content">
+      <!-- The list of all mandates. Reuses 'goals-list' for styling. -->
+      <div class="goals-list">
+        {{#each mandates as |mandate|}}
+          <!-- A single mandate item. Reuses 'goal-item' for styling. -->
+                    <div class="goal-item" data-id="{{mandate.id}}" data-importance="{{mandate.importance}}">
+            <!-- First row for the description and importance. Reuses 'goal-row'. -->
+            <div class="goal-row">
+              <label class="goal-label">We will...</label>
+              <input type="text" class="goal-description" name="system.mandates.{{mandate.id}}.description" value="{{mandate.description}}" placeholder="...achieve an organizational objective."/>
+              <select class="goal-importance" name="system.mandates.{{mandate.id}}.importance">
+                <option value="" disabled {{#unless mandate.importance}}selected{{/unless}}>Importance...</option>
+                <option value="Passing" {{#if (eq mandate.importance "Passing")}}selected{{/if}}>Passing</option>
+                <option value="Mild" {{#if (eq mandate.importance "Mild")}}selected{{/if}}>Mild</option>
+                <option value="Important" {{#if (eq mandate.importance "Important")}}selected{{/if}}>Important</option>
+                <option value="Extreme" {{#if (eq mandate.importance "Extreme")}}selected{{/if}}>Extreme</option>
+                <option value="Critical" {{#if (eq mandate.importance "Critical")}}selected{{/if}}>Critical</option>
+                <option value="Achieved" {{#if (eq mandate.importance "Achieved")}}selected{{/if}}>Achieved</option>
+              </select>
+            </div>
+            <!-- Second row for the condition and controls. Reuses 'goal-row'. -->
+            <div class="goal-row">
+              <label class="goal-label">by...</label>
+              <input type="text" class="goal-condition" name="system.mandates.{{mandate.id}}.condition" value="{{mandate.condition}}" placeholder="...meeting these conditions."/>
+              <div class="goal-controls">
+                  <a class="item-delete" data-tooltip="Delete Mandate" data-type="mandate" data-id="{{mandate.id}}"><i class="fas fa-trash"></i></a>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>

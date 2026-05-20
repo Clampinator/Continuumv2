@@ -1,0 +1,73 @@
+
+<!--====================-->
+<!-- GOALS SECTION      -->
+<!--====================-->
+
+<div class="section-container">
+  <!-- The checkbox is OUTSIDE the header, with a UNIQUE ID -->
+  <input type="checkbox" id="toggle-goals-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-goals-" actor.id))}}checked{{/if}}>
+
+  <div class="section-header-row">
+    <!-- The label correctly points to the checkbox's unique ID -->
+        <label for="toggle-goals-{{actor.id}}" class="section-heading-toggle">
+      <h2 class="section-heading">Goals</h2>
+    </label>
+    <div class="goals-controls">
+      <button type="button" class="goals-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="goal" data-tooltip="Add a new Goal"><i class="fas fa-plus"></i> Add Goal</button>
+    </div>
+  </div>
+
+  <div class="section-content">
+    <div class="goals-list">
+      {{#each goals as |goal|}}
+          <div class="goal-item" data-id="{{goal.id}}" {{#if goal.displayColor}}style="background-color: {{goal.displayColor}};"{{/if}}>
+            <div class="goal-row">
+              <label class="goal-label">I will...</label>
+              <input type="text" class="goal-description" name="system.goals.{{goal.id}}.description" value="{{goal.description}}" placeholder="...achieve something great."/>
+              <select class="goal-importance" name="system.goals.{{goal.id}}.importance">
+                <option value="" disabled {{#unless goal.importance}}selected{{/unless}}>Importance...</option>
+                <option value="Passing" {{#if (eq goal.importance "Passing")}}selected{{/if}}>Passing</option>
+                <option value="Mild" {{#if (eq goal.importance "Mild")}}selected{{/if}}>Mild</option>
+                <option value="Important" {{#if (eq goal.importance "Important")}}selected{{/if}}>Important</option>
+                <option value="Extreme" {{#if (eq goal.importance "Extreme")}}selected{{/if}}>Extreme</option>
+                <option value="Critical" {{#if (eq goal.importance "Critical")}}selected{{/if}}>Critical</option>
+              </select>
+            </div>
+            <div class="goal-row">
+              <label class="goal-label">by...</label>
+              <input type="text" class="goal-condition" name="system.goals.{{goal.id}}.condition" value="{{goal.condition}}" placeholder="...completing this task."/>
+              <div class="goal-controls">
+                  <a class="item-delete {{#unless (isDeletable goal 'goal')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable goal 'goal')}}Cannot delete an element with content{{else}}Delete Goal{{/unless}}" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
+              </div>
+            </div>
+          </div>
+      {{/each}}
+    </div>
+
+    {{#if resolvedGoals.length}}
+    <div class="goals-resolved-section">
+      <h4 class="goals-resolved-heading"><i class="fas fa-check-circle"></i> Resolved</h4>
+      <div class="goals-list">
+        {{#each resolvedGoals as |goal|}}
+            <div class="goal-item goal-item--resolved" data-id="{{goal.id}}">
+              <div class="goal-row">
+                <i class="fas fa-check-circle goal-resolved-icon"></i>
+                <span class="goal-description goal-description--resolved">{{goal.description}}</span>
+                <div class="goal-controls">
+                  <a class="item-delete" data-tooltip="Delete Goal" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
+                </div>
+              </div>
+              {{#if goal.condition}}
+              <div class="goal-row">
+                <label class="goal-label">by...</label>
+                <span class="goal-condition--resolved">{{goal.condition}}</span>
+              </div>
+              {{/if}}
+            </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+  </div>
+</div>

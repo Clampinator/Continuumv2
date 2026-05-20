@@ -1,0 +1,23 @@
+<form class="{{cssClass}} location-sheet-form" autocomplete="off">
+    <!-- Location Details -->
+    {{> "systems/continuum-v2/templates/sections/location-details.html"}}
+
+    <!-- Core Attributes & Pools -->
+    {{> "systems/continuum-v2/templates/sections/location-attributes.html"}}
+
+    <!-- Location Aspects -->
+    {{> "systems/continuum-v2/templates/sections/location-aspects.html"}}
+
+    <!-- World Map & Chronology -->
+    {{> "systems/continuum-v2/templates/sections/location-map.html"}}
+
+    <!-- Dialog Popup -->
+    <input type="checkbox" name="dialog_flag" class="sheet-hidden" />
+    <div class="dialog-overlay">
+        <div class="dialog-content">
+            <div class="dialog-footer">
+                <button type="button" class="dialog-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</form>

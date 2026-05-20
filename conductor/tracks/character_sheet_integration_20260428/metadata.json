@@ -1,0 +1,8 @@
+{
+  "track_id": "character_sheet_integration_20260428",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-28T12:30:00Z",
+  "updated_at": "2026-04-28T12:30:00Z",
+  "description": "Main Character Sheet Integration: Migration of the Lifeline tool from a standalone app into the primary character sheet tabs."
+}

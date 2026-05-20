@@ -1,0 +1,10 @@
+
+import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
+import { projectSubjectiveAge } from '/systems/continuum-v2/modules/temporal-kernel/project-subjective-age.js';
+
+export function getAgeStringFromDate(dateStr, dobTs) {
+    if (!dateStr || !dobTs) return "0y";
+    const ts = new Date(dateStr + (dateStr.includes('T') ? '' : "T00:00:00")).getTime();
+    if (isNaN(ts)) return "0y";
+    return formatSubjectiveAge(projectSubjectiveAge(ts, dobTs));
+}

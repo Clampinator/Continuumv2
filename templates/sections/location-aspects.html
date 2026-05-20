@@ -1,0 +1,71 @@
+<div class="section-container">
+    <input type="checkbox" id="toggle-location-aspects-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-location-aspects-" actor.id))}}checked{{/if}}>
+    <div class="section-header-row">
+        <label for="toggle-location-aspects-{{actor.id}}" class="section-heading-toggle">
+            <h2 class="section-heading">Location Aspects</h2>
+        </label>
+        <button type="button" class="item-add" data-type="aspect" eventTitle="Add Aspect"><i class="fas fa-plus"></i> Add Aspect</button>
+    </div>
+    
+    <div class="section-content">
+        <div class="columns">
+            <!-- Infrastructure -->
+            <div class="column">
+                <h3 class="subsection-header">Infrastructure</h3>
+                <div class="aspect-list" data-category="infrastructure">
+                    {{#each system.aspects.infrastructure}}
+                    <div class="aspect-item" data-id="{{@key}}" eventTitle="{{this.description}}">
+                        <input type="text" name="system.aspects.infrastructure.{{@key}}.name" value="{{this.name}}" placeholder="Aspect Name">
+                        <input type="number" name="system.aspects.infrastructure.{{@key}}.rating" value="{{this.rating}}" min="0" max="10">
+                        <button type="button" class="item-delete" data-type="aspect" data-category="infrastructure" data-id="{{@key}}"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="column">
+                <h3 class="subsection-header">Enterprise</h3>
+                <div class="aspect-list" data-category="enterprise">
+                    {{#each system.aspects.enterprise}}
+                    <div class="aspect-item" data-id="{{@key}}" eventTitle="{{this.description}}">
+                        <input type="text" name="system.aspects.enterprise.{{@key}}.name" value="{{this.name}}" placeholder="Aspect Name">
+                        <input type="number" name="system.aspects.enterprise.{{@key}}.rating" value="{{this.rating}}" min="0" max="10">
+                        <button type="button" class="item-delete" data-type="aspect" data-category="enterprise" data-id="{{@key}}"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+
+        <div class="columns">
+            <!-- Intellect -->
+            <div class="column">
+                <h3 class="subsection-header">Intellect</h3>
+                <div class="aspect-list" data-category="intellect">
+                    {{#each system.aspects.intellect}}
+                    <div class="aspect-item" data-id="{{@key}}" eventTitle="{{this.description}}">
+                        <input type="text" name="system.aspects.intellect.{{@key}}.name" value="{{this.name}}" placeholder="Aspect Name">
+                        <input type="number" name="system.aspects.intellect.{{@key}}.rating" value="{{this.rating}}" min="0" max="10">
+                        <button type="button" class="item-delete" data-type="aspect" data-category="intellect" data-id="{{@key}}"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+
+            <!-- Authority -->
+            <div class="column">
+                <h3 class="subsection-header">Authority</h3>
+                <div class="aspect-list" data-category="authority">
+                    {{#each system.aspects.authority}}
+                    <div class="aspect-item" data-id="{{@key}}" eventTitle="{{this.description}}">
+                        <input type="text" name="system.aspects.authority.{{@key}}.name" value="{{this.name}}" placeholder="Aspect Name">
+                        <input type="number" name="system.aspects.authority.{{@key}}.rating" value="{{this.rating}}" min="0" max="10">
+                        <button type="button" class="item-delete" data-type="aspect" data-category="authority" data-id="{{@key}}"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

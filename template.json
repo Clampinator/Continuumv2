@@ -1,0 +1,194 @@
+{
+  "Actor": {
+    "types": ["character", "organization", "location"],
+    "character": {
+      "personal": {
+        "name": "",
+        "pronouns": "",
+        "heritage": "",
+        "height": "",
+        "weight": "",
+        "age": {
+          "years": "",
+          "days": ""
+        },
+        "dob": "",
+        "birthLocation": "",
+        "birthLat": null,
+        "birthLng": null,
+        "locality": "",
+        "society": "",
+        "grace": "",
+        "invitationDate": "",
+        "corner": "",
+        "fraternity": "",
+        "era": "",
+        "subjectiveNow": null,
+        "objectiveNow": null
+      },
+      "attributes": {
+        "body": { "value": 4 },
+        "mind": { "value": 4 },
+        "eq": { "value": 4 },
+        "quick": { "value": 4 },
+        "willpower": {
+          "temp": 5,
+          "perm": 5
+        }
+      },
+      "background": "",
+      "metabilities": {
+        "latent": { "value": 0 },
+        "coercion": { "value": 0, "potential": 0 },
+        "creativity": { "value": 0, "potential": 0 },
+        "farsense": { "value": 0, "potential": 0 },
+        "pk": { "value": 0, "potential": 0 },
+        "redaction": { "value": 0, "potential": 0 },
+        "applications": {},
+        "potentialsLocked": false
+      },
+      "benefits": {},
+      "eras": {},
+      "combat": {
+        "rangedWeapons": {},
+        "meleeWeapons": {},
+        "armor": {},
+        "wounds": {
+          "0": { "ip": 0, "type": "", "bleeding": false },
+          "1": { "ip": 0, "type": "", "bleeding": false },
+          "2": { "ip": 0, "type": "", "bleeding": false },
+          "3": { "ip": 0, "type": "", "bleeding": false },
+          "4": { "ip": 0, "type": "", "bleeding": false }
+        },
+        "stuff": "",
+        "assets": ""
+      },
+      "goals": {},
+      "spanning": {
+        "span": 0,
+        "naturalSpan": 0,
+        "deliberateFrag": 0,
+        "naturalFrag": 0,
+        "skills": {},
+        "abilities": {},
+        "natSpanAbilities": {}
+      },
+      "theYet": {},
+      "favors": {},
+      "relationships": {},
+      "vehicles": {},
+	  "airVehicles": {},
+	  "waterVehicles": {},
+      "network": {},
+      "networkEdges": {}
+    },
+    "organization": {
+      "structure": {
+        "orgname": "",
+        "type": "",
+        "race": "",
+        "inceptionDate": "",
+        "locality": "",
+        "society": "",
+        "grace": 0,
+        "size": 1,
+        "budget": 1
+      },
+      "attributes": {
+        "force": { "value": 0 },
+        "intel": { "value": 0 },
+        "influence": { "value": 0 },
+        "comms": { "value": 0 },
+        "internalReputation": { "temp": 0, "perm": 0 },
+        "externalReputation": { "temp": 0, "perm": 0 }
+      },
+      "mandates": {},
+      "methods": {},
+      "conflict": {
+        "physical": {},
+        "espionage": {},
+        "online": {},
+        "psyops": {},
+        "wounds": {
+          "0": { "rip": 0, "mip": 0, "type": "", "bleeding": false },
+          "1": { "rip": 0, "mip": 0, "type": "", "bleeding": false },
+          "2": { "rip": 0, "mip": 0, "type": "", "bleeding": false },
+          "3": { "rip": 0, "mip": 0, "type": "", "bleeding": false },
+          "4": { "rip": 0, "mip": 0, "type": "", "bleeding": false }
+        },
+        "stuff": "",
+        "assets": ""
+      },
+      "balanceSheet": {},
+      "network": {},
+      "networkEdges": {}
+    },
+    "location": {
+      "details": {
+        "name": "",
+        "era": "",
+        "year": "",
+        "locality": "",
+        "society": "",
+        "continent": ""
+      },
+      "attributes": {
+        "scale": { "value": 0 },
+        "output": { "value": 0 },
+        "cohesion": { "value": 0 },
+        "civics": { "value": 0 },
+        "capital": { "value": 0, "max": 0 },
+        "momentum": { "value": 0, "max": 0 }
+      },
+      "aspects": {
+        "infrastructure": {},
+        "enterprise": {},
+        "intellect": {},
+        "authority": {}
+      },
+      "briefing": "",
+      "modifiers": [],
+      "map": {
+        "lat": null,
+        "lng": null,
+        "zoom": 12,
+        "style": "default",
+        "pins": {},
+        "chronology": {
+          "activeRange": {
+            "start": null,
+            "end": null
+          },
+          "states": {}
+        }
+      }
+    }
+  },
+  "Item": {
+    "types": ["artifact", "ability", "gear"],
+    "artifact": {
+      "description": "",
+      "rarity": "common",
+      "powerLevel": 1
+    },
+    "ability": {
+      "description": "",
+      "rank": 1,
+      "cooldown": 0
+    },
+    "gear": {
+      "quantity": 1,
+      "weight": 0,
+      "description": "",
+      "carried": true,
+      "gearType": "technology",
+      "vehicleClass": "",
+      "firearmModel": "",
+      "aspects": {
+        "aspect1": 0,
+        "aspect2": 0,
+        "aspect3": 0
+      }
+    }
+  }
+}

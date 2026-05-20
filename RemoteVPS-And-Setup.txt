@@ -1,0 +1,108 @@
+Remote Assistance Operations Guide (Assistant -> VPS -> Authority)
+=====================================================================
+Three-party SSH relay: Assistant connects to Authority via the Canada VPS.
+
+Roles:
+  - Authority ("Tuck") : Remote Windows PC  |  Username: Tuck
+  - VPS                : Canada relay at 158.69.219.79 (user: ubuntu, password: ASK TUCK)
+  - Assistant           : This PC (connects TO Authority through VPS)
+
+1. Assistant Setup (This PC)  -- COMPLETE
+   -----------------------------------------
+   VPS connectivity verified. Both id_rsa_vps and id_ed25519 keys authorized.
+   Connect via:  ssh vps
+
+2. VPS Setup (Canada Relay)  -- COMPLETE
+   -----------------------------------------
+   Host     : vps-9278832a.vps.ovh.ca / 158.69.219.79
+   User     : ubuntu
+   Password : ASK TUCK (do NOT write in this file)
+   Connect  : ssh vps
+
+   NOTE: Password auth is DISABLED on VPS. Key-based auth only.
+   NOTE: GatewayPorts is commented out (defaults to no) - this is fine
+         because the reverse tunnel binds to localhost only, which is what
+         we want. The assistant hops through the VPS to reach port 2222.
+
+3. Authority Setup ("Tuck" PC)  -- PENDING
+   -----------------------------------------
+   Run ALL of these steps on Tuck's Windows PC.
+
+   A. Generate an SSH Key (if Tuck doesn't have one)
+
+      Open PowerShell and run:
+      ssh-keygen -t ed25519
+
+      Accept defaults. This creates:
+        C:\Users\Tuck\.ssh\id_ed25519      (private)
+        C:\Users\Tuck\.ssh\id_ed25519.pub  (public)
+
+   B. Get Tuck's Public Key onto the VPS
+
+      Since VPS password auth is OFF, Tuck's key must be added manually.
+      Send Tuck's id_ed25519.pub content to the Assistant (do NOT also send
+      the VPS password in the same message). The Assistant will add it:
+
+        ssh vps "echo 'PASTE_TUCK_PUBLIC_KEY_HERE' >> ~/.ssh/authorized_keys"
+
+      IMPORTANT: When sharing credentials, always send keys and passwords in
+      SEPARATE messages. Never put both in the same file or message.
+
+   C. Set Default Shell to PowerShell (run once as Administrator)
+
+      New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name "DefaultShell" -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+      Restart-Service sshd
+
+   D. Authorize Assistant's Public Key (run as Administrator)
+
+       $pubKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKD94c9MxFc9R5Q29pY0mKN5GK/kzIFEXMRfCvwwYH9m david@DESKTOP-4QSOKA8"
+       $authFile = "C:\ProgramData\ssh\administrators_authorized_keys"
+
+       Set-Content -Path $authFile -Value $pubKey -Encoding ascii
+
+       # Fix Permissions (strict requirement for Windows Admins)
+       $acl = Get-Acl $authFile
+       $acl.SetAccessRuleProtection($true, $false)
+       $administratorsGuid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
+       $systemGuid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-18")
+       $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($administratorsGuid, "FullControl", "Allow")))
+       $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($systemGuid, "FullControl", "Allow")))
+       Set-Acl $authFile $acl
+
+   E. Start the Reverse Tunnel
+
+      ssh -R 2222:localhost:22 ubuntu@158.69.219.79
+
+      This maps port 2222 on the VPS to port 22 on Authority.
+      Leave this terminal open while assistance is active.
+
+      TIP: To keep the tunnel alive, add:
+        ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -R 2222:localhost:22 ubuntu@158.69.219.79
+
+4. Connecting (Assistant Instructions)
+   -------------------------------------
+   Two-step hop from Assistant to Authority:
+
+   Step 1: ssh vps
+   Step 2: ssh Tuck@localhost -p 2222
+
+   Or as a one-liner via ProxyJump:
+
+   ssh -J vps Tuck@localhost -p 2222
+
+5. Security Hardening Checklist (Authority)
+   -----------------------------------------
+   Practice              Status              Configuration Location
+   Disable Passwords    Highly Recommended  C:\ProgramData\ssh\sshd_config -> PasswordAuthentication no
+   Limit Users          Recommended         C:\ProgramData\ssh\sshd_config -> AllowUsers Tuck
+   Service Control      Manual              Only run Start-Service sshd when assistance is active.
+   Monitoring           Periodic            Check Event Viewer: Applications and Services Logs > OpenSSH > Operational
+
+6. Troubleshooting Reference
+   --------------------------
+   Service won't start    : Check for syntax errors in C:\ProgramData\ssh\sshd_config
+   Key rejected           : Re-run the Permission Script in Section 3D. Windows is extremely
+                            sensitive to the administrators_authorized_keys permissions.
+   Tunnel drops           : If unstable, install autossh via Chocolatey to keep the link alive.
+   VPS connection refused : Check that Tuck's public key is in VPS ~/.ssh/authorized_keys
+                            (Password auth is disabled on the VPS.)

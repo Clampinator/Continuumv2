@@ -1,0 +1,43 @@
+  1. Experiences Management & Rendering
+Description: Implement the logic and visuals for "Experiences" as containers whose start and end dates are defined by events. This includes drawing the bounding boxes (rectangles) that group events, handling experience-level metadata (name, duration, description), and reading the event nodes that are the start and end of experiences. Experiences can be opened, closed, or re-opened. They can remain open right up to the NOW node. All these are options available to the player. Open experiences are rendered with a gradient that fades from the open event to the close (or NOW). 
+Experiences contribute to dice rolls based on their recent, based on the degree to which they are recent in the character's history. Experiences that end within two years of the now node grant a plus three bonus to the target value when rolling a dice, if that experience is selected. Experiences that expired between five and two years ago provide a plus two bonus, and experiences that expired earlier than five years ago provide a plus one bonus to the dice roll. When I say expired prior to five years ago, I mean five years before the now node's current date. Open experiences have a gradient that fades towards the present, and as experiences fade away, their opacity decreases until they are finally at 10% opacity and remain quite vague and difficult to see in the distant past.
+The main areas of the dialog boxes that relate to Events already contain most of the code to define Experiences. I'd like to use as much of that as possible, obviously removing any functions from these dialogs if they have any, and making sure that they are just passing data to the appropriate modules.
+
+  2. Eras Structural Refinement
+  Description: Solidify the "Era" layer as the primary chronological grouping. This involves enforcing Era duration
+  rules, rendering overarching Era labels/separators on the graph, and ensuring that any shift in an earlier Era’s
+  duration correctly propagates through all subsequent Eras, Experiences, and Events.
+
+  3. The "Yet" (Future Events) Implementation
+  Description: Develop the system for tracking and rendering "The Yet"—events that are chronologically scheduled
+  but not yet lived by the character. This includes specialized visual styling (e.g., ghosted nodes, dashed lines)
+  and ensuring these nodes do not contribute to the character's current "Subjective Age" until they are fulfilled.
+
+Inserting Spanning Mechanic (Core Physics)
+Description: Definitive implementation of inserting a vertical objective jump. This task is key to allowing users to insert span events into an already existing lifeline segment.
+The user experience works like this. The user clicks on a lifeline segment and drags the mouse up or down. In doing so, they initiate the insertion of a span into an existing lifeline segment. The lifeline segment is spliced at the point of click and the left-hand side of the lifeline ends at the origin of the span and the right-hand side of the lifeline begins at the arrival point of the span, which is currently under the mouse, which is currently clicked, the finger is down on the mouse button, and the user is dragging the mouse up and down. As the user drags the mouse down, this indicates that the character has spanned back in time and so all events to the right of the inserted span shunt to the right. They slide gracefully to the right in perfect unison to the motion of the mouse and the inserted span's arrival node. Should the user drag the mouse up, they're inserting an up span forward in time and the entire graph to the right of that moves left until such time as the node being dragged up, the arrival point of the inserted span, matches the objective date of the next event in the lifeline, the next event to the right in the lifeline. When that happens, the mouse can continue moving up, of course, but the node that is the arrival point stops because it can't go any further because that's when that person meets that point in time.
+
+  5. Historical Span Insertion
+  Description: Implement the complex logic required to insert a Span into the character's past. This includes
+  calculating the "downstream" impact on every subsequent event, managing the narrative re-indexing, and ensuring
+  the physical walk through the timeline remains continuous despite the historical jump.
+
+  6. Space-Time Map Integration
+  Description: Establish a bidirectional link between the Lifeline and the interactive Space-Time map. Selecting an
+  event on the Lifeline should center the map on the corresponding location and era; conversely, placing a marker
+  on the map should allow the user to quickly log a new event or Span at those coordinates.
+
+  7. Main Character Sheet Integration
+  Description: Migrate the Lifeline from a standalone prototype into the primary Continuum character sheet. This
+  involves wiring the Temporal Engine into the sheet's data-preparation cycle, ensuring the graph correctly updates
+  when core character stats change, and handling cross-tab communication.
+
+  8. UI/UX Fidelity & Readability Audit
+  Description: Refine the user interface to align with the "Historical-Tech" aesthetic. This includes optimizing
+  label placement to prevent overlapping, improving tooltip clarity, adding high-contrast visual cues for different
+  event types, and ensuring the spreadsheet view remains legible even with hundreds of entries.
+
+  9. Era Navigation & Drag Bar
+  Description: Add a dedicated interactive "Era Bar" at the bottom of the graph. This component will act as a
+  secondary navigation tool, allowing users to see the entire character span at a glance, jump to specific Eras,
+  and perform macro-level scaling of the timeline.

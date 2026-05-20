@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+.DS_Store
+*.log
+reference OLD/
+
+opencode.json
+.opencode/
+.git-backup/

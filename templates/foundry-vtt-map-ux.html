@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <eventTitle>FoundryVTT Map UI</eventTitle>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .map-container {
+            position: relative;
+            width: 95vw;
+            height: 95vh;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* The map div must have a specific height to be rendered by the API */
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-button {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(75, 85, 99, 0.8);
+            color: #f3f4f6;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .control-button:hover {
+            background-color: rgba(55, 65, 81, 0.9);
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
+        }
+
+        .instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 12px 16px;
+            background-color: rgba(31, 41, 55, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(75, 85, 99, 0.8);
+            z-index: 10;
+        }
+
+        #zoom-level {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            background-color: rgba(55, 65, 81, 0.8);
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- The main container for the map UI -->
+    <div id="map-container" class="map-container">
+        <!-- The map element itself, where the API will render the map -->
+        <div id="map"></div>
+        <div id="zoom-level">Zoom: 1</div>
+
+        <!-- The overlay for controls -->
+        <div class="controls">
+            <button id="zoom-in" class="control-button">+</button>
+            <button id="zoom-out" class="control-button">-</button>
+        </div>
+
+        <!-- Instructions for the user -->
+        <div class="instructions">
+            <h3 class="font-bold text-lg mb-1">Interactive Map Controls</h3>
+            <ul class="list-disc list-inside text-sm space-y-1">
+                <li>Use mouse wheel to zoom in and out.</li>
+                <li>Click and drag to pan the map.</li>
+                <li>Use the buttons to zoom.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Use a function to load the Google Maps API script and then initialize the map.
+        const initMap = () => {
+            const mapContainer = document.getElementById('map-container');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const zoomLevelDisplay = document.getElementById('zoom-level');
+
+            // Map options
+            const mapOptions = {
+                // Initial center and zoom level (world view)
+                center: { lat: 0, lng: 0 },
+                zoom: 1,
+                // Disable default UI elements
+                disableDefaultUI: true,
+                // Custom styles to make the map look more like a TTRPG map
+                styles: [
+                    {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": [
+                            { "saturation": -100 }
+                        ]
+                    },
+                    {
+                        "featureType": "poi.business",
+                        "elementType": "labels",
+                        "stylers": [
+                            { "visibility": "off" }
+                        ]
+                    },
+                    {
+                        "featureType": "administrative",
+                        "elementType": "labels",
+                        "stylers": [
+                            { "visibility": "off" }
+                        ]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry.fill",
+                        "stylers": [
+                            { "color": "#2d3436" }
+                        ]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry.stroke",
+                        "stylers": [
+                            { "color": "#636e72" }
+                        ]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry.fill",
+                        "stylers": [
+                            { "color": "#2c3e50" }
+                        ]
+                    }
+                ]
+            };
+
+            // Initialize the map
+            const map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            // Update the zoom level display
+            const updateZoomLevel = () => {
+                zoomLevelDisplay.textContent = `Zoom: ${map.getZoom()}`;
+            };
+            
+            // Add listeners for button clicks to control zoom
+            zoomInBtn.addEventListener('click', () => {
+                map.setZoom(map.getZoom() + 1);
+            });
+
+            zoomOutBtn.addEventListener('click', () => {
+                map.setZoom(map.getZoom() - 1);
+            });
+
+            // Listen for zoom changes on the map and update the display
+            map.addListener('zoom_changed', updateZoomLevel);
+
+            // Initial zoom level display
+            updateZoomLevel();
+        };
+
+        // Load the Google Maps API script. Replace YOUR_API_KEY with your key.
+        const apiKey = "YOUR_API_KEY_HERE";
+        if (apiKey === "YOUR_API_KEY_HERE") {
+            alert("Please edit the HTML file and insert your valid Google Maps API Key to view this standalone demo.");
+        } else {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+            script.async = true;
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>

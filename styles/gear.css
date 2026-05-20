@@ -1,0 +1,778 @@
+﻿
+/* Gear Section Styles */
+
+/* Updated header controls container */
+.section-header-row .gear-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Integrated Gear Styles */
+.gear-integration {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #444;
+}
+
+.gear-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.gear-header h3 {
+    margin: 0;
+    color: #c0c0c0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.gear-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gear-summary {
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+/* Help button styling */
+.gear-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gear-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.gear-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
+}
+
+.gear-item-header {
+    display: flex;
+    font-weight: bold;
+    color: #ccc;
+    padding: 5px;
+    border-bottom: 1px solid #444;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.gear-item {
+    display: flex;
+    align-items: center;
+    background-color: #3a3a3a;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #2c2c2c;
+}
+
+.gear-item .item-image {
+    flex: 0 0 24px;
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 2px;
+    border: 1px solid #555;
+}
+
+.gear-item-header .item-name,
+.gear-item .item-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gear-item .item-name .roll-gear {
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: bold;
+}
+
+.gear-item .item-name .roll-gear:hover {
+    color: #00f2ff; /* Cyan hover */
+    text-shadow: 0 0 5px #00f2ff;
+}
+
+.gear-item-header .item-bonus,
+.gear-item .item-bonus {
+    flex: 0 0 80px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #8ecae6;
+    text-transform: capitalize;
+}
+
+.gear-item-header .item-qty,
+.gear-item .item-qty,
+.gear-item-header .item-weight,
+.gear-item .item-weight {
+    flex: 0 0 40px;
+    text-align: center;
+}
+
+.gear-item-header .item-carried,
+.gear-item .item-carried {
+    flex: 0 0 50px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.gear-item-header .item-controls,
+.gear-item .item-controls {
+    flex: 0 0 80px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+}
+
+.gear-item .item-controls .gear-use-btn {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    background-color: #444;
+    border: 1px solid #666;
+    color: #eee;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gear-item .item-controls .gear-use-btn:hover {
+    background-color: #555;
+    border-color: #00f2ff;
+    color: #00f2ff;
+}
+
+.gear-item .item-controls a {
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.gear-item .item-controls a:hover {
+    color: #fff;
+}
+
+.empty-placeholder {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 10px;
+}
+
+/* --- NORMALIZED GEAR SPINNER --- */
+.gear-bonus-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.attribute-spinner-viewport.gear-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px !important;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: ns-resize;
+    user-select: none;
+    background-color: #000;
+    box-sizing: border-box !important;
+    position: relative;
+    margin-top: 5px;
+    line-height: 1;
+}
+
+.attribute-spinner-viewport.gear-spinner.active {
+    border-color: #aaa;
+}
+
+.attribute-spinner-viewport.gear-spinner .attribute-spinner-image {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(1100% + 22px); /* +22px compensates for 1px border top+bottom x 11 frames */
+    pointer-events: none;
+}
+
+/* ========================== */
+/* GEAR ITEM SHEET STYLING    */
+/* ========================== */
+
+/* Main Window Content */
+.continuum-v2.sheet.item .window-content {
+    background-color: #2c2c2c;
+    color: #eee;
+    padding: 10px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.continuum-v2.sheet.item form {
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Header Section */
+.continuum-v2.sheet.item .sheet-header {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.continuum-v2.sheet.item .profile-img {
+    flex: 0 0 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #222;
+}
+
+.continuum-v2.sheet.item .header-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Character Name Input */
+.continuum-v2.sheet.item h1.charname {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.continuum-v2.sheet.item h1.charname input {
+    width: 100%;
+    background-color: #222;
+    border: 1px solid #555;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px 10px;
+    height: 30px;
+}
+
+/* Grid Layouts */
+.continuum-v2.sheet.item .grid {
+    display: grid;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.continuum-v2.sheet.item .grid-2col {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Resource Fields */
+.continuum-v2.sheet.item .resource {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.continuum-v2.sheet.item .resource-label {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+.continuum-v2.sheet.item input[type="text"],
+.continuum-v2.sheet.item input[type="number"],
+.continuum-v2.sheet.item select {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 4px 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.continuum-v2.sheet.item input:focus,
+.continuum-v2.sheet.item select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* Description / Body */
+.continuum-v2.sheet.item .sheet-body {
+    padding: 0;
+}
+
+/* Add a panel look to the description area */
+.continuum-v2.sheet.item .description {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.continuum-v2.sheet.item .description h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #555;
+    color: #ccc;
+    font-size: 1.1em;
+}
+
+/* Editor Styling */
+.continuum-v2.sheet.item .editor {
+    background-color: #222;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 200px;
+    color: #eee;
+}
+
+.continuum-v2.sheet.item .editor-content {
+    min-height: 180px;
+}
+
+.continuum-v2.sheet.item .tox-edit-area__iframe {
+    background-color: #222;
+}
+
+/* ========================== */
+/* GEAR TYPE TABS             */
+/* ========================== */
+
+.gear-tabs {
+    position: relative;
+    margin-top: 5px;
+}
+
+.gear-tab-labels {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #555;
+    margin-bottom: 0;
+}
+
+.gear-tab-label {
+    flex: 1;
+    text-align: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    background-color: #333;
+    color: #999;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #444;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.2s ease;
+    margin-bottom: -1px;
+}
+
+.gear-tab-label:hover {
+    background-color: #444;
+    color: #ccc;
+}
+
+.gear-tab-content {
+    display: none;
+    padding: 5px;
+    border: 1px solid #444;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    background-color: #2a2a2a;
+    min-height: 40px;
+}
+
+.gear-tabs input[value="firearms"]:checked ~ .gear-tab-labels .gear-tab-label[for*="gear-tab-firearms"],
+.gear-tabs input[value="tech"]:checked ~ .gear-tab-labels .gear-tab-label[for*="gear-tab-tech"],
+.gear-tabs input[value="tools"]:checked ~ .gear-tab-labels .gear-tab-label[for*="gear-tab-tools"],
+.gear-tabs input[value="vehicles"]:checked ~ .gear-tab-labels .gear-tab-label[for*="gear-tab-vehicles"] {
+    background-color: #4a4a6d;
+    color: #fff;
+    border-color: #4a90e2;
+    position: relative;
+    z-index: 1;
+}
+
+.gear-tabs input[value="firearms"]:checked ~ .gear-tab-firearms,
+.gear-tabs input[value="tech"]:checked ~ .gear-tab-tech,
+.gear-tabs input[value="tools"]:checked ~ .gear-tab-tools,
+.gear-tabs input[value="vehicles"]:checked ~ .gear-tab-vehicles {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
+}
+
+.gear-tab-content .gear-item-header {
+    display: flex;
+    font-weight: bold;
+    color: #ccc;
+    padding: 5px;
+    border-bottom: 1px solid #444;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.gear-tab-content .empty-placeholder {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 10px;
+}
+
+/* Aspect columns in gear items */
+.gear-item .item-aspects {
+    flex: 0 0 140px;
+    display: flex;
+    gap: 4px;
+    font-size: 0.75em;
+    color: #aaa;
+}
+
+.gear-item .item-aspects span {
+    background-color: #333;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border: 1px solid #444;
+}
+
+.gear-item-header .item-aspects {
+    flex: 0 0 140px;
+    font-size: 0.8em;
+    color: #999;
+}
+
+.gear-item .item-vehicle-class {
+    flex: 0 0 50px;
+    text-align: center;
+    font-size: 0.85em;
+    color: #8ecae6;
+    text-transform: capitalize;
+}
+
+.gear-item-header .item-vehicle-class {
+    flex: 0 0 50px;
+    text-align: center;
+    font-size: 0.8em;
+    color: #999;
+}
+
+/* ========================== */
+/* GEAR ITEM SHEET - ASPECTS */
+/* ========================== */
+
+.gear-aspects-section {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.gear-aspects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.gear-aspects-header h3 {
+    margin: 0;
+    color: #ccc;
+    font-size: 1.1em;
+}
+
+.gear-computed-bonus {
+    font-size: 1.1em;
+    color: #4a90e2;
+}
+
+.gear-aspect-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.gear-aspect-label {
+    flex: 0 0 100px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+.gear-firearm-model-section .firearm-model-select {
+    flex: 1;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.gear-firearm-model-section .firearm-model-select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.gear-stat-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 3px 4px;
+}
+
+.gear-stat-cell label {
+    font-size: 0.75em;
+    color: #777;
+    text-transform: uppercase;
+}
+
+.gear-stat-cell span {
+    font-weight: bold;
+    color: #8ecae6;
+}
+
+.gear-aspect-stepper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.gear-aspect-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4a90e2;
+    min-width: 20px;
+    text-align: center;
+}
+
+.gear-aspect-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #333;
+    color: #ccc;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    line-height: 1;
+    padding: 0;
+}
+
+.gear-aspect-btn:hover {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+    color: #fff;
+}
+
+.gear-vehicle-class-section {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.gear-vehicle-class-radios {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.gear-vehicle-class-radio {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 0.9em;
+}
+
+.gear-vehicle-class-radio input[type="radio"] {
+    accent-color: #4a90e2;
+}
+
+.gear-vehicle-class-radio span {
+    text-transform: capitalize;
+}
+
+/* ========================== */
+/* CUSTOM FIREARMS SECTION   */
+/* ========================== */
+
+.custom-firearms-section {
+    border-bottom: 1px solid #555;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.custom-firearms-section .subsection-header h3 {
+    color: #e8a44a;
+}
+
+.custom-firearm-header .weapon-name {
+    flex: 2;
+}
+
+.custom-firearm-header .weapon-stat {
+    flex: 0 0 40px;
+    text-align: center;
+    font-size: 0.85em;
+    color: #999;
+}
+
+.custom-firearm-item .custom-firearm-name {
+    color: #e8a44a;
+    font-weight: bold;
+}
+
+.custom-firearm-item .weapon-stat {
+    flex: 0 0 40px;
+    text-align: center;
+}
+
+/* ========================== */
+/* DIALOG GEAR SECTION        */
+/* ========================== */
+
+.dialog-gear-section {
+    margin-bottom: 10px;
+}
+
+.dialog-gear-section h4 {
+    margin: 0 0 8px 0;
+    color: #c0c0c0;
+    font-size: 1em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gear-select-container {
+    margin-bottom: 10px;
+}
+
+.gear-select {
+    width: 100%;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 0.95em;
+}
+
+.gear-select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.gear-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.gear-slider-label {
+    font-size: 0.85em;
+    color: #aaa;
+    white-space: nowrap;
+    min-width: 60px;
+}
+
+.gear-slider-value {
+    font-size: 0.9em;
+    color: #4a90e2;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+.dialog-gear-section .gear-slider-container,
+.dialog-modifier-section .gear-slider-container {
+    position: relative;
+    width: 100%;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.dialog-gear-section .gear-slider-container .push-slider-background,
+.dialog-modifier-section .gear-slider-container .push-slider-background {
+    width: 100%;
+    display: block;
+    user-select: none;
+    pointer-events: none;
+}
+
+.dialog-gear-section .gear-slider-container .push-slider-pointer,
+.dialog-modifier-section .gear-slider-container .push-slider-pointer {
+    position: absolute;
+    top: 50%;
+    width: 25px;
+    height: 25px;
+    background-image: url('../assets/metability-push-pointer.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    transform: translate(-50%, -50%);
+    transition: left 0.15s ease-out;
+    pointer-events: none;
+    left: 50%;
+}

@@ -1,0 +1,83 @@
+/*==================================*/
+/* SPAN GRAPH: NODES & PATHS        */
+/*==================================*/
+
+.subway-path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 2px black);
+}
+
+.span-graph-rail {
+    stroke: #00e5ff;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.4));
+}
+
+/* Pink Dots Animation for Spans */
+.span-graph-span-line {
+    stroke: #ff00ff;
+    stroke-width: 4;
+    fill: none;
+    stroke-dasharray: 0, 12; /* Dots: 0 length, 12px gap */
+    stroke-linecap: round;    /* Makes the dots round */
+    filter: drop-shadow(0 0 4px #ff00ff);
+    
+    /* 
+     * AUTHORITY: SVG paths are drawn from Start (Last Event) to End (NOW node).
+     * By always animating dashoffset from 24 to 0, the dots will naturally flow
+     * forward along the path. If the path goes up, dots flow up. If the path
+     * goes down, dots flow down. No directional classes are needed.
+     */
+    animation: span-flow 0.6s linear infinite;
+}
+
+@keyframes span-flow {
+    from { stroke-dashoffset: 24; }
+    to { stroke-dashoffset: 0; }
+}
+
+.span-graph-log-line {
+    stroke: #00ffff;
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 4, 2;
+    opacity: 0.6;
+}
+
+.graph-node-level {
+    fill: #ffffff;
+    stroke: #ffffff;
+    stroke-width: 1.5px;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+
+.graph-node-birth {
+    fill: #ffd700; /* Gold for the start of life */
+    stroke: #ffffff;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+}
+
+/* Authoritative Legacy Colors */
+.graph-node-span-origin {
+    fill: #ff00ff;
+    stroke: #ffffff;
+    stroke-width: 1px;
+}
+
+.graph-node-span-dest {
+    fill: #ff00ff;
+    stroke: #ffffff;
+    stroke-width: 1px;
+}
+
+.graph-node-now {
+    fill: #ffcc00;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 8px #ffcc00);
+}

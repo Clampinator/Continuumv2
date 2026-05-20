@@ -1,0 +1,265 @@
+
+/*==========================*/
+/* TIMELINES SECTION        */
+/*==========================*/
+
+/* Help button styling */
+.timelines-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.timelines-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.timeline-view-toggle-container {
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.timeline-view-toggle-label {
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+  color: #aaa;
+  transition: color 0.2s ease;
+}
+
+.timeline-view-toggle-label::before {
+  content: 'Objective';
+}
+
+.timeline-view-toggle-cb:checked + .timeline-view-toggle-label::before {
+  content: 'Subjective';
+}
+
+.timeline-view-toggle-cb:checked + .timeline-view-toggle-label {
+  color: #fff;
+}
+
+.timelines-panel-wrapper {
+  position: relative;
+  min-height: 150px; /* Sensible minimum height */
+  border-radius: 5px;
+  border: 1px solid #111;
+  overflow: hidden;
+  transition: height 0.3s ease-in-out; /* Animate height changes */
+}
+
+.timelines-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease;
+  overflow: hidden; /* Hide SVG overflow */
+}
+
+.objective-panel {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: rgba(40, 167, 69, 1);
+}
+
+.subjective-panel {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: rgba(220, 53, 69, 1);
+  /* Text styles for the placeholder */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.timelines-panel-wrapper .objective-panel {
+  display: block;
+}
+.timelines-panel-wrapper .subjective-panel {
+  display: none;
+}
+.timelines-panel-wrapper.show-subjective .objective-panel {
+  display: none;
+}
+.timelines-panel-wrapper.show-subjective .subjective-panel {
+  display: flex;
+}
+
+/*==========================*/
+/* GANTT CHART SVG STYLES   */
+/*==========================*/
+.timeline-svg {
+  background-color: #222;
+  cursor: grab;
+  user-select: none;
+}
+
+.timeline-svg.grabbing {
+    cursor: grabbing;
+}
+
+.timeline-svg .timeline-item-group {
+    cursor: pointer;
+}
+
+.timeline-era-bar,
+.timeline-exp-bar {
+  transition: fill 0.2s ease;
+}
+
+.timeline-item-group:hover .timeline-era-bar,
+.timeline-item-group:hover .timeline-exp-bar {
+  fill: rgba(255, 255, 255, 0.2);
+}
+
+.timeline-era-bar {
+  fill: rgba(70, 130, 180, 0.6); /* SteelBlue */
+  stroke: rgba(135, 206, 250, 0.8); /* LightSkyBlue */
+  stroke-width: 1px;
+}
+
+.timeline-exp-bar {
+  fill: rgba(218, 165, 32, 0.6); /* Goldenrod */
+  stroke: rgba(255, 215, 0, 0.8); /* Gold */
+  stroke-width: 1px;
+}
+
+.timeline-event-marker {
+  stroke: #ff6060; /* Red */
+  stroke-width: 2px;
+}
+
+.timeline-label {
+  fill: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.timeline-label.event-label {
+  text-anchor: start;
+  dominant-baseline: hanging; /* Anchor text from the top */
+}
+
+.timeline-separator {
+    stroke: #444;
+    stroke-width: 1px;
+}
+
+.timeline-axis-line {
+    stroke: #555;
+    stroke-width: 1px;
+}
+
+.timeline-grid-line {
+    stroke: #333;
+    stroke-width: 1px;
+}
+
+.timeline-tick {
+    stroke: #555;
+    stroke-width: 1px;
+}
+
+.timeline-axis-label {
+    fill: #aaa;
+    font-size: 12px;
+    user-select: none;
+    text-anchor: middle;
+}
+
+/*==========================*/
+/* TIMELINE POPOVER         */
+/*==========================*/
+.timeline-popover {
+  position: absolute;
+  z-index: 100;
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  width: 350px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-popover .popover-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-popover .popover-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #444;
+  padding: 5px 0;
+  color: #fff;
+}
+.timeline-popover .popover-title:focus {
+  outline: none;
+  border-bottom-color: #4a90e2;
+}
+
+.timeline-popover .popover-notes {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.timeline-popover .popover-dates {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.timeline-popover .popover-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.timeline-popover .popover-date-field label {
+  font-size: 0.8em;
+  color: #aaa;
+  font-weight: bold;
+}
+
+.timeline-popover .popover-date-field input[type="time"] {
+  display: none; /* Hide time field by default, show for events */
+}
+
+.timeline-popover.is-event .popover-date-field[data-field="from"] input[type="time"] {
+  display: block;
+}
+
+.timeline-popover.is-event .popover-date-field[data-field="to"] {
+  display: none; /* Events are point-in-time, hide 'To' date */
+}
+
+.timeline-popover.is-era .popover-notes {
+  display: none; /* Eras don't have a notes/description field */
+}

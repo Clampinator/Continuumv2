@@ -1,0 +1,111 @@
+
+/*===========================*/
+/* ORG CONFLICT SECTION CSS  */
+/*===========================*/
+
+/* Header Controls Alignment */
+.section-header-row .org-conflict-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Help button styling */
+.org-conflict-help {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8em;
+    background-color: #444; 
+    border: 1px solid #666;
+    color: #eee;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.org-conflict-help:hover {
+    color: #fff;
+    border-color: #888;
+    background-color: #555;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Psyops Shade Toggle Buttons */
+.combat-item .resonance-buttons {
+    display: flex;
+    gap: 2px;
+}
+
+.combat-item .resonance-buttons label {
+    flex: 1;
+    text-align: center;
+    padding: 2px 0;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #555;
+    border-radius: 2px;
+    opacity: 0.5;
+}
+
+.combat-item .resonance-buttons input[type="radio"] {
+    display: none;
+}
+
+.combat-item .resonance-buttons input[type="radio"]:checked + label {
+    opacity: 1.0;
+    border-color: #fff;
+    box-shadow: 0 0 3px currentColor;
+}
+
+/* Resource Badge styling */
+.resource-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #333;
+    color: #aaa;
+    font-size: 0.8em;
+}
+
+.resource-badge.funded { color: #28a745; }
+.resource-badge.strained { color: #fdcb6e; }
+.resource-badge.deficit { color: #d63031; }
+
+.action-cell {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+}
+
+/* --- NEW: Reputation Gating Feedback --- */
+
+.reputation-gate-display {
+    font-size: 0.8em;
+    color: #aaa;
+    background: #111;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #444;
+}
+
+.reputation-gate-display strong {
+    color: #BB8FCE;
+}
+
+/* Reputation Gate Warning for Unit Size Selects */
+.gate-warning {
+    border-color: #ff6b6b !important;
+    background-color: rgba(255, 107, 107, 0.1) !important;
+    color: #ffcccc !important;
+}

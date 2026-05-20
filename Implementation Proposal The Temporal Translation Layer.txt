@@ -1,0 +1,82 @@
+ Implementation Proposal: The Temporal Translation Layer (TTL)
+
+  1. Objective
+  Establish a dedicated, authoritative Translation Layer that acts as the sole "Air Gap" between human-readable UI strings
+  and high-precision mathematical data (Integers). This module will strip all formatting logic from the UI and all
+  string-parsing logic from the Kernel/State layers, ensuring that data is never corrupted by "Round-Tripping" through human
+  formats.
+
+  2. Philosophical Law: Local Chronology
+  UTC and System Clocks are strictly forbidden.
+  The system shall treat time as a localized coordinate relative to the character's history.
+   * The Translation Layer must resolve all date/time strings using a Location Context (provided by the character’s last
+     known location in the timeline).
+   * If a character is in London in 1888, the string "12:00:00" is parsed using the rules of London 1888, not the player's
+     computer clock or a global UTC standard.
+
+  ---
+
+  3. Core Module Specifications
+
+  A. The Exclusive Converter (The "Translator")
+  A new module located at modules/temporal-translator/ shall be the only place in the codebase where the following
+  conversions occur:
+
+  I. Age Translation (Subjective Time)
+   * Parsing (Inbound): Converts user-typed strings (e.g., "25y 10d", "15768000s", or "10.5y") into a Pure Integer
+     (Seconds).
+       * Rule: If the UI provides a string, the Translator must handle units, shorthand, and invalid characters, returning a
+         clean number to the State layer.
+   * Formatting (Outbound): Converts a Pure Integer (Seconds) into the "Gold Standard" UI string (e.g., "25y 10d 05:00:00").
+
+  II. Coordinate Translation (Objective Time)
+   * Parsing (Inbound): Converts a Date String and Time String into a Pure Integer (Milliseconds).
+       * Constraint: Must accept a LocationContext object to determine timezone/local rules.
+   * Formatting (Outbound): Converts a Pure Integer (Milliseconds) into a standardized { date: string, time: string }
+     object.
+       * Constraint: Must use the LocationContext to ensure the date shown to the user matches the character's local
+         reality.
+
+  ---
+
+  4. Operational Pipeline (The Purge)
+
+  Phase 1: The UI Purification (Dumb Pipe Protocol)
+  All math and formatting logic is removed from getTemplateData.js, handleSubmit.js, and the Handlebars templates.
+   * The UI Prep: The UI Service calls Translator.toHuman(rawRecord) to get a bundle of strings. It does not know how those
+     strings were made.
+   * The UI Return: Upon "Save," the UI simply hands a "Bag of Strings" to the Translator. The UI does not know if "25y" is
+     a year or a day; it just passes the text.
+
+  Phase 2: The State/Kernel Purity (Atomic Integer Protocol)
+  All logic that attempts to parse strings is removed from insert-history-row.js, establish-history-physics.js, and the
+  Kernel.
+   * The Inbound Gate: Before insertHistoryRow touches the database, it passes the UI's "Bag of Strings" to
+     Translator.toAtomic(strings, locationContext).
+   * The Database Standard: The database stores only the resulting Atomic Integers (eventAge: number, ts: number, arrivalTs:
+     number). String fields (eventDate, eventTime) are preserved for record-keeping but are never used for math.
+
+  Phase 3: The Location-Local Handshake
+   * A new utility, resolveLocationContext(actor, timestamp), will be created.
+   * It will scan the actor's history to find the location active at that point in time.
+   * This context is passed to every Translator call to ensure that "High Noon" in one era is mathematically distinct from
+     "High Noon" in another, without ever referencing UTC.
+
+  ---
+
+  5. Success Criteria (Definition of Done)
+   1. Zero Strings in math: Search for new Date(string) or Math operations inside UI files returns zero results.
+   2. No UTC: Search for toISOString(), getUTCDate(), or Z suffixes returns zero results.
+   3. No Schema Drift: Saving "10y" in the UI and immediately reloading results in the exact same "10y" display, with the
+      database holding the precise integer equivalent.
+   4. Complete Isolation: The Temporal Kernel only receives objects where eventAge and eventTime are confirmed Number types.
+
+  ---
+
+  6. Implementation Task List (High Level)
+   - [ ] Task 1: Create modules/temporal-translator/age-converter.js (Exclusive Age Logic).
+   - [ ] Task 2: Create modules/temporal-translator/coordinate-converter.js (Location-Aware Time Logic).
+   - [ ] Task 3: Create modules/temporal-translator/location-resolver.js (Character History Context).
+   - [ ] Task 4: Refactor UI Services to use the Translator for all display data.
+   - [ ] Task 5: Refactor State/Submit logic to use the Translator for all database commits.
+   - [ ] Task 6: Perform "The Great Purge" of legacy math/parsing in the Kernel.
