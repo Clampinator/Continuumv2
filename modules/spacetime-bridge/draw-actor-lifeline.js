@@ -138,6 +138,7 @@ export function drawActorLifeline(svg, data, map, sliderMs, startMs, endMs, colo
     // Uses deduplicated keyframes so span-TO endpoints at the
     // same ms as level events don't cause the clock to jump.
     const kf = keyframes || waypoints;
+    if (kf.length === 0) return;
     const pos = interpolatePosition(kf, sliderMs, map);
     if (pos) drawClock(svg, g, pos, sliderMs, tokenImg, actorId, color);
 

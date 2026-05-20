@@ -105,12 +105,17 @@ function buildSegments(waypoints, allEvents) {
 
 /*
 Deduplicate waypoints for keyframe/interpolation use.
-When a level event and a span endpoint share the same objective time,
-the level event's location is authoritative - it represents where the
-character actually is after arriving. The span endpoint represents
-where the character materialized via spanning, which can differ from
-where they end up (e.g. span arrives at Jacarezinho but the
-corresponding arrival level event records Jacarepaguá).
+When a span-TO endpoint and a level event share the same objective
+time, the level event's location is authoritative - it represents
+where the character actually IS after arriving. The span-TO
+represents where the character materialized, which can differ
+from where they end up (e.g. span arrives at Jacarezinho but the
+arrival level event records Jacarepaguá).
+
+Only span-TO entries (spanRole === 'to') are suppressed. Span-FROM
+entries (spanRole === 'from') are ALWAYS preserved because they
+represent the character's departure point - the character WAS at
+that location at that time.
 
 Segments still use the full waypoint list (span FROM->TO pairs must
 be intact for dashed-line rendering). Only position-interpolation
@@ -125,13 +130,17 @@ function deduplicateForKeyframes(waypoints) {
         while (j < waypoints.length && waypoints[j].ms === waypoints[i].ms) j++;
         const group = waypoints.slice(i, j);
         // Level events (spanId === null) represent the character's
-        // settled location. If one exists at this ms, use it exclusively.
-        const levelWp = group.find(wp => wp.spanId === null);
-        if (levelWp) {
-            result.push(levelWp);
+        // settled location. Span-FROM entries represent departure
+        // points. Both are authoritative at this ms.
+        const hasLevelEvent = group.some(wp => wp.spanId === null);
+        if (hasLevelEvent) {
+            for (const wp of group) {
+                // Drop span-TO when a level event exists at the same ms
+                // (level event's location is the character's actual position)
+                if (wp.spanId !== null && wp.spanRole === 'to') continue;
+                result.push(wp);
+            }
         } else {
-            // All span endpoints at this ms - keep them all
-            // (multiple spans can arrive at the same objective time)
             for (const wp of group) result.push(wp);
         }
         i = j;

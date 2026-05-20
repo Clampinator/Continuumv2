@@ -13,8 +13,11 @@ Now we proactively write keyframes; SpaceTime reads them when present.
 import { getLifelineEvents } from './get-lifeline-events.js';
 
 function _toKeyframes(actor) {
-    const { keyframes } = getLifelineEvents(actor);
-    return keyframes.map((wp, i) => ({
+    const { waypoints, keyframes } = getLifelineEvents(actor);
+    // Fall back to waypoints if keyframes is absent (e.g. stale module cache
+    // serving an older get-lifeline-events.js that only returns waypoints)
+    const kf = keyframes || waypoints;
+    return kf.map((wp, i) => ({
         id: `${actor.id}:${i}`,
         timestamp: wp.ms,
         lat: Number(wp.lat),
