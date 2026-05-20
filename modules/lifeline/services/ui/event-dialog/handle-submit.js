@@ -8,7 +8,6 @@ import { processExperienceLifecycle } from './handle-submit/experience-lifecycle
 import { pushSnapshot } from '../../../../lifeline/undo-manager.js';
 import { classifyEventType } from '../../../../temporal-kernel/classify-event-type.js';
 import { resolveLocationInheritance } from '../../../../temporal-kernel/resolve-location-inheritance.js';
-import { cascadeLocationUpdate } from '../../../../temporal-kernel/cascade-location-update.js';
 import { getActorHistory } from '../../../../state/get-actor-history.js';
 import { computeNowPosition } from '../../../../temporal-kernel/compute-now-position.js';
 
@@ -133,15 +132,24 @@ export async function handleSubmit(actor, formData, params) {
         eventDate: formData.eventDate || formData.eventSpanFromDate || "",
         eventTime: formData.eventTime || formData.eventSpanFromTime || "12:00:00",
         eventLocation,
+        lat: formData.eventLat ? Number(formData.eventLat) : null,
+        lng: formData.eventLng ? Number(formData.eventLng) : null,
+        zoom: formData.eventZoom ? Number(formData.eventZoom) : null,
 
         // Span Facts (Departure/Arrival)
         eventSpanFromDate: formData.eventSpanFromDate || "",
         eventSpanFromTime: formData.eventSpanFromTime || "12:00:00",
         eventSpanFromLocation,
+        eventSpanFromLat: formData.spanFromLat ? Number(formData.spanFromLat) : null,
+        eventSpanFromLng: formData.spanFromLng ? Number(formData.spanFromLng) : null,
+        eventSpanFromZoom: formData.spanFromZoom ? Number(formData.spanFromZoom) : null,
         
         eventSpanToDate: formData.eventSpanToDate || "",
         eventSpanToTime: formData.eventSpanToTime || "12:00:00",
         eventSpanToLocation,
+        eventSpanToLat: formData.spanToLat ? Number(formData.spanToLat) : null,
+        eventSpanToLng: formData.spanToLng ? Number(formData.spanToLng) : null,
+        eventSpanToZoom: formData.spanToZoom ? Number(formData.spanToZoom) : null,
 
         // Structural Facts
         eraId: targetEraId,
@@ -212,19 +220,28 @@ export async function handleSubmit(actor, formData, params) {
                 eventDate: existingData.record.eventDate,
                 eventTime: existingData.record.eventTime,
                 eventLocation: existingData.record.eventLocation,
+                lat: existingData.record.lat ?? null,
+                lng: existingData.record.lng ?? null,
+                zoom: existingData.record.zoom ?? null,
                 eventSpanFromDate: existingData.record.eventSpanFromDate || existingData.record.eventDate,
                 eventSpanFromTime: existingData.record.eventSpanFromTime || existingData.record.eventTime,
                 eventSpanFromLocation: existingData.record.eventSpanFromLocation || "",
+                eventSpanFromLat: existingData.record.eventSpanFromLat ?? null,
+                eventSpanFromLng: existingData.record.eventSpanFromLng ?? null,
+                eventSpanFromZoom: existingData.record.eventSpanFromZoom ?? null,
                 eventSpanToDate: arrivalDate,
                 eventSpanToTime: arrivalTime,
                 eventSpanToLocation: arrivalLocation,
+                eventSpanToLat: data.eventSpanToLat ?? existingData.record.eventSpanToLat ?? null,
+                eventSpanToLng: data.eventSpanToLng ?? existingData.record.eventSpanToLng ?? null,
+                eventSpanToZoom: data.eventSpanToZoom ?? existingData.record.eventSpanToZoom ?? null,
                 // Preserve level and spanFrom flags; recompute spanTo
                 locationInherited: existingData.record.locationInherited !== false,
                 spanFromLocationInherited: existingData.record.spanFromLocationInherited !== false,
                 spanToLocationInherited: arrivalLocInherited,
             };
         }
-        await updateHistoryRow(actor, existingData.id, { ...data, _skipLocationCascade: true });
+        await updateHistoryRow(actor, existingData.id, data);
 
         // NOW SYNC: When editing the last event in history, its timestamps
         // determine the NOW position. Edit mode does not call
@@ -244,68 +261,10 @@ export async function handleSubmit(actor, formData, params) {
                 'system.personal.subjectiveNow': nowPos.subjectiveNow
             });
         }
-
-        // LOCATION CASCADE: When a location is manually changed on edit,
-        // propagate the new location to all downstream events that inherited
-        // their location from the edited event or its predecessors. Each
-        // cascade (level, spanFrom, spanTo) walks independently and stops
-        // at the first manually-set location.
-        //
-        // SEMANTIC BRIDGE: When a level event's location changes, the "where
-        // you are now" has changed. Downstream spans should inherit this new
-        // location for BOTH their departure (From) and arrival (To), not just
-        // the level field. So a level location change triggers all three
-        // cascades with the same values. A span-specific change only triggers
-        // the corresponding cascade plus the level cascade (because the level
-        // location mirrors the departure on span events).
-        const levelChanged = data.locationInherited === false;
-        const spanFromChanged = data.spanFromLocationInherited === false;
-        const spanToChanged = data.spanToLocationInherited === false;
-
-        // Any location change at all triggers the cascade
-        const anyLocationChanged = levelChanged || spanFromChanged || spanToChanged;
-
-        if (anyLocationChanged) {
-            const postUpdateHistory = getActorHistory(actor);
-
-            // Build cascade values: when the level location changed, it
-            // represents the character's new "current location". Downstream
-            // span events should inherit it for both From and To. When a
-            // span-specific location changed, only that cascade fires (plus
-            // level for the mirror effect on span events).
-            const levelVals = levelChanged
-                ? { eventLocation: data.eventLocation, lat: data.lat ?? null, lng: data.lng ?? null, zoom: data.zoom ?? null }
-                : null;
-
-            // Level change drives all three cascades.
-            // Span-specific change drives only that span cascade.
-            const spanFromVals = levelChanged
-                ? { eventLocation: data.eventLocation, lat: data.lat ?? null, lng: data.lng ?? null, zoom: data.zoom ?? null }
-                : spanFromChanged
-                    ? { eventLocation: data.eventSpanFromLocation, lat: data.eventSpanFromLat ?? null, lng: data.eventSpanFromLng ?? null, zoom: data.eventSpanFromZoom ?? null }
-                    : null;
-
-            const spanToVals = levelChanged
-                ? { eventLocation: data.eventLocation, lat: data.lat ?? null, lng: data.lng ?? null, zoom: data.zoom ?? null }
-                : spanToChanged
-                    ? { eventLocation: data.eventSpanToLocation, lat: data.eventSpanToLat ?? null, lng: data.eventSpanToLng ?? null, zoom: data.eventSpanToZoom ?? null }
-                    : null;
-
-            const cascadeUpdates = cascadeLocationUpdate(
-                postUpdateHistory, existingData.id,
-                levelVals, spanFromVals, spanToVals
-            );
-
-            if (cascadeUpdates.length > 0) {
-                const cascadeDbUpdates = {};
-                for (const cu of cascadeUpdates) {
-                    for (const [field, value] of Object.entries(cu.fields)) {
-                        cascadeDbUpdates[`${cu.path}.${field}`] = value;
-                    }
-                }
-                await actor.update(cascadeDbUpdates);
-            }
-        }
+        // LOCATION CASCADE is now handled inside update-history-row.js
+        // (with geocoded coordinates from _enrichCoordinates), so we no
+        // longer need a separate cascade here. The state layer cascade
+        // uses finalRecord which has enriched lat/lng values.
     } else {
         const isLog = (mode === 'log');
         await insertHistoryRow(actor, data, { isLog });

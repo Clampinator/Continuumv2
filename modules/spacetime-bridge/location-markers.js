@@ -3,9 +3,13 @@ Location markers on the SpaceTime world map.
 Each event (or span origin/destination) that has saved lat/lng coordinates
 gets a small circular token image marker. Markers refresh automatically
 when actor data changes. Only actors with spaceTimeLinked are shown.
+Right-click on a marker shows "Update from Token" to stamp the token's
+current position onto that event.
 */
 
 const _markers = new Map(); // key -> { marker, lat, lng }
+let _updateFn = null; // updateEventFromToken, injected from index.js
+let _mapRef = null;   // map instance for re-use in context menu
 
 const COLOR_PALETTE = ['#22d3ee', '#f59e0b', '#84cc16', '#f43f5e', '#a78bfa', '#fb923c'];
 
@@ -93,6 +97,8 @@ function _upsertMarker(loc, map) {
         return;
     }
     const el = _makeEl(loc.tokenSrc, loc.color);
+    el.dataset.markerKey = loc.key;
+    el.addEventListener('contextmenu', (e) => _onMarkerContextMenu(e, loc.key));
     const popup = new window.maplibregl.Popup({ offset: 12, closeButton: false, maxWidth: '220px' })
         .setHTML(`<div style="font-size:0.82em;color:#111;padding:2px 4px">${loc.label}</div>`);
     const marker = new window.maplibregl.Marker({ element: el, anchor: 'center' })
@@ -100,6 +106,63 @@ function _upsertMarker(loc, map) {
         .setPopup(popup)
         .addTo(map);
     _markers.set(loc.key, { marker, lat: loc.lat, lng: loc.lng });
+}
+
+// Right-click context menu on a location marker.
+function _onMarkerContextMenu(e, markerKey) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Decode actorId from marker key (first segment before ':')
+    const actorId = markerKey.split(':')[0];
+    const actor = game.actors.get(actorId);
+    if (!actor) return;
+
+    // Find the actor's proxy token on the current scene
+    let tokenDoc = null;
+    for (const scene of game.scenes) {
+        for (const td of scene.tokens) {
+            if (td.actorId === actorId && td.getFlag('spacetime', 'isProxy')) {
+                tokenDoc = td;
+                break;
+            }
+        }
+        if (tokenDoc) break;
+    }
+
+    const old = document.getElementById('continuum-marker-context-menu');
+    if (old) old.remove();
+
+    const menu = document.createElement('div');
+    menu.id = 'continuum-marker-context-menu';
+    menu.innerHTML = `
+        <button class="context-menu-item" data-action="update-from-token">
+            <i class="fas fa-map-pin"></i> Update from Token
+        </button>`;
+    menu.style.left = `${e.clientX}px`;
+    menu.style.top = `${e.clientY}px`;
+    document.body.appendChild(menu);
+
+    const closeMenu = () => {
+        menu.remove();
+        window.removeEventListener('click', outsideClose, true);
+        window.removeEventListener('keydown', onKey);
+    };
+    const outsideClose = (ev) => { if (!menu.contains(ev.target)) closeMenu(); };
+    const onKey = (ev) => { if (ev.key === 'Escape') closeMenu(); };
+    setTimeout(() => {
+        window.addEventListener('click', outsideClose, true);
+        window.addEventListener('keydown', onKey);
+    }, 100);
+
+    menu.querySelector('[data-action="update-from-token"]').addEventListener('click', async () => {
+        closeMenu();
+        if (!_updateFn || !tokenDoc) {
+            ui.notifications.warn('No token found for this character on the map.');
+            return;
+        }
+        await _updateFn(actor, tokenDoc, markerKey);
+    });
 }
 
 // Targeted refresh for one actor: upserts current markers, removes stale ones.
@@ -110,6 +173,14 @@ function _refreshActor(actor, map) {
     if (!(actor.getFlag('continuum-v2', 'spaceTimeLinked') ?? false)) return;
 
     const currentLocs = _collectLocations(actor);
+
+    // DIAGNOSTIC: Log how many locations found for this actor
+    console.debug(
+        `[Continuum Bridge] _refreshActor(${actor.name}):`,
+        `${currentLocs.length} locations found`,
+        currentLocs.length > 0 ? `sample: ${currentLocs[0].label} lat=${currentLocs[0].lat} lng=${currentLocs[0].lng}` : ''
+    );
+
     const currentKeys = new Set(currentLocs.map(l => l.key));
 
     // Remove markers that no longer have coordinates for this actor
@@ -137,7 +208,9 @@ function _refresh(map) {
         if (!keep.has(key)) { entry.marker.remove(); _markers.delete(key); }
 }
 
-export function setupLocationMarkers(map) {
+export function setupLocationMarkers(map, updateEventFromToken) {
+    _updateFn = updateEventFromToken;
+    _mapRef = map;
     if (!game.actors) {
         Hooks.once('ready', () => _refresh(map));
     } else {

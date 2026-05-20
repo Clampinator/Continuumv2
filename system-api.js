@@ -1,5 +1,7 @@
 import { DefenderProfile } from './modules/combat/defender-profile.js';
 import { calculateQuickPenalty } from './modules/lifeline/services/calculators/roll-math/calculate-quick-penalty.js';
+import { batchGeocodeActor, batchGeocodeAllLinked } from './modules/spacetime-bridge/batch-geocode.js';
+import { resolveLocation } from './modules/state/geocode-service.js';
 
 /**
  * Exposes a public API for the Continuum system, allowing modules and macros to interact with it.
@@ -97,7 +99,7 @@ export const api = {
     DefenderProfile: DefenderProfile,
 
     /**
-     * Locates the GM Console application instance.
+     * Locates the GM console application instance.
      */
     getCombatConsole() {
         const cctModule = game.modules.get('continuum-combat-tracker');
@@ -107,5 +109,21 @@ export const api = {
             w.options?.id === "continuum-gm-console" || 
             w.constructor.name === "GmConsoleApp"
         );
-    }
+    },
+
+    /**
+     * Batch geocode: resolves location text -> lat/lng for all events
+     * on an actor (or all linked actors). Used to fix characters whose
+     * events have location text but no coordinates.
+     */
+    batchGeocodeActor,
+    batchGeocodeAllLinked,
+
+    /**
+     * Resolve a location text string to { lat, lng, zoom } coordinates.
+     * Checks Location actors first, then cache, then Nominatim.
+     * Used internally by insert/update-history-row for automatic geocoding.
+     * Can also be called manually from macros or the console.
+     */
+    resolveLocation
 };

@@ -9,6 +9,7 @@ import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 import { resolveEventEra } from '../temporal-kernel/resolve-event-era.js';
 import { computeNowPosition } from '../temporal-kernel/compute-now-position.js';
+import { resolveLocation } from './geocode-service.js';
 
 /**
  * STATE: INSERT HISTORY ROW
@@ -111,6 +112,21 @@ export async function insertHistoryRow(actor, data, options = {}) {
         createdAt: Date.now()
     };
 
+    // DIAGNOSTIC: Verify location fields survive the full data pipeline.
+    console.debug(
+        `[INSERT-HISTORY-ROW] finalRecord location fields:`,
+        `lat=${finalRecord.lat} lng=${finalRecord.lng} zoom=${finalRecord.zoom}`,
+        finalRecord.eventIsSpan
+            ? `spanFrom: lat=${finalRecord.eventSpanFromLat} lng=${finalRecord.eventSpanFromLng} | spanTo: lat=${finalRecord.eventSpanToLat} lng=${finalRecord.eventSpanToLat}`
+            : '(level event)'
+    );
+
+    // 6b. Geocode Resolution: Fill missing lat/lng from location text.
+    // If the record has location text but no coordinates, resolve via
+    // the geocode service (Location actors -> cache -> Nominatim).
+    // This ensures every committed event has coordinates whenever possible.
+    await _enrichCoordinates(finalRecord);
+
     // AUTHORITY: Find correct Era via Kernel resolution
     let eraId = data.eraId;
     if (!eraId || eraId === 'default') {
@@ -147,4 +163,52 @@ export async function insertHistoryRow(actor, data, options = {}) {
 
     await actor.update(updates);
     return { id: newId, committedTs: atomic.ts, committedArrivalTs: atomic.arrivalTs, committedAge: atomic.eventAge };
+}
+
+/*
+Enriches a record's missing lat/lng coordinates by geocoding the
+location text. Mutates the record in place. Resolution order:
+Location actors -> cache -> Nominatim API.
+
+Handles three location slots:
+  - Level events: eventLocation -> lat/lng
+  - Span departure: eventSpanFromLocation -> eventSpanFromLat/lng
+  - Span arrival: eventSpanToLocation -> eventSpanToLat/lng
+
+Only geocodes when location text is present but coordinates are null.
+*/
+async function _enrichCoordinates(record) {
+    // Level event location
+    if (record.eventLocation?.trim() && (record.lat == null || record.lng == null)) {
+        const geo = await resolveLocation(record.eventLocation.trim());
+        if (geo) {
+            record.lat = geo.lat;
+            record.lng = geo.lng;
+            record.zoom = geo.zoom;
+        }
+    }
+
+    if (!record.eventIsSpan) return;
+
+    // Span departure location
+    if (record.eventSpanFromLocation?.trim() &&
+        (record.eventSpanFromLat == null || record.eventSpanFromLng == null)) {
+        const geo = await resolveLocation(record.eventSpanFromLocation.trim());
+        if (geo) {
+            record.eventSpanFromLat = geo.lat;
+            record.eventSpanFromLng = geo.lng;
+            record.eventSpanFromZoom = geo.zoom;
+        }
+    }
+
+    // Span arrival location
+    if (record.eventSpanToLocation?.trim() &&
+        (record.eventSpanToLat == null || record.eventSpanToLng == null)) {
+        const geo = await resolveLocation(record.eventSpanToLocation.trim());
+        if (geo) {
+            record.eventSpanToLat = geo.lat;
+            record.eventSpanToLng = geo.lng;
+            record.eventSpanToZoom = geo.zoom;
+        }
+    }
 }

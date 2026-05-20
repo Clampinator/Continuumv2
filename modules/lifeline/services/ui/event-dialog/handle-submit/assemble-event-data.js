@@ -36,20 +36,28 @@ export function assembleEventData(formData, params) {
         eventData.eventSpanFromDate = normalizeDateInput(formData.eventSpanFromDate || departureDT.date);
         eventData.eventSpanFromTime = formData.eventSpanFromTime || departureDT.time;
         eventData.eventSpanFromLocation = formData.eventSpanFromLocation || "";
-        eventData.eventSpanFromLat = parseFloat(formData.eventSpanFromLat) || null;
-        eventData.eventSpanFromLng = parseFloat(formData.eventSpanFromLng) || null;
-        eventData.eventSpanFromZoom = parseInt(formData.eventSpanFromZoom) || null;
+        // Use ternary instead of parseFloat(x) || null to avoid falsy-zero bug
+        // (latitude 0 = equator, longitude 0 = prime meridian)
+        eventData.eventSpanFromLat = formData.eventSpanFromLat ? Number(formData.eventSpanFromLat) : null;
+        eventData.eventSpanFromLng = formData.eventSpanFromLng ? Number(formData.eventSpanFromLng) : null;
+        eventData.eventSpanFromZoom = formData.eventSpanFromZoom ? Number(formData.eventSpanFromZoom) : null;
 
         eventData.eventSpanToDate = normalizeDateInput(formData.eventSpanToDate || resolvedDT.date);
         eventData.eventSpanToTime = formData.eventSpanToTime || resolvedDT.time;
         eventData.eventSpanToLocation = formData.eventSpanToLocation || "";
-        eventData.eventSpanToLat = parseFloat(formData.eventSpanToLat) || null;
-        eventData.eventSpanToLng = parseFloat(formData.eventSpanToLng) || null;
-        eventData.eventSpanToZoom = parseInt(formData.eventSpanToZoom) || null;
+        eventData.eventSpanToLat = formData.eventSpanToLat ? Number(formData.eventSpanToLat) : null;
+        eventData.eventSpanToLng = formData.eventSpanToLng ? Number(formData.eventSpanToLng) : null;
+        eventData.eventSpanToZoom = formData.eventSpanToZoom ? Number(formData.eventSpanToZoom) : null;
     } else {
         eventData.date = resolvedDT.date;
         eventData.time = resolvedDT.time;
     }
+
+    // Level event location (departure for non-span events)
+    eventData.eventLocation = formData.eventLocation || "";
+    eventData.lat = formData.eventLat ? Number(formData.eventLat) : null;
+    eventData.lng = formData.eventLng ? Number(formData.eventLng) : null;
+    eventData.zoom = formData.eventZoom ? Number(formData.eventZoom) : null;
 
     return eventData;
 }

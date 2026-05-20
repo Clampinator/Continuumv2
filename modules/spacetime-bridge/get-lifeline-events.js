@@ -106,5 +106,20 @@ export function getLifelineEvents(actor) {
     const waypoints = buildWaypoints(allEvents);
     waypoints.sort((a, b) => a.ms - b.ms);
     const segments = buildSegments(waypoints, allEvents);
+
+    // DIAGNOSTIC: Log waypoint/segment counts and sample lat/lng values
+    // to verify that location data flows from actor events to the bridge.
+    const locatedEvents = allEvents.filter(ev =>
+        ev.eventIsSpan
+            ? (ev.eventSpanFromLat != null || ev.eventSpanToLat != null)
+            : (ev.lat != null)
+    );
+    console.debug(
+        `[Continuum Bridge] getLifelineEvents(${actor.name}):`,
+        `${allEvents.length} events, ${locatedEvents.length} located,`,
+        `${waypoints.length} waypoints, ${segments.length} segments`,
+        waypoints.length > 0 ? `sample: lat=${waypoints[0].lat}, lng=${waypoints[0].lng}` : '(no waypoints)'
+    );
+
     return { waypoints, segments };
 }

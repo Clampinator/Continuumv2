@@ -1,6 +1,13 @@
 /*
 Manages the lifeline SVG overlay injected into SpaceTime's overlay container.
-Redraws on map movement, zoom, and spacetime.dateChanged hook.
+Redraws on map movement, zoom, spacetime.dateChanged hook, and actor updates.
+All redraws are rAF-debounced to avoid redundant paints during rapid changes.
+
+Resilient: draws segments whenever waypoints exist, even if the bracket
+or slider timestamp is unavailable. The bracket controls opacity fading
+only - without it, all segments render at full opacity. The clock indicator
+(position of the character at the current slider time) requires sliderMs,
+but trail lines between waypoints do not.
 */
 
 import { getLifelineEvents } from './get-lifeline-events.js';
@@ -8,9 +15,9 @@ import { drawActorLifeline } from './draw-actor-lifeline.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
-let _sliderMs = null; // updated by spacetime.dateChanged hook
+let _sliderMs = null;
+let _stApi = null;
 
-// Deterministic per-actor color from a fixed palette
 const COLOR_PALETTE = ['#22d3ee', '#f59e0b', '#84cc16', '#f43f5e', '#a78bfa', '#fb923c'];
 
 function colorForActor(actorId) {
@@ -29,8 +36,9 @@ function getVisibleActors() {
 
 /*
 Reads the SpaceTime bracket date pickers to get the visible time window.
-Returns { startMs, endMs } or null if invalid.
-The sliderMs comes from the spacetime.dateChanged hook stored in _sliderMs.
+Returns { startMs, endMs } or null if unavailable.
+The bracket is optional for drawing - it only affects segment fading
+and boundary arrows. Without it, everything renders at full opacity.
 */
 function readBracket() {
     const startDt = document.getElementById('spacetime-start-date');
@@ -45,6 +53,23 @@ function readBracket() {
     if (isNaN(startMs) || isNaN(endMs) || startMs >= endMs) return null;
 
     return { startMs, endMs };
+}
+
+/*
+Derive sliderMs from the SpaceTime API if the hook hasn't fired yet.
+This handles the case where the overlay redraws before the first
+spacetime.dateChanged event (e.g. on init or after an actor update).
+*/
+function _currentSliderMs() {
+    if (_sliderMs !== null) return _sliderMs;
+    if (_stApi?.getCurrentTimestamp) {
+        const ts = _stApi.getCurrentTimestamp();
+        if (ts != null) {
+            _sliderMs = ts;
+            return ts;
+        }
+    }
+    return null;
 }
 
 function ensureSvg(container) {
@@ -66,12 +91,26 @@ function redraw(svg, map) {
     svg.innerHTML = '';
 
     const bracket = readBracket();
-    if (!bracket || _sliderMs === null) return;
-    const time = { sliderMs: _sliderMs, ...bracket };
+    const sliderMs = _currentSliderMs();
+    const actors = getVisibleActors();
 
-    for (const actor of getVisibleActors()) {
+    // Compute widest possible time range from waypoint data
+    // so that fading always works even without SpaceTime bracket.
+    let startMs = bracket?.startMs ?? -Infinity;
+    let endMs = bracket?.endMs ?? Infinity;
+
+    for (const actor of actors) {
         const data = getLifelineEvents(actor);
         if (data.waypoints.length === 0) continue;
+
+        // Widen the bracket to include all waypoint times so segments
+        // never get faded out when the SpaceTime bracket is unavailable
+        if (!bracket && data.waypoints.length > 0) {
+            const wStart = data.waypoints[0].ms;
+            const wEnd = data.waypoints[data.waypoints.length - 1].ms;
+            if (startMs === -Infinity || wStart < startMs) startMs = wStart;
+            if (endMs === Infinity || wEnd > endMs) endMs = wEnd;
+        }
 
         const color    = colorForActor(actor.id);
         const tokenSrc = actor.prototypeToken?.texture?.src;
@@ -81,13 +120,14 @@ function redraw(svg, map) {
 
         drawActorLifeline(
             svg, data, map,
-            time.sliderMs, time.startMs, time.endMs,
+            sliderMs, startMs, endMs,
             color, tokenImg, actor.id
         );
     }
 }
 
 export function setupOverlay(map, api) {
+    _stApi = api;
     const container = api.getOverlayContainer();
     if (!container) {
         console.error('Continuum | SpaceTime bridge: getOverlayContainer() returned null');
@@ -96,20 +136,31 @@ export function setupOverlay(map, api) {
 
     _sliderMs = api.getCurrentTimestamp() ?? null;
 
+    // DIAGNOSTIC: log initial state
+    console.debug(
+        `[Continuum Overlay] setupOverlay:`,
+        `sliderMs=${_sliderMs},`,
+        `container=${container ? 'ok' : 'null'}`
+    );
+
     const svg = ensureSvg(container);
     const draw = () => redraw(svg, map);
 
-    // spacetime.dateChanged fires whenever the slider moves - provides sliderMs directly
-    Hooks.on('spacetime.dateChanged', (ts) => { _sliderMs = ts; draw(); });
-
-    // Redraw on map movement and zoom (rAF-debounced)
     let rafId = null;
-    const schedule = () => {
+    const scheduleRedraw = () => {
         if (rafId) return;
         rafId = requestAnimationFrame(() => { rafId = null; draw(); });
     };
-    map.on('move', schedule);
-    map.on('zoom', schedule);
+
+    // spacetime.dateChanged fires whenever the slider moves
+    Hooks.on('spacetime.dateChanged', (ts) => {
+        _sliderMs = ts;
+        scheduleRedraw();
+    });
+
+    // Redraw on map movement and zoom
+    map.on('move', scheduleRedraw);
+    map.on('zoom', scheduleRedraw);
 
     // Redraw when bracket date pickers change
     for (const id of [
@@ -117,8 +168,16 @@ export function setupOverlay(map, api) {
         'spacetime-end-date',   'spacetime-end-time'
     ]) {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('change', draw);
+        if (el) el.addEventListener('change', scheduleRedraw);
     }
+
+    // Redraw when actor data changes
+    Hooks.on('updateActor', (actor, changes) => {
+        if (!['character', 'organization', 'location'].includes(actor.type)) return;
+        if (!(actor.getFlag('continuum-v2', 'spaceTimeLinked') ?? false)) return;
+        scheduleRedraw();
+    });
+    Hooks.on('createActor', () => scheduleRedraw());
 
     draw();
 }

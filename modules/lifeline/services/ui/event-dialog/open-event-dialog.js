@@ -3,9 +3,7 @@ import { handleSubmit } from './handle-submit.js';
 import { activateDatePickers } from '/systems/continuum-v2/modules/date-picker.js';
 import { panToLocation, getMapCenterLocation } from '/systems/continuum-v2/modules/span-graph-map.js';
 import { getActorTokenLocation } from '/systems/continuum-v2/modules/map-manager.js';
-import { writeImmediateKeyframe } from '/systems/continuum-v2/modules/spacetime-bridge/write-keyframes.js';
 import { Sound } from '/systems/continuum-v2/modules/sound-manager.js';
-import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 
 /**
  * HUD: OPEN EVENT DIALOG
@@ -139,7 +137,8 @@ function _activateInternalListeners(html, dialog, actor) {
         }
     });
 
-    // 4. Token Location - captures actor position at slider time and writes a preview keyframe
+    // 4. Token Location - captures actor position at slider time and fills form fields.
+    // Keyframes are synced automatically when the dialog is saved via updateActor hook.
     html.find('.token-btn').on('click', async (e) => {
         const btn = $(e.currentTarget);
         btn.find('i').attr('class', 'fas fa-spinner fa-spin');
@@ -157,15 +156,5 @@ function _activateInternalListeners(html, dialog, actor) {
         container.find('input[name*="Lng"]').val(result.lng);
         container.find('input[name*="Zoom"]').val(result.zoom || 12);
         if (result.formattedAddress) input.val(result.formattedAddress);
-
-        // Resolve the event datetime from the date/time inputs for this location group
-        const dateName = btn.data('date-name');
-        const timeName = btn.data('time-name');
-        const dateVal  = html.find(`[name="${dateName}"]`).val();
-        const timeVal  = html.find(`[name="${timeName}"]`).val() || '12:00:00';
-        const ts = dateVal ? parseDateToObjectiveMs(dateVal, timeVal) : result.timestampMs;
-        if (Number.isFinite(ts)) {
-            await writeImmediateKeyframe(actor, ts, result.lat, result.lng);
-        }
     });
 }

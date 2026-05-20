@@ -8,6 +8,7 @@ import { Translator } from '../temporal-translator/temporal-translator.js';
 import { parseObjectiveTime } from '../temporal-translator/coordinate-converter.js';
 import { resolveLocationContext } from '../temporal-translator/location-resolver.js';
 import { cascadeLocationUpdate } from '../temporal-kernel/cascade-location-update.js';
+import { resolveLocation } from './geocode-service.js';
 
 /**
  * STATE: UPDATE HISTORY ROW
@@ -140,6 +141,20 @@ export async function updateHistoryRow(actor, recordId, data) {
             : Boolean(oldNode.record?.isPulled)
     };
 
+    // DIAGNOSTIC: Verify location fields survive the full data pipeline.
+    console.debug(
+        `[UPDATE-HISTORY-ROW] finalRecord location fields:`,
+        `lat=${finalRecord.lat} lng=${finalRecord.lng} zoom=${finalRecord.zoom}`,
+        finalRecord.eventIsSpan
+            ? `spanFrom: lat=${finalRecord.eventSpanFromLat} lng=${finalRecord.eventSpanFromLng} | spanTo: lat=${finalRecord.eventSpanToLat} lng=${finalRecord.eventSpanToLng}`
+            : '(level event)'
+    );
+
+    // Geocode Resolution: Fill missing lat/lng from location text.
+    // Same enrichment as insert-history-row - resolves coordinates for any
+    // location slot that has text but no coordinates.
+    await _enrichCoordinates(finalRecord);
+
     const oldPath = oldNode.path;
     const newEraId = data.eraId || oldNode.record.eraId;
     const newExpId = data.expId || oldNode.record.expId;
@@ -171,10 +186,10 @@ export async function updateHistoryRow(actor, recordId, data) {
 
     // 7. Location Cascade (propagate location changes to inherited downstream events)
     // Detect if any location field changed compared to the old record and whether
-    // the change was manual (locationInherited -> false). The dialog path handles
-    // cascade in handle-submit.js, but for direct calls (spreadsheet), we must
-    // also cascade here. The _skipLocationCascade flag lets the dialog suppress
-    // double-cascade since it already handles it.
+    // the change was manual (locationInherited -> false).
+    //
+    // Geocoded coordinates (from _enrichCoordinates above) are included in
+    // finalRecord, so cascaded downstream events inherit the resolved lat/lng.
     //
     // SEMANTIC BRIDGE: A level location change represents "where you are now".
     // Downstream spans should inherit the new location for BOTH From and To.
@@ -226,4 +241,47 @@ export async function updateHistoryRow(actor, recordId, data) {
     }
 
     return { id: recordId, committedTs: atomic.ts, committedArrivalTs: atomic.arrivalTs, committedAge: atomic.eventAge };
+}
+
+/*
+Enriches a record's missing lat/lng coordinates by geocoding the
+location text. Mutates the record in place. Resolution order:
+Location actors -> cache -> Nominatim API.
+
+Only geocodes when location text is present but coordinates are null.
+*/
+async function _enrichCoordinates(record) {
+    // Level event location
+    if (record.eventLocation?.trim() && (record.lat == null || record.lng == null)) {
+        const geo = await resolveLocation(record.eventLocation.trim());
+        if (geo) {
+            record.lat = geo.lat;
+            record.lng = geo.lng;
+            record.zoom = geo.zoom;
+        }
+    }
+
+    if (!record.eventIsSpan) return;
+
+    // Span departure location
+    if (record.eventSpanFromLocation?.trim() &&
+        (record.eventSpanFromLat == null || record.eventSpanFromLng == null)) {
+        const geo = await resolveLocation(record.eventSpanFromLocation.trim());
+        if (geo) {
+            record.eventSpanFromLat = geo.lat;
+            record.eventSpanFromLng = geo.lng;
+            record.eventSpanFromZoom = geo.zoom;
+        }
+    }
+
+    // Span arrival location
+    if (record.eventSpanToLocation?.trim() &&
+        (record.eventSpanToLat == null || record.eventSpanToLng == null)) {
+        const geo = await resolveLocation(record.eventSpanToLocation.trim());
+        if (geo) {
+            record.eventSpanToLat = geo.lat;
+            record.eventSpanToLng = geo.lng;
+            record.eventSpanToZoom = geo.zoom;
+        }
+    }
 }

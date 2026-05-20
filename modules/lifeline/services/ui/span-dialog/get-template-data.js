@@ -2,6 +2,7 @@ import { Translator } from '../../../../temporal-translator/temporal-translator.
 import { buildContextOptions } from './build-context-options.js';
 import { getActorHistory } from '../../../../state/get-actor-history.js';
 import { resolveEventEra } from '../../../../temporal-kernel/resolve-event-era.js';
+import { resolveDefaultLocation } from '../../../../temporal-kernel/resolve-default-location.js';
 
 /**
  * SPAN TEMPLATE DATA PROVIDER
@@ -16,8 +17,6 @@ export function getTemplateData(actor, params) {
     const eventIsSpan = Boolean(params.eventIsSpan || record.eventIsSpan || (viewState && viewState.activeDragType === 'span'));
 
     // 2. Prepare Raw Facts for Translation
-    // We normalize different input types into a single "Bag of Facts"
-    // AUTHORITY: Favor physical coordinates (x, y) if they exist, as they are the Engine's source of truth.
     const rawFacts = {
         eventAge: (existingData?.x !== undefined) ? existingData.x : (existingData?.eventAge !== undefined ? existingData.eventAge : (params.ageRaw !== undefined ? params.ageRaw : (graphData?.nowNode?.eventAge || 0))),
         ts: (existingData?.y !== undefined) ? existingData.y : (record.ts || (eventIsSpan ? params.departure?.eventTime :  null) || params.timeRaw || params.time || 0),
@@ -27,7 +26,6 @@ export function getTemplateData(actor, params) {
     };
 
     // 3. TRANSLATION GATEWAY
-    // The UI does not know how to format strings. It asks the Translator.
     const history = getActorHistory(actor);
     const humanStrings = Translator.toHuman(rawFacts, history, actor);
 
@@ -40,7 +38,6 @@ export function getTemplateData(actor, params) {
     }
 
     // 5. Narrative Context
-    // Events belong to exactly one Era (or none). Resolve era from age if not given.
     let eraId = existingData?.eraId || params.eraId;
     if (!eraId || eraId === 'default') {
         const ageForEra = (existingData?.x !== undefined) ? existingData.x : (params.ageRaw !== undefined ? params.ageRaw : 0);
@@ -50,7 +47,18 @@ export function getTemplateData(actor, params) {
     const ageForContext = (existingData?.x !== undefined) ? existingData.x : (params.ageRaw !== undefined ? params.ageRaw : 0);
     const contextResult = buildContextOptions(actor, eraId, expId, ageForContext);
 
-    // 6. Fact Assembly
+    // 6. Location auto-fill (same logic as event dialog)
+    const isNewEvent = mode !== 'edit';
+    const defaultLoc = isNewEvent
+        ? resolveDefaultLocation(history, rawFacts.eventAge, actor)
+        : {
+            location: record.eventLocation || record.eventSpanFromLocation || '',
+            lat: record.eventSpanFromLat ?? record.lat ?? null,
+            lng: record.eventSpanFromLng ?? record.lng ?? null,
+            zoom: record.eventSpanFromZoom ?? record.zoom ?? null
+        };
+
+    // 7. Fact Assembly
     const data = {
         ...humanStrings,
         eventDate: humanStrings.date,
@@ -67,7 +75,22 @@ export function getTemplateData(actor, params) {
         expId,
         ageRaw: rawFacts.eventAge,
         timeRaw: rawFacts.ts,
-        canSeeSpan
+        canSeeSpan,
+
+        // Level location (departure mirrors spanFrom for non-span events)
+        lat: record.lat ?? defaultLoc.lat,
+        lng: record.lng ?? defaultLoc.lng,
+        zoom: record.zoom ?? defaultLoc.zoom,
+
+        // Span departure location
+        spanFromLat: record.eventSpanFromLat ?? defaultLoc.lat,
+        spanFromLng: record.eventSpanFromLng ?? defaultLoc.lng,
+        spanFromZoom: record.eventSpanFromZoom ?? defaultLoc.zoom,
+
+        // Span arrival location
+        spanToLat: record.eventSpanToLat ?? defaultLoc.lat,
+        spanToLng: record.eventSpanToLng ?? defaultLoc.lng,
+        spanToZoom: record.eventSpanToZoom ?? defaultLoc.zoom
     };
 
     return data;

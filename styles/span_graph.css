@@ -758,3 +758,40 @@
     color: #4da6ff;
     margin-right: 5px;
 }
+
+/* Continuum marker context menu on SpaceTime map */
+#continuum-marker-context-menu {
+    position: absolute;
+    z-index: 10000;
+    background-color: rgba(40, 40, 40, 0.95);
+    border: 1px solid #555;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+#continuum-marker-context-menu .context-menu-item {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #ddd;
+    text-align: left;
+    padding: 8px 12px;
+    margin: 0;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+#continuum-marker-context-menu .context-menu-item:hover {
+    background-color: #006aff;
+    color: white;
+}
+
+#continuum-marker-context-menu .context-menu-item .fas {
+    margin-right: 8px;
+}

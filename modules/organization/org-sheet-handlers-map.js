@@ -1,5 +1,4 @@
 import { panToLocation, getMapCenterLocation, getActorTokenLocation, updateActorMapState } from '../map-manager.js';
-import { writeImmediateKeyframe } from '../spacetime-bridge/write-keyframes.js';
 
 /**
  * Locate button handler for org sheets.
@@ -91,16 +90,9 @@ export async function handleOrgTokenClick(sheet, event) {
         return;
     }
 
-    const dob = sheet.actor.system?.personal?.dob;
-    const ts = dob ? new Date(`${dob}T12:00:00`).getTime() : result.timestampMs;
-
     await sheet.actor.update({
         'system.personal.birthLat': result.lat,
         'system.personal.birthLng': result.lng,
         'system.personal.birthLocation': result.formattedAddress
     });
-
-    if (Number.isFinite(ts)) {
-        await writeImmediateKeyframe(sheet.actor, ts, result.lat, result.lng);
-    }
 }
