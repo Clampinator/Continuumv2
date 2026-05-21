@@ -7,18 +7,9 @@ the highest ingredient rank in the app rather than the actor's full rank.
 */
 
 import { RollDialogController } from '../lifeline/controllers/roll-dialog-controller.js';
+import { getDominantIngredient } from '/systems/continuum-v2/modules/temporal-kernel/get-dominant-ingredient.js';
 
 const META_KEYS = ['coercion', 'creativity', 'farsense', 'pk', 'redaction'];
-
-function _dominantIngredient(app) {
-    let best = null;
-    let bestVal = 0;
-    for (const key of META_KEYS) {
-        const v = Number(app[key]) || 0;
-        if (v > bestVal) { bestVal = v; best = key; }
-    }
-    return best;
-}
 
 export function handleAppApply(sheet, event) {
     const button = $(event.currentTarget);
@@ -27,7 +18,7 @@ export function handleAppApply(sheet, event) {
     const app = actor.system.metabilities?.applications?.[appId];
     if (!app) return;
 
-    const dominant = _dominantIngredient(app);
+    const dominant = getDominantIngredient(app);
     if (!dominant) {
         ui.notifications.warn("No ingredients have been set for this application.");
         return;

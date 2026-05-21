@@ -3,6 +3,7 @@
 import { Sound } from './sound-manager.js';
 import { clampTempToPerm } from '/systems/continuum-v2/modules/temporal-kernel/clamp-temp-to-perm.js';
 import { clampValueToPotential } from '/systems/continuum-v2/modules/temporal-kernel/clamp-value-to-potential.js';
+import { isAtPotential } from '/systems/continuum-v2/modules/temporal-kernel/is-at-potential.js';
 
 /**
  * Initializes all interactive spinners on the sheet.
@@ -351,7 +352,7 @@ function updateAtPotentialState(frame, sheet) {
     const current = sheet.actor.system.metabilities[metability]?.value ?? 0;
     const potential = sheet.actor.system.metabilities[metability]?.potential ?? 0;
     
-    if (current >= potential) {
+    if (isAtPotential(current, potential)) {
         frame.addClass('at-potential');
     } else {
         frame.removeClass('at-potential');
