@@ -1,6 +1,7 @@
 import { initializeGearSpinner } from './modules/initialize-gear-spinner.js';
 import { ITEM_DATA } from './item-data.js';
 import { GEAR_ASPECT_LABELS } from '/systems/continuum-v2/modules/temporal-kernel/gear-aspect-labels.js';
+import { calculateGearBonus } from '/systems/continuum-v2/modules/temporal-kernel/calculate-gear-bonus.js';
 
 const GEAR_DEFAULTS = {
     gearType: 'technology',
@@ -47,10 +48,7 @@ export class ContinuumItemSheet extends BaseItemSheet {
 
       const gearType = sys.gearType || 'technology';
       context.aspectLabels = GEAR_ASPECT_LABELS[gearType] || GEAR_ASPECT_LABELS.technology;
-      const a1 = Number(sys.aspects.aspect1) || 0;
-      const a2 = Number(sys.aspects.aspect2) || 0;
-      const a3 = Number(sys.aspects.aspect3) || 0;
-      context.computedBonus = Math.floor((a1 + a2 + a3) / 3);
+      context.computedBonus = calculateGearBonus(sys.aspects.aspect1, sys.aspects.aspect2, sys.aspects.aspect3);
       context.rangedWeaponModels = Object.keys(ITEM_DATA.rangedWeapons).filter(k => k !== 'none');
       context.selectedFirearmStats = null;
       const model = sys.firearmModel;

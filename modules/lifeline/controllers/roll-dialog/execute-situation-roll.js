@@ -1,6 +1,7 @@
 import { RollMath } from '../../services/calculators/roll-math.js';
 import { RollActionHandler } from '../../handlers/roll-action-handler.js';
 import { getAttributeLabel } from '../../../attribute-labels.js';
+import { calculateGearBonus } from '/systems/continuum-v2/modules/temporal-kernel/calculate-gear-bonus.js';
 
 const SPEED_PENALTIES = [0, -3, -6, -9, -15];
 
@@ -54,10 +55,7 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
         const gearItem = sheet.actor.items.get(gearId);
         if (gearItem) {
             gearName = gearItem.name;
-            const a1 = Number(gearItem.system.aspects?.aspect1) || 0;
-            const a2 = Number(gearItem.system.aspects?.aspect2) || 0;
-            const a3 = Number(gearItem.system.aspects?.aspect3) || 0;
-            gearBonus = Math.floor((a1 + a2 + a3) / 3);
+            gearBonus = calculateGearBonus(gearItem.system.aspects?.aspect1, gearItem.system.aspects?.aspect2, gearItem.system.aspects?.aspect3);
         }
     }
 

@@ -4,6 +4,7 @@ import { generateVehicleInfoBoxes } from './generate-vehicle-info-boxes.js';
 import { updateMetabilityInfo } from './update-metability-info.js';
 import { ResonanceCalculator } from '../../services/calculators/resonance-calculator.js';
 import { injectBenefitButtons } from './inject-benefit-buttons.js';
+import { calculateGearBonus } from '/systems/continuum-v2/modules/temporal-kernel/calculate-gear-bonus.js';
 
 function populateGearDropdown(html, sheet, isMeta) {
     const gearSelect = html.find('.gear-select').empty();
@@ -23,7 +24,7 @@ function populateGearDropdown(html, sheet, isMeta) {
         if (techAndTools.length) {
             const optgroup = $('<optgroup label="Equipment"></optgroup>');
             techAndTools.forEach(item => {
-                const bonus = Math.floor(((Number(item.system.aspects?.aspect1) || 0) + (Number(item.system.aspects?.aspect2) || 0) + (Number(item.system.aspects?.aspect3) || 0)) / 3);
+                const bonus = calculateGearBonus(item.system.aspects?.aspect1, item.system.aspects?.aspect2, item.system.aspects?.aspect3);
                 optgroup.append(`<option value="${item.id}">${item.name} (+${bonus})</option>`);
             });
             gearSelect.append(optgroup);
@@ -32,7 +33,7 @@ function populateGearDropdown(html, sheet, isMeta) {
         if (techAndTools.length) {
             const optgroup = $('<optgroup label="Equipment"></optgroup>');
             techAndTools.forEach(item => {
-                const bonus = Math.floor(((Number(item.system.aspects?.aspect1) || 0) + (Number(item.system.aspects?.aspect2) || 0) + (Number(item.system.aspects?.aspect3) || 0)) / 3);
+                const bonus = calculateGearBonus(item.system.aspects?.aspect1, item.system.aspects?.aspect2, item.system.aspects?.aspect3);
                 optgroup.append(`<option value="${item.id}">${item.name} (+${bonus})</option>`);
             });
             gearSelect.append(optgroup);
@@ -40,7 +41,7 @@ function populateGearDropdown(html, sheet, isMeta) {
         if (firearms.length) {
             const optgroup = $('<optgroup label="Firearms"></optgroup>');
             firearms.forEach(item => {
-                const bonus = Math.floor(((Number(item.system.aspects?.aspect1) || 0) + (Number(item.system.aspects?.aspect2) || 0) + (Number(item.system.aspects?.aspect3) || 0)) / 3);
+                const bonus = calculateGearBonus(item.system.aspects?.aspect1, item.system.aspects?.aspect2, item.system.aspects?.aspect3);
                 optgroup.append(`<option value="${item.id}">${item.name} (+${bonus})</option>`);
             });
             gearSelect.append(optgroup);
@@ -48,7 +49,7 @@ function populateGearDropdown(html, sheet, isMeta) {
         if (vehicles.length) {
             const optgroup = $('<optgroup label="Vehicles"></optgroup>');
             vehicles.forEach(item => {
-                const bonus = Math.floor(((Number(item.system.aspects?.aspect1) || 0) + (Number(item.system.aspects?.aspect2) || 0) + (Number(item.system.aspects?.aspect3) || 0)) / 3);
+                const bonus = calculateGearBonus(item.system.aspects?.aspect1, item.system.aspects?.aspect2, item.system.aspects?.aspect3);
                 optgroup.append(`<option value="${item.id}">${item.name} (+${bonus})</option>`);
             });
             gearSelect.append(optgroup);
@@ -103,10 +104,7 @@ export function setupRollButtons(html, sheet, content, setVisible, benefitRef) {
                 content.data('gearId', gearId);
                 const gearSelect = html.find('.gear-select');
                 gearSelect.val(gearId);
-                const a1 = Number(gearItem.system.aspects?.aspect1) || 0;
-                const a2 = Number(gearItem.system.aspects?.aspect2) || 0;
-                const a3 = Number(gearItem.system.aspects?.aspect3) || 0;
-                const computedBonus = Math.floor((a1 + a2 + a3) / 3);
+                const computedBonus = calculateGearBonus(gearItem.system.aspects?.aspect1, gearItem.system.aspects?.aspect2, gearItem.system.aspects?.aspect3);
                 html.find('input[name="situational_modifier"]').val(computedBonus);
             }
         }

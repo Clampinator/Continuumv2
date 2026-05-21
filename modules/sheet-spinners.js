@@ -1,6 +1,8 @@
 
 // continuum/modules/sheet-spinners.js
 import { Sound } from './sound-manager.js';
+import { clampTempToPerm } from '/systems/continuum-v2/modules/temporal-kernel/clamp-temp-to-perm.js';
+import { clampValueToPotential } from '/systems/continuum-v2/modules/temporal-kernel/clamp-value-to-potential.js';
 
 /**
  * Initializes all interactive spinners on the sheet.
@@ -168,28 +170,33 @@ export function initializeSpinners(html, sheet) {
             if (attributeName === 'willpowerPerm') {
                 const newPermValue = 10 - currentSnapIndex;
                 const currentTempWill = sheet.actor.system.attributes.willpower.temp || 0;
-                if (newPermValue < currentTempWill) {
+                const clampedTemp = clampTempToPerm(currentTempWill, newPermValue);
+                if (clampedTemp < currentTempWill) {
+                    const tempIdx = 10 - clampedTemp;
                     const tempWillSpinnerImage = html.find('.attribute-spinner-viewport[data-attribute="willpowerTemp"] .attribute-spinner-image');
                     if (tempWillSpinnerImage.length) {
-                        const newTempSnapTop = snapOffsets[currentSnapIndex];
-                        tempWillSpinnerImage.css('top', `${newTempSnapTop}px`);
+                        tempWillSpinnerImage.css('top', `${snapOffsets[tempIdx]}px`);
                     }
                 }
             }
             if (attributeName === 'internalReputationPerm') {
                 const newPermValue = 10 - currentSnapIndex;
                 const currentTemp = sheet.actor.system.attributes.internalReputation?.temp || 0;
-                if (newPermValue < currentTemp) {
+                const clampedTemp = clampTempToPerm(currentTemp, newPermValue);
+                if (clampedTemp < currentTemp) {
+                    const tempIdx = 10 - clampedTemp;
                     const tempImg = html.find('.attribute-spinner-viewport[data-attribute="internalReputationTemp"] .attribute-spinner-image');
-                    if (tempImg.length) tempImg.css('top', `${snapOffsets[currentSnapIndex]}px`);
+                    if (tempImg.length) tempImg.css('top', `${snapOffsets[tempIdx]}px`);
                 }
             }
             if (attributeName === 'externalReputationPerm') {
                 const newPermValue = 10 - currentSnapIndex;
                 const currentTemp = sheet.actor.system.attributes.externalReputation?.temp || 0;
-                if (newPermValue < currentTemp) {
+                const clampedTemp = clampTempToPerm(currentTemp, newPermValue);
+                if (clampedTemp < currentTemp) {
+                    const tempIdx = 10 - clampedTemp;
                     const tempImg = html.find('.attribute-spinner-viewport[data-attribute="externalReputationTemp"] .attribute-spinner-image');
-                    if (tempImg.length) tempImg.css('top', `${snapOffsets[currentSnapIndex]}px`);
+                    if (tempImg.length) tempImg.css('top', `${snapOffsets[tempIdx]}px`);
                 }
             }
         };
@@ -224,18 +231,21 @@ export function initializeSpinners(html, sheet) {
 
             if (attributeName === 'willpowerTemp') {
                 const permWill = sheet.actor.system.attributes.willpower.perm || 0;
-                if (newValue > permWill) {
-                    newValue = permWill;
+                const clamped = clampTempToPerm(newValue, permWill);
+                if (clamped !== newValue) {
+                    newValue = clamped;
                     closestSnapIndex = 10 - newValue;
                 }
             }
             if (attributeName === 'internalReputationTemp') {
                 const permIR = sheet.actor.system.attributes.internalReputation?.perm || 0;
-                if (newValue > permIR) { newValue = permIR; closestSnapIndex = 10 - newValue; }
+                const clamped = clampTempToPerm(newValue, permIR);
+                if (clamped !== newValue) { newValue = clamped; closestSnapIndex = 10 - newValue; }
             }
             if (attributeName === 'externalReputationTemp') {
                 const permER = sheet.actor.system.attributes.externalReputation?.perm || 0;
-                if (newValue > permER) { newValue = permER; closestSnapIndex = 10 - newValue; }
+                const clamped = clampTempToPerm(newValue, permER);
+                if (clamped !== newValue) { newValue = clamped; closestSnapIndex = 10 - newValue; }
             }
 
             const snapTop = snapOffsets[closestSnapIndex];
@@ -245,8 +255,9 @@ export function initializeSpinners(html, sheet) {
             if (isMetability) {
                 // Check operant potential cap
                 const potential = sheet.actor.system.metabilities[attributeName]?.potential ?? 5;
-                if (newValue > potential) {
-                    newValue = potential;
+                const clampedValue = clampValueToPotential(newValue, potential);
+                if (clampedValue !== newValue) {
+                    newValue = clampedValue;
                     closestSnapIndex = newValue;
                     image.css('top', `${snapOffsets[closestSnapIndex]}px`);
                 }
@@ -267,13 +278,15 @@ export function initializeSpinners(html, sheet) {
             } else if (attributeName === 'internalReputationPerm') {
                 updatePath = 'system.attributes.internalReputation.perm';
                 const curTempIR = sheet.actor.system.attributes.internalReputation?.temp || 0;
-                if (newValue < curTempIR) sheet.actor.update({ 'system.attributes.internalReputation.temp': newValue });
+                const clampedTemp = clampTempToPerm(curTempIR, newValue);
+                if (clampedTemp !== curTempIR) sheet.actor.update({ 'system.attributes.internalReputation.temp': clampedTemp });
             } else if (attributeName === 'externalReputationTemp') {
                 updatePath = 'system.attributes.externalReputation.temp';
             } else if (attributeName === 'externalReputationPerm') {
                 updatePath = 'system.attributes.externalReputation.perm';
                 const curTempER = sheet.actor.system.attributes.externalReputation?.temp || 0;
-                if (newValue < curTempER) sheet.actor.update({ 'system.attributes.externalReputation.temp': newValue });
+                const clampedTemp = clampTempToPerm(curTempER, newValue);
+                if (clampedTemp !== curTempER) sheet.actor.update({ 'system.attributes.externalReputation.temp': clampedTemp });
             } else if (['span', 'naturalSpan', 'deliberateFrag', 'naturalFrag'].includes(attributeName)) {
                 updatePath = `system.spanning.${attributeName}`;
             } else if (attributeName.startsWith('wound-')) {
@@ -424,18 +437,19 @@ bgImage.css('transition', 'top 0.15s ease-out');
                     
                     // If current value exceeds new potential, cap it
                     const currentValue = sheet.actor.system.metabilities[metability]?.value ?? 0;
-                    if (currentValue > closestIndex) {
+                    const clampedValue = clampValueToPotential(currentValue, closestIndex);
+                    if (clampedValue !== currentValue) {
                         sheet.actor.update({
-                            [`system.metabilities.${metability}.value`]: closestIndex
+                            [`system.metabilities.${metability}.value`]: clampedValue
                         });
                         
                         // Update main spinner visual (uses different offsets)
                         const mainSpinner = frame.find('.metability-spinner-image');
                         const metabilitySnapOffsets = [ 0, -80, -160, -240, -320, -400 ];
-                        mainSpinner.css('top', `${metabilitySnapOffsets[closestIndex]}px`);
+                        mainSpinner.css('top', `${metabilitySnapOffsets[clampedValue]}px`);
                         
                         // Disable roll button if now at 0
-                        if (closestIndex === 0) {
+                        if (clampedValue === 0) {
                             frame.find('.roll-attribute').prop('disabled', true);
                         }
                     }

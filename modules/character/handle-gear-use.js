@@ -5,17 +5,19 @@ Routes gear use based on gear type:
 - Vehicle: triggers a vehicle roll with the vehicle gear pre-selected
 */
 
+import { calculateGearBonus } from '/systems/continuum-v2/modules/temporal-kernel/calculate-gear-bonus.js';
+
 export function handleGearUse(sheet, event) {
     const itemId = $(event.currentTarget).data('item-id');
     const item = sheet.actor.items.get(itemId);
     if (!item) return;
 
     const gearType = item.system?.gearType || 'technology';
-    const computedBonus = Math.floor((
-        (Number(item.system?.aspects?.aspect1) || 0) +
-        (Number(item.system?.aspects?.aspect2) || 0) +
-        (Number(item.system?.aspects?.aspect3) || 0)
-    ) / 3);
+    const computedBonus = calculateGearBonus(
+        item.system?.aspects?.aspect1,
+        item.system?.aspects?.aspect2,
+        item.system?.aspects?.aspect3
+    );
 
     const html = sheet.element;
 
