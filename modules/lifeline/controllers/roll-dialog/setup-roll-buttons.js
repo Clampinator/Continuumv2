@@ -5,13 +5,6 @@ import { updateMetabilityInfo } from './update-metability-info.js';
 import { ResonanceCalculator } from '../../services/calculators/resonance-calculator.js';
 import { injectBenefitButtons } from './inject-benefit-buttons.js';
 
-const ASPECT_LABELS = {
-    firearm: { aspect1: 'Handling', aspect2: 'Ammo', aspect3: 'Reliability' },
-    technology: { aspect1: 'Speed', aspect2: 'Capacity', aspect3: 'Connectivity' },
-    tool: { aspect1: 'Quality', aspect2: 'Versatility', aspect3: 'Durability' },
-    vehicle: { aspect1: 'Handling', aspect2: 'Acceleration', aspect3: 'Prestige' }
-};
-
 function populateGearDropdown(html, sheet, isMeta) {
     const gearSelect = html.find('.gear-select').empty();
     gearSelect.append('<option value="">None</option>');

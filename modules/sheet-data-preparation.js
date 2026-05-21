@@ -4,6 +4,7 @@ import { getAttributeLabel } from './attribute-labels.js';
 import { calculateSpanPool } from '/systems/continuum-v2/modules/temporal-kernel/calculate-span-pool.js';
 import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
+import { cssClassFromFraternity } from '/systems/continuum-v2/modules/character/css-class-from-fraternity.js';
 
 // SPAN POOL: Computed by temporal-kernel/calculate-span-pool.js (pure math).
 // AGE constants sourced from temporal-engine/constants.js.
@@ -80,7 +81,7 @@ export async function prepareSheetData(sheet, options) {
         meleeWeaponData: ITEM_DATA.meleeWeapons,
         armorData: ITEM_DATA.armor
     };
-    context.fraternityClass = (context.system.personal?.fraternity || "default-fraternity").toLowerCase();
+    context.fraternityClass = cssClassFromFraternity(context.system.personal?.fraternity);
     context.gearItems = sheet.actor.items.filter(i => i.type === 'gear').map(item => {
         const plain = item.toObject();
         plain.id = item.id;

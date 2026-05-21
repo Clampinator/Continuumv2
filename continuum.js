@@ -14,6 +14,9 @@ import { handleCharacterSituationClick } from './modules/character/handle-situat
 import { deleteSheetContext } from './modules/graph-state.js';
 import { ITEM_DATA } from './item-data.js';
 import { normalizeDateInput } from './modules/temporal-translator/coordinate-converter.js';
+import { isDateField } from './modules/temporal-translator/date-field-registry.js';
+import { syncActorName } from './modules/state/sync-actor-name.js';
+import { isUnitGated } from './modules/temporal-kernel/is-unit-gated.js';
 import { handleActorDrop } from './modules/network/handle-actor-drop.js';
 
 // V13 Compatibility
@@ -28,7 +31,7 @@ Hooks.once('init', () => {
     const sizeMatch = size.match(/\d+/);
     const unitTier = sizeMatch ? parseInt(sizeMatch[0]) : 0;
 
-    if (unitTier > externalRep) {
+    if (isUnitGated(unitTier, externalRep)) {
       return new Handlebars.SafeString(`<span class="unit-status-gated" title="Gated by External Reputation"><i class="fas fa-lock"></i> Gated</span>`);
     }
     return "";
@@ -101,15 +104,13 @@ export class ContinuumActorSheet extends BaseActorSheet {
         if (typeof value === 'string' && value.includes('\n')) {
             formData[key] = value.split('\n').map(line => line.trimStart()).join('\n');
         }
-        if (typeof value === 'string' && /(date|dob|when|inceptionDate|dateofbirth)$/i.test(key)) {
+        if (typeof value === 'string' && isDateField(key)) {
             formData[key] = normalizeDateInput(value);
         }
     }
     
     // SYNC NAME: Ensure nested system name matches primary document name if edited
-    if (formData.name) {
-        formData['system.personal.name'] = formData.name;
-    }
+    syncActorName(formData);
 
     const expandedData = foundry.utils.expandObject(formData);
     const updates = {};

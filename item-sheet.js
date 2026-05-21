@@ -1,12 +1,6 @@
 import { initializeGearSpinner } from './modules/initialize-gear-spinner.js';
 import { ITEM_DATA } from './item-data.js';
-
-const ASPECT_LABELS = {
-    firearm: { aspect1: 'Handling', aspect2: 'Ammo', aspect3: 'Reliability' },
-    technology: { aspect1: 'Speed', aspect2: 'Capacity', aspect3: 'Connectivity' },
-    tool: { aspect1: 'Quality', aspect2: 'Versatility', aspect3: 'Durability' },
-    vehicle: { aspect1: 'Handling', aspect2: 'Acceleration', aspect3: 'Prestige' }
-};
+import { GEAR_ASPECT_LABELS } from '/systems/continuum-v2/modules/temporal-kernel/gear-aspect-labels.js';
 
 const GEAR_DEFAULTS = {
     gearType: 'technology',
@@ -52,7 +46,7 @@ export class ContinuumItemSheet extends BaseItemSheet {
       if (sys.aspects.aspect3 === undefined || sys.aspects.aspect3 === null) sys.aspects.aspect3 = 0;
 
       const gearType = sys.gearType || 'technology';
-      context.aspectLabels = ASPECT_LABELS[gearType] || ASPECT_LABELS.technology;
+      context.aspectLabels = GEAR_ASPECT_LABELS[gearType] || GEAR_ASPECT_LABELS.technology;
       const a1 = Number(sys.aspects.aspect1) || 0;
       const a2 = Number(sys.aspects.aspect2) || 0;
       const a3 = Number(sys.aspects.aspect3) || 0;

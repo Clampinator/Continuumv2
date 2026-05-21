@@ -6,13 +6,8 @@ import { calculateSpanPool } from '/systems/continuum-v2/modules/temporal-kernel
 import { formatSubjectiveAge } from '/systems/continuum-v2/modules/temporal-translator/age-converter.js';
 import { parseDateToObjectiveMs } from '/systems/continuum-v2/modules/temporal-translator/coordinate-converter.js';
 import { SECONDS_IN_YEAR, SECONDS_IN_DAY } from '/systems/continuum-v2/modules/temporal-engine/constants.js';
-
-const ASPECT_LABELS = {
-    firearm: { aspect1: 'Handling', aspect2: 'Ammo', aspect3: 'Reliability' },
-    technology: { aspect1: 'Speed', aspect2: 'Capacity', aspect3: 'Connectivity' },
-    tool: { aspect1: 'Quality', aspect2: 'Versatility', aspect3: 'Durability' },
-    vehicle: { aspect1: 'Handling', aspect2: 'Acceleration', aspect3: 'Prestige' }
-};
+import { GEAR_ASPECT_LABELS } from '/systems/continuum-v2/modules/temporal-kernel/gear-aspect-labels.js';
+import { cssClassFromFraternity } from '/systems/continuum-v2/modules/character/css-class-from-fraternity.js';
 
 // SPAN POOL: Computed by temporal-kernel/calculate-span-pool.js (pure math).
 // AGE: Computed by temporal-translator/age-converter.js (pure formatting).
@@ -99,7 +94,7 @@ export async function prepareCharacterData(sheet, options) {
     context.meleeWeaponData = ITEM_DATA.meleeWeapons;
     context.armorData = ITEM_DATA.armor;
 
-    context.fraternityClass = (context.system.personal?.fraternity || "default-fraternity").toLowerCase().replace(/\s+/g, '-');
+    context.fraternityClass = cssClassFromFraternity(context.system.personal?.fraternity);
     const allGear = sheet.actor.items.filter(i => i.type === 'gear').map(item => {
         const plain = item.toObject();
         plain.id = item.id;
@@ -119,7 +114,7 @@ export async function prepareCharacterData(sheet, options) {
             plain.computedBonus = Math.floor((a1 + a2 + a3) / 3);
         }
         const gt = plain.system.gearType || 'technology';
-        plain.aspectLabels = ASPECT_LABELS[gt] || ASPECT_LABELS.technology;
+        plain.aspectLabels = GEAR_ASPECT_LABELS[gt] || GEAR_ASPECT_LABELS.technology;
         return plain;
     });
     context.gearItems = allGear;
