@@ -24,6 +24,7 @@ import {
 import { openLifelineSpreadsheet } from '../lifeline/spreadsheet/open-lifeline-spreadsheet.js';
 import { undo, redo } from '../lifeline/undo-manager.js';
 import { ITEM_DATA } from '../../item-data.js';
+import { resolveVehicleStats } from '/systems/continuum-v2/modules/temporal-kernel/resolve-vehicle-stats.js';
 
 export function activateCharacterListeners(sheet, html) {
     // Select text on focus
@@ -127,8 +128,8 @@ export function activateCharacterListeners(sheet, html) {
         const collectionKey = parts[1];
         const id = parts[2];
         const vehicleName = ev.currentTarget.value;
-        // Search all collections - the dropdown shows all types regardless of row's systemKey
-        const stats = ITEM_DATA.vehicles?.[vehicleName] ?? ITEM_DATA.airVehicles?.[vehicleName] ?? ITEM_DATA.waterVehicles?.[vehicleName];
+        // Search all collections via kernel function
+        const stats = resolveVehicleStats(vehicleName, ITEM_DATA);
         if (!stats) return;
         const updates = { [`system.${collectionKey}.${id}.name`]: vehicleName };
         for (const [stat, val] of Object.entries(stats)) {

@@ -17,6 +17,8 @@ import { normalizeDateInput } from './modules/temporal-translator/coordinate-con
 import { isDateField } from './modules/temporal-translator/date-field-registry.js';
 import { syncActorName } from './modules/state/sync-actor-name.js';
 import { isUnitGated } from './modules/temporal-kernel/is-unit-gated.js';
+import { resolveItemStats } from './modules/temporal-kernel/resolve-item-stats.js';
+import { resolveVehicleStats } from './modules/temporal-kernel/resolve-vehicle-stats.js';
 import { handleActorDrop } from './modules/network/handle-actor-drop.js';
 
 // V13 Compatibility
@@ -120,8 +122,7 @@ export class ContinuumActorSheet extends BaseActorSheet {
                 if (itemType !== 'rangedWeapons' && itemType !== 'meleeWeapons' && itemType !== 'armor') continue;
                 for (const [id, item] of Object.entries(items)) {
                     if (item.name) {
-                        const itemCollection = ITEM_DATA[itemType];
-                        const selectedItemData = itemCollection ? itemCollection[item.name] : null;
+                        const selectedItemData = resolveItemStats(itemType, item.name, ITEM_DATA);
                         if (selectedItemData) {
                             const pathPrefix = `system.combat.${itemType}.${id}`;
                             for (const [stat, statValue] of Object.entries(selectedItemData)) {
@@ -135,7 +136,7 @@ export class ContinuumActorSheet extends BaseActorSheet {
         if (['vehicles', 'airVehicles', 'waterVehicles'].includes(key)) {
             for (const [id, item] of Object.entries(value)) {
                 if (item.name) {
-                    const selectedItemData = ITEM_DATA.vehicles?.[item.name] ?? ITEM_DATA.airVehicles?.[item.name] ?? ITEM_DATA.waterVehicles?.[item.name] ?? null;
+                    const selectedItemData = resolveVehicleStats(item.name, ITEM_DATA);
                     if (selectedItemData) {
                         const pathPrefix = `system.${key}.${id}`;
                         for (const [stat, statValue] of Object.entries(selectedItemData)) {
