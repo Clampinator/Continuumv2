@@ -2,13 +2,13 @@
 import { RollDialogController } from './modules/lifeline/controllers/roll-dialog-controller.js';
 import { setupRollButtons } from './modules/lifeline/controllers/roll-dialog/setup-roll-buttons.js';
 import { executeSituationRoll } from './modules/lifeline/controllers/roll-dialog/execute-situation-roll.js';
+import { calculateSpeedModifier } from './modules/temporal-kernel/speed-penalties.js';
 
 // Initializes the dice rolling logic for a Continuum actor sheet.
 export function initializeDiceRoller(html, sheet) {
     const overlay = html.find('.dialog-overlay');
     const content = html.find('.dialog-content');
     const dialogToggle = html.find('input[name="dialog_flag"]');
-    const SPEED_PENALTIES = [0, -3, -6, -9, -15];
     const benefitRef = { bonus: 0 };
 
     const setVisible = (v) => {
@@ -76,13 +76,7 @@ export function initializeDiceRoller(html, sheet) {
                 } else if (isVehicle) {
                     const topSpeed = content.data('topSpeed');
                     content.data('selectedSpeed', closestRank);
-                    let mod = 0;
-                    if (closestRank <= topSpeed) {
-                        mod = topSpeed - closestRank;
-                    } else {
-                        const penaltyIndex = closestRank - topSpeed - 1;
-                        mod = SPEED_PENALTIES[penaltyIndex] ?? SPEED_PENALTIES[SPEED_PENALTIES.length - 1];
-                    }
+                    const mod = calculateSpeedModifier(closestRank, topSpeed);
                     html.find('.push-modifier-display').text(mod >= 0 ? `(+${mod})` : `(${mod})`);
                 }
             }

@@ -3,16 +3,29 @@ import { calculateMindPenalty } from './calculate-mind-penalty.js';
 
 /**
  * Calculates base target including wound penalties based on actor type.
- * @param {Actor} actor 
+ * For meta keys, the base is highestMetaRank + activeRank where
+ * highestMetaRank is derived from actor data and activeRank is the
+ * selected metability's current rank.
+ * @param {Actor} actor
  * @param {string} key - Attribute or system key.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.activeRank] - Active rank for meta rolls.
  * @returns {number} Strictly floored integer.
  */
-export function calculateBaseTarget(actor, key) {
+export function calculateBaseTarget(actor, key, options = {}) {
     let base = 0;
     if (!key) return 0;
     
     if (key.startsWith('meta-')) {
-        base = 5;
+        const metas = actor.system.metabilities;
+        const highestRank = Math.max(
+            Number(metas.coercion?.value) || 0,
+            Number(metas.creativity?.value) || 0,
+            Number(metas.farsense?.value) || 0,
+            Number(metas.pk?.value) || 0,
+            Number(metas.redaction?.value) || 0
+        );
+        base = highestRank + (Number(options.activeRank) || 0);
     } else if (key === 'spanning') {
         const quick = Number(foundry.utils.getProperty(actor.system, 'attributes.quick.value')) || 0;
         const span = Number(foundry.utils.getProperty(actor.system, 'spanning.span')) || 0;

@@ -1,50 +1,42 @@
+import { calculateBaseTarget } from '../../services/calculators/roll-math/calculate-base-target.js';
 import { RollMath } from '../../services/calculators/roll-math.js';
 import { RollActionHandler } from '../../handlers/roll-action-handler.js';
 import { getAttributeLabel } from '../../../attribute-labels.js';
 import { calculateGearBonus } from '/systems/continuum-v2/modules/temporal-kernel/calculate-gear-bonus.js';
-
-const SPEED_PENALTIES = [0, -3, -6, -9, -15];
+import { calculateSpeedModifier } from '/systems/continuum-v2/modules/temporal-kernel/speed-penalties.js';
+import { getResonanceBonus } from '/systems/continuum-v2/modules/temporal-kernel/get-resonance-bonus.js';
 
 // Reads dialog state, computes the final target number, and fires the roll.
 // benefitRef.bonus is the flat bonus accumulated from toggled benefit buttons.
 export async function executeSituationRoll(html, sheet, content, rollType, benefitRef) {
     const key = content.data('attributeKey');
     const isVehicle = content.data('isVehicleRoll');
+    const isMeta = key && key.startsWith('meta-');
+    const activeRank = Number(content.data('actualRank')) || 0;
 
-    let base = RollMath.calculateBaseTarget(sheet.actor, key);
+    let base;
+    if (isMeta) {
+        base = calculateBaseTarget(sheet.actor, key, { activeRank });
+    } else {
+        base = RollMath.calculateBaseTarget(sheet.actor, key);
+    }
     if (['quick', 'spanning', 'naturalSpan'].includes(key)) {
         base -= RollMath.getQuickPenalty(sheet.actor);
     }
 
     let bonus = 0;
     let appBonus = 0;
-    const isMeta = key && key.startsWith('meta-');
 
     if (isMeta) {
-        const metas = sheet.actor.system.metabilities;
-        const highestRank = Math.max(
-            Number(metas.coercion?.value) || 0,
-            Number(metas.creativity?.value) || 0,
-            Number(metas.farsense?.value) || 0,
-            Number(metas.pk?.value) || 0,
-            Number(metas.redaction?.value) || 0
-        );
-        const activeRank = Number(content.data('actualRank')) || 0;
-        base = highestRank + activeRank;
         appBonus = Number(html.find('.metability-application-select').val()) || 0;
         bonus = activeRank - Number(content.data('selectedRank'));
     } else if (isVehicle) {
         const topSpeed = content.data('topSpeed');
         const selectedSpeed = content.data('selectedSpeed');
-        if (selectedSpeed <= topSpeed) {
-            bonus = topSpeed - selectedSpeed;
-        } else {
-            const penaltyIndex = selectedSpeed - topSpeed - 1;
-            bonus = SPEED_PENALTIES[penaltyIndex] ?? SPEED_PENALTIES[SPEED_PENALTIES.length - 1];
-        }
+        bonus = calculateSpeedModifier(selectedSpeed, topSpeed);
     } else {
         const res = html.find('input[name="resonance_choice"]:checked').val();
-        bonus = res === 'strong' ? 3 : (res === 'firm' ? 2 : (res === 'slight' ? 1 : 0));
+        bonus = getResonanceBonus(res);
     }
 
     // Gear bonus calculation (aspect average only; slider goes through sitMod)
