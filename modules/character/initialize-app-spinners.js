@@ -10,6 +10,8 @@ Volume display is updated live on ingredient snap changes.
 
 import { Sound } from '../sound-manager.js';
 import { updateVolumeDisplay } from './handle-app-ingredient-change.js';
+import { getApplicationVolumeLimit } from '/systems/continuum-v2/modules/temporal-kernel/get-application-volume-limit.js';
+import { clampIngredientValue } from '/systems/continuum-v2/modules/temporal-kernel/clamp-ingredient-value.js';
 
 const ING_H = 30; // ingredient spinner viewport height (36x30 = 6:5 matches frame aspect ratio)
 const VP = 36;    // level spinner viewport height
@@ -93,16 +95,13 @@ function _initIngredients(html, sheet) {
 
             let idx = _closest(ING_OFFSETS, parseInt(img.css('top'), 10));
 
-            // Cap 1: per-ingredient metability rank
+            // Cap 1+2: kernel enforces per-ingredient rank cap and volume cap
             const metaRank = Number(sheet.actor.system.metabilities?.[ingredient]?.value) || 0;
-            idx = Math.min(idx, metaRank);
-
-            // Cap 2: volume cap
             const analyze = Number(sheet.actor.system?.attributes?.mind?.value) || 0;
-            const maxVol = Math.max(0, (analyze * 3) - 6);
+            const maxVol = getApplicationVolumeLimit(analyze);
             const otherTotal = appItem.find('.app-ingredient-input').toArray()
                 .reduce((sum, el) => el === hidden[0] ? sum : sum + (Number($(el).val()) || 0), 0);
-            idx = Math.min(idx, Math.max(0, maxVol - otherTotal));
+            idx = clampIngredientValue(idx, metaRank, otherTotal, maxVol);
 
             img.css('top', `${ING_OFFSETS[idx]}px`);
             hidden.val(idx);

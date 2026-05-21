@@ -12,7 +12,8 @@ Enforces two constraints and provides live feedback:
 Call updateVolumeDisplay once on sheet load to populate the initial totals.
 */
 
-const VOLUME_FORMULA = (analyze) => Math.max(0, (analyze * 3) - 6);
+import { getApplicationVolumeLimit } from '/systems/continuum-v2/modules/temporal-kernel/get-application-volume-limit.js';
+import { clampIngredientValue } from '/systems/continuum-v2/modules/temporal-kernel/clamp-ingredient-value.js';
 
 function _getAnalyze(actor) {
     return Number(actor.system?.attributes?.mind?.value) || 0;
@@ -29,7 +30,7 @@ function _getOtherTotal(appItem, excludeEl) {
 export function updateVolumeDisplay(sheet, appItemEl) {
     const appItem = $(appItemEl);
     const analyze = _getAnalyze(sheet.actor);
-    const maxVolume = VOLUME_FORMULA(analyze);
+    const maxVolume = getApplicationVolumeLimit(analyze);
     let total = 0;
     appItem.find('.app-ingredient-input').each(function() {
         total += Number($(this).val()) || 0;
@@ -44,18 +45,12 @@ export function handleAppIngredientChange(sheet, event) {
     const ingredient = input.data('ingredient');
 
     const analyze = _getAnalyze(sheet.actor);
-    const maxVolume = VOLUME_FORMULA(analyze);
+    const maxVolume = getApplicationVolumeLimit(analyze);
     const metaRank = Number(sheet.actor.system.metabilities?.[ingredient]?.value) || 0;
 
     const rawVal = Math.max(0, Math.min(5, Number(input.val()) || 0));
-    let clampedVal = rawVal;
-
-    // Cap 1: cannot exceed the character's metability rank for this type
-    clampedVal = Math.min(clampedVal, metaRank);
-
-    // Cap 2: total volume cannot exceed the formula cap
     const otherTotal = _getOtherTotal(appItem, event.currentTarget);
-    clampedVal = Math.min(clampedVal, Math.max(0, maxVolume - otherTotal));
+    const clampedVal = clampIngredientValue(rawVal, metaRank, otherTotal, maxVolume);
 
     input.val(clampedVal);
 
