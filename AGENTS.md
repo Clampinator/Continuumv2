@@ -359,6 +359,71 @@ See **`TRACKS.md`** for full specs and implementation plans.
 
 ---
 
+## VPS Git Remote (Syncing)
+
+The project uses a bare git repo on VPS as a remote mirror, alongside the GitHub origin.
+
+### Remote Setup
+
+- **VPS host**: accessible via `ssh vps` (configured in `~/.ssh/config` with an authorized key)
+- **Bare repo**: `~/continuum-v2.git` on the VPS
+- **Git remote name**: `vps`
+- **Remote URL**: `ssh://vps/~/continuum-v2.git`
+
+### Syncing Workflow
+
+1. **Push to VPS** (mirror local state to VPS):
+   ```bash
+   git push vps master
+   ```
+   Push all branches at once:
+   ```bash
+   git push vps --all
+   ```
+
+2. **Pull from VPS** (if another machine pushed changes):
+   ```bash
+   git pull vps master
+   ```
+
+3. **Initial clone on a new machine**:
+   ```bash
+   git clone vps:~/continuum-v2.git
+   cd continuum-v2
+   git remote add origin https://github.com/Clampinator/Continuumv2.git
+   ```
+
+4. **Add the VPS remote to an existing clone**:
+   ```bash
+   git remote add vps ssh://vps/~/continuum-v2.git
+   ```
+
+### Agentic Artefacts in Repo
+
+The following agentic/project-management files are tracked in the repo and synced to VPS:
+
+- `AGENTS.md` - This file. Instructions for AI agents working on the project.
+- `REBUILD_MANDATE.md` - Architectural constitution.
+- `TRACKS.md` - Track register with specs and status.
+- `ISSUES.md` - Known bugs and defects.
+- `FILELIST.md` - Source file inventory.
+- `conductor/` - Project tracking directory (tracks, plans, specs, archive).
+- `opencode.json` - OpenCode configuration (**DO NOT COMMIT** - contains live API keys).
+
+### Sync Checklist
+
+When finishing a session, ensure VPS is up to date:
+```bash
+git push vps master
+```
+
+When starting a session, pull latest from VPS if another agent or machine may have pushed:
+```bash
+git pull vps master
+```
+
+---
+
 ## MiniMax MCP Tools
 
 This project has a MiniMax MCP relay configured via `opencode.json`. Available tools:
