@@ -16,7 +16,8 @@
     "continuum-drag-drop.js",
     "modules/network/handle-actor-drop.js",
     "modules/spacetime-bridge/index.js",
-    "modules/npc-generator/index.js"
+    "modules/npc-generator/index.js",
+    "modules/vehicle-combat/bridge/main.js"
   ],
   "styles": [
     "styles/variables.css",
@@ -51,7 +52,8 @@
     "styles/org-balance-sheet.css",
     "styles/location.css",
     "styles/chat-roll.css",
-    "styles/npc-wizard.css"
+    "styles/npc-wizard.css",
+    "modules/vehicle-combat/styles/vehicle-combat.css"
   ],
   "actorTypes": [
     "character",

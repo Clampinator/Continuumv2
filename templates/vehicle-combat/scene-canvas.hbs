@@ -1,0 +1,18 @@
+<div class="vc-canvas-container">
+  <div class="vc-toolbar">
+    {{#each tools}}
+    <button type="button" class="vc-tool-btn" data-tool="{{this.id}}">
+      <i class="fas {{this.icon}}"></i> {{this.label}}
+    </button>
+    {{/each}}
+    <button type="button" class="vc-edit-toggle">
+      <i class="fas fa-pen"></i> Edit
+    </button>
+  </div>
+  <canvas class="vc-3d-canvas" width="1200" height="800"></canvas>
+  <div class="vc-status-bar">
+    <span class="vc-status-domain"><i class="fas fa-globe"></i> {{domainLabel}}</span>
+    <span class="vc-status-gravity">Gravity: {{gravity}}g</span>
+    <span class="vc-status-coords" id="vc-cursor-coords">X: 0 Y: 0 Z: 0</span>
+  </div>
+</div>

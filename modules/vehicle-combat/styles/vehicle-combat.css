@@ -1,0 +1,152 @@
+/* Vehicle Combat Module Styles */
+
+.vehicle-combat .vc-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  overflow: hidden;
+}
+
+.vehicle-combat .vc-3d-canvas {
+  display: block;
+  width: 100%;
+  height: calc(100% - 80px);
+  cursor: default;
+}
+
+.vehicle-combat .vc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #1a1a2e;
+  border-bottom: 1px solid #333;
+  flex-wrap: wrap;
+}
+
+.vehicle-combat .vc-tool-btn {
+  background: #222244;
+  color: #aaa;
+  border: 1px solid #444;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.vehicle-combat .vc-tool-btn:hover {
+  background: #333366;
+  color: #fff;
+}
+
+.vehicle-combat .vc-tool-btn.active {
+  background: #4400aa;
+  color: #fff;
+  border-color: #6600ff;
+}
+
+.vehicle-combat .vc-edit-toggle {
+  margin-left: auto;
+  background: #442200;
+  color: #ffaa00;
+  border: 1px solid #664400;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.vehicle-combat .vc-edit-toggle:hover {
+  background: #553300;
+}
+
+.vehicle-combat .vc-edit-toggle.active {
+  background: #664400;
+  color: #fff;
+}
+
+.vehicle-combat .vc-edit-active .vc-tool-btn {
+  opacity: 1;
+}
+
+.vehicle-combat .vc-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 12px;
+  background: #0d0d1a;
+  border-top: 1px solid #333;
+  font-size: 11px;
+  color: #888;
+  font-family: monospace;
+  height: 24px;
+}
+
+/* Scene Config Tab Styles */
+
+.vehicle-env-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vehicle-env-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 2px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #222;
+  color: #aaa;
+  transition: all 0.15s;
+}
+
+.vehicle-env-option:hover {
+  background: #333;
+  color: #fff;
+}
+
+.vehicle-env-option.active {
+  border-color: #6600ff;
+  background: #330066;
+  color: #fff;
+}
+
+.vehicle-env-option input[type="radio"] {
+  display: none;
+}
+
+.vc-open-scene-btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #4400aa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.vc-open-scene-btn:hover {
+  background: #5500cc;
+}
+
+.vc-open-scene-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.vc-gravity-group .range-value,
+.vc-atmosphere-group .range-value {
+  min-width: 40px;
+  text-align: right;
+  font-family: monospace;
+}

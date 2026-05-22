@@ -47,7 +47,8 @@ async function preloadHandlebarsTemplates() {
     "systems/continuum-v2/templates/npc-generator/step-2-time-faction.html",
     "systems/continuum-v2/templates/npc-generator/step-3-capabilities.html",
     "systems/continuum-v2/templates/npc-generator/step-4-concept.html",
-    "systems/continuum-v2/templates/npc-generator/step-5-review.html"
+    "systems/continuum-v2/templates/npc-generator/step-5-review.html",
+    "systems/continuum-v2/templates/vehicle-combat/scene-canvas.hbs"
   ];
   
   const loadTemplatesFn = foundry.applications?.handlebars?.loadTemplates ?? globalThis.loadTemplates;
