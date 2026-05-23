@@ -20,7 +20,7 @@ export async function performRollAction(params) {
     const {
         finalTarget, rollType, flavorText, actor, isApRoll,
         weaponId, weaponType, attributeName, baseValue,
-        sitMod, resonanceName, resBonus, pushBonus, gearName, gearBonus,
+        sitMod, resonanceName, resBonus, pushBonus, appName, appBonus, gearName, gearBonus,
         benefitBonus = 0, abilityName = null, abilityBonus = 0
     } = params;
 
@@ -83,7 +83,7 @@ export async function performRollAction(params) {
     }
 
     // 5. Calculate Data for Tactical Readout
-    const cleanAttrKey = (attributeName || 'body').replace('meta-', '');
+    const cleanAttrKey = (attributeName || 'force').replace('meta-', '');
     let rawAttrVal = 0;
     if (isMeta) {
         rawAttrVal = Number(foundry.utils.getProperty(actor.system, `metabilities.${cleanAttrKey}.value`)) || 0;
@@ -94,11 +94,11 @@ export async function performRollAction(params) {
     const wounds = actor.system.combat?.wounds ?? {};
     const ipPenalty = Object.values(wounds).reduce((total, wound) => total + (Number(wound.ip) || 0), 0);
     let armorPenalty = 0;
-    if (['quick', 'spanning', 'naturalSpan'].includes(cleanAttrKey)) {
+    if (['react', 'quick', 'spanning', 'naturalSpan'].includes(cleanAttrKey)) {
         armorPenalty = RollMath.getQuickPenalty(actor);
     }
     let mindPenalty = 0;
-    if (cleanAttrKey === 'mind') {
+    if (cleanAttrKey === 'analyze' || cleanAttrKey === 'mind') {
         mindPenalty = Math.abs(RollMath.getMindPenalty(actor));
     }
 
@@ -113,7 +113,7 @@ export async function performRollAction(params) {
             Number(metas.redaction?.value) || 0
         );
         const activeRank = Number(foundry.utils.getProperty(actor.system, `metabilities.${cleanAttrKey}.value`)) || 0;
-        mathSummary = `Highest ${highestRank} + Active ${activeRank} + App ${resBonus} + Mod ${sitMod}${pushBonus !== 0 ? ` + Push ${pushBonus}` : ''}${gearBonus ? ` + Gear ${gearBonus}` : ''} = TN ${finalTarget}`;
+        mathSummary = `Highest ${highestRank} + Active ${activeRank} + App ${appBonus} + Mod ${sitMod}${pushBonus !== 0 ? ` + Push ${pushBonus}` : ''}${gearBonus ? ` + Gear ${gearBonus}` : ''} = TN ${finalTarget}`;
     } else {
         mathSummary = `Base ${rawAttrVal} + Mod ${sitMod} + Res ${resBonus}${benefitBonus > 0 ? ` + Ben ${benefitBonus}` : ''}${gearBonus ? ` + Gear ${gearBonus}` : ''}${abilityBonus > 0 ? ` + Abil ${abilityBonus}` : ''} - IP ${ipPenalty}${armorPenalty > 0 ? ` - ARM ${armorPenalty}` : ''}${mindPenalty > 0 ? ` - APP ${mindPenalty}` : ''} = TN ${finalTarget}`;
     }
@@ -203,6 +203,9 @@ export async function performRollAction(params) {
         defenderProtection,
         mitigation,
         consequence,
+        pushBonus: pushBonus || 0,
+        appName: appName || null,
+        appBonus: appBonus || 0,
         gearName: gearName || null,
         gearBonus: gearBonus || 0,
         abilityName: abilityName || null,

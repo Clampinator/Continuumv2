@@ -20,7 +20,7 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
     } else {
         base = RollMath.calculateBaseTarget(sheet.actor, key);
     }
-    if (['quick', 'spanning', 'naturalSpan'].includes(key)) {
+    if (['react', 'quick', 'spanning', 'naturalSpan'].includes(key)) {
         base -= RollMath.getQuickPenalty(sheet.actor);
     }
 
@@ -71,9 +71,13 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
     const resSelect = html.find('.experience-resonance-select');
     const isExpSelected = resSelect.val() !== "0";
     let displayResName = "Resonance";
+    let appName = null;
     if (isMeta) {
-        const appName = html.find('.metability-application-select option:selected').text().split(' (')[0];
-        displayResName = appName !== "None" ? appName : "Push";
+        const appNameRaw = html.find('.metability-application-select option:selected').text().split(' (')[0];
+        if (appNameRaw && appNameRaw !== "None") {
+            appName = appNameRaw;
+        }
+        displayResName = "Push";
     } else if (isVehicle) {
         displayResName = "Speed";
     } else if (isExpSelected) {
@@ -93,7 +97,9 @@ export async function executeSituationRoll(html, sheet, content, rollType, benef
         sitMod: Math.floor(sitMod),
         pushBonus: isMeta ? Math.floor(bonus) : 0,
         resonanceName: displayResName,
-        resBonus: Math.floor(isMeta ? appBonus : bonus),
+        resBonus: Math.floor(bonus),
+        appName,
+        appBonus: isMeta ? Math.floor(appBonus) : 0,
         benefitBonus: Math.floor(benefitBonus),
         gearName,
         gearBonus: Math.floor(gearBonus),
