@@ -23,7 +23,7 @@ export async function applyWounds(actor, ip, type) {
     }
 
     if (slotKey === null) {
-        ui.notifications.warn(`${actor.name} has no more wound slots available!`);
+        ui.notifications.warn(game.i18n.format("CONTINUUM.Notifications.NoMoreWoundSlots", {name: actor.name}));
         return false;
     }
 

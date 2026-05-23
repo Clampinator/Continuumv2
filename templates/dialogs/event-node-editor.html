@@ -27,24 +27,24 @@
 
     {{#if isLogMode}}
     <div class="editor-stats-row">
-        <div class="editor-stat-item"><label>Age</label><span>{{ageFormatted}}</span></div>
-        <div class="editor-stat-item"><label>Spent</label><span>{{ageDeltaFormatted}}</span></div>
-        <div class="editor-stat-item"><label>Objective</label><span>{{timeDeltaFormatted}}</span></div>
+        <div class="editor-stat-item"><label>{{localize "CONTINUUM.Common.Age"}}</label><span>{{ageFormatted}}</span></div>
+        <div class="editor-stat-item"><label>{{localize "CONTINUUM.Dialogs.Spent"}}</label><span>{{ageDeltaFormatted}}</span></div>
+        <div class="editor-stat-item"><label>{{localize "CONTINUUM.Dialogs.Objective"}}</label><span>{{timeDeltaFormatted}}</span></div>
     </div>
     {{else}}
     <div class="form-row">
         <div class="form-col">
-            <label>Subjective Age</label>
+            <label>{{localize "CONTINUUM.Dialogs.SubjectiveAge"}}</label>
             <input type="text" name="eventAge" value="{{ageFormatted}}">
         </div>
     </div>
     {{/if}}
 
     <div id="spanFields" {{#unless eventIsSpan}}style="display:none"{{/unless}}>
-        <div class="section-header-compact">Origin (From)</div>
+        <div class="section-header-compact">{{localize "CONTINUUM.Dialogs.OriginFrom"}}</div>
         <div class="form-row">
             <div class="form-col">
-                <label>Date</label>
+                <label>{{localize "CONTINUUM.Common.Date"}}</label>
                 <div class="date-picker-container">
                     <input type="text" class="date-text-input" name="eventSpanFromDate" value="{{eventSpanFromDate}}" placeholder="YYYY-MM-DD" />
                     <i class="fas fa-calendar-alt date-picker-icon"></i>
@@ -52,29 +52,29 @@
                 </div>
             </div>
             <div class="form-col">
-                <label>Time</label>
+                <label>{{localize "CONTINUUM.Common.Time"}}</label>
                 <input type="time" step="1" name="eventSpanFromTime" value="{{eventSpanFromTime}}"/>
             </div>
         </div>
         <div class="form-row">
             <div class="form-col">
-                <label>Origin Location</label>
+                <label>{{localize "CONTINUUM.Dialogs.OriginLocation"}}</label>
                 <div class="input-with-btn">
-                    <input type="text" name="eventSpanFromLocation" value="{{eventSpanFromLocation}}" placeholder="e.g. Origin point" />
+                    <input type="text" name="eventSpanFromLocation" value="{{eventSpanFromLocation}}" placeholder="{{localize 'CONTINUUM.Dialogs.OriginPlaceholder'}}" />
                     <input type="hidden" name="spanFromLat" value="{{spanFromLat}}" />
                     <input type="hidden" name="spanFromLng" value="{{spanFromLng}}" />
                     <input type="hidden" name="spanFromZoom" value="{{spanFromZoom}}" />
-                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
-                    <button type="button" class="geo-btn token-btn" data-date-name="eventSpanFromDate" data-time-name="eventSpanFromTime" title="Capture Token Location"><i class="fas fa-person"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="{{localize 'CONTINUUM.Common.Locate'}}"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="{{localize 'CONTINUUM.Common.GrabCenter'}}"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="geo-btn token-btn" data-date-name="eventSpanFromDate" data-time-name="eventSpanFromTime" title="{{localize 'CONTINUUM.Common.CaptureToken'}}"><i class="fas fa-person"></i></button>
                 </div>
             </div>
         </div>
 
-        <div class="section-header-compact" style="margin-top: 10px;">Destination (To)</div>
+        <div class="section-header-compact" style="margin-top: 10px;">{{localize "CONTINUUM.Dialogs.DestinationTo"}}</div>
         <div class="form-row">
             <div class="form-col">
-                <label>Date</label>
+                <label>{{localize "CONTINUUM.Common.Date"}}</label>
                 <div class="date-picker-container">
                     <input type="text" class="date-text-input" name="eventSpanToDate" value="{{eventSpanToDate}}" placeholder="YYYY-MM-DD" />
                     <i class="fas fa-calendar-alt date-picker-icon"></i>
@@ -82,21 +82,21 @@
                 </div>
             </div>
             <div class="form-col">
-                <label>Time</label>
+                <label>{{localize "CONTINUUM.Common.Time"}}</label>
                 <input type="time" step="1" name="eventSpanToTime" value="{{eventSpanToTime}}"/>
             </div>
         </div>
         <div class="form-row">
             <div class="form-col">
-                <label>Destination Location</label>
+                <label>{{localize "CONTINUUM.Dialogs.DestinationLocation"}}</label>
                 <div class="input-with-btn">
-                    <input type="text" name="eventSpanToLocation" value="{{eventSpanToLocation}}" placeholder="e.g. Destination point" />
+                    <input type="text" name="eventSpanToLocation" value="{{eventSpanToLocation}}" placeholder="{{localize 'CONTINUUM.Dialogs.DestinationPlaceholder'}}" />
                     <input type="hidden" name="spanToLat" value="{{spanToLat}}" />
                     <input type="hidden" name="spanToLng" value="{{spanToLng}}" />
                     <input type="hidden" name="spanToZoom" value="{{spanToZoom}}" />
-                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
-                    <button type="button" class="geo-btn token-btn" data-date-name="eventSpanToDate" data-time-name="eventSpanToTime" title="Capture Token Location"><i class="fas fa-person"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="{{localize 'CONTINUUM.Common.Locate'}}"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="{{localize 'CONTINUUM.Common.GrabCenter'}}"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="geo-btn token-btn" data-date-name="eventSpanToDate" data-time-name="eventSpanToTime" title="{{localize 'CONTINUUM.Common.CaptureToken'}}"><i class="fas fa-person"></i></button>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
     <div id="eventFields" {{#if eventIsSpan}}style="display:none"{{/if}}>
         <div class="form-row">
             <div class="form-col">
-                <label>Objective Date</label>
+                <label>{{localize "CONTINUUM.Dialogs.ObjectiveDate"}}</label>
             <div class="date-picker-container">
                 <input type="text" class="date-text-input" name="eventDate" value="{{eventDate}}" placeholder="YYYY-MM-DD" />
                 <i class="fas fa-calendar-alt date-picker-icon"></i>
@@ -113,22 +113,22 @@
             </div>
         </div>
         <div class="form-col">
-            <label>Objective Time</label>
+            <label>{{localize "CONTINUUM.Dialogs.ObjectiveTime"}}</label>
             <input type="time" step="1" name="eventTime" value="{{eventTime}}"/>
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-col">
-            <label>Location</label>
+            <label>{{localize "CONTINUUM.Common.Location"}}</label>
             <div class="input-with-btn">
-                <input type="text" name="eventLocation" value="{{eventLocation}}" placeholder="e.g. Paris" />
+                <input type="text" name="eventLocation" value="{{eventLocation}}" placeholder="{{localize 'CONTINUUM.Dialogs.LocationPlaceholder'}}" />
                     <input type="hidden" name="eventLat" value="{{lat}}" />
                     <input type="hidden" name="eventLng" value="{{lng}}" />
                     <input type="hidden" name="eventZoom" value="{{zoom}}" />
-                    <button type="button" class="geo-btn locate-btn" eventTitle="Locate"><i class="fas fa-map-marker-alt"></i></button>
-                    <button type="button" class="geo-btn grab-btn" eventTitle="Grab Center"><i class="fas fa-crosshairs"></i></button>
-                    <button type="button" class="geo-btn token-btn" data-date-name="eventDate" data-time-name="eventTime" title="Capture Token Location"><i class="fas fa-person"></i></button>
+                    <button type="button" class="geo-btn locate-btn" eventTitle="{{localize 'CONTINUUM.Common.Locate'}}"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="geo-btn grab-btn" eventTitle="{{localize 'CONTINUUM.Common.GrabCenter'}}"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="geo-btn token-btn" data-date-name="eventDate" data-time-name="eventTime" title="{{localize 'CONTINUUM.Common.CaptureToken'}}"><i class="fas fa-person"></i></button>
                 </div>
             </div>
         </div>
@@ -136,7 +136,7 @@
 
     <div class="form-row">
         <div class="form-col">
-            <label>Era</label>
+            <label>{{localize "CONTINUUM.Dialogs.Era"}}</label>
             <span class="era-name-display" style="font-size: 0.95em; color: #4da6ff; font-weight: bold;">{{eraName}}</span>
             <input type="hidden" name="eraId" value="{{eraId}}" />
         </div>
@@ -145,8 +145,8 @@
     {{#if experienceOptions}}
     <div class="form-row">
         <div class="form-col">
-            <label>Experience</label>
-            <p class="multi-hint">Which experience within this era?</p>
+            <label>{{localize "CONTINUUM.Dialogs.Experience"}}</label>
+            <p class="multi-hint">{{localize "CONTINUUM.Dialogs.WhichExperience"}}</p>
             <div class="context-list-scroll">
                 {{{experienceOptions}}}
             </div>
@@ -166,21 +166,21 @@
 
     <div class="form-row" id="newExpGroup" style="display:none;">
         <div class="form-col">
-            <label>New Experience Name</label>
+            <label>{{localize "CONTINUUM.Dialogs.NewExperienceName"}}</label>
             <input type="text" name="newExpName" value="{{defaultNewExpName}}"/>
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-col">
-            <label>eventTitle</label>
+            <label>{{localize "CONTINUUM.Dialogs.Title"}}</label>
             <input type="text" name="eventTitle" value="{{eventTitle}}" autofocus />
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-col">
-            <label>Description</label>
+            <label>{{localize "CONTINUUM.Dialogs.Description"}}</label>
             <textarea name="eventNotes" style="min-height: 80px;">{{eventNotes}}</textarea>
         </div>
     </div>
@@ -189,22 +189,22 @@
         {{#if canSeeSpan}}
         <div style="display: flex; align-items: center; gap: 5px;">
             <input type="checkbox" name="eventIsSpan" id="editorIsSpan" {{#if eventIsSpan}}checked{{/if}} {{#if spanDisabled}}disabled{{/if}} />
-            <label for="editorIsSpan" style="margin-bottom:0; font-weight: bold; {{#if spanDisabled}}color: #666; cursor: not-allowed;{{else}}color: #ff00ff; cursor: pointer;{{/if}}">Is Span</label>
+            <label for="editorIsSpan" style="margin-bottom:0; font-weight: bold; {{#if spanDisabled}}color: #666; cursor: not-allowed;{{else}}color: #ff00ff; cursor: pointer;{{/if}}">{{localize "CONTINUUM.Dialogs.IsSpan"}}</label>
             {{#if spanDisabled}}
-            <span style="font-size: 0.75em; color: #ff4444; margin-left: 4px;">Blocked</span>
+            <span style="font-size: 0.75em; color: #ff4444; margin-left: 4px;">{{localize "CONTINUUM.Dialogs.Blocked"}}</span>
             {{/if}}
         </div>
         {{/if}}
         {{#if eventIsSpan}}
         <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
             <input type="checkbox" name="isPulled" id="editorIsPulled" {{#if isPulled}}checked{{/if}} />
-            <label for="editorIsPulled" style="margin-bottom:0; font-weight: bold; color: #ffaaff; cursor: pointer;">Pulled</label>
-            <span style="font-size: 0.7em; color: #999; margin-left: 2px;">Another spanner carried you</span>
+            <label for="editorIsPulled" style="margin-bottom:0; font-weight: bold; color: #ffaaff; cursor: pointer;">{{localize "CONTINUUM.Dialogs.Pulled"}}</label>
+            <span style="font-size: 0.7em; color: #999; margin-left: 2px;">{{localize "CONTINUUM.Dialogs.PulledHint"}}</span>
         </div>
         {{/if}}
         <div style="display: flex; align-items: center; gap: 5px;">
             <input type="checkbox" name="eventIsRest" id="editorIsRest" {{#if eventIsRest}}checked{{/if}} {{#if eventIsSpan}}disabled{{/if}} />
-            <label for="editorIsRest" style="margin-bottom:0; font-weight: bold; color: #28a745; cursor: pointer;">24h Rest</label>
+            <label for="editorIsRest" style="margin-bottom:0; font-weight: bold; color: #28a745; cursor: pointer;">{{localize "CONTINUUM.Dialogs.HoursRest"}}</label>
         </div>
     </div>
 </form>

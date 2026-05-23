@@ -2,29 +2,29 @@
     <header class="sheet-header">
         <img class="profile-img" src="{{item.img}}" data-edit="img" eventTitle="{{item.name}}"/>
         <div class="header-fields">
-            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'CONTINUUM.Common.Name'}}"/></h1>
             <div class="grid grid-2col">
                 <div class="resource">
-                    <label class="resource-label">Quantity</label>
+                    <label class="resource-label">{{localize "CONTINUUM.ItemSheets.Quantity"}}</label>
                     <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"/>
                 </div>
                 <div class="resource">
-                    <label class="resource-label">Weight (kg)</label>
+                    <label class="resource-label">{{localize "CONTINUUM.ItemSheets.WeightKg"}}</label>
                     <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number"/>
                 </div>
             </div>
             <div class="grid grid-2col" style="margin-top: 5px; align-items: center;">
                 <div class="resource">
-                    <label class="resource-label">Gear Type</label>
+                    <label class="resource-label">{{localize "CONTINUUM.ItemSheets.GearType"}}</label>
                     <select name="system.gearType" class="gear-type-select">
-                        <option value="firearm" {{#if (eq system.gearType "firearm")}}selected{{/if}}>Firearm</option>
-                        <option value="technology" {{#if (eq system.gearType "technology")}}selected{{/if}}>Technology</option>
-                        <option value="tool" {{#if (eq system.gearType "tool")}}selected{{/if}}>Tool</option>
-                        <option value="vehicle" {{#if (eq system.gearType "vehicle")}}selected{{/if}}>Vehicle</option>
+                        <option value="firearm" {{#if (eq system.gearType "firearm")}}selected{{/if}}>{{localize "CONTINUUM.GearTypes.Firearm"}}</option>
+                        <option value="technology" {{#if (eq system.gearType "technology")}}selected{{/if}}>{{localize "CONTINUUM.GearTypes.Technology"}}</option>
+                        <option value="tool" {{#if (eq system.gearType "tool")}}selected{{/if}}>{{localize "CONTINUUM.GearTypes.Tool"}}</option>
+                        <option value="vehicle" {{#if (eq system.gearType "vehicle")}}selected{{/if}}>{{localize "CONTINUUM.GearTypes.Vehicle"}}</option>
                     </select>
                 </div>
                 <div class="resource">
-                    <label class="resource-label">Carried</label>
+                    <label class="resource-label">{{localize "CONTINUUM.Background.Carried"}}</label>
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                         <input type="checkbox" name="system.carried" {{#if system.carried}}checked{{/if}} />
                     </div>
@@ -34,33 +34,33 @@
     </header>
 
     <div class="gear-vehicle-class-section" style="display: {{#if (eq system.gearType "vehicle")}}block{{else}}none{{/if}}; margin-top: 10px;">
-        <label class="resource-label">Vehicle Class</label>
+        <label class="resource-label">{{localize "CONTINUUM.ItemSheets.VehicleClass"}}</label>
         <div class="gear-vehicle-class-radios">
             <label class="gear-vehicle-class-radio">
                 <input type="radio" name="system.vehicleClass" value="land" {{#if (eq system.vehicleClass "land")}}checked{{/if}} />
-                <span>Land</span>
+                <span>{{localize "CONTINUUM.ItemSheets.Land"}}</span>
             </label>
             <label class="gear-vehicle-class-radio">
                 <input type="radio" name="system.vehicleClass" value="air" {{#if (eq system.vehicleClass "air")}}checked{{/if}} />
-                <span>Air</span>
+                <span>{{localize "CONTINUUM.ItemSheets.Air"}}</span>
             </label>
             <label class="gear-vehicle-class-radio">
                 <input type="radio" name="system.vehicleClass" value="water" {{#if (eq system.vehicleClass "water")}}checked{{/if}} />
-                <span>Water</span>
+                <span>{{localize "CONTINUUM.ItemSheets.Water"}}</span>
             </label>
         </div>
     </div>
 
     <div class="gear-aspects-section" style="margin-top: 10px;">
         <div class="gear-aspects-header">
-            <h3>Aspects</h3>
-            <div class="gear-computed-bonus">Bonus: <strong>+{{computedBonus}}</strong></div>
+            <h3>{{localize "CONTINUUM.Background.Aspects"}}</h3>
+            <div class="gear-computed-bonus">{{localize "CONTINUUM.Background.Bonus"}}: <strong>+{{computedBonus}}</strong></div>
         </div>
 
         <div class="gear-firearm-model-section" style="display: {{#if (eq system.gearType "firearm")}}flex{{else}}none{{/if}}; align-items: center; gap: 10px; margin-bottom: 8px;">
-            <label class="resource-label" style="flex: 0 0 auto;">Firearm Model</label>
+            <label class="resource-label" style="flex: 0 0 auto;">{{localize "CONTINUUM.ItemSheets.FirearmModel"}}</label>
             <select name="system.firearmModel" class="firearm-model-select">
-                <option value="">-- None --</option>
+                <option value="">{{localize "CONTINUUM.ItemSheets.NoneModel"}}</option>
                 {{#each rangedWeaponModels as |model|}}
                 <option value="{{model}}" {{#if (eq ../system.firearmModel model)}}selected{{/if}}>{{model}}</option>
                 {{/each}}
@@ -69,10 +69,10 @@
 
         {{#if selectedFirearmStats}}
         <div class="gear-firearm-stats" style="display: {{#if (eq system.gearType "firearm")}}grid{{else}}none{{/if}}; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; font-size: 0.8em; color: #aaa;">
-            <div class="gear-stat-cell"><label>Ammo</label><span>{{selectedFirearmStats.ammo}}</span></div>
-            <div class="gear-stat-cell"><label>RoF</label><span>{{selectedFirearmStats.rof}}</span></div>
-            <div class="gear-stat-cell"><label>Conc.</label><span>{{selectedFirearmStats.conceal}}</span></div>
-            <div class="gear-stat-cell"><label>Wt.</label><span>{{selectedFirearmStats.weight}}</span></div>
+            <div class="gear-stat-cell"><label>{{localize "CONTINUUM.ItemSheets.Ammo"}}</label><span>{{selectedFirearmStats.ammo}}</span></div>
+            <div class="gear-stat-cell"><label>{{localize "CONTINUUM.ItemSheets.RoF"}}</label><span>{{selectedFirearmStats.rof}}</span></div>
+            <div class="gear-stat-cell"><label>{{localize "CONTINUUM.ItemSheets.Conc"}}</label><span>{{selectedFirearmStats.conceal}}</span></div>
+            <div class="gear-stat-cell"><label>{{localize "CONTINUUM.ItemSheets.Wt"}}</label><span>{{selectedFirearmStats.weight}}</span></div>
         </div>
         {{/if}}
 
@@ -106,7 +106,7 @@
 
     <div class="sheet-body">
         <div class="description">
-            <h3>Description</h3>
+            <h3>{{localize "CONTINUUM.Common.Description"}}</h3>
             {{editor system.description target="system.description" button=true owner=owner editable=editable}}
         </div>
     </div>

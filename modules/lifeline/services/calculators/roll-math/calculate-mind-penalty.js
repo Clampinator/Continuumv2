@@ -1,6 +1,6 @@
 
 /*
-Calculates the penalty to Analyze (Mind) rolls from running metability applications.
+Calculates the penalty to Analyze rolls from running metability applications.
 
 Free capacity: running apps whose total levels fit within (Analyze - 1) run for free.
 When total running levels >= Analyze, each app that overflows the free capacity costs -1.
@@ -15,7 +15,8 @@ export function calculateMindPenalty(actor) {
     if (!apps.length) return 0;
 
     const analyze = Number(
-        foundry.utils.getProperty(actor.system, 'attributes.mind.value')
+        foundry.utils.getProperty(actor.system, 'attributes.analyze.value')
+            || foundry.utils.getProperty(actor.system, 'attributes.mind.value')
     ) || 0;
     const freeCapacity = Math.max(0, analyze - 1);
 

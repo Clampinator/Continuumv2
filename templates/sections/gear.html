@@ -6,24 +6,24 @@
   <input type="checkbox" id="toggle-gear-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-gear-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-gear-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Gear</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.GearStandalone.Title"}}</h2>
     </label>
     <div class="gear-controls">
         <div class="gear-summary">
-            <span>Carried Weight: <strong>{{totalGearWeight}}</strong> / Limit: <strong>{{spanWeightLimit}}</strong></span>
+            <span>{{localize "CONTINUUM.GearStandalone.CarriedWeight"}} <strong>{{totalGearWeight}}</strong> / {{localize "CONTINUUM.GearStandalone.Limit"}}: <strong>{{spanWeightLimit}}</strong></span>
         </div>
-        <button type="button" class="gear-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="gear-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
     </div>
   </div>
 
   <div class="gear-list">
     {{#if gearItems}}
     <div class="gear-item-header">
-        <div class="item-name">Item</div>
-        <div class="item-bonus">Bonus</div>
-        <div class="item-qty">Qty</div>
-        <div class="item-weight">Wt</div>
-        <div class="item-carried">Carried</div>
+        <div class="item-name">{{localize "CONTINUUM.GearStandalone.Item"}}</div>
+        <div class="item-bonus">{{localize "CONTINUUM.GearStandalone.Bonus"}}</div>
+        <div class="item-qty">{{localize "CONTINUUM.GearStandalone.Quantity"}}</div>
+        <div class="item-weight">{{localize "CONTINUUM.GearStandalone.Weight"}}</div>
+        <div class="item-carried">{{localize "CONTINUUM.GearStandalone.Carried"}}</div>
         <div class="item-controls"></div>
     </div>
     {{/if}}
@@ -45,15 +45,15 @@
       </div>
       <div class="item-controls">
         {{#if (ne item.system.attributeType "none")}}
-        <button type="button" class="gear-use-btn" data-item-id="{{item.id}}" eventTitle="Use {{item.name}}">Use</button>
+        <button type="button" class="gear-use-btn" data-item-id="{{item.id}}" eventTitle="{{localize 'CONTINUUM.GearStandalone.Use'}} {{item.name}}">{{localize "CONTINUUM.GearStandalone.Use"}}</button>
         {{/if}}
-        <a class="item-edit" eventTitle="Edit Item"><i class="fas fa-edit"></i></a>
-        <a class="item-delete" eventTitle="Delete Item"><i class="fas fa-trash"></i></a>
+        <a class="item-edit" eventTitle="{{localize 'CONTINUUM.GearStandalone.EditItem'}}"><i class="fas fa-edit"></i></a>
+        <a class="item-delete" eventTitle="{{localize 'CONTINUUM.GearStandalone.DeleteItem'}}"><i class="fas fa-trash"></i></a>
       </div>
     </div>
     {{/each}}
     {{#unless gearItems}}
-    <div class="empty-placeholder">Drag items from the sidebar to add gear.</div>
+    <div class="empty-placeholder">{{localize "CONTINUUM.GearStandalone.DragItemsPlaceholder"}}</div>
     {{/unless}}
   </div>
 </div>

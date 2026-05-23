@@ -10,14 +10,14 @@ export function registerSceneControl() {
     controls['gmtools'] = {
       name: 'gmtools',
       order: 99,
-      eventTitle: 'GM Tools',
+      eventTitle: game.i18n.localize("CONTINUUM.SceneControls.GMTools"),
       icon: 'fa-solid fa-gem',
       visible: game.user.isGM,
       tools: {
         'npc-generator': {
           name: 'npc-generator',
           order: 1,
-          eventTitle: 'NPC Generator',
+          eventTitle: game.i18n.localize("CONTINUUM.SceneControls.NpcGenerator"),
           icon: 'fa-solid fa-user-plus',
           visible: game.user.isGM,
           button: true,

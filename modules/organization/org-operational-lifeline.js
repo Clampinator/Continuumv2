@@ -550,20 +550,20 @@ function showOrgAgeDialog(sheet, graphData, startAgeSecs, endAgeSecs) {
     const endDate   = toISO(inceptionTs + endAgeSecs   * 1000);
 
     new Dialog({
-        eventTitle: 'Create Phase Period',
+        eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.CreatePhasePeriod"),
         content: `
             <form autocomplete="off" style="display:grid; grid-template-columns:100px 1fr; align-items:center; gap:8px 12px; padding:4px 0;">
-                <label style="text-align:right;">Name</label>
-                <input type="text" name="name" value="New Period" autofocus/>
-                <label style="text-align:right;">Start Date</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.Name")}</label>
+                <input type="text" name="name" value="${game.i18n.localize('CONTINUUM.Dialogs2.NewPeriod')}" autofocus/>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.StartDate")}</label>
                 <input type="date" name="dateFrom" value="${startDate}"/>
-                <label style="text-align:right;">End Date</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.EndDate")}</label>
                 <input type="date" name="dateTo" value="${endDate}"/>
             </form>
         `,
         buttons: {
             create: {
-                label: 'Create',
+                label: game.i18n.localize("CONTINUUM.Dialogs2.Create"),
                 icon: '<i class="fas fa-check"></i>',
                 callback: async (html) => {
                     const fd = new foundry.applications.ux.FormDataExtended(html.find('form')[0]).object;
@@ -583,7 +583,7 @@ function showOrgAgeDialog(sheet, graphData, startAgeSecs, endAgeSecs) {
                     });
                 }
             },
-            cancel: { label: 'Cancel' }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: 'create',
     }, { classes: ['continuum-v2', 'dialog'], width: 380 }).render(true);
@@ -631,24 +631,24 @@ function showOrgOperationCreateDialog(sheet, eraId, startAgeSecs, endAgeSecs, in
     const endDate   = toISO(inceptionTs + endAgeSecs   * 1000);
 
     new Dialog({
-        eventTitle: 'Create Operation',
+        eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.CreateOperation"),
         content: `
             <form autocomplete="off" style="display:grid; grid-template-columns:100px 1fr; align-items:center; gap:8px 12px; padding:4px 0;">
-                <label style="text-align:right;">Name</label>
-                <input type="text" name="name" value="New Operation" autofocus/>
-                <label style="text-align:right;">Start Date</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.Name")}</label>
+                <input type="text" name="name" value="${game.i18n.localize('CONTINUUM.Dialogs2.NewOperation')}" autofocus/>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.StartDate")}</label>
                 <input type="date" name="dateFrom" value="${startDate}"/>
-                <label style="text-align:right;">End Date</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.EndDate")}</label>
                 <input type="date" name="dateTo" value="${endDate}"/>
-                <label style="text-align:right;">Ongoing</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.Ongoing")}</label>
                 <input type="checkbox" name="isOngoing"/>
-                <label style="text-align:right; align-self:start; padding-top:4px;">Description</label>
+                <label style="text-align:right; align-self:start; padding-top:4px;">${game.i18n.localize("CONTINUUM.Dialogs2.Description")}</label>
                 <textarea name="description" rows="3" style="resize:vertical;"></textarea>
             </form>
         `,
         buttons: {
             create: {
-                label: 'Create', icon: '<i class="fas fa-check"></i>',
+                label: game.i18n.localize("CONTINUUM.Dialogs2.Create"), icon: '<i class="fas fa-check"></i>',
                 callback: async (html) => {
                     const fd = new foundry.applications.ux.FormDataExtended(html.find('form')[0]).object;
                     const newId = foundry.utils.randomID();
@@ -664,7 +664,7 @@ function showOrgOperationCreateDialog(sheet, eraId, startAgeSecs, endAgeSecs, in
                     });
                 }
             },
-            cancel: { label: 'Cancel' }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: 'create',
     }, { classes: ['continuum-v2', 'dialog'], width: 380 }).render(true);
@@ -672,24 +672,24 @@ function showOrgOperationCreateDialog(sheet, eraId, startAgeSecs, endAgeSecs, in
 
 function openOrgOperationEditDialog(sheet, eraId, expId, exp) {
     new Dialog({
-        eventTitle: 'Edit Operation',
+        eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.EditOperation"),
         content: `
             <form autocomplete="off" style="display:grid; grid-template-columns:100px 1fr; align-items:center; gap:8px 12px; padding:4px 0;">
-                <label style="text-align:right;">Name</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.Name")}</label>
                 <input type="text" name="name" value="${exp.name || ''}" autofocus/>
-                <label style="text-align:right;">Start Date</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.StartDate")}</label>
                 <input type="date" name="dateFrom" value="${exp.dateFrom || ''}"/>
-                <label style="text-align:right;">End Date</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.EndDate")}</label>
                 <input type="date" name="dateTo" value="${exp.dateTo || ''}"/>
-                <label style="text-align:right;">Ongoing</label>
+                <label style="text-align:right;">${game.i18n.localize("CONTINUUM.Dialogs2.Ongoing")}</label>
                 <input type="checkbox" name="isOngoing" ${exp.isOngoing ? 'checked' : ''}/>
-                <label style="text-align:right; align-self:start; padding-top:4px;">Description</label>
+                <label style="text-align:right; align-self:start; padding-top:4px;">${game.i18n.localize("CONTINUUM.Dialogs2.Description")}</label>
                 <textarea name="description" rows="3" style="resize:vertical;">${exp.description || ''}</textarea>
             </form>
         `,
         buttons: {
             save: {
-                label: 'Save', icon: '<i class="fas fa-save"></i>',
+                label: game.i18n.localize("CONTINUUM.Dialogs2.Save"), icon: '<i class="fas fa-save"></i>',
                 callback: async (html) => {
                     const fd = new foundry.applications.ux.FormDataExtended(html.find('form')[0]).object;
                     await sheet.actor.update({
@@ -702,12 +702,12 @@ function openOrgOperationEditDialog(sheet, eraId, expId, exp) {
                 }
             },
             delete: {
-                label: 'Delete', icon: '<i class="fas fa-trash"></i>',
+                label: game.i18n.localize("CONTINUUM.Common.Delete"), icon: '<i class="fas fa-trash"></i>',
                 callback: async () => {
                     await sheet.actor.update({ [`system.eras.${eraId}.experiences.-=${expId}`]: null });
                 }
             },
-            cancel: { label: 'Cancel' }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: 'save',
     }, { classes: ['continuum-v2', 'dialog'], width: 380 }).render(true);
@@ -1060,7 +1060,7 @@ function attachListeners(svg, sheet, viewState, graphData, context, mapActorKey)
                 midAge >= a.startAgeSeconds && midAge <= a.endAgeSeconds
             );
             if (!matchingPhase) {
-                ui.notifications.warn('Drag within a Phase Period to create an Operation.');
+                ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.DragWithinPhase"));
                 return;
             }
             showOrgOperationCreateDialog(sheet, matchingPhase.id, minAge, maxAge, graphData.dobTimestamp);
@@ -1394,7 +1394,7 @@ function attachMandateListeners(html, svg, sheet, viewState, graphData) {
                             [`system.phases.${droppedNode.phaseId}.operations.${droppedNode.opId}.engagements.${droppedNode.engId}.linkedMandateIds`]:
                                 [...existing, mandateId]
                         });
-                        ui.notifications.info('Mandate linked to Engagement.');
+                        ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.MandateLinked", {nodeTitle: "Engagement"}));
                     }
                 }
             }

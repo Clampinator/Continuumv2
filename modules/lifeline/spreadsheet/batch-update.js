@@ -8,7 +8,7 @@ import { submitSpreadsheetRow } from './submit-spreadsheet-row.js';
 export async function commitBatchRows(actor, rows) {
     if (!rows || rows.length === 0) return;
     
-    ui.notifications.info(`Starting batch import of ${rows.length} events...`);
+    ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.StartingBatchImport", {count: rows.length}));
     
     let count = 0;
     for (const row of rows) {
@@ -22,5 +22,5 @@ export async function commitBatchRows(actor, rows) {
         }
     }
     
-    ui.notifications.info(`Successfully processed ${count} updates.`);
+    ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.SuccessfullyProcessed", {count}));
 }

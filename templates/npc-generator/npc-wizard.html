@@ -1,6 +1,6 @@
 <div class="npc-wizard">
   <header class="npc-wizard-header">
-    <h2>NPC Generator</h2>
+    <h2>{{localize "CONTINUUM.NpcGenerator.Title"}}</h2>
     <div class="step-indicators">
       {{#each steps}}
       <div class="step-indicator {{#if active}}active{{else if completed}}completed{{/if}}" data-step="{{num}}">
@@ -28,15 +28,15 @@
   </div>
 
   <footer class="npc-wizard-footer">
-    <button type="button" class="npc-wizard-btn-cancel">Cancel</button>
+    <button type="button" class="npc-wizard-btn-cancel">{{localize "CONTINUUM.Common.Cancel"}}</button>
     <div class="nav-buttons">
       {{#if (gt step 1)}}
       {{#if (lt step 6)}}
-      <button type="button" class="npc-wizard-btn-back">Back</button>
+       <button type="button" class="npc-wizard-btn-back">{{localize "CONTINUUM.NpcGenerator.Back"}}</button>
       {{/if}}
       {{/if}}
       {{#if (lt step 5)}}
-      <button type="button" class="npc-wizard-btn-next">Next</button>
+       <button type="button" class="npc-wizard-btn-next">{{localize "CONTINUUM.NpcGenerator.Next"}}</button>
       {{/if}}
     </div>
   </footer>

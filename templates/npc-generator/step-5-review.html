@@ -1,48 +1,48 @@
 <div class="step-content step-review">
-  <h3>Review & Generate</h3>
+  <h3>{{localize "CONTINUUM.NpcGenerator.ReviewGenerate"}}</h3>
 
   <div class="review-summary">
     <div class="summary-card">
-      <h4>Identity</h4>
-      <p><strong>Name:</strong> {{#if name}}{{name}}{{else}}<em>AI will generate</em>{{/if}}</p>
-      <p><strong>Region:</strong> {{#if region}}{{region}}{{else}}<em>Not selected</em>{{/if}}</p>
-      <p><strong>Culture:</strong> {{#if culture}}{{culture}}{{else}}<em>Not selected</em>{{/if}}</p>
-      <p><strong>Pronouns:</strong> {{#if pronouns}}{{pronouns}}{{else}}<em>Not specified</em>{{/if}}</p>
+      <h4>{{localize "CONTINUUM.NpcGenerator.IdentityCard"}}</h4>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.NameLabel"}}</strong> {{#if name}}{{name}}{{else}}<em>{{localize "CONTINUUM.NpcGenerator.AiWillGenerate"}}</em>{{/if}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.RegionLabel"}}</strong> {{#if region}}{{region}}{{else}}<em>{{localize "CONTINUUM.NpcGenerator.NotSelected"}}</em>{{/if}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.CultureLabel"}}</strong> {{#if culture}}{{culture}}{{else}}<em>{{localize "CONTINUUM.NpcGenerator.NotSelected"}}</em>{{/if}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.PronounsLabel"}}</strong> {{#if pronouns}}{{pronouns}}{{else}}<em>{{localize "CONTINUUM.NpcGenerator.NotSpecified"}}</em>{{/if}}</p>
     </div>
 
     <div class="summary-card">
-      <h4>Time & Faction</h4>
-      <p><strong>Era:</strong> {{era}}</p>
-      <p><strong>Type:</strong>
-        {{#if (eq npcType 'Leveler')}}Leveler (ordinary person)
-        {{else if (eq npcType 'continuum-v2')}}Continuum Agent
-        {{else if (eq npcType 'Narcissist')}}Narcissist
-        {{else if (eq npcType 'Mentor')}}Mentor (Operant Spanner)
+      <h4>{{localize "CONTINUUM.NpcGenerator.TimeFactionCard"}}</h4>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.EraLabel"}}</strong> {{era}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.TypeLabel"}}</strong>
+        {{#if (eq npcType 'Leveler')}}{{localize "CONTINUUM.NpcGenerator.Leveler"}}
+        {{else if (eq npcType 'continuum-v2')}}{{localize "CONTINUUM.NpcGenerator.ContinuumAgent"}}
+        {{else if (eq npcType 'Narcissist')}}{{localize "CONTINUUM.NpcGenerator.Narcissist"}}
+        {{else if (eq npcType 'Mentor')}}{{localize "CONTINUUM.NpcGenerator.Mentor"}}
         {{else}}{{npcType}}{{/if}}
       </p>
       {{#if (eq npcType 'Leveler')}}
-      <p class="leveler-note"><em>Levelers have no knowledge of the Continuum.</em></p>
+      <p class="leveler-note"><em>{{localize "CONTINUUM.NpcGenerator.LevelerNote"}}</em></p>
       {{else}}
-      <p><strong>Fraternity:</strong> {{fraternity}}</p>
-      <p><strong>Span Rank:</strong> {{spanRank}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.FraternityLabel"}}</strong> {{fraternity}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.SpanRankLabel"}}</strong> {{spanRank}}</p>
       {{/if}}
     </div>
 
     <div class="summary-card">
-      <h4>Capabilities</h4>
+      <h4>{{localize "CONTINUUM.NpcGenerator.CapabilitiesCard"}}</h4>
       <p><strong>Metabilities:</strong> {{#if isOperant}}Coercion: {{metaLabel metabilities.coercion}}, Creativity: {{metaLabel metabilities.creativity}}, Farsense: {{metaLabel metabilities.farsense}}, PK: {{metaLabel metabilities.pk}}, Redaction: {{metaLabel metabilities.redaction}}{{else}}Latent{{/if}}</p>
-      <p><strong>Attributes:</strong> Body {{customAttributes.body}}, Mind {{customAttributes.mind}}, EQ {{customAttributes.eq}}, Quick {{customAttributes.quick}}</p>
+      <p><strong>Attributes:</strong> Force {{customAttributes.force}}, Analyze {{customAttributes.analyze}}, Relate {{customAttributes.relate}}, React {{customAttributes.react}}</p>
     </div>
 
     <div class="summary-card">
-      <h4>Concept</h4>
-      <p><strong>Role:</strong> {{role}}</p>
-      <p><strong>Concept:</strong> {{#if concept}}{{concept}}{{else}}<em>Not specified</em>{{/if}}</p>
+      <h4>{{localize "CONTINUUM.NpcGenerator.ConceptCard"}}</h4>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.RoleLabel"}}</strong> {{role}}</p>
+      <p><strong>{{localize "CONTINUUM.NpcGenerator.ConceptLabel"}}</strong> {{#if concept}}{{concept}}{{else}}<em>{{localize "CONTINUUM.NpcGenerator.NotSpecified"}}</em>{{/if}}</p>
     </div>
   </div>
 
   <div class="generate-section">
-    <button type="button" class="npc-wizard-btn-generate">Generate NPC</button>
+    <button type="button" class="npc-wizard-btn-generate">{{localize "CONTINUUM.NpcGenerator.GenerateNpc"}}</button>
     <div class="generation-log"></div>
   </div>
 
@@ -51,30 +51,30 @@
       <div class="portrait-column">
         <img class="portrait-preview" src="" alt="NPC Portrait" style="display:none;">
         <div class="portrait-section">
-          <button type="button" class="npc-wizard-btn-portrait" disabled>Generate Portrait</button>
-          <span class="portrait-hint">Requires Stability AI API key in settings</span>
+           <button type="button" class="npc-wizard-btn-portrait" disabled>{{localize "CONTINUUM.NpcGenerator.GeneratePortrait"}}</button>
+           <span class="portrait-hint">{{localize "CONTINUUM.NpcGenerator.RequiresStabilityKey"}}</span>
         </div>
       </div>
       <div class="text-column">
         <div class="bio-preview">
-          <h4>Biography</h4>
+          <h4>{{localize "CONTINUUM.NpcGenerator.Biography"}}</h4>
           <div class="bio-text"></div>
         </div>
         <div class="secret-preview">
-          <h4>GM Secret</h4>
+          <h4>{{localize "CONTINUUM.NpcGenerator.GmSecret"}}</h4>
           <div class="secret-text"></div>
         </div>
       </div>
     </div>
     <div class="name-suggestions" style="display:none;">
-      <h4>Alternative Names</h4>
+      <h4>{{localize "CONTINUUM.NpcGenerator.AlternativeNames"}}</h4>
       <div class="name-suggestions-list"></div>
     </div>
     <div class="prompt-preview">
-      <h4>Image Prompt</h4>
+      <h4>{{localize "CONTINUUM.NpcGenerator.ImagePrompt"}}</h4>
       <pre class="image-prompt-text"></pre>
-      <button type="button" class="copy-prompt-btn">Copy</button>
+      <button type="button" class="copy-prompt-btn">{{localize "CONTINUUM.NpcGenerator.Copy"}}</button>
     </div>
-    <button type="button" class="npc-wizard-btn-create">Create Actor</button>
+    <button type="button" class="npc-wizard-btn-create">{{localize "CONTINUUM.NpcGenerator.CreateActor"}}</button>
   </div>
 </div>

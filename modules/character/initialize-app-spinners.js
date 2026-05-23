@@ -97,7 +97,7 @@ function _initIngredients(html, sheet) {
 
             // Cap 1+2: kernel enforces per-ingredient rank cap and volume cap
             const metaRank = Number(sheet.actor.system.metabilities?.[ingredient]?.value) || 0;
-            const analyze = Number(sheet.actor.system?.attributes?.mind?.value) || 0;
+            const analyze = Number(sheet.actor.system?.attributes?.analyze?.value || sheet.actor.system?.attributes?.mind?.value) || 0;
             const maxVol = getApplicationVolumeLimit(analyze);
             const otherTotal = appItem.find('.app-ingredient-input').toArray()
                 .reduce((sum, el) => el === hidden[0] ? sum : sum + (Number($(el).val()) || 0), 0);

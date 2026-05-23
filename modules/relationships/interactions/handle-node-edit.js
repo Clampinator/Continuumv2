@@ -101,7 +101,7 @@ export function handleNodeEdit(nodeSel, sheet) {
                 delete: {
                     label: "Delete", icon: '<i class="fas fa-trash"></i>',
                     callback: async () => {
-                        if (isAuto) return ui.notifications.warn("Cannot delete automated entries.");
+                        if (isAuto) return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CannotDeleteAutomatedEntries"));
                         await sheet.actor.update({ [`system.network.-=${d.id}`]: null });
                     }
                 },

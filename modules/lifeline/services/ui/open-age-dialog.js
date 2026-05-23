@@ -17,16 +17,16 @@ export async function openEventDialog(sheet, params) {
     const templateData = getTemplateData(actor, { ...params, viewState, graphData });
 
     const dialogTitle = {
-        'edit': templateData.eventIsSpan ? "Edit Span" : "Edit Event",
-        'insert': "Insert Event into History",
-        'log': templateData.eventIsSpan ? "Log Span Result" : "Log Normal Leveling"
+        'edit': templateData.eventIsSpan ? game.i18n.localize("CONTINUUM.EventDialog.EditSpan") : game.i18n.localize("CONTINUUM.EventDialog.EditEvent"),
+        'insert': game.i18n.localize("CONTINUUM.EventDialog.InsertEvent"),
+        'log': templateData.eventIsSpan ? game.i18n.localize("CONTINUUM.EventDialog.LogSpanResult") : game.i18n.localize("CONTINUUM.EventDialog.LogLeveling")
     }[params.mode];
 
     const content = await foundry.applications.handlebars.renderTemplate("systems/continuum-v2/templates/dialogs/event-node-editor.html", templateData);
 
     const buttons = {
         save: {
-            label: params.mode === 'edit' ? "Save Changes" : "Commit to Lifeline",
+            label: params.mode === 'edit' ? game.i18n.localize("CONTINUUM.EventDialog.SaveChanges") : game.i18n.localize("CONTINUUM.EventDialog.CommitToLifeline"),
             icon: '<i class="fas fa-save"></i>',
             callback: async (html) => {
                 confirmed = true;
@@ -43,7 +43,7 @@ export async function openEventDialog(sheet, params) {
 
     if (params.mode === 'edit' && params.existingData) {
         buttons.delete = {
-            label: "Delete",
+            label: game.i18n.localize("CONTINUUM.Common.Delete"),
             icon: '<i class="fas fa-trash"></i>',
             callback: async () => {
                 confirmed = true;
@@ -66,7 +66,7 @@ export async function openEventDialog(sheet, params) {
     }
 
     buttons.cancel = { 
-        label: "Cancel",
+        label: game.i18n.localize("CONTINUUM.Common.Cancel"),
         callback: () => {
             confirmed = false;
         }
@@ -96,7 +96,7 @@ export async function openEventDialog(sheet, params) {
                         if (closeCheckbox.length && !closeCheckbox.is(':checked')) {
                             // Ensure we trigger the native checkbox behavior
                             closeCheckbox.prop('checked', true).trigger('change');
-                            ui.notifications.info("Handover Suggested: Closing current experience.");
+                            ui.notifications.info(game.i18n.localize("CONTINUUM.EventDialog.HandoverSuggested"));
                         }
                     }
                 }

@@ -16,8 +16,7 @@
     "continuum-drag-drop.js",
     "modules/network/handle-actor-drop.js",
     "modules/spacetime-bridge/index.js",
-    "modules/npc-generator/index.js",
-    "modules/vehicle-combat/bridge/main.js"
+    "modules/npc-generator/index.js"
   ],
   "styles": [
     "styles/variables.css",
@@ -52,8 +51,7 @@
     "styles/org-balance-sheet.css",
     "styles/location.css",
     "styles/chat-roll.css",
-    "styles/npc-wizard.css",
-    "modules/vehicle-combat/styles/vehicle-combat.css"
+    "styles/npc-wizard.css"
   ],
   "actorTypes": [
     "character",
@@ -69,8 +67,14 @@
     "minimum": "13",
     "verified": "13"
   },
-  "templateVersion": 3,
+  "templateVersion": 4,
   "packs": [],
-  "languages": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
   "license": "MIT"
 }

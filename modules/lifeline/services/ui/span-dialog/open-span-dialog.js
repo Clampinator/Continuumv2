@@ -98,7 +98,7 @@ export async function openSpanDialog(sheet, params) {
                         const closeCheckbox = contextList.find(`#ce-${currentExpId}`);
                         if (closeCheckbox.length && !closeCheckbox.is(':checked')) {
                             closeCheckbox.prop('checked', true).trigger('change');
-                            ui.notifications.info("Handover Suggested: Closing current experience.");
+                            ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.HandoverSuggested"));
                         }
                     }
                 }

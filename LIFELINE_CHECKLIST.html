@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifeline System - Agent Prompt Checklist</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --accent: #00e5ff;
+  --accent2: #ff00ff;
+  --gold: #ffd700;
+  --green: #3fb950;
+  --red: #f85149;
+  --orange: #d29922;
+  --code-bg: #0d1117;
+  --code-border: #238636;
+  --phase1: #00e5ff;
+  --phase2: #3fb950;
+  --phase3: #ffd700;
+  --phase4: #ff00ff;
+  --phase5: #f85149;
+  --phase6: #d29922;
+  --phase7: #a371f7;
+  --phase8: #388bfd;
+  --phase9: #f778ba;
+  --phase10: #56d364;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  padding: 0 0 80px 0;
+}
+.header {
+  background: linear-gradient(135deg, #0d1117 0%, #1a0a3a 30%, #0d1117 60%, #001a1a 100%);
+  border-bottom: 2px solid var(--accent2);
+  padding: 40px 20px 30px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 2.2em; color: var(--accent2); letter-spacing: 1px; margin-bottom: 6px; }
+.header .subtitle { color: var(--text-dim); font-size: 1.1em; }
+.progress-bar-container {
+  margin-top: 16px; background: var(--border);
+  border-radius: 10px; height: 22px; overflow: hidden;
+  max-width: 600px; margin-left: auto; margin-right: auto;
+}
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--accent2), var(--gold));
+  border-radius: 10px; transition: width 0.4s ease; width: 0%;
+}
+.progress-text { font-size: 0.85em; color: var(--text-dim); margin-top: 6px; }
+.legend {
+  max-width: 920px; margin: 0 auto 16px; padding: 12px 20px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center; font-size: 0.88em;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-badge {
+  padding: 2px 8px; border-radius: 10px; font-size: 0.72em;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #fff;
+}
+.deps-hint {
+  max-width: 920px; margin: 0 auto 16px; padding: 14px 20px;
+  background: rgba(255,0,255,0.06); border: 1px solid var(--accent2);
+  border-radius: 8px; font-size: 0.92em; color: var(--text-dim);
+}
+.deps-hint strong { color: var(--accent2); }
+.deps-hint code { color: var(--accent); font-family: 'Cascadia Code', 'Fira Code', monospace; }
+nav.toc {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; max-width: 920px; margin: 16px auto; padding: 20px 28px;
+}
+nav.toc h2 { color: var(--gold); font-size: 1em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+nav.toc ol { columns: 2; column-gap: 30px; }
+nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+nav.toc a { color: var(--accent2); text-decoration: none; font-size: 0.92em; }
+nav.toc a:hover { text-decoration: underline; }
+
+.phase {
+  max-width: 920px; margin: 24px auto; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.phase-header {
+  background: linear-gradient(90deg, var(--surface2), var(--surface));
+  padding: 18px 24px; border-bottom: 1px solid var(--border);
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
+}
+.phase-header:hover { background: var(--surface2); }
+.phase-header h2 { font-size: 1.25em; color: var(--gold); margin: 0; }
+.phase-header .tag {
+  font-size: 0.75em; padding: 3px 10px; border-radius: 12px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.phase-body { padding: 20px 24px; }
+.phase-body.collapsed { display: none; }
+
+.step {
+  margin: 16px 0; padding: 16px 20px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px;
+  border-left: 3px solid var(--accent2); transition: border-color 0.2s;
+}
+.step.checked { border-left-color: var(--green); opacity: 0.7; }
+.step.checked .step-title { text-decoration: line-through; color: var(--text-dim); }
+.step-header { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.step-header input[type="checkbox"] {
+  width: 18px; height: 18px; margin-top: 3px; accent-color: var(--green); flex-shrink: 0; cursor: pointer;
+}
+.step-title { font-size: 1.05em; font-weight: 600; color: var(--text); cursor: pointer; flex: 1; }
+.step-dep {
+  font-size: 0.7em; padding: 2px 8px; border-radius: 10px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
+  background: rgba(255,0,255,0.15); color: var(--accent2); border: 1px solid rgba(255,0,255,0.3);
+}
+.step-body { margin: 10px 0 0 28px; display: block; }
+.step-body p { margin: 8px 0; color: var(--text-dim); font-size: 0.93em; }
+.step-body ul, .step-body ol { margin: 6px 0 6px 20px; color: var(--text-dim); font-size: 0.93em; }
+.step-body li { margin: 3px 0; }
+
+.prompt-box {
+  background: rgba(255,0,255,0.06); border: 1px solid var(--accent2);
+  border-radius: 8px; padding: 18px; margin: 16px 0; position: relative;
+}
+.prompt-box h3 { color: var(--accent2); margin-bottom: 10px; font-size: 1.05em; }
+.prompt-text { color: var(--text-dim); font-size: 0.93em; }
+.prompt-text p { margin: 8px 0; }
+.prompt-text ul, .prompt-text ol { margin: 6px 0 6px 20px; }
+.prompt-text li { margin: 3px 0; }
+
+pre {
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: 6px; padding: 14px 18px; margin: 10px 0;
+  overflow-x: auto; font-size: 0.88em; line-height: 1.5; position: relative;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn {
+  position: absolute; top: 8px; right: 8px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 4px; color: var(--text-dim);
+  padding: 4px 10px; font-size: 0.75em; cursor: pointer;
+  transition: opacity 0.2s, background 0.15s, color 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1; z-index: 2;
+}
+.copy-btn:hover { background: var(--accent2); color: var(--bg); }
+.copy-btn:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+.prompt-copy-btn {
+  display: inline-block; background: var(--accent2); border: 1px solid var(--accent2);
+  border-radius: 6px; color: var(--bg); padding: 8px 16px; font-size: 0.88em;
+  cursor: pointer; font-weight: 600; margin-top: 12px;
+  transition: background 0.15s, color 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.prompt-copy-btn:hover { background: var(--gold); color: var(--bg); }
+.prompt-copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+code {
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace; color: var(--accent);
+}
+pre code { color: var(--text); }
+
+.warning {
+  background: rgba(248,81,73,0.1); border: 1px solid var(--red);
+  border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 0.93em;
+}
+.warning::before { content: "\26A0 "; color: var(--red); font-weight: bold; }
+.note {
+  background: rgba(0,229,255,0.06); border: 1px solid var(--accent);
+  border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 0.93em;
+}
+.note::before { content: "\2139 "; color: var(--accent); font-weight: bold; }
+
+.summary-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9em; }
+.summary-table th { background: var(--surface2); color: var(--gold); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); }
+.summary-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); }
+.summary-table tr:hover td { background: var(--surface2); }
+
+@media (max-width: 768px) {
+  .header h1 { font-size: 1.5em; }
+  nav.toc ol { columns: 1; }
+  .step-body { margin-left: 0; }
+  .legend { flex-direction: column; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Lifeline System &mdash; Agent Prompt Checklist</h1>
+  <div class="subtitle">10 sequenced prompts to fork Continuum V2 into a generic, configurable RPG system</div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="progress-text" id="progressText">0 / 10 prompts completed</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-badge" style="background:var(--accent2);">Prompt</span> Copy-ready agent prompt</div>
+  <div class="legend-item" style="color:var(--green);">&#10003; Completed</div>
+  <div class="legend-item" style="color:var(--text-dim);">&#9675; Pending</div>
+</div>
+
+<div class="deps-hint">
+  <strong>Execution order:</strong> 1 &rarr; 2 &rarr; 3 &rarr; 4+5 (parallel) &rarr; 6 &rarr; 7 &rarr; 8 &rarr; 9 &rarr; 10. Each prompt assumes the prior steps are complete. Click the <strong>Copy Prompt</strong> button to copy only the prompt text &mdash; the button itself is never included in the clipboard.
+</div>
+
+<nav class="toc">
+  <h2>Prompts</h2>
+  <ol>
+    <li><a href="#phase1">Fork &amp; Rename &mdash; Create the Lifeline System</a></li>
+    <li><a href="#phase2">Feature Flag Infrastructure &mdash; The Settings Registry</a></li>
+    <li><a href="#phase3">Section Toggle Framework &mdash; Conditional Rendering</a></li>
+    <li><a href="#phase4">Spanning as a Toggleable Module</a></li>
+    <li><a href="#phase5">Metabilities as an External Module</a></li>
+    <li><a href="#phase6">Configurable Attributes System</a></li>
+    <li><a href="#phase7">Dice System Abstraction</a></li>
+    <li><a href="#phase8">Combat System Abstraction</a></li>
+    <li><a href="#phase9">Settings Panel &mdash; Live-Edit GM Configuration UI</a></li>
+    <li><a href="#phase10">Asset Slots &amp; Module System</a></li>
+  </ol>
+</nav>
+
+<!-- ================================================================ -->
+<!-- PROMPT 1                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase1">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>1. Fork &amp; Rename &mdash; Create the Lifeline System</h2>
+    <span class="tag" style="background:var(--phase1);color:var(--bg);">Foundation &middot; No deps</span>
+  </div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Fork continuum-v2 into a new "Lifeline" system</span>
+      </div>
+      <div class="step-body">
+        <p>This is the foundation step. All subsequent prompts depend on this being complete first.</p>
+        <div class="prompt-box" id="prompt1">
+          <h3>Prompt 1: Fork &amp; Rename &mdash; Create the Lifeline System</h3>
+          <div class="prompt-text">You are creating a new Foundry VTT system called "Lifeline" by forking the Continuum V2 system.
+
+## Goal
+Create a working fork at the same directory level as continuum-v2, called "lifeline", that:
+- Has a new system ID: "lifeline"
+- Has a new title: "Lifeline"
+- Retains ALL existing functionality identically
+- Changes are purely cosmetic/identity — no logic changes yet
+
+## Steps
+
+1. Copy the entire `continuum-v2` directory to a sibling directory called `lifeline`
+
+2. In `lifeline/system.json`:
+   - Change `"id"` from `"continuum-v2"` to `"lifeline"`
+   - Change `"title"` from `"Continuum v2"` to `"Lifeline"`
+   - Change `"description"` to `"A configurable RPG system with timeline visualization. Fork of Continuum v2."`
+   - Change `"author"` to your name
+   - Increment version to `"2.0.0"`
+   - Leave ALL esmodules, styles, actorTypes, itemTypes unchanged
+
+3. Global string replacement throughout ALL .js, .html, .css, .hbs files in `lifeline/`:
+   - Replace `systems/continuum-v2/` with `systems/lifeline/` in import paths and template references
+   - Replace `'continuum-v2'` with `'lifeline'` in game.settings calls and flag references
+   - Replace `"continuum-v2"` with `"lifeline"` in game.settings calls and flag references
+   - Replace `continuum-v2` CSS class references: `.continuum-v2` → `.lifeline`, `continuum.sheet` → `.lifeline.sheet`
+   - Replace `ContinuumActorSheet` → `LifelineActorSheet`
+   - Replace `ContinuumOrganizationSheet` → `LifelineOrganizationSheet`
+   - Replace `ContinuumLocationSheet` → `LifelineLocationSheet`
+   - Replace `ContinuumItemSheet` → `LifelineItemSheet`
+   - Leave the git history alone — do not init a new git repo
+
+4. Rename `continuum.js` → `lifeline.js`
+5. Rename `continuum-v2.css` → `lifeline.css` (and update the @import in it if needed)
+6. Rename `continuum-drag-drop.js` → `lifeline-drag-drop.js` (and update imports)
+7. In `lifeline.js`, update the class name and ensure the `static get defaultOptions()` template path points to `systems/lifeline/templates/actor-sheet.html`
+
+8. Verify: Search the entire `lifeline/` directory for any remaining occurrences of `continuum-v2` (except in comments referencing the origin). All import paths, template paths, CSS class names, flag keys, and setting keys should now reference `lifeline`.
+
+## Acceptance Criteria
+- `lifeline/system.json` has id "lifeline" and title "Lifeline"
+- Every JS/CSS/HTML file that referenced `systems/continuum-v2/` now references `systems/lifeline/`
+- Every `game.settings` and flag call uses `'lifeline'` not `'continuum-v2'`
+- The main sheet class is `LifelineActorSheet`
+- The system can be installed in Foundry VTT v13 and loaded without errors (imports resolve)
+- No logic has changed — this is a pure rename</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt1')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 2                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase2">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>2. Feature Flag Infrastructure &mdash; The Settings Registry</h2>
+    <span class="tag" style="background:var(--phase2);color:var(--bg);">Architecture &middot; Depends on 1</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Create feature flag infrastructure</span>
+        <span class="step-dep">Depends on 1</span>
+      </div>
+      <div class="step-body">
+        <p>Creates <code>modules/feature-flags/</code> with a registry of boolean toggles controlling which subsystems are active.</p>
+        <div class="prompt-box" id="prompt2">
+          <h3>Prompt 2: Feature Flag Infrastructure</h3>
+          <div class="prompt-text">You are adding a world-level configuration system to the Lifeline Foundry VTT system.
+
+## Goal
+Create a module at `modules/feature-flags/` that provides:
+1. A registry of feature flags (boolean toggles) that control which sub-systems are active
+2. A `game.settings` based persistence layer
+3. A reactive API that sheet rendering can query
+
+## Architecture
+
+Create these files:
+
+### `modules/feature-flags/feature-registry.js`
+Export an object `FEATURE_FLAGS` that defines the master flag schema:
+
+```js
+export const FEATURE_FLAGS = {
+  spanning: {
+    id: 'spanning',
+    label: 'Spanning (Time Travel)',
+    description: 'Enable the spanning/time-travel subsystem including the span graph, span pool tracking, and temporal physics.',
+    default: true,
+    affects: ['template', 'sheet', 'kernel']
+  },
+  metabilities: {
+    id: 'metabilities',
+    label: 'Metabilities (Psi Powers)',
+    description: 'Enable the metabilities section (Coercion, Creativity, Farsense, PK, Redaction) and application tracking.',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  combat: {
+    id: 'combat',
+    label: 'Combat System',
+    description: 'Enable the combat section (ranged weapons, melee weapons, armor, wounds).',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  vehicles: {
+    id: 'vehicles',
+    label: 'Vehicles',
+    description: 'Enable the vehicles section.',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  theYet: {
+    id: 'theYet',
+    label: 'The Yet (Future Events)',
+    description: 'Enable the Yet section for scheduling future events on the timeline.',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  favors: {
+    id: 'favors',
+    label: 'Favors',
+    description: 'Enable the favors tracking section.',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  goals: {
+    id: 'goals',
+    label: 'Goals',
+    description: 'Enable the goals tracking section.',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  relationships: {
+    id: 'relationships',
+    label: 'Relationships',
+    description: 'Enable the relationships section and graph.',
+    default: true,
+    affects: ['template', 'sheet']
+  },
+  eras: {
+    id: 'eras',
+    label: 'Eras & Experiences',
+    description: 'Enable the eras and experiences section of the lifeline.',
+    default: true,
+    affects: ['template', 'sheet', 'kernel']
+  },
+  spanGraph: {
+    id: 'spanGraph',
+    label: 'Span Graph (Visual Timeline)',
+    description: 'Enable the SVG span graph visualization. Requires spanning to be active.',
+    default: true,
+    requires: 'spanning',
+    affects: ['sheet']
+  },
+  lifelineSpreadsheet: {
+    id: 'lifelineSpreadsheet',
+    label: 'Lifeline Spreadsheet',
+    description: 'Enable the CSV import/export spreadsheet view for the lifeline.',
+    default: true,
+    affects: ['sheet']
+  },
+  npcGenerator: {
+    id: 'npcGenerator',
+    label: 'NPC Generator (AI)',
+    description: 'Enable AI-powered NPC generation. Requires API key configuration.',
+    default: false,
+    affects: ['sheet']
+  },
+  spaceTimeMap: {
+    id: 'spaceTimeMap',
+    label: 'Space-Time Map Integration',
+    description: 'Enable bidirectional linking between lifeline events and the Foundry map.',
+    default: false,
+    affects: ['sheet']
+  }
+};
+```
+
+### `modules/feature-flags/is-feature-enabled.js`
+```js
+/**
+ * Returns whether a feature flag is currently enabled.
+ * Checks game.settings first; falls back to the flag's default value.
+ * @param {string} flagId - Key from FEATURE_FLAGS
+ * @returns {boolean}
+ */
+export function isFeatureEnabled(flagId) {
+  const flag = FEATURE_FLAGS[flagId];
+  if (!flag) return false;
+  // If this flag requires another flag, check that first
+  if (flag.requires && !isFeatureEnabled(flag.requires)) return false;
+  return game.settings.get('lifeline', `feature.${flagId}`) ?? flag.default;
+}
+```
+
+### `modules/feature-flags/register-flags.js`
+```js
+/**
+ * Registers all feature flags as Foundry world-level settings.
+ * Must be called during Hooks.once('init').
+ */
+export function registerFeatureFlags() {
+  for (const [id, flag] of Object.entries(FEATURE_FLAGS)) {
+    game.settings.register('lifeline', `feature.${id}`, {
+      name: flag.label,
+      hint: flag.description,
+      scope: 'world',
+      config: false, // Hidden from default settings; shown in our custom panel
+      type: Boolean,
+      default: flag.default,
+      onChange: () => {
+        // Force all open actor sheets to re-render
+        for (const actor of game.actors.contents) {
+          for (const sheet of actor.apps) {
+            sheet.render(true);
+          }
+        }
+      }
+    });
+  }
+}
+```
+
+### `modules/feature-flags/index.js`
+Re-export everything.
+
+### Integration
+- In `lifeline.js` (the main sheet init file), import `registerFeatureFlags` and call it inside `Hooks.once('init')` alongside existing settings registrations.
+- In `modules/sheet-hooks.js`, add the import and call as well (wherever `game.settings.register` calls already exist).
+
+## Acceptance Criteria
+- `modules/feature-flags/` exists with the 4 files above
+- `isFeatureEnabled('spanning')` returns true by default
+- `isFeatureEnabled('spanGraph')` returns true by default AND returns false if spanning is disabled
+- Changing a flag in game.settings causes all open sheets to re-render
+- No existing functionality is broken
+- system.json esmodules array includes `modules/feature-flags/index.js`</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt2')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 3                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase3">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>3. Section Toggle Framework &mdash; Conditional Rendering</h2>
+    <span class="tag" style="background:var(--phase3);color:var(--bg);">UI &middot; Depends on 1, 2</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Add conditional section rendering driven by feature flags</span>
+        <span class="step-dep">Depends on 1, 2</span>
+      </div>
+      <div class="step-body">
+        <p>Wraps each section partial with <code>{{#if featureFlags.X}}</code> so disabling a flag hides the section entirely.</p>
+        <div class="prompt-box" id="prompt3">
+          <h3>Prompt 3: Section Toggle Framework</h3>
+          <div class="prompt-text">You are adding conditional section rendering to the Lifeline Foundry VTT system, driven by the feature flag infrastructure created in Prompt 2.
+
+## Goal
+When a GM disables a feature flag (e.g., spanning, metabilities, combat), the corresponding section in the character sheet should be completely hidden. When enabled, it renders normally. Changes should be live — toggling a flag instantly re-renders open sheets.
+
+## Files to Modify
+
+### `modules/character/prepare-data.js`
+Add a `featureFlags` object to the template context:
+
+```js
+import { isFeatureEnabled } from '../feature-flags/index.js';
+
+// Inside prepareCharacterData(), after setting context.isGM etc:
+context.featureFlags = {
+  spanning: isFeatureEnabled('spanning'),
+  metabilities: isFeatureEnabled('metabilities'),
+  combat: isFeatureEnabled('combat'),
+  vehicles: isFeatureEnabled('vehicles'),
+  theYet: isFeatureEnabled('theYet'),
+  favors: isFeatureEnabled('favors'),
+  goals: isFeatureEnabled('goals'),
+  relationships: isFeatureEnabled('relationships'),
+  eras: isFeatureEnabled('eras'),
+  spanGraph: isFeatureEnabled('spanGraph'),
+  lifelineSpreadsheet: isFeatureEnabled('lifelineSpreadsheet'),
+  npcGenerator: isFeatureEnabled('npcGenerator')
+};
+```
+
+### `templates/actor-sheet.html`
+Wrap each section partial with a conditional block. Example for spanning:
+
+```html
+{{#if featureFlags.spanning}}
+{{> "systems/lifeline/templates/sections/spanning.html"}}
+{{/if}}
+```
+
+Apply this pattern to ALL section partials:
+- spanning.html → `featureFlags.spanning`
+- metabilities.html → `featureFlags.metabilities`
+- combat.html → `featureFlags.combat`
+- vehicles.html, land_vehicles.html, air_vehicles.html, water_vehicles.html → `featureFlags.vehicles`
+- the_yet.html → `featureFlags.theYet`
+- favors.html → `featureFlags.favors`
+- goals.html → `featureFlags.goals`
+- relationships.html, char-relationships-map.html → `featureFlags.relationships`
+- experiences.html → `featureFlags.eras`
+
+Sections that should ALWAYS show (no conditional):
+- personal.html
+- attributes.html
+- background.html
+- gear.html
+
+For span_graph.html: the tab container always shows, but the inner SVG only renders if `featureFlags.spanGraph` is true.
+
+### `modules/character/activate-listeners.js`
+Conditionally initialize subsystems based on feature flags:
+
+```js
+import { isFeatureEnabled } from '../feature-flags/index.js';
+
+// Inside activateCharacterListeners():
+if (isFeatureEnabled('relationships')) {
+  setTimeout(() => {
+    if (sheet.rendered) initializeCharRelationshipGraph(sheet);
+  }, 150);
+}
+```
+
+Similarly guard: span graph initialization, spreadsheet button binding, metability application handlers.
+
+### `modules/sheet-hooks.js`
+Guard the `preloadHandlebarsTemplates` — only include templates for enabled features. Also guard the NPC generator scene control registration.
+
+## Acceptance Criteria
+- Setting `game.settings.set('lifeline', 'feature.spanning', false)` causes the spanning section to disappear on all open character sheets within 1 second
+- Setting it back to true causes it to reappear
+- All 10+ feature flags control their corresponding sections
+- Features that depend on other features (spanGraph depends on spanning) enforce their dependency
+- The attributes, personal, background, and gear sections always show regardless of flags
+- No console errors when a feature is disabled</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt3')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 4                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase4">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>4. Spanning as a Toggleable Module</h2>
+    <span class="tag" style="background:var(--phase4);color:var(--bg);">Sub-system &middot; Depends on 1-3</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Make spanning/time-travel toggleable via feature flag</span>
+        <span class="step-dep">Depends on 1, 2, 3</span>
+      </div>
+      <div class="step-body">
+        <p>When the <code>spanning</code> feature flag is OFF, ALL spanning-related functionality goes dormant.</p>
+        <div class="prompt-box" id="prompt4">
+          <h3>Prompt 4: Spanning as a Toggleable Module</h3>
+          <div class="prompt-text">You are making the spanning/time-travel subsystem a toggleable module in the Lifeline system. When the `spanning` feature flag is disabled, ALL spanning-related functionality should be dormant — no span pool calculations, no temporal physics, no span graph, no span-related UI elements.
+
+## Goal
+When `spanning` is OFF:
+- The span graph tab/section is completely hidden (already handled by section toggles from Prompt 3)
+- Span pool calculations are skipped (no performance cost)
+- Temporal kernel span functions return early or are not called
+- The character sheet shows NO spanning data (no span rank spinner, no frag counters, no natural span)
+- `template.json` still has the `spanning` key for schema compatibility, but it's not rendered
+
+## Files to Modify
+
+### `modules/character/prepare-data.js`
+Wrap ALL spanning-related data preparation in a conditional:
+
+```js
+if (context.featureFlags.spanning) {
+  // ... all the span pool, span weight, leveller, overburdened calculations
+  // ... spanningAbilities, natSpanAbilities
+} else {
+  context.spanTimeRemaining = null;
+  context.isOverSpan = false;
+  context.spanningAbilities = [];
+  context.natSpanAbilities = [];
+}
+```
+
+### `modules/temporal-engine/compute-span-pool-display.js`
+Add an early return if spanning is disabled:
+
+```js
+import { isFeatureEnabled } from '/systems/lifeline/modules/feature-flags/index.js';
+
+export function computeSpanPoolDisplay(context, parseDateFn, calcPoolFn) {
+  if (!isFeatureEnabled('spanning')) {
+    return { spanTimeRemainingFormatted: '--', isOverSpan: false, allEvents: context.eras || [], eventStatsById: {} };
+  }
+  // ... existing logic
+}
+```
+
+### `modules/span-graph/integration/sheet-handler.js`
+Guard the initialization:
+
+```js
+import { isFeatureEnabled } from '/systems/lifeline/modules/feature-flags/index.js';
+
+export function initializeSpanGraph(actor, html, sheet) {
+  if (!isFeatureEnabled('spanning') || !isFeatureEnabled('spanGraph')) return null;
+  // ... existing logic
+}
+```
+
+### `templates/sections/personal.html`
+Hide spanning-related fields in the personal section (like span rank selector, corner/fraternity if they only matter for spanners). These should be wrapped in `{{#if featureFlags.spanning}}` conditionals.
+
+### `modules/lifeline/controllers/roll-dialog-controller.js` and `sheet-dice-roller.js`
+Hide the "Spanning Ability" section in the dice roller dialog when spanning is off.
+
+## Acceptance Criteria
+- With `feature.spanning = false`: no span-related calculations run, no span UI visible, no console errors
+- With `feature.spanning = true`: everything works exactly as before
+- With `feature.spanning = true` and `feature.spanGraph = false`: the span graph doesn't render, but spanning data (pool display, rank spinners) still appears on the sheet
+- Toggling spanning on/off causes an immediate sheet re-render
+- The `spanning` key still exists in `template.json` for Foundry schema compatibility</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt4')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 5                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase5">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>5. Metabilities as an External Module</h2>
+    <span class="tag" style="background:var(--phase5);color:var(--bg);">Sub-system &middot; Depends on 1-3</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Extract metabilities subsystem into separable module</span>
+        <span class="step-dep">Depends on 1, 2, 3</span>
+      </div>
+      <div class="step-body">
+        <p>Can be done in parallel with Prompt 4.</p>
+        <div class="prompt-box" id="prompt5">
+          <h3>Prompt 5: Metabilities as an External Module</h3>
+          <div class="prompt-text">You are extracting the Metabilities (psi powers) subsystem from the Lifeline system core into a separable module that can be toggled via the `metabilities` feature flag.
+
+## Goal
+When `metabilities` is OFF:
+- The metabilities section is hidden (already handled by section toggles)
+- Metability applications data is not prepared
+- The metability push slider and application dropdown in the dice roller are hidden
+- Metability-related kernel functions are not called
+- Metability data still exists in template.json for schema compatibility
+
+## Files to Create
+
+### `modules/metabilities/index.js`
+Export a clean API surface:
+
+```js
+export { METABILITY_DATA } from './metability-data.js';
+export { BENEFIT_DEFINITIONS } from './benefit-definitions.js';
+export { isMetabilityApplicationValid } from './metability-applications.js';
+```
+
+### `modules/metabilities/metability-data.js`
+Move the `METABILITY_DATA` constant from `item-data.js` into this file. The original location should import from here:
+
+```js
+import { METABILITY_DATA } from './modules/metabilities/metability-data.js';
+```
+
+### `modules/metabilities/benefit-definitions.js`
+Move from `modules/character/benefits/benefit-definitions.js`. Update all imports.
+
+### `modules/metabilities/metability-applications.js`
+Extract the application logic currently in `prepare-data.js` and `handle-app-ingredient-change.js` into a pure function:
+
+```js
+/**
+ * Prepares metability application data for template context.
+ * Returns empty data if metabilities feature is disabled.
+ */
+export function prepareMetabilityData(system, featureFlags) {
+  if (!featureFlags.metabilities) {
+    return { metabilityApplications: [], potentialLocked: false };
+  }
+  // ... existing preparation logic
+}
+```
+
+## Files to Modify
+
+### `modules/character/prepare-data.js`
+- Remove the inline `BENEFIT_DEFINITIONS` import, import from `../metabilities/index.js` instead
+- Replace inline metability preparation with call to `prepareMetabilityData()`
+- Guard the `metabilityApplications` preparation
+
+### `item-data.js`
+- Replace the `METABILITY_DATA` constant with an import from `./modules/metabilities/metability-data.js`
+- Keep `RANGED_WEAPON_RAW_DATA`, `MELEE_WEAPON_DATA`, `ARMOR_DATA`, and `allVehicleData` in place
+
+### `modules/character/activate-listeners.js`
+- Guard metability application handlers:
+```js
+if (isFeatureEnabled('metabilities')) {
+  // app ingredient change, apply, spinner init
+}
+```
+
+### `templates/sections/attributes.html`
+- Wrap the Benefits section in `{{#if featureFlags.metabilities}}`
+
+### `sheet-dice-roller.js` and `modules/lifeline/controllers/roll-dialog-controller.js`
+- Wrap metability push slider and application dropdown in conditional logic:
+```js
+const showMetabilities = isFeatureEnabled('metabilities');
+// Only show/hide push section based on whether this is a metability roll AND feature is on
+```
+
+## Acceptance Criteria
+- With `feature.metabilities = false`: no metabilities section, no benefits list, no push slider in dice roller, no application tracking, no console errors
+- With `feature.metabilities = true`: everything works exactly as before
+- `METABILITY_DATA` and `BENEFIT_DEFINITIONS` are importable from `modules/metabilities/index.js`
+- The `item-data.js` file no longer contains `METABILITY_DATA` inline
+- All existing imports of `BENEFIT_DEFINITIONS` point to the new location</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt5')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 6                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase6">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>6. Configurable Attributes System</h2>
+    <span class="tag" style="background:var(--phase6);color:var(--bg);">Data Model &middot; Depends on 1</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Make character attributes configurable via GM settings</span>
+        <span class="step-dep">Depends on 1</span>
+      </div>
+      <div class="step-body">
+        <p>Replaces hardcoded <code>body</code>, <code>mind</code>, <code>eq</code>, <code>quick</code>, <code>willpower</code> with dynamic attribute definitions from world-level settings.</p>
+        <div class="prompt-box" id="prompt6">
+          <h3>Prompt 6: Configurable Attributes System</h3>
+          <div class="prompt-text">You are making the character attributes system configurable through the GM settings panel. Instead of hardcoding `body`, `mind`, `eq`, `quick`, and `willpower`, the system should read attribute definitions from a world-level setting.
+
+## Goal
+A GM can open the Lifeline settings and define:
+- The number of attributes (1-10)
+- Each attribute's key, display name, type (value, temp/perm tracker, or resource)
+- Whether the attribute has a spinner or text input
+- Default values for new characters
+
+When the GM changes attributes, all open character sheets immediately reflect the new configuration.
+
+## Architecture
+
+### `modules/attribute-config/default-attributes.js`
+```js
+// The Continuum RPG default configuration
+export const DEFAULT_CONTINUUM_ATTRIBUTES = [
+  { key: 'body', label: 'Force', type: 'value', min: 0, max: 10, default: 4, rollable: true },
+  { key: 'mind', label: 'Analyze', type: 'value', min: 0, max: 10, default: 4, rollable: true },
+  { key: 'eq', label: 'Relate', type: 'value', min: 0, max: 10, default: 4, rollable: true },
+  { key: 'quick', label: 'React', type: 'value', min: 0, max: 10, default: 4, rollable: true },
+  { key: 'willpower', label: 'Willpower', type: 'tracker', min: 0, max: 10, defaultTemp: 5, defaultPerm: 5, rollable: true }
+];
+```
+
+### `modules/attribute-config/get-attribute-config.js`
+```js
+/**
+ * Returns the current attribute configuration.
+ * Reads from game.settings; falls back to DEFAULT_CONTINUUM_ATTRIBUTES.
+ * @returns {Array}
+ */
+export function getAttributeConfig() {
+  const stored = game.settings.get('lifeline', 'attributeConfig');
+  if (stored && stored.length > 0) return stored;
+  return DEFAULT_CONTINUUM_ATTRIBUTES;
+}
+
+/**
+ * Returns a label for a given attribute key.
+ * This replaces the old getAttributeLabel() function.
+ */
+export function getAttributeLabel(key) {
+  const config = getAttributeConfig();
+  const attr = config.find(a => a.key === key);
+  return attr ? attr.label : (key.charAt(0).toUpperCase() + key.slice(1));
+}
+```
+
+### `modules/attribute-config/register-attribute-settings.js`
+```js
+export function registerAttributeSettings() {
+  game.settings.register('lifeline', 'attributeConfig', {
+    name: 'Attribute Configuration',
+    hint: 'Define the attributes available on character sheets. Changes take effect immediately.',
+    scope: 'world',
+    config: false,
+    type: Object,
+    default: DEFAULT_CONTINUUM_ATTRIBUTES,
+    onChange: () => {
+      for (const actor of game.actors.contents) {
+        if (actor.type === 'character') {
+          for (const sheet of actor.apps) sheet.render(true);
+        }
+      }
+    }
+  });
+}
+```
+
+### `modules/attribute-config/index.js`
+Re-export everything.
+
+### Modify `modules/character/prepare-data.js`
+Replace the hardcoded attribute context with dynamic attribute preparation:
+
+```js
+import { getAttributeConfig } from '../attribute-config/get-attribute-config.js';
+
+// Inside prepareCharacterData():
+const attrConfig = getAttributeConfig();
+context.attributeConfig = attrConfig;
+context.attributes = attrConfig.map(attr => {
+  const value = foundry.utils.getProperty(system, `attributes.${attr.key}`);
+  if (attr.type === 'tracker') {
+    return {
+      ...attr,
+      temp: value?.temp ?? attr.defaultTemp,
+      perm: value?.perm ?? attr.defaultPerm
+    };
+  }
+  return {
+    ...attr,
+    value: value?.value ?? attr.default
+  };
+});
+```
+
+### Modify `templates/sections/attributes.html`
+Replace the hardcoded attribute blocks with a Handlebars loop that iterates over `attributeConfig`. Use `{{#each attributeConfig as |attr|}}` with `{{#if (eq attr.type "value")}}` and `{{#if (eq attr.type "tracker")}}` conditionals. Each attribute renders a spinner and a hidden input bound to `system.attributes.{{attr.key}}.value` (for value type) or `system.attributes.{{attr.key}}.temp` / `.perm` (for tracker type).
+
+### Modify `modules/attribute-labels.js`
+Replace the hardcoded label map with a call to `getAttributeLabel()`:
+
+```js
+import { getAttributeLabel } from '/systems/lifeline/modules/attribute-config/get-attribute-config.js';
+export { getAttributeLabel };
+```
+
+### Modify `template.json`
+Leave `template.json` attributes as-is for now. The Foundry VTT data model requires explicit schema keys. Runtime attribute config is handled by the settings API + dynamic template rendering.
+
+### Modify `sheet-dice-roller.js`
+The roll-attribute buttons should now read from `getAttributeConfig()` to know which attributes are rollable, rather than assuming `body`, `mind`, `eq`, `quick`, `willpowerTemp`, `willpowerPerm`.
+
+### Modify `modules/lifeline/services/calculators/roll-math/calculate-base-target.js`
+Replace hardcoded attribute lookups with dynamic ones from config:
+
+```js
+import { getAttributeConfig } from '/systems/lifeline/modules/attribute-config/get-attribute-config.js';
+
+// Instead of switch(rollType) with hardcoded 'body', 'mind', 'eq', 'quick'...
+// Use: const attr = getAttributeConfig().find(a => a.key === rollType);
+```
+
+### Modify `modules/sheet-spinners.js`
+The spinner initialization should iterate over `getAttributeConfig()` instead of hardcoded attribute keys.
+
+## Acceptance Criteria
+- Default configuration produces EXACTLY the same UI as before (Force, Analyze, Relate, React, Willpower tracker)
+- A GM can open `game.settings.set('lifeline', 'attributeConfig', [...])` and change attribute names, and the sheet updates immediately
+- Adding a new attribute key causes a new attribute block to appear on the character sheet
+- The dice roller dialog shows only attributes with `rollable: true`
+- Existing hardcoded references to `attributes.body.value` in kernel functions (like wound capacity, encumbrance) are flagged with `// TODO: CONFIGURABLE` comments but NOT broken — they still work with the default config
+- The `getAttributeLabel()` function works everywhere the old `getAttributeLabel` worked</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt6')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 7                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase7">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>7. Dice System Abstraction</h2>
+    <span class="tag" style="background:var(--phase7);color:var(--bg);">Mechanics &middot; Depends on 1, 6</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Create pluggable dice system layer</span>
+        <span class="step-dep">Depends on 1, 6</span>
+      </div>
+      <div class="step-body">
+        <p>Abstracts dice rolling so GMs can choose Continuum (success-count d10), d20, percentile, or custom. Default reproduces current behavior exactly.</p>
+        <div class="prompt-box" id="prompt7">
+          <h3>Prompt 7: Dice System Abstraction</h3>
+          <div class="prompt-text">You are creating a dice system abstraction layer for the Lifeline system that allows GMs to configure the dice rolling mechanics through settings.
+
+## Goal
+Currently, Lifeline uses Continuum's specific roll mechanics:
+- Roll multiple d10s, count successes (<= target number)
+- Resonance system (slight/firm/strong adds bonus dice)
+- Push system for metabilities (rank 1-5 adds d10s)
+- Step-die system for weapons
+
+The abstraction should allow a GM to choose from pre-built dice systems or define a custom one, but the DEFAULT configuration must reproduce Continuum's exact current behavior.
+
+## Architecture
+
+### `modules/dice-system/dice-systems.js`
+Define `DICE_SYSTEMS` as an object with four entries:
+
+1. **continuum** (default): Success count d10. `dieType: 'd10'`, `rollMode: 'success_count'`, `targetNumber: 'attribute_value'`, `successThreshold: '<='`, `defaultTarget: 4`, `resonanceBonus: { none: 0, slight: 1, firm: 2, strong: 3 }`, push config for metabilities, `situations: true`, `benefits: true`, `woundPenalty: true`, `encumbrancePenalty: true`, stepDice config for vehicles.
+
+2. **d20**: Target number roll. `dieType: 'd20'`, `rollMode: 'target_number'`, `rollFormula: '1d20 + {modifier}'`, `critical: { success: 20, failure: 1 }`, `resonanceBonus: null`, `push: { enabled: false }`, `situations: true`, `benefits: true`, `woundPenalty: true`, `encumbrancePenalty: false`, `stepDice: { enabled: false }`.
+
+3. **percentile**: `dieType: 'd100'`, `rollMode: 'percentile'`, `rollFormula: '1d100'`, `successThreshold: '<='`, `critical: { successRange: [1, 5], failureRange: [96, 100] }`, `resonanceBonus: null`, `push: { enabled: false }`, `situations: true`, `benefits: true`, `woundPenalty: true`, `encumbrancePenalty: false`, `stepDice: { enabled: false }`.
+
+4. **custom**: `rollMode: 'custom'`, `rollFormula: ''`, `custom: true`. Placeholder for GM-defined formulas.
+
+### `modules/dice-system/get-dice-config.js`
+```js
+import { DICE_SYSTEMS } from './dice-systems.js';
+export function getDiceConfig() {
+  const systemId = game.settings.get('lifeline', 'diceSystem') || 'continuum';
+  return DICE_SYSTEMS[systemId] || DICE_SYSTEMS.continuum;
+}
+```
+
+### `modules/dice-system/register-settings.js`
+Register `game.settings('lifeline', 'diceSystem')` as a world-level setting with choices from DICE_SYSTEMS. `config: false` (shown in custom panel only). onChange forces all character sheet re-renders.
+
+### `modules/dice-system/resolve-roll.js`
+Main entry point. `resolveRoll(params)` reads `getDiceConfig()` and dispatches to `resolveSuccessCountRoll`, `resolveTargetNumberRoll`, `resolvePercentileRoll`, or `resolveCustomRoll`. Each resolver implements its specific logic. `resolveSuccessCountRoll` must be IDENTICAL to the current roll logic.
+
+### `modules/dice-system/index.js`
+Re-export everything.
+
+### Modify `sheet-dice-roller.js`
+Replace direct roll execution with `resolveRoll()`. The dice dialog UI should conditionally show/hide sections based on `getDiceConfig()`:
+- If `config.resonanceBonus !== null`: show resonance section
+- If `config.push.enabled`: show push slider
+- If `config.situations`: show situational modifier input
+- If `config.benefits`: show benefit buttons
+
+### Modify `modules/lifeline/handlers/roll-action-handler/perform-roll-action.js`
+Replace direct roll math with `resolveRoll()`. Keep as a thin wrapper that collects parameters from the dialog and calls `resolveRoll()`.
+
+### Integration
+- Register dice settings in `lifeline.js` during `Hooks.once('init')`
+- Add `modules/dice-system/index.js` to `system.json` esmodules
+- Import `getDiceConfig()` wherever the old hardcoded roll mechanics were used
+
+## Acceptance Criteria
+- With dice system set to 'continuum' (default), all rolls work EXACTLY as before
+- Changing the dice system to 'd20' causes the roll dialog to hide resonance/push and use 1d20 + modifier
+- Changing to 'percentile' uses d100 rolls
+- The dice system selector is available in game settings
+- All existing Continuum roll mechanics are preserved as the default system
+- `resolveRoll()` is the single entry point for all dice rolling — no direct d10 rolling elsewhere</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt7')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 8                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase8">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>8. Combat System Abstraction</h2>
+    <span class="tag" style="background:var(--phase8);color:var(--bg);">Mechanics &middot; Depends on 1, 7</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Create configurable combat models</span>
+        <span class="step-dep">Depends on 1, 7</span>
+      </div>
+      <div class="step-body">
+        <p>Default: Continuum's exact combat system. Alternative: Simplified HP-pool combat. Combat section template respects the setting.</p>
+        <div class="prompt-box" id="prompt8">
+          <h3>Prompt 8: Combat System Abstraction</h3>
+          <div class="prompt-text">You are creating an abstraction layer for the combat system in Lifeline that makes it configurable. A GM should be able to choose between the Continuum combat model (hit locations, armor IPs, wound slots) or simplified alternatives.
+
+## Goal
+- Default: Continuum's exact combat system (7 hit locations, IP per location, wound slots, encumbrance)
+- Alternative: Simplified combat (single HP pool, simple damage, no hit locations)
+- The combat section template and data preparation respect the combat type setting
+
+## Architecture
+
+### `modules/combat-config/combat-models.js`
+Define `COMBAT_MODELS` with two entries:
+
+1. **continuum** (default): `id: 'continuum'`, `name: 'Continuum (Hit Locations + IP)'`. Config object with: `hitLocations: true`, `locationCount: 7`, `locationNames` array, `armorIP: true`, `woundSlots: true`, `woundSlotCount: 5`, `woundTypes: ['Lethal', 'Bruise']`, `bleedingTrack: true`, `encumbrance: true`, `encumbrancePenalty: 'quick'`, `weapons: { ranged: true, melee: true }`, `damageSteps: true`.
+
+2. **simplified**: `id: 'simplified'`, `name: 'Simplified (HP Pool)'`. Config: `hitLocations: false`, `hpPool: true`, `armor: 'flat_reduction'`, `encumbrance: false`, `weapons: { ranged: true, melee: true }`, `damageSteps: false`.
+
+### `modules/combat-config/get-combat-config.js`
+```js
+import { COMBAT_MODELS } from './combat-models.js';
+export function getCombatConfig() {
+  const modelId = game.settings.get('lifeline', 'combatModel') || 'continuum';
+  return COMBAT_MODELS[modelId] || COMBAT_MODELS.continuum;
+}
+```
+
+### `modules/combat-config/register-combat-settings.js`
+Register `game.settings('lifeline', 'combatModel')`. `config: false`. onChange forces character sheet re-renders.
+
+### `modules/combat-config/resolve-combat.js`
+Dispatcher that calls `resolveContinuumCombat()` or `resolveSimplifiedCombat()` based on `getCombatConfig()`.
+
+### `modules/combat-config/resolve-continuum-combat.js`
+Move the current `MitigationEngine.calculateMitigation()` and wound logic here. IDENTICAL to current behavior.
+
+### `modules/combat-config/resolve-simplified-combat.js`
+```js
+export function resolveSimplifiedCombat(atkData, defData) {
+  const damage = atkData.damage - (defData.armor || 0);
+  return {
+    hpDamage: Math.max(0, damage),
+    armorAbsorbed: Math.min(atkData.damage, defData.armor || 0),
+    isLethal: damage > 0
+  };
+}
+```
+
+### Modify `templates/sections/combat.html`
+Conditionally render based on combat model:
+
+```html
+{{#if featureFlags.combat}}
+  {{#if (eq combatModel "continuum")}}
+    <!-- Existing combat section unchanged -->
+  {{else if (eq combatModel "simplified")}}
+    <!-- Simplified combat: HP pool + weapon list + flat armor value -->
+  {{/if}}
+{{/if}}
+```
+
+### Modify `modules/character/prepare-data.js`
+Add `combatModel` to context and conditionally prepare combat data based on the config. When simplified, skip wound/armor IP calculations.
+
+### Create `templates/sections/combat-simplified.html`
+A new simplified combat template with: HP pool display, flat armor value input, simple weapon list (read from gear items), damage roll button.
+
+## Acceptance Criteria
+- Default configuration (continuum) produces EXACTLY the same combat UI and behavior
+- Setting `combatModel` to 'simplified' replaces the hit-location grid with a simple HP pool + weapon list
+- The `MitigationEngine` is still used for continuum mode, unchanged
+- Wound capacity calculation still uses `body` attribute in continuum mode
+- Changing combat model causes immediate sheet re-render
+- The combat section respects the `featureFlags.combat` toggle (off = no combat section at all)</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt8')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 9                                                         -->
+<!-- ================================================================ -->
+<div class="phase" id="phase9">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>9. Settings Panel &mdash; Live-Edit GM Configuration UI</h2>
+    <span class="tag" style="background:var(--phase9);color:var(--bg);">UI &middot; Depends on 2, 6, 7, 8</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Build unified GM settings panel with live-edit</span>
+        <span class="step-dep">Depends on 2, 6, 7, 8</span>
+      </div>
+      <div class="step-body">
+        <p>A Foundry Application dialog where the GM can toggle features, configure attributes, select dice system, select combat model — all with instant visual feedback.</p>
+        <div class="prompt-box" id="prompt9">
+          <h3>Prompt 9: Settings Panel &mdash; Live-Edit GM Configuration UI</h3>
+          <div class="prompt-text">You are building a Game Master settings panel for the Lifeline system that provides a unified, live-editing interface for all configurable aspects of the system.
+
+## Goal
+A single dialog/drawer accessible from the system settings that lets the GM:
+1. Toggle feature flags (spanning, metabilities, combat, etc.)
+2. Configure attributes (names, types, ranges, defaults)
+3. Select the dice system
+4. Select the combat model
+5. See changes reflected immediately on open character sheets
+
+## Architecture
+
+### `modules/settings-panel/settings-panel-app.js`
+Create a Foundry Application extending `foundry.appv1.api.Application`:
+
+- **Features tab**: Checkbox grid of all feature flags from `FEATURE_FLAGS` registry. Each row shows: checkbox, label, description. Dependencies shown as warnings ("Requires [X] to be enabled"). Checking/unchecking immediately calls `game.settings.set()` and triggers sheet re-renders.
+
+- **Attributes tab**: Editable table. Each row: key input, label input, type dropdown (value/tracker), min/max/default number inputs, rollable checkbox, remove button. "Add Attribute" button at bottom. "Save Attributes" persists to `game.settings.set('lifeline', 'attributeConfig', [...])`. "Reset to Defaults" restores `DEFAULT_CONTINUUM_ATTRIBUTES`.
+
+- **Dice tab**: Radio buttons for dice system selection (continuum, d20, percentile, custom). Description shown for each. "Save" persists.
+
+- **Combat tab**: Radio buttons for combat model (continuum, simplified). Description shown for each. "Save" persists.
+
+The `getData()` method reads current values from `isFeatureEnabled()`, `getAttributeConfig()`, `getDiceConfig()`, `getCombatConfig()`.
+
+The `activateListeners()` method binds all change handlers to immediately persist via `game.settings.set()`.
+
+GM-only: Non-GM users get a "Only the GM can configure system settings." message.
+
+### `templates/settings/settings-panel.html`
+Full Handlebars template with tabs. Uses the same dark theme as the character sheet.
+
+### `modules/settings-panel/register-settings-panel.js`
+```js
+import { LifelineSettingsApp } from './settings-panel-app.js';
+
+export function registerSettingsPanel() {
+  Hooks.on('renderSettingsConfig', (app, html) => {
+    const tab = html.find('.tab[data-tab="system"]');
+    if (!tab.length) return;
+    const btn = $('<button>')
+      .addClass('lifeline-settings-btn')
+      .html('<i class="fas fa-cogs"></i> Lifeline Configuration')
+      .on('click', () => {
+        new LifelineSettingsApp().render(true);
+      });
+    tab.append(btn);
+  });
+}
+```
+
+### `modules/settings-panel/index.js`
+Re-export everything.
+
+### Integration
+- Register settings panel in `lifeline.js` during `Hooks.once('init')`
+- Add `modules/settings-panel/index.js` to `system.json` esmodules
+- Also add a gear icon on the character sheet (only visible to GMs) in `modules/character/handle-settings.js` that opens this panel
+
+## Acceptance Criteria
+- The settings panel is accessible from the Foundry settings sidebar (GM only)
+- All feature flags can be toggled with immediate visual feedback
+- Attributes can be added, removed, renamed, and their types/min/max/default changed
+- Dice system and combat model can be selected
+- "Reset to Continuum Defaults" restores all settings to match the original Continuum v2 configuration
+- Changes are reflected on all open character sheets within 1 second
+- The panel uses clear section headers, descriptions, and dependency warnings
+- Non-GM users cannot access the panel</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt9')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PROMPT 10                                                        -->
+<!-- ================================================================ -->
+<div class="phase" id="phase10">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>10. Asset Slots &amp; Module System</h2>
+    <span class="tag" style="background:var(--phase10);color:var(--bg);">Data Model &middot; Depends on 2, 3</span>
+  </div>
+  <div class="phase-body collapsed">
+    <div class="step">
+      <div class="step-header">
+        <input type="checkbox" onchange="updateProgress()">
+        <span class="step-title">Add configurable asset slots + document module reorganization plan</span>
+        <span class="step-dep">Depends on 2, 3</span>
+      </div>
+      <div class="step-body">
+        <p>Configurable equipment slots on the character sheet + a <code>MODULE_MAP.md</code> documenting where each module should live.</p>
+        <div class="prompt-box" id="prompt10">
+          <h3>Prompt 10: Asset Slots &amp; Module System</h3>
+          <div class="prompt-text">You are adding a configurable asset slot system and a module loading mechanism to the Lifeline system.
+
+## Goal
+1. **Asset Slots**: Allow GMs to define named "slots" on the character sheet where specific types of items/assets can be placed. Think of it as configurable equipment sections — like D&D's "head", "body", "hands" armor slots, but fully user-definable.
+
+2. **Module System**: Create a `modules/MODULE_MAP.md` file that documents the proposed module reorganization. This is a planning document only — do NOT actually move or rename any files in this step.
+
+## Asset Slots Architecture
+
+### `modules/asset-slots/default-slots.js`
+Define `DEFAULT_ASSET_SLOTS` with reasonable defaults for a modern setting:
+
+```js
+export const DEFAULT_ASSET_SLOTS = [
+  { id: 'head', label: 'Head', itemType: 'armor', maxItems: 1 },
+  { id: 'torso', label: 'Torso', itemType: 'armor', maxItems: 1 },
+  { id: 'arms', label: 'Arms', itemType: 'armor', maxItems: 1 },
+  { id: 'legs', label: 'Legs', itemType: 'armor', maxItems: 1 },
+  { id: 'primary-weapon', label: 'Primary Weapon', itemType: 'gear', maxItems: 1 },
+  { id: 'secondary-weapon', label: 'Secondary Weapon', itemType: 'gear', maxItems: 1 },
+  { id: 'inventory', label: 'Inventory', itemType: 'gear', maxItems: 20 }
+];
+```
+
+### `modules/asset-slots/get-slot-config.js`
+```js
+export function getSlotConfig() {
+  return game.settings.get('lifeline', 'assetSlots') || DEFAULT_ASSET_SLOTS;
+}
+```
+
+### `modules/asset-slots/register-slot-settings.js`
+Register `game.settings('lifeline', 'assetSlots')` as a world-level Array setting. onChange forces all character sheets to re-render.
+
+### `templates/sections/asset-slots.html`
+New section template rendering the configured slots. Each slot shows its label and a drop target for items. Only shown when `featureFlags.assetSlots` is true.
+
+```html
+{{#if featureFlags.assetSlots}}
+<div class="section-container">
+  <!-- Section header with toggle and heading -->
+  <div class="assets-container">
+    {{#each assetSlots as |slot|}}
+    <div class="asset-slot" data-slot-id="{{slot.id}}" data-slot-type="{{slot.itemType}}" data-slot-max="{{slot.maxItems}}">
+      <h4>{{slot.label}}</h4>
+      <div class="asset-slot-items">
+        <!-- Items assigned to this slot rendered here -->
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+{{/if}}
+```
+
+### Add `assetSlots` to `prepare-data.js`
+When `featureFlags.assetSlots` is true, read `getSlotConfig()` and map existing gear items to their `item.system.slot` assignment.
+
+### Add `assetSlots` to Feature Flags
+```js
+assetSlots: {
+  id: 'assetSlots',
+  label: 'Equipment Slots',
+  description: 'Enable configurable equipment slots on the character sheet.',
+  default: false,
+  affects: ['template', 'sheet']
+}
+```
+
+### `modules/asset-slots/index.js`
+Re-export everything.
+
+## Module Map Document
+
+### `modules/MODULE_MAP.md`
+Create a markdown file documenting the proposed module reorganization into core/, optional/, and actor-types/ directories. Do NOT actually move any files.
+
+The document should list:
+
+**Core modules** (always loaded):
+- `modules/core/attribute-config/` (from Prompt 6)
+- `modules/core/feature-flags/` (from Prompt 2)
+- `modules/core/settings-panel/` (from Prompt 9)
+- `modules/core/dice-system/` (from Prompt 7)
+- `modules/core/combat-config/` (from Prompt 8)
+- `modules/core/asset-slots/` (from this prompt)
+- `modules/core/state/` (currently `modules/state/`)
+- `modules/core/temporal-translator/` (currently `modules/temporal-translator/`)
+
+**Optional modules** (feature-flag-gated):
+- `modules/optional/spanning/` (contents of current `temporal-kernel/`, `span-graph/`, `temporal-engine/`)
+- `modules/optional/metabilities/` (from Prompt 5)
+- `modules/optional/combat/` (currently `modules/combat/`)
+- `modules/optional/npc-generator/` (currently `modules/npc-generator/`)
+- `modules/optional/spacetime-bridge/` (currently `modules/spacetime-bridge/`)
+- `modules/optional/relationships/` (currently `modules/relationships/`)
+
+**Actor-type-specific modules**:
+- `modules/actor-types/character/` (currently `modules/character/`)
+- `modules/actor-types/organization/` (currently `modules/organization/`)
+- `modules/actor-types/location/` (currently `modules/location/`)
+
+For each module, list: current path, proposed path, feature flag dependency (if any), and which files need import path updates.
+
+## Integration
+- Register slot settings in `lifeline.js` during `Hooks.once('init')`
+- Add `modules/asset-slots/index.js` to `system.json` esmodules
+- The settings panel (from Prompt 9) should include an "Asset Slots" configuration tab with add/remove/rename capabilities
+
+## Acceptance Criteria
+- Asset slots feature flag is registered and defaults to OFF
+- When enabled, the character sheet shows a configurable equipment section with slots
+- Slot configuration can be edited from the settings panel
+- Items can be dragged into slots (drag-drop integration with Foundry's item system)
+- The `DEFAULT_ASSET_SLOTS` configuration produces a reasonable default for a modern setting
+- `modules/MODULE_MAP.md` exists and documents the proposed module reorganization
+- No existing functionality is broken
+- The settings panel includes an "Asset Slots" configuration tab</div>
+          <button class="prompt-copy-btn" onclick="copyPrompt('prompt10')">Copy Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SUMMARY TABLE                                                   -->
+<!-- ================================================================ -->
+<div class="phase" id="summary">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <h2>Execution Order &amp; Dependency Map</h2>
+    <span class="tag" style="background:var(--text-dim);color:var(--bg);">Reference</span>
+  </div>
+  <div class="phase-body">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Prompt</th>
+          <th>What It Produces</th>
+          <th>Depends On</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Fork &amp; Rename</td><td>Working <code>lifeline</code> system, identical to continuum-v2</td><td>None</td></tr>
+        <tr><td>2</td><td>Feature Flags</td><td><code>modules/feature-flags/</code> with <code>isFeatureEnabled()</code></td><td>1</td></tr>
+        <tr><td>3</td><td>Section Toggles</td><td><code>{{#if featureFlags.X}}</code> conditionals in templates</td><td>1, 2</td></tr>
+        <tr><td>4</td><td>Spanning Toggle</td><td>Spanning module gated behind feature flag</td><td>1, 2, 3</td></tr>
+        <tr><td>5</td><td>Metabilities Module</td><td>Extracted metability subsystem</td><td>1, 2, 3</td></tr>
+        <tr><td>6</td><td>Configurable Attributes</td><td>Dynamic attribute definitions from settings</td><td>1</td></tr>
+        <tr><td>7</td><td>Dice System Abstraction</td><td><code>modules/dice-system/</code> with pluggable roll resolution</td><td>1, 6</td></tr>
+        <tr><td>8</td><td>Combat Abstraction</td><td><code>modules/combat-config/</code> with continuum/simplified models</td><td>1, 7</td></tr>
+        <tr><td>9</td><td>Settings Panel</td><td>Unified GM settings UI</td><td>2, 6, 7, 8</td></tr>
+        <tr><td>10</td><td>Asset Slots + Module Map</td><td>Configurable equipment slots + reorganization plan</td><td>2, 3</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note" style="margin-top:16px;">
+      <strong>Recommended execution order:</strong> 1 → 2 → 3 → 4 + 5 (parallel) → 6 → 7 → 8 → 9 → 10<br>
+      Prompts 4 and 5 can be executed in parallel since they are independent sub-system extractions.
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePhase(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+function updateProgress() {
+  const checkboxes = document.querySelectorAll('.step input[type="checkbox"]');
+  const total = checkboxes.length;
+  const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+  const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = checked + ' / ' + total + ' prompts completed (' + pct + '%)';
+
+  checkboxes.forEach(cb => {
+    const step = cb.closest('.step');
+    if (cb.checked) {
+      step.classList.add('checked');
+    } else {
+      step.classList.remove('checked');
+    }
+  });
+
+  const state = Array.from(checkboxes).map(cb => cb.checked);
+  try { localStorage.setItem('lifeline-checklist-progress', JSON.stringify(state)); } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('lifeline-checklist-progress'));
+    if (saved) {
+      const checkboxes = document.querySelectorAll('.step input[type="checkbox"]');
+      saved.forEach((val, i) => {
+        if (checkboxes[i]) checkboxes[i].checked = val;
+      });
+      updateProgress();
+    }
+  } catch(e) {}
+}
+
+// Copy ONLY the .prompt-text div content — never the button or h3 title.
+// This is the fix for the PUBLISHING_GUIDE.html bug where box.textContent
+// included the "Copy" button text in the clipboard.
+function copyPrompt(promptBoxId) {
+  const box = document.getElementById(promptBoxId);
+  if (!box) return;
+
+  const promptTextEl = box.querySelector('.prompt-text');
+  if (!promptTextEl) return;
+
+  const text = promptTextEl.innerText.trim();
+  navigator.clipboard.writeText(text).then(function() {
+    const btn = box.querySelector('.prompt-copy-btn');
+    if (btn) {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() {
+        btn.textContent = 'Copy Prompt';
+        btn.classList.remove('copied');
+      }, 2000);
+    }
+  }).catch(function() {
+    // Fallback for older browsers
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(ex) {}
+    document.body.removeChild(ta);
+    const btn = box.querySelector('.prompt-copy-btn');
+    if (btn) {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() {
+        btn.textContent = 'Copy Prompt';
+        btn.classList.remove('copied');
+      }, 2000);
+    }
+  });
+}
+
+loadProgress();
+</script>
+
+</body>
+</html>

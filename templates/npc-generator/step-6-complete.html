@@ -1,40 +1,40 @@
 <div class="step-content step-complete">
-  <h3>Actor Created!</h3>
+  <h3>{{localize "CONTINUUM.NpcGenerator.ActorCreated"}}</h3>
   <p class="complete-actor-name"></p>
 
   <div class="complete-link-section">
-    <h4>Link to Player Character</h4>
-    <p class="complete-link-hint">Optionally link this NPC to a player character.</p>
+    <h4>{{localize "CONTINUUM.NpcGenerator.LinkToPc"}}</h4>
+    <p class="complete-link-hint">{{localize "CONTINUUM.NpcGenerator.LinkToPcHint"}}</p>
 
     <div class="form-group">
-      <label for="npc-pc-select">Player Character</label>
+      <label for="npc-pc-select">{{localize "CONTINUUM.NpcGenerator.PlayerCharacter"}}</label>
       <select id="npc-pc-select">
-        <option value="">-- Select a PC --</option>
+        <option value="">{{localize "CONTINUUM.NpcGenerator.SelectPc"}}</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label for="npc-relationship-type">Relationship</label>
+      <label for="npc-relationship-type">{{localize "CONTINUUM.Relationships.RelationshipType"}}</label>
       <select id="npc-relationship-type">
-        <option value="Mentor">Mentor</option>
-        <option value="Student">Student</option>
-        <option value="Friend">Friend</option>
-        <option value="Colleague">Colleague</option>
-        <option value="Rival">Rival</option>
-        <option value="Superior">Superior</option>
-        <option value="Subordinate">Subordinate</option>
-        <option value="Sibling">Sibling</option>
-        <option value="Parent">Parent</option>
-        <option value="Spouse">Spouse</option>
-        <option value="Acquaintance" selected>Acquaintance</option>
+        <option value="Mentor">{{localize "CONTINUUM.Relationships.Mentor"}}</option>
+        <option value="Student">{{localize "CONTINUUM.NpcGenerator.Student"}}</option>
+        <option value="Friend">{{localize "CONTINUUM.Relationships.Friend"}}</option>
+        <option value="Colleague">{{localize "CONTINUUM.Relationships.Colleague"}}</option>
+        <option value="Rival">{{localize "CONTINUUM.Relationships.Rival"}}</option>
+        <option value="Superior">{{localize "CONTINUUM.Relationships.Superior"}}</option>
+        <option value="Subordinate">{{localize "CONTINUUM.Relationships.Subordinate"}}</option>
+        <option value="Sibling">{{localize "CONTINUUM.Relationships.Sibling"}}</option>
+        <option value="Parent">{{localize "CONTINUUM.Relationships.Parent"}}</option>
+        <option value="Spouse">{{localize "CONTINUUM.Relationships.Spouse"}}</option>
+        <option value="Acquaintance" selected>{{localize "CONTINUUM.Relationships.Acquaintance"}}</option>
       </select>
     </div>
 
-    <button type="button" class="complete-link-btn">Link to PC</button>
+    <button type="button" class="complete-link-btn">{{localize "CONTINUUM.NpcGenerator.LinkToPcBtn"}}</button>
   </div>
 
   <div class="complete-actions">
-    <button type="button" class="complete-open-sheet-btn">Open Character Sheet</button>
-    <button type="button" class="complete-close-btn">Close</button>
+    <button type="button" class="complete-open-sheet-btn">{{localize "CONTINUUM.NpcGenerator.OpenCharacterSheet"}}</button>
+    <button type="button" class="complete-close-btn">{{localize "CONTINUUM.NpcGenerator.Close"}}</button>
   </div>
 </div>

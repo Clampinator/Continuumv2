@@ -1,8 +1,8 @@
 <div class="step-content step-time-faction">
-  <h3>Time & Faction</h3>
+  <h3>{{localize "CONTINUUM.NpcGenerator.TimeFaction"}}</h3>
 
   <div class="form-group">
-    <label for="npc-era">Era</label>
+    <label for="npc-era">{{localize "CONTINUUM.NpcGenerator.Era"}}</label>
     <select id="npc-era" name="data.era">
       <option value="Ancient">Ancient</option>
       <option value="Medieval">Medieval</option>
@@ -14,19 +14,19 @@
   </div>
 
   <div class="form-group">
-    <label for="npc-type">NPC Type</label>
+    <label for="npc-type">{{localize "CONTINUUM.NpcGenerator.NpcType"}}</label>
     <select id="npc-type" name="data.npcType">
-      <option value="Leveler" selected>Leveler (ordinary person)</option>
-      <option value="continuum-v2">Continuum Agent</option>
-      <option value="Narcissist">Narcissist</option>
-      <option value="Mentor">Mentor</option>
+      <option value="Leveler" selected>{{localize "CONTINUUM.NpcGenerator.Leveler"}}</option>
+      <option value="continuum-v2">{{localize "CONTINUUM.NpcGenerator.ContinuumAgent"}}</option>
+      <option value="Narcissist">{{localize "CONTINUUM.NpcGenerator.Narcissist"}}</option>
+      <option value="Mentor">{{localize "CONTINUUM.NpcGenerator.Mentor"}}</option>
     </select>
-    <span class="hint" id="npc-type-hint">Levelers have no knowledge of the Continuum, spanning, or fraternities.</span>
+    <span class="hint" id="npc-type-hint">{{localize "CONTINUUM.NpcGenerator.LevelerHint"}}</span>
   </div>
 
   <div class="spanner-fields hidden">
     <div class="form-group">
-      <label for="npc-fraternity">Fraternity</label>
+      <label for="npc-fraternity">{{localize "CONTINUUM.NpcGenerator.Fraternity"}}</label>
       <select id="npc-fraternity" name="data.fraternity">
         <option value="Engineers">Engineers</option>
         <option value="Foxhorn">Foxhorn</option>
@@ -36,13 +36,13 @@
         <option value="Moneychangers">Moneychangers</option>
         <option value="Quicker">Quicker</option>
         <option value="Thesbians">Thesbians</option>
-        <option value="None" selected>None / Unaffiliated</option>
-        <option value="Unknown">Unknown</option>
+        <option value="None" selected>{{localize "CONTINUUM.NpcGenerator.NoneUnaffiliated"}}</option>
+        <option value="Unknown">{{localize "CONTINUUM.NpcGenerator.Unknown"}}</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label>Span Rank</label>
+      <label>{{localize "CONTINUUM.NpcGenerator.SpanRank"}}</label>
       <div class="span-rank-buttons">
         <button type="button" class="span-rank-btn" data-rank="1">Span 1</button>
         <button type="button" class="span-rank-btn" data-rank="2">Span 2</button>

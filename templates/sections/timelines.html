@@ -3,10 +3,10 @@
   <input type="checkbox" id="toggle-timelines-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat 'toggle-timelines-' actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-timelines-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Timelines</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.Timelines.Title"}}</h2>
     </label>
     <div class="timelines-controls" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
-        <button type="button" class="timelines-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="timelines-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
         {{#if (or @root.isGM @root.playersCanSeeSpan)}}
         <div class="timeline-view-toggle-container" style="margin-left: 0;">
           <input type="checkbox" id="timeline-view-toggle-{{actor.id}}" class="sheet-hidden timeline-view-toggle-cb event-toggle-checkbox" {{#if (lookup toggles (concat 'timeline-view-toggle-' actor.id))}}checked{{/if}}>
@@ -29,16 +29,16 @@
       </svg>
     </div>
     <div class="timelines-panel subjective-panel">
-      Subjective
+      {{localize "CONTINUUM.Timelines.Subjective"}}
     </div>
     <!-- Popover for editing timeline items -->
     <div class="timeline-popover" style="display: none;">
       <div class="popover-content">
-        <input type="text" data-name="name" class="popover-eventTitle" placeholder="eventTitle/Name" />
-        <textarea data-name="eventNotes" class="popover-eventNotes" placeholder="Description"></textarea>
+        <input type="text" data-name="name" class="popover-eventTitle" placeholder="{{localize 'CONTINUUM.Timelines.TitlePlaceholder'}}" />
+        <textarea data-name="eventNotes" class="popover-eventNotes" placeholder="{{localize 'CONTINUUM.Timelines.DescriptionPlaceholder'}}"></textarea>
         <div class="popover-dates">
           <div class="popover-date-field" data-field="from">
-            <label>From</label>
+            <label>{{localize "CONTINUUM.Timelines.From"}}</label>
             <div class="date-picker-container">
                 <input type="text" class="date-text-input" data-name="dateFrom" placeholder="YYYY-MM-DD" />
                 <i class="fas fa-calendar-alt date-picker-icon"></i>
@@ -47,7 +47,7 @@
             <input type="time" data-name="timeFrom" />
           </div>
           <div class="popover-date-field" data-field="to">
-            <label>To</label>
+            <label>{{localize "CONTINUUM.Timelines.To"}}</label>
             <div class="date-picker-container">
                 <input type="text" class="date-text-input" data-name="dateTo" placeholder="YYYY-MM-DD" />
                 <i class="fas fa-calendar-alt date-picker-icon"></i>

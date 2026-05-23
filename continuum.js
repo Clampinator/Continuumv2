@@ -34,7 +34,7 @@ Hooks.once('init', () => {
     const unitTier = sizeMatch ? parseInt(sizeMatch[0]) : 0;
 
     if (isUnitGated(unitTier, externalRep)) {
-      return new Handlebars.SafeString(`<span class="unit-status-gated" title="Gated by External Reputation"><i class="fas fa-lock"></i> Gated</span>`);
+      return new Handlebars.SafeString(`<span class="unit-status-gated" title="${game.i18n.localize("CONTINUUM.SpanGraph.GatedByExternalReputation")}"><i class="fas fa-lock"></i> ${game.i18n.localize("CONTINUUM.SpanGraph.Gated")}</span>`);
     }
     return "";
   });
@@ -81,13 +81,13 @@ export class ContinuumActorSheet extends BaseActorSheet {
     const displayRank = rank === 0 ? 1 : rank;
     const rankData = ITEM_DATA.metabilities[metabilityName]?.ranks[displayRank];
     if (!rankData) {
-      this.element.find('.info-box p').html('—');
+      this.element.find('.info-box p').html(game.i18n.localize("CONTINUUM.SpanGraph.EmDash"));
       return;
     }
     this.element.find('.info-box').each((_, boxEl) => {
       const box = $(boxEl);
       const key = box.data('key');
-      const value = rankData[key] || '—';
+      const value = rankData[key] || game.i18n.localize("CONTINUUM.SpanGraph.EmDash");
       box.find('p').html(value);
     });
   }

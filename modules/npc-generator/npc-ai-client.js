@@ -429,7 +429,7 @@ function buildPrompt(wizardData) {
     : 'Latent';
 
   const attrDetails = attributePreset === 'custom'
-    ? `Body ${customAttributes.body}, Mind ${customAttributes.mind}, EQ ${customAttributes.eq}, Quick ${customAttributes.quick}`
+    ? `Force ${customAttributes.force}, Analyze ${customAttributes.analyze}, Relate ${customAttributes.relate}, React ${customAttributes.react}`
     : attributePreset;
 
   const nameInstruction = name

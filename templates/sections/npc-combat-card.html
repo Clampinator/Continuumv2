@@ -6,15 +6,15 @@
             <span class="npc-name">{{name}}</span>
         </div>
         
-        <div class="npc-ap-readout" data-tooltip="Action Points Gain">
+        <div class="npc-ap-readout" data-tooltip="{{localize 'CONTINUUM.NpcCombat.ActionPointsGain'}}">
             <span class="ap-value">{{#if flags.ap}}{{flags.ap}}{{else}}—{{/if}}</span>
         </div>
 
         <div class="npc-attr-rolls">
-            <button type="button" class="npc-roll-btn" data-attribute="body" eventTitle="Roll Force AP">F</button>
-            <button type="button" class="npc-roll-btn" data-attribute="mind" eventTitle="Roll Analyze AP">A</button>
-            <button type="button" class="npc-roll-btn" data-attribute="eq" eventTitle="Roll Relate AP">R</button>
-            <button type="button" class="npc-roll-btn" data-attribute="quick" eventTitle="Roll Move AP">M</button>
+            <button type="button" class="npc-roll-btn" data-attribute="force" eventTitle="{{localize 'CONTINUUM.NpcCombat.RollForceAP'}}">F</button>
+            <button type="button" class="npc-roll-btn" data-attribute="analyze" eventTitle="{{localize 'CONTINUUM.NpcCombat.RollAnalyzeAP'}}">A</button>
+            <button type="button" class="npc-roll-btn" data-attribute="relate" eventTitle="{{localize 'CONTINUUM.NpcCombat.RollRelateAP'}}">R</button>
+            <button type="button" class="npc-roll-btn" data-attribute="react" eventTitle="{{localize 'CONTINUUM.NpcCombat.RollReactAP'}}">X</button>
         </div>
     </div>
 
@@ -25,10 +25,10 @@
             <div class="phase-box {{p.mode}}" data-phase-index="{{p.index}}">
                 {{#if p.isActive}}
                     <div class="action-cluster">
-                        <i class="fas fa-clock npc-declare-btn" data-action="defer" eventTitle="Defer"></i>
-                        <i class="fas fa-running npc-declare-btn" data-action="flee" eventTitle="Flee"></i>
-                        <i class="fas fa-shield-alt npc-declare-btn" data-action="defend" eventTitle="Defend"></i>
-                        <i class="fas fa-swords npc-declare-btn" data-action="fight" eventTitle="Fight"></i>
+                        <i class="fas fa-clock npc-declare-btn" data-action="defer" eventTitle="{{localize 'CONTINUUM.NpcCombat.Defer'}}"></i>
+                        <i class="fas fa-running npc-declare-btn" data-action="flee" eventTitle="{{localize 'CONTINUUM.NpcCombat.Flee'}}"></i>
+                        <i class="fas fa-shield-alt npc-declare-btn" data-action="defend" eventTitle="{{localize 'CONTINUUM.NpcCombat.Defend'}}"></i>
+                        <i class="fas fa-swords npc-declare-btn" data-action="fight" eventTitle="{{localize 'CONTINUUM.NpcCombat.Fight'}}"></i>
                     </div>
                 {{else if (or p.isLocked p.isHistorical)}}
                     <div class="locked-action">

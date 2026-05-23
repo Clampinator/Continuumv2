@@ -255,7 +255,7 @@ export function openOrgEncounterEditDialog(sheet, engNode, graphData) {
                                 isOngoing: true, description: '', events: {}, sort: maxSort + 1000,
                             };
                         } else {
-                            ui.notifications.warn('No Phase Period contains this date — create a Phase Period first.');
+                            ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoPhasePeriodForDate"));
                         }
                     }
 

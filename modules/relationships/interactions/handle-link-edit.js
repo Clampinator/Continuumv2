@@ -133,7 +133,7 @@ export function handleLinkEdit(linkHit, linkVisible, sheet) {
                 save: {
                     label: "Save", icon: '<i class="fas fa-save"></i>',
                     callback: async (html) => {
-                        if (d.isAuto) return ui.notifications.warn("Automated links must be edited in the list.");
+                        if (d.isAuto) return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.AutomatedLinksMustEditInList"));
                         const dateFrom = html.find("#link-date-from").val();
                         const dateTo   = html.find("#link-date-to").val();
                         await sheet.actor.update({
@@ -148,7 +148,7 @@ export function handleLinkEdit(linkHit, linkVisible, sheet) {
                 delete: {
                     label: "Delete", icon: '<i class="fas fa-trash"></i>',
                     callback: async () => {
-                        if (d.isAuto) return ui.notifications.warn("Cannot delete automated links.");
+                        if (d.isAuto) return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CannotDeleteAutomatedLinks"));
                         await sheet.actor.update({ [`system.networkEdges.-=${d.id}`]: null });
                     }
                 },

@@ -2,19 +2,19 @@
   <input type="checkbox" id="toggle-experiences-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-experiences-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-experiences-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Eras & Experiences</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.Experiences.Title"}}</h2>
     </label>
     <div class="experience-search-container">
       <i class="fas fa-search"></i>
-      <input type="text" id="experience-search" placeholder="Search Eras, Experiences & Events...">
+      <input type="text" id="experience-search" placeholder="{{localize 'CONTINUUM.Experiences.SearchPlaceholder'}}...">
     </div>
     <div class="experiences-controls">
-        <button type="button" class="timeline-sort-toggle" eventTitle="Toggle Sort Order ({{#if (eq timelineSortDirection 'asc')}}Oldest First{{else}}Newest First{{/if}})">
+        <button type="button" class="timeline-sort-toggle" eventTitle="{{#if (eq timelineSortDirection 'asc')}}{{localize 'CONTINUUM.Experiences.OldestFirst'}}{{else}}{{localize 'CONTINUUM.Experiences.NewestFirst'}}{{/if}}">
             <i class="fas {{#if (eq timelineSortDirection 'asc')}}fa-sort-amount-down-alt{{else}}fa-sort-amount-down{{/if}}"></i>
         </button>
-        <button type="button" class="experiences-help" eventTitle="Help"><i class="fas fa-question"></i></button>
-        <button type="button" class="item-add" data-type="era" data-tooltip="Add a new Era"><i class="fas fa-plus"></i> Add Era</button>
-        <button type="button" class="item-add" data-type="yetItem" data-tooltip="Add a new Yet Item"><i class="fas fa-plus"></i> Add Yet</button>
+        <button type="button" class="experiences-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
+        <button type="button" class="item-add" data-type="era" data-tooltip="{{localize 'CONTINUUM.Experiences.AddEra'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Experiences.AddEra"}}</button>
+        <button type="button" class="item-add" data-type="yetItem" data-tooltip="{{localize 'CONTINUUM.Experiences.AddYet'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Experiences.AddYet"}}</button>
     </div>
   </div>
 
@@ -22,31 +22,31 @@
     {{#each eras as |era|}}
     <div class="era-item draggable-item" data-level="a" data-item-id="{{era.id}}">
       <div class="era-header">
-        <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Era"></i>
+        <i class="fas fa-grip-vertical drag-handle" eventTitle="{{localize 'CONTINUUM.Common.DragToReorder'}} Era"></i>
         <input type="checkbox" id="toggle-era-{{era.id}}" class="sheet-hidden event-toggle-checkbox minimize-toggle-cb" {{#if (lookup @root.toggles (concat "toggle-era-" era.id))}}checked{{else}}checked{{/if}}>
-        <label for="toggle-era-{{era.id}}" class="minimize-maximize-toggle" data-tooltip="Minimize/Maximize Era"></label>
-        <input type="text" class="era-eventTitle" name="system.eras.{{era.id}}.name" value="{{era.name}}" placeholder="Era Name (e.g., Childhood, The War Years)">
-        <label>From:</label>
+        <label for="toggle-era-{{era.id}}" class="minimize-maximize-toggle" data-tooltip="{{localize 'CONTINUUM.Experiences.MinimizeMaximize'}}"></label>
+        <input type="text" class="era-eventTitle" name="system.eras.{{era.id}}.name" value="{{era.name}}" placeholder="{{localize 'CONTINUUM.Experiences.EraNamePlaceholder'}}">
+        <label>{{localize "CONTINUUM.Common.From"}}</label>
         
         <div class="date-picker-container era-date">
-            <input type="text" class="date-text-input {{#if era.isBirthAge}}locked-input{{/if}}" name="system.eras.{{era.id}}.dateFrom" value="{{era.dateFrom}}" placeholder="YYYY-MM-DD" {{#if era.isBirthAge}}readonly data-tooltip="Start Date is locked to previous Age or Birth"{{/if}} />
+            <input type="text" class="date-text-input {{#if era.isBirthAge}}locked-input{{/if}}" name="system.eras.{{era.id}}.dateFrom" value="{{era.dateFrom}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" {{#if era.isBirthAge}}readonly data-tooltip="{{localize 'CONTINUUM.Experiences.StartDateLocked'}}"{{/if}} />
             <i class="fas fa-calendar-alt date-picker-icon"></i>
             {{#unless era.isBirthAge}}
             <input type="date" class="date-picker-hidden" tabindex="-1" />
             {{/unless}}
         </div>
 
-        <label>To:</label>
+        <label>{{localize "CONTINUUM.Common.To"}}</label>
         <div class="date-picker-container era-date">
-            <input type="text" class="date-text-input" name="system.eras.{{era.id}}.dateTo" value="{{era.dateTo}}" placeholder="YYYY-MM-DD" />
+            <input type="text" class="date-text-input" name="system.eras.{{era.id}}.dateTo" value="{{era.dateTo}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
             <i class="fas fa-calendar-alt date-picker-icon"></i>
             <input type="date" class="date-picker-hidden" tabindex="-1" />
         </div>
 
         <div class="era-header-controls">
-          <button type="button" class="item-add" data-type="experience" data-era-id="{{era.id}}"><i class="fas fa-plus"></i> Experience</button>
-          <button type="button" class="item-add" data-type="event" data-era-id="{{era.id}}"><i class="fas fa-plus"></i> Event</button>
-          <a class="item-delete {{#unless (isDeletable . 'era')}}disabled{{/unless}}" data-type="era" data-id="{{era.id}}" data-tooltip="{{#unless (isDeletable . 'era')}}Cannot delete an element with content{{else}}Delete Era{{/unless}}"><i class="fas fa-trash"></i></a>
+          <button type="button" class="item-add" data-type="experience" data-era-id="{{era.id}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Experiences.AddExperience"}}</button>
+          <button type="button" class="item-add" data-type="event" data-era-id="{{era.id}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Experiences.AddEvent"}}</button>
+          <a class="item-delete {{#unless (isDeletable . 'era')}}disabled{{/unless}}" data-type="era" data-id="{{era.id}}" data-tooltip="{{#unless (isDeletable . 'era')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Experiences.DeleteEra'}}{{/unless}}"><i class="fas fa-trash"></i></a>
         </div>
       </div>
 
@@ -56,28 +56,28 @@
               <div class="event-item draggable-item {{#if event.isError}}error-border{{/if}}" data-level="c" data-item-id="{{event.id}}" data-era-id="{{event.eraId}}" data-exp-id="null">
                   <div class="event-main-content-wrapper">
                       <div class="event-normal-layout">
-                          <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Event"></i>
+                          <i class="fas fa-grip-vertical drag-handle" eventTitle="{{localize 'CONTINUUM.Common.DragToReorder'}} Event"></i>
                           <div class="event-content">
                               <div class="event-eventTitle-row">
-                                  <span class="trauma-toggle" data-id="{{event.id}}" data-type="event" data-tooltip="Toggle Trauma">
+                                  <span class="trauma-toggle" data-id="{{event.id}}" data-type="event" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleTrauma'}}">
                                       {{#if (lookup @root.toggles (concat "trauma-" event.id))}}😱{{else}}😊{{/if}}
                                   </span>
                                   <div class="rest-toggle-wrapper">
                                       <input type="checkbox" id="rest-toggle-{{event.id}}-age" class="sheet-hidden rest-toggle-cb" name="system.eras.{{event.eraId}}.events.{{event.id}}.eventIsRest" {{#if event.eventIsRest}}checked{{/if}}>
-                                      <label for="rest-toggle-{{event.id}}-age" class="event-control-button" data-tooltip="Toggle 24h Rest Event">R</label>
+                                      <label for="rest-toggle-{{event.id}}-age" class="event-control-button" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleRest'}}">R</label>
                                   </div>
-                                  <input type="text" class="event-eventTitle-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.eventTitle" value="{{event.eventTitle}}" placeholder="Event eventTitle" />
+                                  <input type="text" class="event-eventTitle-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.eventTitle" value="{{event.eventTitle}}" placeholder="{{localize 'CONTINUUM.Experiences.EventTitle'}}" />
                                   <div class="date-picker-container event-date-input">
-                                      <input type="text" class="date-text-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.date" value="{{event.date}}" placeholder="YYYY-MM-DD" />
+                                      <input type="text" class="date-text-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.date" value="{{event.date}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
                                       <i class="fas fa-calendar-alt date-picker-icon"></i>
                                       <input type="date" class="date-picker-hidden" tabindex="-1" />
                                   </div>
                                   <input type="time" class="event-time-input" name="system.eras.{{event.eraId}}.events.{{event.id}}.time" value="{{event.time}}" />
                               </div>
-                              <textarea name="system.eras.{{event.eraId}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Notes">{{event.eventNotes}}</textarea>
+                              <textarea name="system.eras.{{event.eraId}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="{{localize 'CONTINUUM.Experiences.NotesPlaceholder'}}">{{event.eventNotes}}</textarea>
                           </div>
                           <div class="event-controls">
-                              <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}Cannot delete an element with content{{else}}Delete Event{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{event.eraId}}"><i class="fas fa-trash"></i></a>
+                              <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Experiences.DeleteEvent'}}{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{event.eraId}}"><i class="fas fa-trash"></i></a>
                           </div>
                       </div>
                   </div>
@@ -91,38 +91,38 @@
 
           <div class="experience-content">
             <div class="experience-eventTitle-row">
-              <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Experience"></i>
+              <i class="fas fa-grip-vertical drag-handle" eventTitle="{{localize 'CONTINUUM.Common.DragToReorder'}} Experience"></i>
               <input type="checkbox" id="toggle-experience-{{experience.id}}-ctx-{{../id}}" class="sheet-hidden event-toggle-checkbox minimize-toggle-cb" {{#if (lookup @root.toggles (concat "toggle-experience-" experience.id))}}checked{{else}}checked{{/if}}>
-              <label for="toggle-experience-{{experience.id}}-ctx-{{../id}}" class="minimize-maximize-toggle" data-tooltip="Minimize/Maximize Experience"></label>
+              <label for="toggle-experience-{{experience.id}}-ctx-{{../id}}" class="minimize-maximize-toggle" data-tooltip="{{localize 'CONTINUUM.Experiences.MinimizeMaximize'}}"></label>
               
-              <span class="trauma-toggle" data-id="{{experience.id}}" data-type="experience" data-tooltip="Toggle Trauma">
+              <span class="trauma-toggle" data-id="{{experience.id}}" data-type="experience" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleTrauma'}}">
                 {{#if (lookup @root.toggles (concat "trauma-" experience.id))}}😱{{else}}😊{{/if}}
               </span>
               
-              <input type="text" class="experience-eventTitle" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.name" value="{{experience.name}}" placeholder="Experience eventTitle" />
-              <label>From:</label>
+              <input type="text" class="experience-eventTitle" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.name" value="{{experience.name}}" placeholder="{{localize 'CONTINUUM.Experiences.ExperienceTitle'}}" />
+              <label>{{localize "CONTINUUM.Common.From"}}</label>
               
               <div class="date-picker-container experience-date">
-                <input type="text" class="date-text-input" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.dateFrom" value="{{experience.dateFrom}}" placeholder="YYYY-MM-DD" />
+                <input type="text" class="date-text-input" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.dateFrom" value="{{experience.dateFrom}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
                 <i class="fas fa-calendar-alt date-picker-icon"></i>
                 <input type="date" class="date-picker-hidden" tabindex="-1" />
               </div>
 
-              <label>To:</label>
+              <label>{{localize "CONTINUUM.Common.To"}}</label>
               
               <div class="date-picker-container experience-date">
-                <input type="text" class="date-text-input" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.dateTo" value="{{experience.dateTo}}" placeholder="YYYY-MM-DD" />
+                <input type="text" class="date-text-input" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.dateTo" value="{{experience.dateTo}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
                 <i class="fas fa-calendar-alt date-picker-icon"></i>
                 <input type="date" class="date-picker-hidden" tabindex="-1" />
               </div>
                
                <div class="experience-header-controls">
-                  <a class="item-delete {{#unless (isDeletable . 'experience')}}disabled{{/unless}}" data-id="{{experience.id}}" data-type="experience" data-era-id="{{experience.sourceAgeId}}" data-tooltip="{{#unless (isDeletable . 'experience')}}Cannot delete an element with content{{else}}Delete Experience{{/unless}}"><i class="fas fa-trash"></i></a>
-                  <input type="color" class="color-swatch" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.color" value="{{experience.color}}" data-tooltip="Set Experience Color">
-                  <button type="button" class="event-add" data-era-id="{{experience.sourceAgeId}}" data-exp-id="{{experience.id}}"><i class="fas fa-plus"></i> Add Event</button>
+                  <a class="item-delete {{#unless (isDeletable . 'experience')}}disabled{{/unless}}" data-id="{{experience.id}}" data-type="experience" data-era-id="{{experience.sourceAgeId}}" data-tooltip="{{#unless (isDeletable . 'experience')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Experiences.DeleteExperience'}}{{/unless}}"><i class="fas fa-trash"></i></a>
+                  <input type="color" class="color-swatch" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.color" value="{{experience.color}}" data-tooltip="{{localize 'CONTINUUM.Tooltips.SetExperienceColor'}}">
+                  <button type="button" class="event-add" data-era-id="{{experience.sourceAgeId}}" data-exp-id="{{experience.id}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Experiences.AddEvent"}}</button>
                 </div>
             </div>
-<textarea name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.description" class="js-auto-expand" placeholder="Experience eventNotes">{{experience.description}}</textarea>
+<textarea name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.description" class="js-auto-expand" placeholder="{{localize 'CONTINUUM.Experiences.DescriptionPlaceholder'}}">{{experience.description}}</textarea>
 
             <div class="events-container" data-level="c-list" data-parent-id="{{experience.id}}">
               {{#each experience.events as |event|}}
@@ -131,56 +131,56 @@
                 <div class="event-main-content-wrapper">
                 {{#if event.eventIsSpan}}
                   <div class="event-span-layout">
-                    <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Event"></i>
+                    <i class="fas fa-grip-vertical drag-handle" eventTitle="{{localize 'CONTINUUM.Common.DragToReorder'}} Event"></i>
                     <div class="event-span-grid">
                         <div class="span-grid-column">
                           <div class="direction-radio-group">
                             <input type="radio" id="span-dir-up-{{event.id}}-{{../../id}}" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanDirection" value="up" {{#if (eq event.spanDirection "up")}}checked{{/if}}>
-                            <label for="span-dir-up-{{event.id}}-{{../../id}}" data-tooltip="Span Up">↑</label>
+                            <label for="span-dir-up-{{event.id}}-{{../../id}}" data-tooltip="{{localize 'CONTINUUM.Experiences.SpanUp'}}">↑</label>
 
                             <input type="radio" id="span-dir-level-{{event.id}}-{{../../id}}" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanDirection" value="level" {{#if (eq event.spanDirection "level")}}checked{{/if}}>
-                            <label for="span-dir-level-{{event.id}}-{{../../id}}" data-tooltip="Span Level">↔</label>
+                            <label for="span-dir-level-{{event.id}}-{{../../id}}" data-tooltip="{{localize 'CONTINUUM.Experiences.SpanLevel'}}">↔</label>
 
                             <input type="radio" id="span-dir-down-{{event.id}}-{{../../id}}" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.spanDirection" value="down" {{#if (eq event.spanDirection "down")}}checked{{/if}}>
-                            <label for="span-dir-down-{{event.id}}-{{../../id}}" data-tooltip="Span Down">↓</label>
+                            <label for="span-dir-down-{{event.id}}-{{../../id}}" data-tooltip="{{localize 'CONTINUUM.Experiences.SpanDown'}}">↓</label>
                           </div>
                         </div>
                         <div class="span-grid-column">
                           <div class="from-to-wrapper">
                             <div class="span-datetime-row">
-                              <label>From:</label>
+                              <label>{{localize "CONTINUUM.Common.From"}}</label>
                               <div class="date-picker-container">
-                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromDate" value="{{event.eventSpanFromDate}}" placeholder="YYYY-MM-DD" />
+                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromDate" value="{{event.eventSpanFromDate}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
                                 <i class="fas fa-calendar-alt date-picker-icon"></i>
                                 <input type="date" class="date-picker-hidden" tabindex="-1" />
                               </div>
                               <input type="time" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromTime" value="{{event.eventSpanFromTime}}">
                             </div>
                             <div class="span-location-row">
-                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromLocation" value="{{event.eventSpanFromLocation}}" placeholder="Location From">
+                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanFromLocation" value="{{event.eventSpanFromLocation}}" placeholder="{{localize 'CONTINUUM.Experiences.LocationFrom'}}">
                             </div>
                             <div class="span-datetime-row">
-                              <label>To:</label>
+                              <label>{{localize "CONTINUUM.Common.To"}}</label>
                               <div class="date-picker-container">
-                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToDate" value="{{event.eventSpanToDate}}" placeholder="YYYY-MM-DD" />
+                                <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToDate" value="{{event.eventSpanToDate}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
                                 <i class="fas fa-calendar-alt date-picker-icon"></i>
                                 <input type="date" class="date-picker-hidden" tabindex="-1" />
                               </div>
                               <input type="time" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToTime" value="{{event.eventSpanToTime}}">
                             </div>
                             <div class="span-location-row">
-                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToLocation" value="{{event.eventSpanToLocation}}" placeholder="Location To">
+                              <input type="text" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventSpanToLocation" value="{{event.eventSpanToLocation}}" placeholder="{{localize 'CONTINUUM.Experiences.LocationTo'}}">
                             </div>
                           </div>
                         </div>
                         <div class="span-grid-column">
                           <div class="span-calculation-wrapper">
                             <div class="span-calculation-box">
-                                <label>Spent</label>
+                                <label>{{localize "CONTINUUM.Experiences.Spent"}}</label>
                                 <div class="span-calc-display" id="span-spent-{{event.id}}">{{event.calculatedSpentFormatted}}</div>
                             </div>
                             <div class="span-calculation-box">
-                                <label>Remaining</label>
+                                <label>{{localize "CONTINUUM.Experiences.Remaining"}}</label>
                                 <div class="span-calc-display" id="span-remaining-{{event.id}}">{{event.calculatedRemainingFormatted}}</div>
                             </div>
                           </div>
@@ -190,33 +190,33 @@
                                 {{#if (or @root.isGM @root.playersCanSeeSpan)}}
                                 <div class="span-toggle-wrapper">
                                     <input type="checkbox" id="span-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden span-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventIsSpan" {{#if event.eventIsSpan}}checked{{/if}}>
-                                    <label for="span-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="Toggle Span Event">S</label>
+                                    <label for="span-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleSpan'}}">S</label>
                                 </div>
                                 {{/if}}
-                                <a class="event-control event-link-keyframe" data-tooltip="{{#if event.keyframeId}}Unlink Keyframe{{else}}Link to Keyframe{{/if}}" data-era-id="{{../sourceAgeId}}" data-exp-id="{{../id}}" data-event-id="{{event.id}}" data-kf-id="{{event.keyframeId}}">
+                                <a class="event-control event-link-keyframe" data-tooltip="{{#if event.keyframeId}}{{localize 'CONTINUUM.Experiences.UnlinkKeyframe'}}{{else}}{{localize 'CONTINUUM.Experiences.LinkKeyframe'}}{{/if}}" data-era-id="{{../sourceAgeId}}" data-exp-id="{{../id}}" data-event-id="{{event.id}}" data-kf-id="{{event.keyframeId}}">
                                    <i class="fas {{#if event.keyframeId}}fa-unlink{{else}}fa-link{{/if}}"></i>
                                 </a>
-                                <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}Cannot delete an element with content{{else}}Delete Event{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{../sourceAgeId}}" data-exp-id="{{../id}}"><i class="fas fa-trash"></i></a>
+                                <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Experiences.DeleteEvent'}}{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{../sourceAgeId}}" data-exp-id="{{../id}}"><i class="fas fa-trash"></i></a>
                             </div>
                         </div>
                     </div>
                   </div>
                 {{else}}
                 <div class="event-normal-layout">
-                  <i class="fas fa-grip-vertical drag-handle" eventTitle="Drag to reorder Event"></i>
+                  <i class="fas fa-grip-vertical drag-handle" eventTitle="{{localize 'CONTINUUM.Common.DragToReorder'}} Event"></i>
                   <div class="event-content">
                     <div class="event-eventTitle-row">
-                      <span class="trauma-toggle" data-id="{{event.id}}" data-type="event" data-tooltip="Toggle Trauma">
+                      <span class="trauma-toggle" data-id="{{event.id}}" data-type="event" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleTrauma'}}">
                         {{#if (lookup @root.toggles (concat "trauma-" event.id))}}😱{{else}}😊{{/if}}
                       </span>
                       <div class="rest-toggle-wrapper">
                         <input type="checkbox" id="rest-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden rest-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventIsRest" {{#if event.eventIsRest}}checked{{/if}}>
-                        <label for="rest-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="Toggle 24h Rest Event">R</label>
+                        <label for="rest-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleRest'}}">R</label>
                       </div>
-                      <input type="text" class="event-eventTitle-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventTitle" value="{{event.eventTitle}}" placeholder="Event eventTitle" />
+                      <input type="text" class="event-eventTitle-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventTitle" value="{{event.eventTitle}}" placeholder="{{localize 'CONTINUUM.Experiences.EventTitle'}}" />
                       
                       <div class="date-picker-container event-date-input">
-                        <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.date" value="{{event.date}}" placeholder="YYYY-MM-DD" />
+                        <input type="text" class="date-text-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.date" value="{{event.date}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
                         <i class="fas fa-calendar-alt date-picker-icon"></i>
                         <input type="date" class="date-picker-hidden" tabindex="-1" />
                       </div>
@@ -224,28 +224,28 @@
                       <input type="time" class="event-time-input" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.time" value="{{event.time}}" />
                     </div>
                     {{#if event.keyframeId}}
-                    <div class="event-keyframe-indicator" data-tooltip="Linked to Spacetime Keyframe">
-                        <i class="fas fa-map-marker-alt"></i> <span>Spacetime Link</span>
+                    <div class="event-keyframe-indicator" data-tooltip="{{localize 'CONTINUUM.Experiences.LinkedToSpacetimeKeyframe'}}">
+                        <i class="fas fa-map-marker-alt"></i> <span>{{localize "CONTINUUM.Experiences.SpacetimeLink"}}</span>
                     </div>
                     {{/if}}
-<textarea name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="Notes">{{event.eventNotes}}</textarea>
+<textarea name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventNotes" class="js-auto-expand" placeholder="{{localize 'CONTINUUM.Experiences.NotesPlaceholder'}}">{{event.eventNotes}}</textarea>
                   </div>
                   <div class="event-controls">
                     {{#if (or @root.isGM @root.playersCanSeeSpan)}}
                     <div class="span-toggle-wrapper">
                       <input type="checkbox" id="span-toggle-{{event.id}}-{{../../id}}" class="sheet-hidden span-toggle-cb" name="system.eras.{{../sourceAgeId}}.experiences.{{../id}}.events.{{event.id}}.eventIsSpan" {{#if event.eventIsSpan}}checked{{/if}}>
-                      <label for="span-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="Toggle Span Event">S</label>
+                      <label for="span-toggle-{{event.id}}-{{../../id}}" class="event-control-button" data-tooltip="{{localize 'CONTINUUM.Experiences.ToggleSpan'}}">S</label>
                     </div>
                     {{/if}}
                     <a class="event-control event-link-keyframe" 
-                       data-tooltip="{{#if event.keyframeId}}Unlink Keyframe{{else}}Link to Keyframe{{/if}}" 
+                       data-tooltip="{{#if event.keyframeId}}{{localize 'CONTINUUM.Experiences.UnlinkKeyframe'}}{{else}}{{localize 'CONTINUUM.Experiences.LinkKeyframe'}}{{/if}}" 
                        data-era-id="{{../sourceAgeId}}" 
                        data-exp-id="{{../id}}" 
                        data-event-id="{{event.id}}"
                        data-kf-id="{{event.keyframeId}}">
                        <i class="fas {{#if event.keyframeId}}fa-unlink{{else}}fa-link{{/if}}"></i>
                     </a>
-                    <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}Cannot delete an element with content{{else}}Delete Event{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{../sourceAgeId}}" data-exp-id="{{../id}}"><i class="fas fa-trash"></i></a>
+                    <a class="event-control event-delete {{#unless (isDeletable . 'event')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable . 'event')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Experiences.DeleteEvent'}}{{/unless}}" data-type="event" data-id="{{event.id}}" data-era-id="{{../sourceAgeId}}" data-exp-id="{{../id}}"><i class="fas fa-trash"></i></a>
                   </div>
                 </div>
                 {{/if}}

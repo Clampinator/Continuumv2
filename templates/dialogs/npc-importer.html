@@ -1,12 +1,12 @@
 <form autocomplete="off">
   <div class="form-group">
-    <label>AI-Generated NPC JSON</label>
+    <label>{{localize "CONTINUUM.NPCImporter.Title"}}</label>
     <div class="eventNotes" style="margin-bottom: 10px;">
       <p>
-        Use an AI to generate an NPC. Give it the prompt below, then paste the resulting JSON here after you have answered the AI's questions.
+        {{localize "CONTINUUM.NPCImporter.Instructions"}}
       </p>
       <details>
-        <summary><strong>Click to view the AI prompt</strong></summary>
+        <summary><strong>{{localize "CONTINUUM.NPCImporter.ClickToViewPrompt"}}</strong></summary>
         <div style="position: relative;">
           <!-- The pre tag now has an ID for the JS and an inline style to ensure text is selectable -->
 <!-- In npc-importer.html -->
@@ -25,7 +25,7 @@ Do not generate the final JSON immediately. Instead, you will act as an interact
     *   What is their **Span**? (If they are a Leveler, this will be 0).
     *   Is the character **Operant** or **Latent**?
     *   If **Operant**, which Metabilities do they possess and at what rank (1-5)? A "Strong" character should have at least three Metabilities. (e.g., `Farsense 3, Redaction 2, PK 1`)
-    *   Are their Attributes **Normal** (all around 4), or are they **Exceptional** in some way? (e.g., "High Mind and EQ, but low Body").
+    *   Are their Attributes **Normal** (all around 4), or are they **Exceptional** in some way? (e.g., "High Analyze and Relate, but low Force").
 
 3.  Once I have provided the answers, you will begin a two-part creation process.
 
@@ -64,7 +64,7 @@ photorealistic portrait of a 47-year-old European American man, quiet and unassu
 </pre>
 
           <!-- This button is expected by the activateListeners function in continuum.js -->
-          <button type="button" class="copy-prompt-btn" eventTitle="Copy Prompt" style="position: absolute; top: 10px; right: 10px; padding: 4px 8px; font-size: 0.9em; border: 1px solid #555; background: #3a3a3a; color: #ccc; cursor: pointer;">
+          <button type="button" class="copy-prompt-btn" eventTitle="{{localize 'CONTINUUM.NPCImporter.CopyPrompt'}}" style="position: absolute; top: 10px; right: 10px; padding: 4px 8px; font-size: 0.9em; border: 1px solid #555; background: #3a3a3a; color: #ccc; cursor: pointer;">
             <i class="fas fa-copy"></i>
           </button>
         </div>
@@ -76,7 +76,7 @@ photorealistic portrait of a 47-year-old European American man, quiet and unassu
 
   <footer class="sheet-footer flexrow">
     <button type="submit" name="submit">
-      <i class="fas fa-file-import"></i> Import NPC
+      <i class="fas fa-file-import"></i> {{localize "CONTINUUM.NPCImporter.ImportNPC"}}
     </button>
   </footer>
 </form>

@@ -3,7 +3,10 @@ coverage/
 .DS_Store
 *.log
 reference OLD/
-
 opencode.json
 .opencode/
 .git-backup/
+portraits/npc_*.png
+screenshots/
+assets/ChatGPT*
+assets/Screenshot*

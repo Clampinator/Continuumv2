@@ -54,6 +54,6 @@ export async function linkGoalToEvent(actor, goalId, eraId, expId, eventId) {
     [legacyPath]: null
   });
 
-  ui.notifications.info('Goal linked to event.');
+  ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.GoalLinkedToEvent"));
   return true;
 }

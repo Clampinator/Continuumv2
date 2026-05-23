@@ -29,7 +29,7 @@ export function handleSidebarDrop(container, sheet) {
 
         // Prevent dropping the sheet's own actor onto their own map
         if (droppedActor.id === sheet.actor.id) {
-            ui.notifications.warn("You cannot add this character to their own relationship map.");
+            ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CannotAddOwnMap"));
             return;
         }
 
@@ -37,7 +37,7 @@ export function handleSidebarDrop(container, sheet) {
         const existing = Object.values(sheet.actor.system.network || {})
             .find(n => n.name === droppedActor.name);
         if (existing) {
-            ui.notifications.warn(`${droppedActor.name} is already on the map.`);
+            ui.notifications.warn(game.i18n.format("CONTINUUM.Notifications.AlreadyOnMap", {name: droppedActor.name}));
             return;
         }
 
@@ -60,6 +60,6 @@ export function handleSidebarDrop(container, sheet) {
             }
         });
 
-        ui.notifications.info(`Added ${droppedActor.name} to the map.`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.AddedToMap", {name: droppedActor.name}));
     });
 }

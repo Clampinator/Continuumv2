@@ -90,7 +90,7 @@ export const HELP_TEXT = {
             <ul style="margin-bottom: 10px;">
                 <li><strong>Force:</strong> Physical strength, stamina, and resilience. Determines melee damage and health.</li>
                 <li><strong>Analyze:</strong> Intelligence, memory, and reasoning capability.</li>
-                <li><strong>Move:</strong> Agility, reflexes, and coordination. Used for initiative and driving.</li>
+                <li><strong>React:</strong> Agility, reflexes, and coordination. Used for initiative and driving.</li>
                 <li><strong>Relate:</strong> Emotional Quotient. Social skills, empathy, and manipulation.</li>
             </ul>
 
@@ -217,10 +217,10 @@ export const HELP_TEXT = {
             </ul>
 
             <h5 style="color: #ddd; margin-bottom: 4px;">Running</h5>
-            <p style="margin-bottom: 5px;">Check <strong>Running</strong> to mark an Application as active in the background. Running Applications impose a penalty to <strong>Analyze (Mind)</strong> rolls:</p>
+            <p style="margin-bottom: 5px;">Check <strong>Running</strong> to mark an Application as active in the background. Running Applications impose a penalty to <strong>Analyze</strong> rolls:</p>
             <ul style="margin-bottom: 10px;">
                 <li>Apps whose total levels fit within <em>(Analyze - 1)</em> run for free.</li>
-                <li>Each additional App beyond that free capacity costs <strong>-1 to Mind rolls</strong>. The penalty is calculated greedily, fitting the largest Apps into the free capacity first.</li>
+                <li>Each additional App beyond that free capacity costs <strong>-1 to Analyze rolls</strong>. The penalty is calculated greedily, fitting the largest Apps into the free capacity first.</li>
             </ul>
         </div>
     `,
@@ -249,7 +249,7 @@ export const HELP_TEXT = {
             <ul style="margin-bottom: 10px;">
                 <li><strong>Weapons:</strong> Add Ranged or Melee weapons. Click "Attack" to roll. Stats like Damage, Ammo, and RoF are displayed.</li>
                 <li><strong>Armor:</strong> Equip armor pieces. The diagram updates to show total IP protection per location.</li>
-                <li><strong>Encumbrance:</strong> Total armor weight reduces your Move attribute.</li>
+                <li><strong>Encumbrance:</strong> Total armor weight reduces your React attribute.</li>
                 <li><strong>Wounds:</strong> Track damage to your body (IP). Mark 'Lethal' for serious injuries or 'Bleed' for ongoing damage.</li>
             </ul>
         </div>
@@ -301,7 +301,7 @@ export const HELP_TEXT = {
             <p style="margin-bottom: 10px;">Manage all types of transportation: Land, Air, and Water.</p>
             <ul style="margin-bottom: 10px;">
                 <li><strong>Add Vehicle:</strong> Creates a new entry. You can select the specific chassis type (Car, Plane, Boat) from the dropdown.</li>
-                <li><strong>Roll:</strong> Click the "Roll" button to make a Move-based piloting check tailored to the vehicle type.</li>
+                <li><strong>Roll:</strong> Click the "Roll" button to make a React-based piloting check tailored to the vehicle type.</li>
                 <li><strong>Stats:</strong> Displays Mass, IP (Integrity), Armor, and Passengers based on the chassis.</li>
             </ul>
         </div>
@@ -312,7 +312,7 @@ export const HELP_TEXT = {
             <p style="margin-bottom: 10px;">Aerial transportation.</p>
             <ul style="margin-bottom: 10px;">
                 <li><strong>Vehicle:</strong> Select airframe (e.g., Jet, Helicopter).</li>
-                <li><strong>Pilot:</strong> Click to make a Move-based piloting check.</li>
+                <li><strong>Pilot:</strong> Click to make a React-based piloting check.</li>
                 <li><strong>Stats:</strong> Mass, IP (Integrity Points), Armor, and Passenger capacity.</li>
             </ul>
         </div>
@@ -323,7 +323,7 @@ export const HELP_TEXT = {
             <p style="margin-bottom: 10px;">Maritime transportation.</p>
             <ul style="margin-bottom: 10px;">
                 <li><strong>Vehicle:</strong> Select vessel type (e.g., Speedboat, Submarine).</li>
-                <li><strong>Pilot:</strong> Click to make a Move-based piloting check.</li>
+                <li><strong>Pilot:</strong> Click to make a React-based piloting check.</li>
                 <li><strong>Stats:</strong> Mass, IP (Integrity Points), Armor, and Passenger capacity.</li>
             </ul>
         </div>
@@ -334,7 +334,7 @@ export const HELP_TEXT = {
             <p style="margin-bottom: 10px;">Manage your equipment and carried items.</p>
             <ul style="margin-bottom: 10px;">
                 <li><strong>Items:</strong> Drag and drop items from the sidebar to add them here.</li>
-                <li><strong>Bonus:</strong> Some gear provides a bonus to specific Attribute rolls (e.g. +1 Move). Click the item name to roll.</li>
+                <li><strong>Bonus:</strong> Some gear provides a bonus to specific Attribute rolls (e.g. +1 React). Click the item name to roll.</li>
                 <li><strong>Carried:</strong> Toggle the checkbox to indicate if you are currently carrying the item. Only carried items count towards weight.</li>
                 <li><strong>Weight Limit:</strong> Your Spanning rank determines how much mass you can span with. Exceeding this prevents Spanning.</li>
             </ul>

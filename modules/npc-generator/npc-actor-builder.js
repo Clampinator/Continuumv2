@@ -15,7 +15,7 @@ function getCultureLabel(region, culture) {
 export async function buildActorFromAIResponse(aiResponse, wizardData, addLog) {
   const { name, narrative, secret, imagePrompt, foundryJson } = aiResponse;
 
-  const actorName = wizardData.name || name || 'Unnamed NPC';
+  const actorName = wizardData.name || name || game.i18n.localize("CONTINUUM.NpcGenerator.NamePlaceholder");
 
   const npcType = wizardData.npcType || 'Leveler';
   const isLeveler = npcType === 'Leveler';
@@ -267,19 +267,19 @@ function buildAttributes(wizardData) {
   const { attributePreset, customAttributes } = wizardData;
 
   const presets = {
-    balanced: { body: 4, mind: 4, eq: 4, quick: 4 },
-    physical: { body: 6, mind: 3, eq: 3, quick: 5 },
-    intellectual: { body: 3, mind: 6, eq: 5, quick: 3 },
-    social: { body: 3, mind: 5, eq: 6, quick: 4 }
+    balanced: { force: 4, analyze: 4, relate: 4, react: 4 },
+    physical: { force: 6, analyze: 3, relate: 3, react: 5 },
+    intellectual: { force: 3, analyze: 6, relate: 5, react: 3 },
+    social: { force: 3, analyze: 5, relate: 6, react: 4 }
   };
 
   const attrs = attributePreset === 'custom' ? customAttributes : (presets[attributePreset] || presets.balanced);
 
   return {
-    body: { value: attrs.body },
-    mind: { value: attrs.mind },
-    eq: { value: attrs.eq },
-    quick: { value: attrs.quick },
+    force: { value: attrs.force },
+    analyze: { value: attrs.analyze },
+    relate: { value: attrs.relate },
+    react: { value: attrs.react },
     willpower: { temp: 5, perm: 5 }
   };
 }

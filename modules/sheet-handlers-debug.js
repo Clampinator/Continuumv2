@@ -34,9 +34,9 @@ export async function handleDebugGraphDataClick(sheet, event) {
 
     try {
         await navigator.clipboard.writeText(JSON.stringify(exportData, null, 2));
-        ui.notifications.info(`Debug Graph Data for ${actor.name} copied to clipboard!`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.DebugGraphDataCopied", {name: actor.name}));
     } catch (err) {
-        ui.notifications.error("Failed to copy data to clipboard.");
+        ui.notifications.error(game.i18n.localize("CONTINUUM.Notifications.FailedToCopyData"));
     }
 }
 
@@ -73,7 +73,7 @@ export async function handleFixRailOffsetsClick(sheet, event) {
     }
 
     if (count === 0) {
-        ui.notifications.info("No Reconciliation Loops found — rail is already clean.");
+        ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.NoReconciliationLoops"));
         return;
     }
 
@@ -86,7 +86,7 @@ export async function handleFixRailOffsetsClick(sheet, event) {
         renderGraph(svg, viewState, graphData);
     }
 
-    ui.notifications.info(`Cleared ${count} Reconciliation Loop(s). Lifeline rail rebuilt.`);
+    ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.ClearedReconciliationLoops", {count}));
 }
 
 export async function handleTimelineSortToggle(sheet, event) {

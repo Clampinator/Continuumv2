@@ -169,7 +169,7 @@ export function showCreateExperienceDialog(viewState, graphData, sheet, svg, dur
     const eraId = context ? context.eraId : null;
 
     if (!eraId || eraId === 'NEW_ERA') {
-        ui.notifications.warn("Please create an Era first.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CreateEraFirst"));
         viewState.interactionMode = 'pan';
         renderGraph(svg, viewState, graphData);
         return;

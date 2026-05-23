@@ -36,13 +36,13 @@ export function activateLocationListeners(sheet, html) {
         const value = sheet.actor.system.attributes[attribute].value;
         
         // Trigger a basic roll dialog (placeholder for now)
-        ui.notifications.info(`Rolling ${attribute.toUpperCase()}: ${value}`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.Location.RollingAttribute", {attribute: attribute.toUpperCase(), value}));
         // In the real system, this would call the roll engine.
     });
 
     // Handle Map Reset
     html.find('.reset-map-view').click(ev => {
-        ui.notifications.info("Map view reset to default coordinates.");
+        ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.MapResetDefault"));
         // Map logic will go here
     });
 
@@ -62,7 +62,7 @@ export function activateLocationListeners(sheet, html) {
         const query = [name, locality].filter(Boolean).join(', ');
 
         if (!window.google?.maps?.Geocoder) {
-            return ui.notifications.warn("Google Maps is not loaded yet — open an Org Map first, then try again.");
+            return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.GoogleMapsNotLoaded"));
         }
 
         const btn = $(ev.currentTarget);
@@ -83,11 +83,11 @@ export function activateLocationListeners(sheet, html) {
         btn.find('i').attr('class', 'fas fa-map-marker-alt');
 
         if (!result) {
-            return ui.notifications.warn(`Could not geocode "${query}". Check the location name and try again.`);
+            return ui.notifications.warn(game.i18n.format("CONTINUUM.Notifications.CouldNotGeocode", {query}));
         }
 
         await sheet.actor.update({ 'system.map.lat': result.lat, 'system.map.lng': result.lng });
-        ui.notifications.info(`Coordinates set: ${result.lat.toFixed(4)}, ${result.lng.toFixed(4)}`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.CoordinatesSet", {lat: result.lat.toFixed(4), lng: result.lng.toFixed(4)}));
     });
 
     // GM toggle: reveal/hide this location on player org maps
@@ -99,6 +99,6 @@ export function activateLocationListeners(sheet, html) {
         $(this).closest('.location-reveal-toggle').attr('eventTitle',
             revealed ? 'Hide from player Org Maps' : 'Reveal on player Org Maps'
         );
-        ui.notifications.info(`${sheet.actor.name} is now ${revealed ? 'visible on' : 'hidden from'} Org Maps.`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.LocationVisibilityToggled", {name: sheet.actor.name, state: revealed ? game.i18n.localize("CONTINUUM.Notifications.VisibleOn") : game.i18n.localize("CONTINUUM.Notifications.HiddenFrom")}));
     });
 }

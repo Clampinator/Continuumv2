@@ -692,7 +692,7 @@ export function buildLifeline(foundryJson, geoMap, wizardData, addLog) {
 
   if (addLog) {
     const eraCount = Object.keys(eras).length;
-    addLog(`Building lifeline with ${eraCount} eras...`);
+    addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.LifelineBuilt", {events: 0, experiences: 0, eras: eraCount}));
   }
 
   const lifelineWithEvents = buildEvents(foundryJson, wizardData, eras, geoMap, addLog);
@@ -702,7 +702,7 @@ export function buildLifeline(foundryJson, geoMap, wizardData, addLog) {
     const restCount = Object.values(lifelineWithEvents).reduce((sum, era) => {
       return sum + Object.values(era.events || {}).filter(e => e.eventIsRest).length;
     }, 0);
-    if (addLog && restCount > 0) addLog(`Applied span pool limits: inserted ${restCount} rest event(s).`);
+    if (addLog && restCount > 0) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.AppliedSpanPoolLimits", {count: restCount}));
   }
 
   // createdAt reset removed: the spreadsheet now sorts by subjective age (event.eventAge),
@@ -715,7 +715,7 @@ export function buildLifeline(foundryJson, geoMap, wizardData, addLog) {
 
   const expCount = Object.values(lifelineWithEvents).reduce((sum, era) => sum + Object.keys(era.experiences || {}).length, 0);
 
-  if (addLog) addLog(`Lifeline built: ${eventCount} events, ${expCount} experiences across ${Object.keys(lifelineWithEvents).length} eras.`);
+  if (addLog) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.LifelineBuilt", {events: eventCount, experiences: expCount, eras: Object.keys(lifelineWithEvents).length}));
 
   return lifelineWithEvents;
 }

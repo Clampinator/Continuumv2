@@ -101,18 +101,18 @@ Called from the token context menu.
 export async function openEventPicker(actor, tokenDoc) {
   const pos = _readTokenPosition(tokenDoc);
   if (!pos) {
-    ui.notifications.warn('Token has no position on the map. Drag it first, then assign.');
+    ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.TokenNoPosition"));
     return;
   }
 
   if (!(game.user.isGM || actor.isOwner)) {
-    ui.notifications.warn('You do not have permission to edit this character.');
+    ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoPermissionToEdit"));
     return;
   }
 
   const events = collectAllEventsWithPaths(actor);
   if (events.length === 0) {
-    ui.notifications.info('This character has no events to assign a location to.');
+    ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.NoEventsToAssign"));
     return;
   }
 
@@ -139,30 +139,30 @@ export async function openEventPicker(actor, tokenDoc) {
 
   const content = `
     <div class="form-group">
-      <label>Assign token position to event:</label>
+      <label>${game.i18n.localize("CONTINUUM.Notifications.AssignLocationToEvent")}</label>
       <select id="continuum-assign-event-select" style="width:100%;max-width:100%">
         ${rows.join('')}
       </select>
     </div>
     <div id="continuum-assign-span-role" style="display:none;margin-top:6px">
-      <label>Assign as:</label>
+      <label>${game.i18n.localize("CONTINUUM.Notifications.AssignAsLabel")}</label>
       <select id="continuum-assign-span-role-select" style="width:100%">
-        <option value="both">Both departure &amp; arrival</option>
-        <option value="from">Departure only</option>
-        <option value="to">Arrival only</option>
+        <option value="both">${game.i18n.localize("CONTINUUM.Notifications.BothDepartureArrival")}</option>
+        <option value="from">${game.i18n.localize("CONTINUUM.Notifications.DepartureOnly")}</option>
+        <option value="to">${game.i18n.localize("CONTINUUM.Notifications.ArrivalOnly")}</option>
       </select>
     </div>
     <p class="notes" style="margin-top:4px">
-      Token position: ${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}
+      ${game.i18n.format("CONTINUUM.Notifications.TokenPosition", {lat: pos.lat.toFixed(4), lng: pos.lng.toFixed(4)})}
     </p>`;
 
   new Dialog({
-    title: `Assign Location - ${actor.name}`,
+    title: game.i18n.format("CONTINUUM.Notifications.AssignLocationTitle", {name: actor.name}),
     content,
     buttons: {
       assign: {
         icon: '<i class="fas fa-map-pin"></i>',
-        label: 'Assign',
+        label: game.i18n.localize("CONTINUUM.Notifications.Assign"),
         callback: async (html) => {
           const select = html.find('#continuum-assign-event-select')[0];
           const path = select.value;
@@ -174,12 +174,12 @@ export async function openEventPicker(actor, tokenDoc) {
           } else {
             await _assignLevelEvent(actor, path, pos.lat, pos.lng);
           }
-          ui.notifications.info(`Location assigned to event.`);
+          ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.LocationAssignedToEvent"));
         }
       },
       cancel: {
         icon: '<i class="fas fa-times"></i>',
-        label: 'Cancel'
+        label: game.i18n.localize("CONTINUUM.Common.Cancel")
       }
     },
     default: 'assign',
@@ -206,12 +206,12 @@ markerKey format:
 export async function updateEventFromToken(actor, tokenDoc, markerKey) {
   const pos = _readTokenPosition(tokenDoc);
   if (!pos) {
-    ui.notifications.warn('Token has no position on the map. Drag it first.');
+    ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.TokenNoPositionDragFirst"));
     return;
   }
 
   if (!(game.user.isGM || actor.isOwner)) {
-    ui.notifications.warn('You do not have permission to edit this character.');
+    ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoPermissionToEdit"));
     return;
   }
 
@@ -227,7 +227,7 @@ export async function updateEventFromToken(actor, tokenDoc, markerKey) {
       'system.personal.birthLat': pos.lat,
       'system.personal.birthLng': pos.lng
     });
-    ui.notifications.info(`Birthplace updated from token position.`);
+    ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.BirthplaceUpdatedFromToken"));
     return;
   }
 
@@ -289,7 +289,7 @@ export async function updateEventFromToken(actor, tokenDoc, markerKey) {
   }
 
   const label = evt.eventTitle || 'Event';
-  ui.notifications.info(`"${label}" location updated from token position.`);
+  ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.LocationUpdatedFromToken", {label}));
 }
 
 /*
@@ -305,7 +305,7 @@ export function getTokenContextMenuItems(tokenDoc) {
   if (!(game.user.isGM || actor.isOwner)) return [];
 
   return [{
-    label: 'Assign Location to Event...',
+    label: game.i18n.localize("CONTINUUM.Notifications.AssignLocationToEvent") + '...',
     icon: 'fas fa-map-pin',
     callback: () => openEventPicker(actor, tokenDoc)
   }];

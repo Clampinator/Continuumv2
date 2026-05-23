@@ -27,10 +27,10 @@
         "objectiveNow": null
       },
       "attributes": {
-        "body": { "value": 4 },
-        "mind": { "value": 4 },
-        "eq": { "value": 4 },
-        "quick": { "value": 4 },
+        "force": { "value": 4 },
+        "analyze": { "value": 4 },
+        "relate": { "value": 4 },
+        "react": { "value": 4 },
         "willpower": {
           "temp": 5,
           "perm": 5

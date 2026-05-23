@@ -57,8 +57,8 @@ export async function handleCharacterItemDelete(sheet, event) {
 
     if (Object.keys(updates).length > 0) {
         Dialog.confirm({
-            eventTitle: "Delete Item",
-            content: `<p>Are you sure you want to delete this ${type}?</p>`,
+            eventTitle: game.i18n.localize("CONTINUUM.Notifications.DeleteItem"),
+            content: `<p>${game.i18n.format("CONTINUUM.Notifications.DeleteItemConfirm", {type})}</p>`,
             yes: () => actor.update(updates),
             defaultYes: false
         });

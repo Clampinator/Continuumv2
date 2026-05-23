@@ -160,7 +160,7 @@ export function attachGoalListeners(html, svg, sheet, viewState, graphData) {
                         [eventPath]: updatedGoals,
                         [legacyPath]: null
                     });
-                    ui.notifications.info("Goal Linked to Event.");
+                    ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.GoalLinkedToEvent"));
                 }
             } else {
                 // Just clear highlights

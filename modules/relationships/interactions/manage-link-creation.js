@@ -131,7 +131,7 @@ export function manageLinkCreation(svg, g, nodeSel, sheet) {
             }
         });
 
-        ui.notifications.info(`Connected ${sourceName} and ${targetName}.`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.ConnectedNodes", {sourceName, targetName}));
     });
 
     // CANCEL: release on empty space
@@ -139,6 +139,6 @@ export function manageLinkCreation(svg, g, nodeSel, sheet) {
         if (!dragSource) return;
         endDrag();
         // Inform the user the gesture was cancelled - no silent failure
-        ui.notifications.info('Link cancelled - release on a node to connect.');
+        ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.LinkCancelled"));
     });
 }

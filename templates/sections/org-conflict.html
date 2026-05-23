@@ -6,13 +6,13 @@
   <input type="checkbox" id="toggle-org-conflict-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-conflict-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-org-conflict-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Conflict</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.OrgConflict.Title"}}</h2>
     </label>
     <div class="org-conflict-controls">
-      <div class="reputation-gate-display" data-tooltip="Unit Tier Gate: Maximum Level derived from External Reputation.">
-          Max Tier: <strong>{{system.attributes.externalReputation.perm}}</strong>
+      <div class="reputation-gate-display" data-tooltip="{{localize 'CONTINUUM.OrgConflict.MaxTierTooltip'}}">
+          {{localize "CONTINUUM.OrgConflict.MaxTier"}}: <strong>{{system.attributes.externalReputation.perm}}</strong>
       </div>
-      <button type="button" class="org-conflict-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="org-conflict-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
     </div>
   </div>
     <div class="section-content">
@@ -25,81 +25,81 @@
   <!-- ═══ Physical ═══════════════════════════════════════════════════════ -->
   <div class="combat-subsection">
     <div class="subsection-header">
-      <h3>Physical</h3>
-      <span class="unit-type-hint" data-tooltip="Contributes to Force. Aspects rated 0–{{fiscal.sizeAspectCap}} (size cap).">→ Force</span>
+      <h3>{{localize "CONTINUUM.OrgConflict.Physical"}}</h3>
+      <span class="unit-type-hint" data-tooltip="{{localize 'CONTINUUM.OrgConflict.PhysicalHint'}}">{{localize "CONTINUUM.OrgConflict.PhysicalHint"}}</span>
       <span class="unit-count-chip {{#if unitMeta.physical.atCap}}at-cap{{/if}}"
-        data-tooltip="Units: {{unitMeta.physical.count}} of {{unitMeta.physical.cap}} max (Size ÷ 2 + 1). Activation: 2 MP each.">
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.PhysicalSizeCountTooltip' count=unitMeta.physical.count cap=unitMeta.physical.cap}}">
         {{unitMeta.physical.count}}/{{unitMeta.physical.cap}}
       </span>
       <button type="button" class="item-add" data-type="orgConflictPhysical"
-        data-tooltip="Add Physical Unit" {{#if unitMeta.physical.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> Add Unit</button>
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.AddPhysicalUnit'}}" {{#if unitMeta.physical.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> {{localize "CONTINUUM.OrgConflict.AddUnit"}}</button>
     </div>
     <div class="combat-item-header">
       <div style="flex: 0 0 20px;"></div>
-      <div style="flex: 1 1 180px; text-align: left;">Description</div>
-      <div style="flex: 1 1 160px;">Unit Size</div>
-      <div style="flex: 1 1 80px;">Cohesion</div>
-      <div style="flex: 1 1 80px;">Effectiveness</div>
-      <div style="flex: 1 1 80px;">Training</div>
-      <div style="flex: 1 1 80px;">Experience</div>
-      <div style="flex: 0 0 110px;">Action</div>
-      <div style="flex: 0 0 60px; text-align: center;">Cost</div>
-      <div style="flex: 0 0 26px; text-align: center;">Cmdr</div>
+      <div style="flex: 1 1 180px; text-align: left;">{{localize "CONTINUUM.Common.Description"}}</div>
+      <div style="flex: 1 1 160px;">{{localize "CONTINUUM.OrgConflict.UnitSize"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Cohesion"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Effectiveness"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Training"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Experience"}}</div>
+      <div style="flex: 0 0 110px;">{{localize "CONTINUUM.OrgConflict.Action"}}</div>
+      <div style="flex: 0 0 60px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Cost"}}</div>
+      <div style="flex: 0 0 26px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Commander"}}</div>
       <div style="flex: 0 0 24px;"></div>
     </div>
     <div class="combat-items-list">
       {{#each conflictUnits.physical as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="physical">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="physical" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
-        <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.physical.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="physical" eventTitle="{{localize 'CONTINUUM.OrgAttributes.UnitSettings'}}"><i class="fas fa-cog"></i></button>
+        <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.physical.{{unit.id}}.description" value="{{unit.description}}" placeholder="{{localize 'CONTINUUM.OrgConflict.UnitDescriptionPlaceholder'}}"/></div>
         <div style="flex: 1 1 160px;">
           <select name="system.conflict.physical.{{unit.id}}.size">
-            <option value="" disabled {{#unless unit.size}}selected{{/unless}}>Choose a Size</option>
-            <option value="Team (2 - 4)"              {{#if (eq unit.size "Team (2 - 4)")}}selected{{/if}}                                    >Team (2–4)</option>
-            <option value="Squad (6 - 12)"             {{#if (eq unit.size "Squad (6 - 12)")}}selected{{/if}}          {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>Squad (6–12)</option>
-            <option value="Section (12 - 24)"          {{#if (eq unit.size "Section (12 - 24)")}}selected{{/if}}        {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>Section (12–24)</option>
-            <option value="Platoon (20 - 50)"          {{#if (eq unit.size "Platoon (20 - 50)")}}selected{{/if}}        {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>Platoon (20–50)</option>
-            <option value="Echelon (50 - 90)"          {{#if (eq unit.size "Echelon (50 - 90)")}}selected{{/if}}        {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>Echelon (50–90)</option>
-            <option value="Company (100 - 250)"        {{#if (eq unit.size "Company (100 - 250)")}}selected{{/if}}      {{#unless (gte ../orgSize 4)}}disabled{{/unless}}>Company (100–250)</option>
-            <option value="Battalion (300 - 1k)"       {{#if (eq unit.size "Battalion (300 - 1k)")}}selected{{/if}}     {{#unless (gte ../orgSize 5)}}disabled{{/unless}}>Battalion (300–1k)</option>
-            <option value="Regiment (1k - 3k)"         {{#if (eq unit.size "Regiment (1k - 3k)")}}selected{{/if}}       {{#unless (gte ../orgSize 6)}}disabled{{/unless}}>Regiment (1k–3k)</option>
-            <option value="Brigade (3k - 5k)"          {{#if (eq unit.size "Brigade (3k - 5k)")}}selected{{/if}}        {{#unless (gte ../orgSize 6)}}disabled{{/unless}}>Brigade (3k–5k)</option>
-            <option value="Division (6k - 25k)"        {{#if (eq unit.size "Division (6k - 25k)")}}selected{{/if}}      {{#unless (gte ../orgSize 7)}}disabled{{/unless}}>Division (6k–25k)</option>
-            <option value="Corps (20k - 60k)"          {{#if (eq unit.size "Corps (20k - 60k)")}}selected{{/if}}        {{#unless (gte ../orgSize 8)}}disabled{{/unless}}>Corps (20k–60k)</option>
-            <option value="Field Army (100k - 200k)"   {{#if (eq unit.size "Field Army (100k - 200k)")}}selected{{/if}} {{#unless (gte ../orgSize 8)}}disabled{{/unless}}>Field Army (100k–200k)</option>
-            <option value="Army Group (400k - 1M)"     {{#if (eq unit.size "Army Group (400k - 1M)")}}selected{{/if}}   {{#unless (gte ../orgSize 9)}}disabled{{/unless}}>Army Group (400k–1M)</option>
-            <option value="Combat Command (1M - 10M)"  {{#if (eq unit.size "Combat Command (1M - 10M)")}}selected{{/if}} {{#unless (gte ../orgSize 10)}}disabled{{/unless}}>Combat Command (1M–10M)</option>
+            <option value="" disabled {{#unless unit.size}}selected{{/unless}}>{{localize "CONTINUUM.OrgConflict.ChooseSize"}}</option>
+            <option value="Team (2 - 4)"              {{#if (eq unit.size "Team (2 - 4)")}}selected{{/if}}                                    >{{localize "CONTINUUM.OrgConflict.UnitSizeTeamPhysical"}}</option>
+            <option value="Squad (6 - 12)"             {{#if (eq unit.size "Squad (6 - 12)")}}selected{{/if}}          {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeSquadPhysical"}}</option>
+            <option value="Section (12 - 24)"          {{#if (eq unit.size "Section (12 - 24)")}}selected{{/if}}        {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeSectionPhysical"}}</option>
+            <option value="Platoon (20 - 50)"          {{#if (eq unit.size "Platoon (20 - 50)")}}selected{{/if}}        {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizePlatoonPhysical"}}</option>
+            <option value="Echelon (50 - 90)"          {{#if (eq unit.size "Echelon (50 - 90)")}}selected{{/if}}        {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeEchelonPhysical"}}</option>
+            <option value="Company (100 - 250)"        {{#if (eq unit.size "Company (100 - 250)")}}selected{{/if}}      {{#unless (gte ../orgSize 4)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeCompanyPhysical"}}</option>
+            <option value="Battalion (300 - 1k)"       {{#if (eq unit.size "Battalion (300 - 1k)")}}selected{{/if}}     {{#unless (gte ../orgSize 5)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeBattalionPhysical"}}</option>
+            <option value="Regiment (1k - 3k)"         {{#if (eq unit.size "Regiment (1k - 3k)")}}selected{{/if}}       {{#unless (gte ../orgSize 6)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeRegimentPhysical"}}</option>
+            <option value="Brigade (3k - 5k)"          {{#if (eq unit.size "Brigade (3k - 5k)")}}selected{{/if}}        {{#unless (gte ../orgSize 6)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeBrigadePhysical"}}</option>
+            <option value="Division (6k - 25k)"        {{#if (eq unit.size "Division (6k - 25k)")}}selected{{/if}}      {{#unless (gte ../orgSize 7)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeDivisionPhysical"}}</option>
+            <option value="Corps (20k - 60k)"          {{#if (eq unit.size "Corps (20k - 60k)")}}selected{{/if}}        {{#unless (gte ../orgSize 8)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeCorpsPhysical"}}</option>
+            <option value="Field Army (100k - 200k)"   {{#if (eq unit.size "Field Army (100k - 200k)")}}selected{{/if}} {{#unless (gte ../orgSize 8)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeFieldArmyPhysical"}}</option>
+            <option value="Army Group (400k - 1M)"     {{#if (eq unit.size "Army Group (400k - 1M)")}}selected{{/if}}   {{#unless (gte ../orgSize 9)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeArmyGroupPhysical"}}</option>
+            <option value="Combat Command (1M - 10M)"  {{#if (eq unit.size "Combat Command (1M - 10M)")}}selected{{/if}} {{#unless (gte ../orgSize 10)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeCombatCommandPhysical"}}</option>
           </select>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.cohesion.overCap}}over-cap{{/if}}" data-tooltip="Cohesion: 2MP/pt · cap {{unit._aspects.cohesion.cap}} · costs {{unit._aspects.cohesion.mp}}MP">
+        <div class="aspect-cell {{#if unit._aspects.cohesion.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectCohesionTooltip' cap=unit._aspects.cohesion.cap mp=unit._aspects.cohesion.mp}}">
           <input type="number" name="system.conflict.physical.{{unit.id}}.cohesion" value="{{unit.cohesion}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.cohesion.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.effectiveness.overCap}}over-cap{{/if}}" data-tooltip="Effectiveness: 2MP 1RP/pt · cap {{unit._aspects.effectiveness.cap}} · costs {{unit._aspects.effectiveness.mp}}MP {{unit._aspects.effectiveness.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.effectiveness.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectEffectivenessTooltip' cap=unit._aspects.effectiveness.cap mp=unit._aspects.effectiveness.mp rp=unit._aspects.effectiveness.rp}}">
           <input type="number" name="system.conflict.physical.{{unit.id}}.effectiveness" value="{{unit.effectiveness}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.effectiveness.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.training.overCap}}over-cap{{/if}}" data-tooltip="Training: 1MP 2RP/pt · cap {{unit._aspects.training.cap}} · costs {{unit._aspects.training.mp}}MP {{unit._aspects.training.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.training.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectTrainingPhysicalTooltip' cap=unit._aspects.training.cap mp=unit._aspects.training.mp rp=unit._aspects.training.rp}}">
           <input type="number" name="system.conflict.physical.{{unit.id}}.training" value="{{unit.training}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.training.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.experience.overCap}}over-cap{{/if}}" data-tooltip="Experience: 3MP 1RP/pt · cap {{unit._aspects.experience.cap}} · costs {{unit._aspects.experience.mp}}MP {{unit._aspects.experience.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.experience.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectExperiencePhysicalTooltip' cap=unit._aspects.experience.cap mp=unit._aspects.experience.mp rp=unit._aspects.experience.rp}}">
           <input type="number" name="system.conflict.physical.{{unit.id}}.experience" value="{{unit.experience}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.experience.cap}}</span>
         </div>
         <div style="flex: 0 0 110px;" class="action-cell">
-          <button type="button" class="roll-attribute" data-attribute="force" data-unit-id="{{unit.id}}" data-unit-type="physical">Attack</button>
+          <button type="button" class="roll-attribute" data-attribute="force" data-unit-id="{{unit.id}}" data-unit-type="physical">{{localize "CONTINUUM.OrgConflict.Attack"}}</button>
           {{resourceState ../actor unit.size}}
         </div>
-        <div class="unit-cost-cell" data-tooltip="Manpower: {{unit._cost.mp}} · Resources: {{unit._cost.rp}}">
-          <span class="cost-mp">{{unit._cost.mp}}mp</span>
-          <span class="cost-rp">{{unit._cost.rp}}rp</span>
-        </div>
-        <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="physical">
-          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
-        </div>
-        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictPhysical" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
+         <div class="unit-cost-cell" data-tooltip="{{localize 'CONTINUUM.OrgConflict.Manpower'}}: {{unit._cost.mp}} · {{localize 'CONTINUUM.OrgConflict.Resources'}}: {{unit._cost.rp}}">
+           <span class="cost-mp">{{unit._cost.mp}}mp</span>
+           <span class="cost-rp">{{unit._cost.rp}}rp</span>
+         </div>
+         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="physical">
+           {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="{{localize 'CONTINUUM.OrgConflict.Commander'}}: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+           {{else}}<i class="fas fa-user-slash" eventTitle="{{localize 'CONTINUUM.OrgConflict.DropCommander'}}"></i>{{/if}}
+         </div>
+         <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="{{localize 'CONTINUUM.OrgConflict.DeleteUnit'}}" data-type="orgConflictPhysical" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
       {{/each}}
     </div>
@@ -108,79 +108,79 @@
   <!-- ═══ Espionage ═══════════════════════════════════════════════════════ -->
   <div class="combat-subsection">
     <div class="subsection-header">
-      <h3>Espionage</h3>
-      <span class="unit-type-hint" data-tooltip="Contributes to Intel. Aspects rated 0–{{fiscal.sizeAspectCap}} (size cap).">→ Intel</span>
+      <h3>{{localize "CONTINUUM.OrgConflict.Espionage"}}</h3>
+      <span class="unit-type-hint" data-tooltip="{{localize 'CONTINUUM.OrgConflict.EspionageHint'}}">{{localize "CONTINUUM.OrgConflict.EspionageHint"}}</span>
       <span class="unit-count-chip {{#if unitMeta.espionage.atCap}}at-cap{{/if}}"
-        data-tooltip="Units: {{unitMeta.espionage.count}} of {{unitMeta.espionage.cap}} max (Size ÷ 3 + 1). Activation: 1 MP + 1 RP each.">
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.EspionageSizeCountTooltip' count=unitMeta.espionage.count cap=unitMeta.espionage.cap}}">
         {{unitMeta.espionage.count}}/{{unitMeta.espionage.cap}}
       </span>
       <button type="button" class="item-add" data-type="orgConflictEspionage"
-        data-tooltip="Add Espionage Unit" {{#if unitMeta.espionage.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> Add Unit</button>
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.AddEspionageUnit'}}" {{#if unitMeta.espionage.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> {{localize "CONTINUUM.OrgConflict.AddUnit"}}</button>
     </div>
     <div class="combat-item-header">
       <div style="flex: 0 0 20px;"></div>
-      <div style="flex: 1 1 180px; text-align: left;">Description</div>
-      <div style="flex: 1 1 160px;">Command</div>
-      <div style="flex: 1 1 80px;">Integrity</div>
-      <div style="flex: 1 1 80px;">Appeal</div>
-      <div style="flex: 1 1 80px;">Training</div>
-      <div style="flex: 1 1 80px;">Experience</div>
-      <div style="flex: 0 0 110px;">Action</div>
-      <div style="flex: 0 0 60px; text-align: center;">Cost</div>
-      <div style="flex: 0 0 26px; text-align: center;">Cmdr</div>
+      <div style="flex: 1 1 180px; text-align: left;">{{localize "CONTINUUM.Common.Description"}}</div>
+      <div style="flex: 1 1 160px;">{{localize "CONTINUUM.OrgConflict.Command"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Integrity"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Appeal"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Training"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Experience"}}</div>
+      <div style="flex: 0 0 110px;">{{localize "CONTINUUM.OrgConflict.Action"}}</div>
+      <div style="flex: 0 0 60px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Cost"}}</div>
+      <div style="flex: 0 0 26px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Commander"}}</div>
       <div style="flex: 0 0 24px;"></div>
     </div>
     <div class="combat-items-list">
       {{#each conflictUnits.espionage as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="espionage">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="espionage" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
-        <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.espionage.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="espionage" eventTitle="{{localize 'CONTINUUM.OrgAttributes.UnitSettings'}}"><i class="fas fa-cog"></i></button>
+        <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.espionage.{{unit.id}}.description" value="{{unit.description}}" placeholder="{{localize 'CONTINUUM.OrgConflict.UnitDescriptionPlaceholder'}}"/></div>
         <div style="flex: 1 1 160px;">
           <select name="system.conflict.espionage.{{unit.id}}.size">
-            <option value="" disabled {{#unless unit.size}}selected{{/unless}}>Choose a Size</option>
-            <option value="Agent (1)"            {{#if (eq unit.size "Agent (1)")}}selected{{/if}}                                    >Agent (1)</option>
-            <option value="Team (2 - 4)"         {{#if (eq unit.size "Team (2 - 4)")}}selected{{/if}}                                >Team (2–4)</option>
-            <option value="Squad (6 - 12)"        {{#if (eq unit.size "Squad (6 - 12)")}}selected{{/if}}       {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>Squad (6–12)</option>
-            <option value="Response (12 - 24)"    {{#if (eq unit.size "Response (12 - 24)")}}selected{{/if}}   {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>Response (12–24)</option>
-            <option value="Mission (20 - 50)"     {{#if (eq unit.size "Mission (20 - 50)")}}selected{{/if}}    {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>Mission (20–50)</option>
-            <option value="Post (50 - 90)"        {{#if (eq unit.size "Post (50 - 90)")}}selected{{/if}}       {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>Post (50–90)</option>
-            <option value="Embassy (100 - 250)"   {{#if (eq unit.size "Embassy (100 - 250)")}}selected{{/if}}  {{#unless (gte ../orgSize 4)}}disabled{{/unless}}>Embassy (100–250)</option>
-            <option value="Task Force (300 - 1k)" {{#if (eq unit.size "Task Force (300 - 1k)")}}selected{{/if}} {{#unless (gte ../orgSize 5)}}disabled{{/unless}}>Task Force (300–1k)</option>
-            <option value="Agency 1 (1k - 3k)"    {{#if (eq unit.size "Agency 1 (1k - 3k)")}}selected{{/if}}   {{#unless (gte ../orgSize 6)}}disabled{{/unless}}>Agency 1 (1k–3k)</option>
-            <option value="Agency 2 (3k - 5k)"    {{#if (eq unit.size "Agency 2 (3k - 5k)")}}selected{{/if}}   {{#unless (gte ../orgSize 7)}}disabled{{/unless}}>Agency 2 (3k–5k)</option>
-            <option value="Agency 3 (6k - 25k)"   {{#if (eq unit.size "Agency 3 (6k - 25k)")}}selected{{/if}}  {{#unless (gte ../orgSize 8)}}disabled{{/unless}}>Agency 3 (6k–25k)</option>
-            <option value="Agency 4 (20k - 60k)"  {{#if (eq unit.size "Agency 4 (20k - 60k)")}}selected{{/if}} {{#unless (gte ../orgSize 9)}}disabled{{/unless}}>Agency 4 (20k–60k)</option>
+            <option value="" disabled {{#unless unit.size}}selected{{/unless}}>{{localize "CONTINUUM.OrgConflict.ChooseSize"}}</option>
+            <option value="Agent (1)"            {{#if (eq unit.size "Agent (1)")}}selected{{/if}}                                    >{{localize "CONTINUUM.OrgConflict.UnitSizeAgentEspionage"}}</option>
+            <option value="Team (2 - 4)"         {{#if (eq unit.size "Team (2 - 4)")}}selected{{/if}}                                >{{localize "CONTINUUM.OrgConflict.UnitSizeTeamEspionage"}}</option>
+            <option value="Squad (6 - 12)"        {{#if (eq unit.size "Squad (6 - 12)")}}selected{{/if}}       {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeSquadEspionage"}}</option>
+            <option value="Response (12 - 24)"    {{#if (eq unit.size "Response (12 - 24)")}}selected{{/if}}   {{#unless (gte ../orgSize 2)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeResponseEspionage"}}</option>
+            <option value="Mission (20 - 50)"     {{#if (eq unit.size "Mission (20 - 50)")}}selected{{/if}}    {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeMissionEspionage"}}</option>
+            <option value="Post (50 - 90)"        {{#if (eq unit.size "Post (50 - 90)")}}selected{{/if}}       {{#unless (gte ../orgSize 3)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizePostEspionage"}}</option>
+            <option value="Embassy (100 - 250)"   {{#if (eq unit.size "Embassy (100 - 250)")}}selected{{/if}}  {{#unless (gte ../orgSize 4)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeEmbassyEspionage"}}</option>
+            <option value="Task Force (300 - 1k)" {{#if (eq unit.size "Task Force (300 - 1k)")}}selected{{/if}} {{#unless (gte ../orgSize 5)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeTaskForceEspionage"}}</option>
+            <option value="Agency 1 (1k - 3k)"    {{#if (eq unit.size "Agency 1 (1k - 3k)")}}selected{{/if}}   {{#unless (gte ../orgSize 6)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeAgency1Espionage"}}</option>
+            <option value="Agency 2 (3k - 5k)"    {{#if (eq unit.size "Agency 2 (3k - 5k)")}}selected{{/if}}   {{#unless (gte ../orgSize 7)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeAgency2Espionage"}}</option>
+            <option value="Agency 3 (6k - 25k)"   {{#if (eq unit.size "Agency 3 (6k - 25k)")}}selected{{/if}}  {{#unless (gte ../orgSize 8)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeAgency3Espionage"}}</option>
+            <option value="Agency 4 (20k - 60k)"  {{#if (eq unit.size "Agency 4 (20k - 60k)")}}selected{{/if}} {{#unless (gte ../orgSize 9)}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.UnitSizeAgency4Espionage"}}</option>
           </select>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.integrity.overCap}}over-cap{{/if}}" data-tooltip="Integrity: 1MP 1RP/pt · cap {{unit._aspects.integrity.cap}} · costs {{unit._aspects.integrity.mp}}MP {{unit._aspects.integrity.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.integrity.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectIntegrityTooltip' cap=unit._aspects.integrity.cap mp=unit._aspects.integrity.mp rp=unit._aspects.integrity.rp}}">
           <input type="number" name="system.conflict.espionage.{{unit.id}}.integrity" value="{{unit.integrity}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.integrity.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.appeal.overCap}}over-cap{{/if}}" data-tooltip="Appeal: 1MP 2RP/pt · cap {{unit._aspects.appeal.cap}} · costs {{unit._aspects.appeal.mp}}MP {{unit._aspects.appeal.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.appeal.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectAppealTooltip' cap=unit._aspects.appeal.cap mp=unit._aspects.appeal.mp rp=unit._aspects.appeal.rp}}">
           <input type="number" name="system.conflict.espionage.{{unit.id}}.appeal" value="{{unit.appeal}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.appeal.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.training.overCap}}over-cap{{/if}}" data-tooltip="Training: 1MP 2RP/pt · cap {{unit._aspects.training.cap}} · costs {{unit._aspects.training.mp}}MP {{unit._aspects.training.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.training.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectTrainingEspionageTooltip' cap=unit._aspects.training.cap mp=unit._aspects.training.mp rp=unit._aspects.training.rp}}">
           <input type="number" name="system.conflict.espionage.{{unit.id}}.training" value="{{unit.training}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.training.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.experience.overCap}}over-cap{{/if}}" data-tooltip="Experience: 2MP 1RP/pt · cap {{unit._aspects.experience.cap}} · costs {{unit._aspects.experience.mp}}MP {{unit._aspects.experience.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.experience.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectExperienceEspionageTooltip' cap=unit._aspects.experience.cap mp=unit._aspects.experience.mp rp=unit._aspects.experience.rp}}">
           <input type="number" name="system.conflict.espionage.{{unit.id}}.experience" value="{{unit.experience}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.experience.cap}}</span>
         </div>
         <div style="flex: 0 0 110px;" class="action-cell">
-          <button type="button" class="roll-attribute" data-attribute="intel" data-unit-id="{{unit.id}}" data-unit-type="espionage">Infiltrate</button>
+          <button type="button" class="roll-attribute" data-attribute="intel" data-unit-id="{{unit.id}}" data-unit-type="espionage">{{localize "CONTINUUM.OrgConflict.Infiltrate"}}</button>
           {{resourceState ../actor unit.size}}
         </div>
-        <div class="unit-cost-cell" data-tooltip="Manpower: {{unit._cost.mp}} · Resources: {{unit._cost.rp}}">
+        <div class="unit-cost-cell" data-tooltip="{{localize 'CONTINUUM.OrgConflict.Manpower'}}: {{unit._cost.mp}} · {{localize 'CONTINUUM.OrgConflict.Resources'}}: {{unit._cost.rp}}">
           <span class="cost-mp">{{unit._cost.mp}}mp</span>
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="espionage">
-          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="{{localize 'CONTINUUM.OrgConflict.Commander'}}: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="{{localize 'CONTINUUM.OrgConflict.DropCommander'}}"></i>{{/if}}
         </div>
-        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictEspionage" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
+        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="{{localize 'CONTINUUM.OrgConflict.DeleteUnit'}}" data-type="orgConflictEspionage" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
       {{/each}}
     </div>
@@ -189,85 +189,84 @@
   <!-- ═══ Online ═══════════════════════════════════════════════════════════ -->
   <div class="combat-subsection">
     <div class="subsection-header">
-      <h3>Online</h3>
-      <span class="unit-type-hint" data-tooltip="Contributes to Comms. Aspects rated 0–{{fiscal.sizeAspectCap}} (size cap).">→ Comms</span>
+      <h3>{{localize "CONTINUUM.OrgConflict.Online"}}</h3>
+      <span class="unit-type-hint" data-tooltip="{{localize 'CONTINUUM.OrgConflict.OnlineHint'}}">{{localize "CONTINUUM.OrgConflict.OnlineHint"}}</span>
       <span class="unit-count-chip {{#if unitMeta.online.atCap}}at-cap{{/if}}"
-        data-tooltip="Units: {{unitMeta.online.count}} of {{unitMeta.online.cap}} max (Budget ÷ 2 + 1). Activation: 2 RP each.">
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.OnlineSizeCountTooltip' count=unitMeta.online.count cap=unitMeta.online.cap}}">
         {{unitMeta.online.count}}/{{unitMeta.online.cap}}
       </span>
       <button type="button" class="item-add" data-type="orgConflictOnline"
-        data-tooltip="Add Online Unit" {{#if unitMeta.online.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> Add Unit</button>
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.AddOnlineUnit'}}" {{#if unitMeta.online.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> {{localize "CONTINUUM.OrgConflict.AddUnit"}}</button>
     </div>
     <div class="combat-item-header">
       <div style="flex: 0 0 20px;"></div>
-      <div style="flex: 1 1 180px; text-align: left;">Description</div>
-      <div style="flex: 1 1 160px;">Allegiance</div>
-      <div style="flex: 1 1 80px;">L33t</div>
-      <div style="flex: 1 1 80px;">Grok</div>
-      <div style="flex: 1 1 80px;">Pwn</div>
-      <div style="flex: 1 1 80px;">Phreak</div>
-      <div style="flex: 0 0 110px;">Action</div>
-      <div style="flex: 0 0 60px; text-align: center;">Cost</div>
-      <div style="flex: 0 0 26px; text-align: center;">Cmdr</div>
+      <div style="flex: 1 1 180px; text-align: left;">{{localize "CONTINUUM.Common.Description"}}</div>
+      <div style="flex: 1 1 160px;">{{localize "CONTINUUM.OrgConflict.Allegiance"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.L33t"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Grok"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Pwn"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Phreak"}}</div>
+      <div style="flex: 0 0 110px;">{{localize "CONTINUUM.OrgConflict.Action"}}</div>
+      <div style="flex: 0 0 60px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Cost"}}</div>
+      <div style="flex: 0 0 26px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Commander"}}</div>
       <div style="flex: 0 0 24px;"></div>
     </div>
     <div class="combat-items-list">
       {{#each conflictUnits.online as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="online">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="online" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
-        <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.online.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="online" eventTitle="{{localize 'CONTINUUM.OrgAttributes.UnitSettings'}}"><i class="fas fa-cog"></i></button>
+        <div style="flex: 1 1 180px;"><input type="text" name="system.conflict.online.{{unit.id}}.description" value="{{unit.description}}" placeholder="{{localize 'CONTINUUM.OrgConflict.UnitDescriptionPlaceholder'}}"/></div>
         <div style="flex: 1 1 160px;">
           <select name="system.conflict.online.{{unit.id}}.type">
-            <option value="" disabled {{#unless unit.type}}selected{{/unless}}>Choose an Allegiance</option>
-            <option value="White hat (high - ethical)"          {{#if (eq unit.type "White hat (high - ethical)")}}selected{{/if}}          {{#unless (lookup ../onlineAllegianceCompat "White hat (high - ethical)")}}disabled{{/unless}}         >White hat — L33t+1 Grok+1 Pwn−2</option>
-            <option value="Black hat (high - malicious)"        {{#if (eq unit.type "Black hat (high - malicious)")}}selected{{/if}}        {{#unless (lookup ../onlineAllegianceCompat "Black hat (high - malicious)")}}disabled{{/unless}}       >Black hat — L33t+1 Pwn+2 Phreak+1</option>
-            <option value="Grey hat (high - reporters)"         {{#if (eq unit.type "Grey hat (high - reporters)")}}selected{{/if}}         {{#unless (lookup ../onlineAllegianceCompat "Grey hat (high - reporters)")}}disabled{{/unless}}        >Grey hat — L33t+1 Grok+2 Pwn−1</option>
-            <option value="Blue hat (low - freelance testers)"  {{#if (eq unit.type "Blue hat (low - freelance testers)")}}selected{{/if}}  {{#unless (lookup ../onlineAllegianceCompat "Blue hat (low - freelance testers)")}}disabled{{/unless}}  >Blue hat — Pwn−2</option>
-            <option value="Purple hat (low - self-testers)"     {{#if (eq unit.type "Purple hat (low - self-testers)")}}selected{{/if}}     {{#unless (lookup ../onlineAllegianceCompat "Purple hat (low - self-testers)")}}disabled{{/unless}}     >Purple hat — Grok+1 Pwn−2</option>
-            <option value="Red hat (low - anti-black hat)"      {{#if (eq unit.type "Red hat (low - anti-black hat)")}}selected{{/if}}      {{#unless (lookup ../onlineAllegianceCompat "Red hat (low - anti-black hat)")}}disabled{{/unless}}      >Red hat — Pwn+1</option>
-            <option value="Green hat (medium - dangerous noobs)"{{#if (eq unit.type "Green hat (medium - dangerous noobs)")}}selected{{/if}}{{#unless (lookup ../onlineAllegianceCompat "Green hat (medium - dangerous noobs)")}}disabled{{/unless}}>Green hat — L33t−1 Grok−1 Phreak−1</option>
-            <option value="Hacktivists (medium)"                {{#if (eq unit.type "Hacktivists (medium)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Hacktivists (medium)")}}disabled{{/unless}}                >Hacktivists — Grok+2 Pwn+1 Phreak−1</option>
-            <option value="Script kiddies (medium)"             {{#if (eq unit.type "Script kiddies (medium)")}}selected{{/if}}             {{#unless (lookup ../onlineAllegianceCompat "Script kiddies (medium)")}}disabled{{/unless}}             >Script kiddies — L33t−2 Grok−1 Phreak−2</option>
-            <option value="Whistleblowers (medium)"             {{#if (eq unit.type "Whistleblowers (medium)")}}selected{{/if}}             {{#unless (lookup ../onlineAllegianceCompat "Whistleblowers (medium)")}}disabled{{/unless}}             >Whistleblowers — L33t−1 Grok+2 Pwn−1 Phreak−1</option>
-            <option value="Botnet hackers (high)"               {{#if (eq unit.type "Botnet hackers (high)")}}selected{{/if}}               {{#unless (lookup ../onlineAllegianceCompat "Botnet hackers (high)")}}disabled{{/unless}}               >Botnet hackers — L33t+1 Pwn+2 Phreak+1</option>
-            <option value="Cryptohackers (high)"                {{#if (eq unit.type "Cryptohackers (high)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Cryptohackers (high)")}}disabled{{/unless}}                >Cryptohackers — L33t+2 Grok+1</option>
-            <option value="Cryptojackers (high)"                {{#if (eq unit.type "Cryptojackers (high)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Cryptojackers (high)")}}disabled{{/unless}}                >Cryptojackers — Pwn+1 Phreak+2</option>
-            <option value="Cyberterrorists (high)"              {{#if (eq unit.type "Cyberterrorists (high)")}}selected{{/if}}              {{#unless (lookup ../onlineAllegianceCompat "Cyberterrorists (high)")}}disabled{{/unless}}              >Cyberterrorists — L33t+1 Pwn+3 Phreak+1</option>
-            <option value="Elite hackers (high)"                {{#if (eq unit.type "Elite hackers (high)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Elite hackers (high)")}}disabled{{/unless}}                >Elite hackers — L33t+2 Grok+1 Pwn+1 Phreak+2 (×3 cost)</option>
-            <option value="Gaming hackers (high)"               {{#if (eq unit.type "Gaming hackers (high)")}}selected{{/if}}               {{#unless (lookup ../onlineAllegianceCompat "Gaming hackers (high)")}}disabled{{/unless}}               >Gaming hackers — L33t+1 Grok+2</option>
-            <option value="Malicious insiders (high)"           {{#if (eq unit.type "Malicious insiders (high)")}}selected{{/if}}           {{#unless (lookup ../onlineAllegianceCompat "Malicious insiders (high)")}}disabled{{/unless}}           >Malicious insiders — L33t−1 Grok+2 Pwn+2 Phreak−1</option>
-            <option value="State-sponsored hackers (high)"      {{#if (eq unit.type "State-sponsored hackers (high)")}}selected{{/if}}      {{#unless (lookup ../onlineAllegianceCompat "State-sponsored hackers (high)")}}disabled{{/unless}}      >State-sponsored — L33t+2 Grok+1 Pwn+2 Phreak+2 (×2 cost)</option>
+            <option value="" disabled {{#unless unit.type}}selected{{/unless}}>{{localize "CONTINUUM.OrgConflict.ChooseAllegiance"}}</option>
+            <option value="White hat (high - ethical)"          {{#if (eq unit.type "White hat (high - ethical)")}}selected{{/if}}          {{#unless (lookup ../onlineAllegianceCompat "White hat (high - ethical)")}}disabled{{/unless}}         >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceWhiteHat"}}</option>
+            <option value="Black hat (high - malicious)"        {{#if (eq unit.type "Black hat (high - malicious)")}}selected{{/if}}        {{#unless (lookup ../onlineAllegianceCompat "Black hat (high - malicious)")}}disabled{{/unless}}       >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceBlackHat"}}</option>
+            <option value="Grey hat (high - reporters)"         {{#if (eq unit.type "Grey hat (high - reporters)")}}selected{{/if}}         {{#unless (lookup ../onlineAllegianceCompat "Grey hat (high - reporters)")}}disabled{{/unless}}        >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceGreyHat"}}</option>
+            <option value="Blue hat (low - freelance testers)"  {{#if (eq unit.type "Blue hat (low - freelance testers)")}}selected{{/if}}  {{#unless (lookup ../onlineAllegianceCompat "Blue hat (low - freelance testers)")}}disabled{{/unless}}  >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceBlueHat"}}</option>
+            <option value="Purple hat (low - self-testers)"     {{#if (eq unit.type "Purple hat (low - self-testers)")}}selected{{/if}}     {{#unless (lookup ../onlineAllegianceCompat "Purple hat (low - self-testers)")}}disabled{{/unless}}     >{{localize "CONTINUUM.OrgConflict.OnlineAllegiancePurpleHat"}}</option>
+            <option value="Red hat (low - anti-black hat)"      {{#if (eq unit.type "Red hat (low - anti-black hat)")}}selected{{/if}}      {{#unless (lookup ../onlineAllegianceCompat "Red hat (low - anti-black hat)")}}disabled{{/unless}}      >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceRedHat"}}</option>
+            <option value="Green hat (medium - dangerous noobs)"{{#if (eq unit.type "Green hat (medium - dangerous noobs)")}}selected{{/if}}{{#unless (lookup ../onlineAllegianceCompat "Green hat (medium - dangerous noobs)")}}disabled{{/unless}}>{{localize "CONTINUUM.OrgConflict.OnlineAllegianceGreenHat"}}</option>
+            <option value="Hacktivists (medium)"                {{#if (eq unit.type "Hacktivists (medium)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Hacktivists (medium)")}}disabled{{/unless}}                >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceHacktivists"}}</option>
+            <option value="Script kiddies (medium)"             {{#if (eq unit.type "Script kiddies (medium)")}}selected{{/if}}             {{#unless (lookup ../onlineAllegianceCompat "Script kiddies (medium)")}}disabled{{/unless}}             >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceScriptKiddies"}}</option>
+            <option value="Whistleblowers (medium)"             {{#if (eq unit.type "Whistleblowers (medium)")}}selected{{/if}}             {{#unless (lookup ../onlineAllegianceCompat "Whistleblowers (medium)")}}disabled{{/unless}}             >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceWhistleblowers"}}</option>
+            <option value="Botnet hackers (high)"               {{#if (eq unit.type "Botnet hackers (high)")}}selected{{/if}}               {{#unless (lookup ../onlineAllegianceCompat "Botnet hackers (high)")}}disabled{{/unless}}               >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceBotnetHackers"}}</option>
+            <option value="Cryptohackers (high)"                {{#if (eq unit.type "Cryptohackers (high)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Cryptohackers (high)")}}disabled{{/unless}}                >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceCryptohackers"}}</option>
+            <option value="Cryptojackers (high)"                {{#if (eq unit.type "Cryptojackers (high)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Cryptojackers (high)")}}disabled{{/unless}}                >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceCryptojackers"}}</option>
+            <option value="Cyberterrorists (high)"              {{#if (eq unit.type "Cyberterrorists (high)")}}selected{{/if}}              {{#unless (lookup ../onlineAllegianceCompat "Cyberterrorists (high)")}}disabled{{/unless}}              >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceCyberterrorists"}}</option>
+            <option value="Elite hackers (high)"                {{#if (eq unit.type "Elite hackers (high)")}}selected{{/if}}                {{#unless (lookup ../onlineAllegianceCompat "Elite hackers (high)")}}disabled{{/unless}}                >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceEliteHackers"}}</option>
+            <option value="Gaming hackers (high)"               {{#if (eq unit.type "Gaming hackers (high)")}}selected{{/if}}               {{#unless (lookup ../onlineAllegianceCompat "Gaming hackers (high)")}}disabled{{/unless}}               >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceGamingHackers"}}</option>
+            <option value="Malicious insiders (high)"           {{#if (eq unit.type "Malicious insiders (high)")}}selected{{/if}}           {{#unless (lookup ../onlineAllegianceCompat "Malicious insiders (high)")}}disabled{{/unless}}           >{{localize "CONTINUUM.OrgConflict.OnlineAllegianceMaliciousInsiders"}}</option>
           </select>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.l33t.overCap}}over-cap{{/if}}" data-tooltip="L33t (coding skill): 1MP 2RP/pt · cap {{unit._aspects.l33t.cap}} (size + allegiance mod) · costs {{unit._aspects.l33t.mp}}MP {{unit._aspects.l33t.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.l33t.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectL33tTooltip' cap=unit._aspects.l33t.cap mp=unit._aspects.l33t.mp rp=unit._aspects.l33t.rp}}">
           <input type="number" name="system.conflict.online.{{unit.id}}.l33t" value="{{unit.l33t}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.l33t.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.grok.overCap}}over-cap{{/if}}" data-tooltip="Grok (cultural/tech understanding): 1MP 1RP/pt · cap {{unit._aspects.grok.cap}} (size + allegiance mod) · costs {{unit._aspects.grok.mp}}MP {{unit._aspects.grok.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.grok.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectGrokTooltip' cap=unit._aspects.grok.cap mp=unit._aspects.grok.mp rp=unit._aspects.grok.rp}}">
           <input type="number" name="system.conflict.online.{{unit.id}}.grok" value="{{unit.grok}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.grok.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.pwn.overCap}}over-cap{{/if}}" data-tooltip="Pwn (viciousness / law-breaking): 1MP 2RP/pt · cap {{unit._aspects.pwn.cap}} (size + allegiance mod) · costs {{unit._aspects.pwn.mp}}MP {{unit._aspects.pwn.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.pwn.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectPwnTooltip' cap=unit._aspects.pwn.cap mp=unit._aspects.pwn.mp rp=unit._aspects.pwn.rp}}">
           <input type="number" name="system.conflict.online.{{unit.id}}.pwn" value="{{unit.pwn}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.pwn.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.phreak.overCap}}over-cap{{/if}}" data-tooltip="Phreak (hardware/firmware): 1MP 1RP/pt · cap {{unit._aspects.phreak.cap}} (size + allegiance mod) · costs {{unit._aspects.phreak.mp}}MP {{unit._aspects.phreak.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.phreak.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectPhreakTooltip' cap=unit._aspects.phreak.cap mp=unit._aspects.phreak.mp rp=unit._aspects.phreak.rp}}">
           <input type="number" name="system.conflict.online.{{unit.id}}.phreak" value="{{unit.phreak}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.phreak.cap}}</span>
         </div>
         <div style="flex: 0 0 110px;" class="action-cell">
-          <button type="button" class="roll-attribute" data-attribute="comms" data-unit-id="{{unit.id}}" data-unit-type="online">Hack</button>
+          <button type="button" class="roll-attribute" data-attribute="comms" data-unit-id="{{unit.id}}" data-unit-type="online">{{localize "CONTINUUM.OrgConflict.Hack"}}</button>
           {{resourceState ../actor unit.type}}
         </div>
-        <div class="unit-cost-cell" data-tooltip="Manpower: {{unit._cost.mp}} · Resources: {{unit._cost.rp}}">
+        <div class="unit-cost-cell" data-tooltip="{{localize 'CONTINUUM.OrgConflict.Manpower'}}: {{unit._cost.mp}} · {{localize 'CONTINUUM.OrgConflict.Resources'}}: {{unit._cost.rp}}">
           <span class="cost-mp">{{unit._cost.mp}}mp</span>
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="online">
-          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="{{localize 'CONTINUUM.OrgConflict.Commander'}}: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="{{localize 'CONTINUUM.OrgConflict.DropCommander'}}"></i>{{/if}}
         </div>
-        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictOnline" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
+        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="{{localize 'CONTINUUM.OrgConflict.DeleteUnit'}}" data-type="orgConflictOnline" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
       {{/each}}
     </div>
@@ -276,74 +275,74 @@
   <!-- ═══ Psyops ════════════════════════════════════════════════════════════ -->
   <div class="combat-subsection">
     <div class="subsection-header">
-      <h3>Psyops</h3>
-      <span class="unit-type-hint" data-tooltip="Contributes to Influence. Aspects rated 0–{{fiscal.sizeAspectCap}} (size cap). Shade modifies Ruthlessness and Sympathizers costs and caps.">→ Influence</span>
+      <h3>{{localize "CONTINUUM.OrgConflict.Psyops"}}</h3>
+      <span class="unit-type-hint" data-tooltip="{{localize 'CONTINUUM.OrgConflict.PsyopsHint'}}">{{localize "CONTINUUM.OrgConflict.PsyopsHint"}}</span>
       <span class="unit-count-chip {{#if unitMeta.psyops.atCap}}at-cap{{/if}}"
-        data-tooltip="Units: {{unitMeta.psyops.count}} of {{unitMeta.psyops.cap}} max ((Size + Budget) ÷ 4 + 1). Activation: 1 MP + 2 RP each.">
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.PsyopsSizeCountTooltip' count=unitMeta.psyops.count cap=unitMeta.psyops.cap}}">
         {{unitMeta.psyops.count}}/{{unitMeta.psyops.cap}}
       </span>
       <button type="button" class="item-add" data-type="orgConflictPsyops"
-        data-tooltip="Add Psyops Unit" {{#if unitMeta.psyops.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> Add Unit</button>
+        data-tooltip="{{localize 'CONTINUUM.OrgConflict.AddPsyopsUnit'}}" {{#if unitMeta.psyops.atCap}}disabled{{/if}}><i class="fas fa-plus"></i> {{localize "CONTINUUM.OrgConflict.AddUnit"}}</button>
     </div>
     <div class="combat-item-header">
       <div style="flex: 0 0 20px;"></div>
-      <div style="flex: 1 1 160px; text-align: left;">Description</div>
-      <div style="flex: 1 1 140px;">Role / Phase</div>
-      <div style="flex: 0 0 100px;">Shade</div>
-      <div style="flex: 1 1 80px;">Ruthlessness</div>
-      <div style="flex: 1 1 80px;">Resources</div>
-      <div style="flex: 1 1 80px;">Sympathizers</div>
-      <div style="flex: 0 0 110px;">Action</div>
-      <div style="flex: 0 0 60px; text-align: center;">Cost</div>
-      <div style="flex: 0 0 26px; text-align: center;">Cmdr</div>
+      <div style="flex: 1 1 160px; text-align: left;">{{localize "CONTINUUM.Common.Description"}}</div>
+      <div style="flex: 1 1 140px;">{{localize "CONTINUUM.OrgConflict.RolePhase"}}</div>
+      <div style="flex: 0 0 100px;">{{localize "CONTINUUM.OrgConflict.Shade"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Ruthlessness"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Resources"}}</div>
+      <div style="flex: 1 1 80px;">{{localize "CONTINUUM.OrgConflict.Sympathizers"}}</div>
+      <div style="flex: 0 0 110px;">{{localize "CONTINUUM.OrgConflict.Action"}}</div>
+      <div style="flex: 0 0 60px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Cost"}}</div>
+      <div style="flex: 0 0 26px; text-align: center;">{{localize "CONTINUUM.OrgConflict.Commander"}}</div>
       <div style="flex: 0 0 24px;"></div>
     </div>
     <div class="combat-items-list">
       {{#each conflictUnits.psyops as |unit|}}
       <div class="combat-item" data-id="{{unit.id}}" data-unit-type="psyops">
-        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="psyops" eventTitle="Unit Settings"><i class="fas fa-cog"></i></button>
-        <div style="flex: 1 1 160px;"><input type="text" name="system.conflict.psyops.{{unit.id}}.description" value="{{unit.description}}" placeholder="Unit Description"/></div>
+        <button type="button" class="unit-settings-btn" data-unit-id="{{unit.id}}" data-unit-type="psyops" eventTitle="{{localize 'CONTINUUM.OrgAttributes.UnitSettings'}}"><i class="fas fa-cog"></i></button>
+        <div style="flex: 1 1 160px;"><input type="text" name="system.conflict.psyops.{{unit.id}}.description" value="{{unit.description}}" placeholder="{{localize 'CONTINUUM.OrgConflict.UnitDescriptionPlaceholder'}}"/></div>
         <div style="flex: 1 1 140px;">
           <select name="system.conflict.psyops.{{unit.id}}.role">
-            <option value="" disabled {{#unless unit.role}}selected{{/unless}}>Choose a Role</option>
-            <option value="Planning" {{#if (eq unit.role "Planning")}}selected{{/if}}>Phase 1 — Planning</option>
-            <option value="Development" {{#if (eq unit.role "Development")}}selected{{/if}}>Phase 2 — Development</option>
-            <option value="Testing" {{#if (eq unit.role "Testing")}}selected{{/if}}>Phase 3 — Testing</option>
-            <option value="Media" {{#if (eq unit.role "Media")}}selected{{/if}}>Phase 4 — Media</option>
-            <option value="Fieldwork" {{#if (eq unit.role "Fieldwork")}}selected{{/if}}>Phase 5 — Fieldwork</option>
-            <option value="Post Test" {{#if (eq unit.role "Post Test")}}selected{{/if}}>Phase 6 — Post Test</option>
-            <option value="Analysis" {{#if (eq unit.role "Analysis")}}selected{{/if}}>Phase 7 — Analysis</option>
+            <option value="" disabled {{#unless unit.role}}selected{{/unless}}>{{localize "CONTINUUM.OrgConflict.ChooseRole"}}</option>
+            <option value="Planning" {{#if (eq unit.role "Planning")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhasePlanning"}}</option>
+            <option value="Development" {{#if (eq unit.role "Development")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhaseDevelopment"}}</option>
+            <option value="Testing" {{#if (eq unit.role "Testing")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhaseTesting"}}</option>
+            <option value="Media" {{#if (eq unit.role "Media")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhaseMedia"}}</option>
+            <option value="Fieldwork" {{#if (eq unit.role "Fieldwork")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhaseFieldwork"}}</option>
+            <option value="Post Test" {{#if (eq unit.role "Post Test")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhasePostTest"}}</option>
+            <option value="Analysis" {{#if (eq unit.role "Analysis")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.PhaseAnalysis"}}</option>
           </select>
         </div>
         <div style="flex: 0 0 100px;" class="resonance-buttons">
-          <input type="radio" name="system.conflict.psyops.{{unit.id}}.shade" value="white" id="shade-white-{{unit.id}}" {{#if (eq unit.shade "white")}}checked{{/if}} /><label for="shade-white-{{unit.id}}" style="background-color: #ddd; color: #111;" data-tooltip="White: cheap sympathizers, costly ruthlessness (cap 2). Morale does not cap sympathizers.">W</label>
-          <input type="radio" name="system.conflict.psyops.{{unit.id}}.shade" value="grey" id="shade-grey-{{unit.id}}" {{#if (eq unit.shade "grey")}}checked{{/if}} /><label for="shade-grey-{{unit.id}}" style="background-color: #888;" data-tooltip="Grey: baseline costs, no hard caps beyond size/Morale.">G</label>
-          <input type="radio" name="system.conflict.psyops.{{unit.id}}.shade" value="black" id="shade-black-{{unit.id}}" {{#if (eq unit.shade "black")}}checked{{/if}} /><label for="shade-black-{{unit.id}}" style="background-color: #333;" data-tooltip="Black: cheap ruthlessness, costly sympathizers (cap 2). Morale does not cap ruthlessness. Phase 7 bonus is halved.">B</label>
+          <input type="radio" name="system.conflict.psyops.{{unit.id}}.shade" value="white" id="shade-white-{{unit.id}}" {{#if (eq unit.shade "white")}}checked{{/if}} /><label for="shade-white-{{unit.id}}" style="background-color: #ddd; color: #111;" data-tooltip="{{localize 'CONTINUUM.OrgConflict.ShadeWhiteTooltip'}}">W</label>
+          <input type="radio" name="system.conflict.psyops.{{unit.id}}.shade" value="grey" id="shade-grey-{{unit.id}}" {{#if (eq unit.shade "grey")}}checked{{/if}} /><label for="shade-grey-{{unit.id}}" style="background-color: #888;" data-tooltip="{{localize 'CONTINUUM.OrgConflict.ShadeGreyTooltip'}}">G</label>
+          <input type="radio" name="system.conflict.psyops.{{unit.id}}.shade" value="black" id="shade-black-{{unit.id}}" {{#if (eq unit.shade "black")}}checked{{/if}} /><label for="shade-black-{{unit.id}}" style="background-color: #333;" data-tooltip="{{localize 'CONTINUUM.OrgConflict.ShadeBlackTooltip'}}">B</label>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.ruthlessness.overCap}}over-cap{{/if}}" data-tooltip="Ruthlessness: 2MP 1RP/pt · cap {{unit._aspects.ruthlessness.cap}} · costs {{unit._aspects.ruthlessness.mp}}MP {{unit._aspects.ruthlessness.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.ruthlessness.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectRuthlessnessTooltip' cap=unit._aspects.ruthlessness.cap mp=unit._aspects.ruthlessness.mp rp=unit._aspects.ruthlessness.rp}}">
           <input type="number" name="system.conflict.psyops.{{unit.id}}.ruthlessness" value="{{unit.ruthlessness}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.ruthlessness.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.resources.overCap}}over-cap{{/if}}" data-tooltip="Resources: 3RP/pt · cap {{unit._aspects.resources.cap}} · costs {{unit._aspects.resources.rp}}RP">
+        <div class="aspect-cell {{#if unit._aspects.resources.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectResourcesTooltip' cap=unit._aspects.resources.cap rp=unit._aspects.resources.rp}}">
           <input type="number" name="system.conflict.psyops.{{unit.id}}.resources" value="{{unit.resources}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.resources.cap}}</span>
         </div>
-        <div class="aspect-cell {{#if unit._aspects.sympathizers.overCap}}over-cap{{/if}}" data-tooltip="Sympathizers: 2MP 2RP/pt · cap {{unit._aspects.sympathizers.cap}} · costs {{unit._aspects.sympathizers.mp}}MP {{unit._aspects.sympathizers.rp}}RP · drives Psyop phase bonus">
+        <div class="aspect-cell {{#if unit._aspects.sympathizers.overCap}}over-cap{{/if}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.AspectSympathizersTooltip' cap=unit._aspects.sympathizers.cap mp=unit._aspects.sympathizers.mp rp=unit._aspects.sympathizers.rp}}">
           <input type="number" name="system.conflict.psyops.{{unit.id}}.sympathizers" value="{{unit.sympathizers}}" min="0" max="5"/>
           <span class="aspect-cap">/{{unit._aspects.sympathizers.cap}}</span>
         </div>
         <div style="flex: 0 0 110px;" class="action-cell">
-          <button type="button" class="roll-attribute" data-attribute="influence" data-unit-id="{{unit.id}}" data-unit-type="psyops">Influence</button>
+          <button type="button" class="roll-attribute" data-attribute="influence" data-unit-id="{{unit.id}}" data-unit-type="psyops">{{localize "CONTINUUM.OrgConflict.Influence"}}</button>
         </div>
-        <div class="unit-cost-cell" data-tooltip="Manpower: {{unit._cost.mp}} · Resources: {{unit._cost.rp}}">
+        <div class="unit-cost-cell" data-tooltip="{{localize 'CONTINUUM.OrgConflict.Manpower'}}: {{unit._cost.mp}} · {{localize 'CONTINUUM.OrgConflict.Resources'}}: {{unit._cost.rp}}">
           <span class="cost-mp">{{unit._cost.mp}}mp</span>
           <span class="cost-rp">{{unit._cost.rp}}rp</span>
         </div>
         <div class="commander-slot {{#if unit.commanderId}}has-commander{{/if}}" data-unit-id="{{unit.id}}" data-unit-type="psyops">
-          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="Commander: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
-          {{else}}<i class="fas fa-user-slash" eventTitle="Drop a character here to assign a commander"></i>{{/if}}
+          {{#if unit.commanderId}}<i class="fas fa-user" eventTitle="{{localize 'CONTINUUM.OrgConflict.Commander'}}: {{unit.commanderName}} — click to unlink"></i><span class="commander-name">{{unit.commanderName}}</span>
+          {{else}}<i class="fas fa-user-slash" eventTitle="{{localize 'CONTINUUM.OrgConflict.DropCommander'}}"></i>{{/if}}
         </div>
-        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="Delete Unit" data-type="orgConflictPsyops" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
+        <div style="flex: 0 0 24px;"><a class="item-delete" data-tooltip="{{localize 'CONTINUUM.OrgConflict.DeleteUnit'}}" data-type="orgConflictPsyops" data-id="{{unit.id}}"><i class="fas fa-trash"></i></a></div>
       </div>
       {{/each}}
     </div>
@@ -352,8 +351,8 @@
   <!-- ═══ Psyop Campaigns (Phase Tracker) ══════════════════════════════════ -->
   <div class="combat-subsection psyop-campaigns-subsection">
     <div class="subsection-header">
-      <h3>Psyop Campaigns</h3>
-      <button type="button" class="item-add" data-type="psyopCampaign" data-tooltip="Start a new Psyop Campaign"><i class="fas fa-plus"></i> New Campaign</button>
+      <h3>{{localize "CONTINUUM.OrgConflict.PsyopCampaigns"}}</h3>
+      <button type="button" class="item-add" data-type="psyopCampaign" data-tooltip="{{localize 'CONTINUUM.OrgConflict.NewCampaign'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.OrgConflict.NewCampaign"}}</button>
     </div>
     {{#if psyopCampaigns.length}}
     <div class="psyop-campaign-list">
@@ -361,12 +360,12 @@
       <div class="psyop-campaign" data-id="{{campaign.id}}">
         <div class="psyop-campaign-header">
           <input type="text" class="psyop-campaign-name" name="system.conflict.psyopCampaigns.{{campaign.id}}.name"
-            value="{{campaign.name}}" placeholder="Campaign Name"/>
+            value="{{campaign.name}}" placeholder="{{localize 'CONTINUUM.OrgConflict.CampaignNamePlaceholder'}}"/>
           <input type="text" class="psyop-campaign-target" name="system.conflict.psyopCampaigns.{{campaign.id}}.target"
-            value="{{campaign.target}}" placeholder="Target"/>
+            value="{{campaign.target}}" placeholder="{{localize 'CONTINUUM.Common.Location'}}"/>
           <span class="psyop-phase-count">{{campaign.phaseCount}}/7</span>
-          <span class="psyop-bonus-label" data-tooltip="Current effect based on completed phases">{{campaign.bonusLabel}}</span>
-          <a class="item-delete" data-type="psyopCampaign" data-id="{{campaign.id}}" data-tooltip="Remove Campaign"><i class="fas fa-trash"></i></a>
+          <span class="psyop-bonus-label" data-tooltip="{{localize 'CONTINUUM.OrgConflict.CurrentEffect'}}">{{campaign.bonusLabel}}</span>
+          <a class="item-delete" data-type="psyopCampaign" data-id="{{campaign.id}}" data-tooltip="{{localize 'CONTINUUM.OrgConflict.RemoveCampaign'}}"><i class="fas fa-trash"></i></a>
         </div>
         <div class="psyop-phase-track">
           {{#each campaign.phaseOrder as |phase phaseIndex|}}
@@ -384,7 +383,7 @@
       {{/each}}
     </div>
     {{else}}
-    <p class="psyop-empty-hint">No active campaigns. Add a campaign to track Psyop phase progress and bonuses.</p>
+    <p class="psyop-empty-hint">{{localize "CONTINUUM.OrgConflict.NoActiveCampaigns"}}</p>
     {{/if}}
   </div>
 
@@ -392,22 +391,22 @@
   <div class="combat-subsection wounds-stuff-container">
     <!-- Wounds Column -->
     <div class="wounds-column" style="flex: 0 1 360px;">
-      <h3>Wounds</h3>
+      <h3>{{localize "CONTINUUM.OrgConflict.Wounds"}}</h3>
       <div class="wounds-grid">
         <div class="wounds-header" style="grid-template-columns: 60px 60px 1fr 60px;">
-          <div>RIP</div>
-          <div>MIP</div>
-          <div>Type</div>
-          <div>Destabilized</div>
+          <div>{{localize "CONTINUUM.OrgConflict.RIP"}}</div>
+          <div>{{localize "CONTINUUM.OrgConflict.MIP"}}</div>
+          <div>{{localize "CONTINUUM.OrgConflict.Type"}}</div>
+          <div>{{localize "CONTINUUM.OrgConflict.Destabilized"}}</div>
         </div>
         {{#each woundEntries as |wound|}}
         <div class="wounds-row" style="grid-template-columns: 60px 60px 1fr 60px;">
           <input type="number" name="system.conflict.wounds.{{wound.key}}.rip" value="{{wound.rip}}" />
           <input type="number" name="system.conflict.wounds.{{wound.key}}.mip" value="{{wound.mip}}" />
           <select name="system.conflict.wounds.{{wound.key}}.type">
-            <option value="" {{#if (eq wound.type "")}}selected{{/if}}>---</option>
-            <option value="Bruise" {{#if (eq wound.type "Bruise")}}selected{{/if}}>Disrupt</option>
-            <option value="Lethal" {{#if (eq wound.type "Lethal")}}selected{{/if}}>Degrade</option>
+            <option value="" {{#if (eq wound.type "")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.WoundNone"}}</option>
+            <option value="Bruise" {{#if (eq wound.type "Bruise")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.Disrupt"}}</option>
+            <option value="Lethal" {{#if (eq wound.type "Lethal")}}selected{{/if}}>{{localize "CONTINUUM.OrgConflict.Degrade"}}</option>
           </select>
           <input type="checkbox" name="system.conflict.wounds.{{wound.key}}.bleeding" {{#if wound.bleeding}}checked{{/if}} />
         </div>
@@ -415,18 +414,18 @@
       </div>
       <div class="wounds-summary" style="flex-direction: column; align-items: stretch; gap: 5px;">
         <div class="summary-item" style="justify-content: space-between;">
-          <label>RIP Total / Max:</label>
+          <label>{{localize "CONTINUUM.OrgConflict.RIPTotalMax"}}:</label>
           <div><span>{{system.conflict.summary.ripTotal}}</span> / <span>{{system.conflict.summary.maxRip}}</span>
-          <span style="color: #28a745;"> ({{system.conflict.summary.ripRemaining}} remaining)</span></div>
+          <span style="color: #28a745;"> ({{system.conflict.summary.ripRemaining}} {{localize "CONTINUUM.OrgConflict.Remaining"}})</span></div>
         </div>
         <div class="summary-item" style="justify-content: space-between;">
-          <label>MIP Total / Max:</label>
+          <label>{{localize "CONTINUUM.OrgConflict.MIPTotalMax"}}:</label>
           <div><span>{{system.conflict.summary.mipTotal}}</span> / <span>{{system.conflict.summary.maxMip}}</span>
-          <span style="color: #28a745;"> ({{system.conflict.summary.mipRemaining}} remaining)</span></div>
+          <span style="color: #28a745;"> ({{system.conflict.summary.mipRemaining}} {{localize "CONTINUUM.OrgConflict.Remaining"}})</span></div>
         </div>
         <div class="summary-item wounds-penalty-row">
-          <span data-tooltip="RIP penalises Influence and Comms rolls.">RIP penalty: <strong>{{system.conflict.summary.ripPenalty}}</strong></span>
-          <span data-tooltip="MIP penalises Force and Intel rolls.">MIP penalty: <strong>{{system.conflict.summary.mipPenalty}}</strong></span>
+          <span data-tooltip="{{localize 'CONTINUUM.OrgConflict.RIPPentTooltip'}}">{{localize "CONTINUUM.OrgConflict.RIPPenalty"}}: <strong>{{system.conflict.summary.ripPenalty}}</strong></span>
+          <span data-tooltip="{{localize 'CONTINUUM.OrgConflict.MIPPentTooltip'}}">{{localize "CONTINUUM.OrgConflict.MIPPenalty"}}: <strong>{{system.conflict.summary.mipPenalty}}</strong></span>
         </div>
       </div>
     </div>

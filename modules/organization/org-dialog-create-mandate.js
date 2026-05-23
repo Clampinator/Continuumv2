@@ -10,30 +10,30 @@ const INPUT_STYLE = `style="width:100%;"`;
 export function showCreateMandateDialog(sheet) {
     const content = `
         <form autocomplete="off" ${FORM_STYLE}>
-            <label ${LABEL_STYLE}>We will...</label>
-            <input type="text" name="description" ${INPUT_STYLE} autofocus placeholder="...establish dominance"/>
-            <label ${LABEL_STYLE}>Importance</label>
+            <label ${LABEL_STYLE}>${game.i18n.localize("CONTINUUM.Dialogs2.WeWill")}</label>
+            <input type="text" name="description" ${INPUT_STYLE} autofocus placeholder="${game.i18n.localize('CONTINUUM.OrgMandates.WeWillPlaceholder')}"/>
+            <label ${LABEL_STYLE}>${game.i18n.localize("CONTINUUM.Dialogs2.Importance")}</label>
             <select name="importance" ${INPUT_STYLE}>
-                <option value="Passing">Passing</option>
-                <option value="Mild">Mild</option>
-                <option value="Important">Important</option>
-                <option value="Extreme">Extreme</option>
-                <option value="Critical">Critical</option>
+                <option value="Passing">${game.i18n.localize("CONTINUUM.Goals.Passing")}</option>
+                <option value="Mild">${game.i18n.localize("CONTINUUM.Goals.Mild")}</option>
+                <option value="Important">${game.i18n.localize("CONTINUUM.Goals.Important")}</option>
+                <option value="Extreme">${game.i18n.localize("CONTINUUM.Goals.Extreme")}</option>
+                <option value="Critical">${game.i18n.localize("CONTINUUM.Goals.Critical")}</option>
             </select>
-            <label ${LABEL_STYLE}>by...</label>
-            <input type="text" name="condition" ${INPUT_STYLE} placeholder="...by any means necessary"/>
+            <label ${LABEL_STYLE}>${game.i18n.localize("CONTINUUM.Dialogs2.ByCondition")}</label>
+            <input type="text" name="condition" ${INPUT_STYLE} placeholder="${game.i18n.localize('CONTINUUM.OrgMandates.ByPlaceholder')}"/>
         </form>
     `;
 
     new Dialog({
-        eventTitle: "Create New Mandate",
+        eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.CreateNewMandate"),
         content: content,
         render: (html) => {
             html.find("input[type='text']").on("focus", event => event.currentTarget.select());
         },
         buttons: {
             create: {
-                label: "Create",
+                label: game.i18n.localize("CONTINUUM.Dialogs2.Create"),
                 icon: '<i class="fas fa-check"></i>',
                 callback: async (html) => {
                     const formData = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
@@ -50,7 +50,7 @@ export function showCreateMandateDialog(sheet) {
                     Sound.confirm();
                 }
             },
-            cancel: { label: "Cancel" }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: "create"
     }, { classes: ["continuum-v2", "dialog"], width: 480 }).render(true);
@@ -63,28 +63,28 @@ export function openMandateEditDialog(sheet, mandateId, mandateData, viewState) 
     const isResolved      = mandateData.importance === 'Achieved';
     const activeImportance = isResolved ? 'Important' : (mandateData.importance || 'Important');
 
-    const opt = (val) => `<option value="${val}" ${activeImportance === val ? 'selected' : ''}>${val}</option>`;
+    const opt = (val) => `<option value="${val}" ${activeImportance === val ? 'selected' : ''}>${game.i18n.localize("CONTINUUM.Goals." + val)}</option>`;
 
     const content = `
         <form autocomplete="off" ${FORM_STYLE}>
-            <label ${LABEL_STYLE}>We will...</label>
+            <label ${LABEL_STYLE}>${game.i18n.localize("CONTINUUM.Dialogs2.WeWill")}</label>
             <input type="text" name="description" ${INPUT_STYLE} value="${(mandateData.description || '').replace(/"/g, '&quot;')}" autofocus/>
-            <label ${LABEL_STYLE} id="importance-label" ${isResolved ? 'style="display:none; text-align:right;"' : ''}>Importance</label>
+            <label ${LABEL_STYLE} id="importance-label" ${isResolved ? 'style="display:none; text-align:right;"' : ''}>${game.i18n.localize("CONTINUUM.Dialogs2.Importance")}</label>
             <select name="importance" ${INPUT_STYLE} id="importance-select" ${isResolved ? 'style="display:none; width:100%;"' : ''}>
                 ${opt('Passing')}${opt('Mild')}${opt('Important')}${opt('Extreme')}${opt('Critical')}
             </select>
-            <label ${LABEL_STYLE}>by...</label>
+            <label ${LABEL_STYLE}>${game.i18n.localize("CONTINUUM.Dialogs2.ByCondition")}</label>
             <input type="text" name="condition" ${INPUT_STYLE} value="${(mandateData.condition || '').replace(/"/g, '&quot;')}"/>
-            <label ${LABEL_STYLE}>Resolved</label>
+            <label ${LABEL_STYLE}>${game.i18n.localize("CONTINUUM.Dialogs2.Resolved")}</label>
             <div>
                 <input type="checkbox" name="resolved" ${isResolved ? 'checked' : ''}/>
-                <span style="font-size:0.85em; color:#aaa; margin-left:4px;">Hides from HUD</span>
+                <span style="font-size:0.85em; color:#aaa; margin-left:4px;">${game.i18n.localize("CONTINUUM.Dialogs2.HidesFromHud")}</span>
             </div>
         </form>
     `;
 
     new Dialog({
-        eventTitle: "Edit Mandate",
+        eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.EditMandate"),
         content: content,
         render: (html) => {
             html.find("input[type='text']").on("focus", event => event.currentTarget.select());
@@ -95,7 +95,7 @@ export function openMandateEditDialog(sheet, mandateId, mandateData, viewState) 
         },
         buttons: {
             save: {
-                label: "Save",
+                label: game.i18n.localize("CONTINUUM.Dialogs2.Save"),
                 icon: '<i class="fas fa-save"></i>',
                 callback: async (html) => {
                     const formData   = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
@@ -109,14 +109,14 @@ export function openMandateEditDialog(sheet, mandateId, mandateData, viewState) 
                 }
             },
             delete: {
-                label: "Delete",
+                label: game.i18n.localize("CONTINUUM.Common.Delete"),
                 icon: '<i class="fas fa-trash"></i>',
                 callback: async () => {
                     await sheet.actor.update({ [`system.mandates.-=${mandateId}`]: null });
                     Sound.delete();
                 }
             },
-            cancel: { label: "Cancel" }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: "save",
         close: () => { if (viewState) viewState.interactionMode = 'pan'; }

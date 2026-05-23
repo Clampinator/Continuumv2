@@ -1,9 +1,10 @@
 
 import { ITEM_DATA } from '../../../../../item-data.js';
+import { calculateQuickPenalty as kernelQuickPenalty } from '/systems/continuum-v2/modules/temporal-kernel/calculate-quick-penalty.js';
 
 /**
- * THE ENCUMBRANCE AUTHORITY: Unified Quick Penalty Calculation.
- * Calculates armor and physical weight penalties for Quick/Spanning.
+ * THE ENCUMBRANCE AUTHORITY: Unified React Penalty Calculation.
+ * Calculates armor and physical weight penalties for React/Spanning.
  * 
  * LITERAL CONSTRAINTS:
  * 1. Factors in Max IP of any location for each Armor item MULTIPLIED by the encumbrance multiplier.
@@ -13,7 +14,7 @@ import { ITEM_DATA } from '../../../../../item-data.js';
  * 5. Multiplier Rule: 1.0 = standard weight (Max IP), 0.0 = weightless, <1.0 = tech-reduced, <0.0 = gravity-defying.
  * 
  * @param {Actor} actor - The actor document.
- * @returns {number} Floored integer representing the penalty to Quick/Spanning.
+ * @returns {number} Floored integer representing the penalty to React/Spanning.
  */
 export function calculateQuickPenalty(actor) {
     if (!actor || actor.type !== 'character') return 0;
@@ -57,9 +58,9 @@ export function calculateQuickPenalty(actor) {
         return total + (Number(w.weight) || dbWeight);
     }, 0);
 
-    // 3. Body Mitigation
-    const body = Number(foundry.utils.getProperty(actor.system, 'attributes.body.value')) || 0;
+    // 3. Force Mitigation - delegate to pure Kernel function
+    const force = Number(foundry.utils.getProperty(actor.system, 'attributes.force.value')) || 0;
     const totalLoad = armorLoad + weightLoad;
 
-    return Math.floor(Math.max(0, totalLoad - body));
+    return kernelQuickPenalty(totalLoad, force);
 }

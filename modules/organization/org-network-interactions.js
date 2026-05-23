@@ -121,12 +121,12 @@ export function setupInteractions({ svg, g, sheet, simulation, data, renderRefs 
                 }
             };
         }
-        buttons.cancel = { label: "Cancel", icon: '<i class="fas fa-times"></i>' };
+        buttons.cancel = { label: game.i18n.localize("CONTINUUM.Common.Cancel"), icon: '<i class="fas fa-times"></i>' };
 
         new Dialog({
-            eventTitle: `Edit ${d.name}`,
+            eventTitle: game.i18n.format("CONTINUUM.Dialogs2.EditNode", {name: d.name}),
             content: `
-                <div class="form-group"><label>Name</label><input type="text" id="node-name-edit" value="${d.name}" autofocus/></div>
+                <div class="form-group"><label>${game.i18n.localize("CONTINUUM.Common.Name")}</label><input type="text" id="node-name-edit" value="${d.name}" autofocus/></div>
                 ${!d.isRoot ? `<div class="form-group"><label>Parent Group</label><select id="node-group-select" style="width:100%; margin-bottom: 5px;">${parentOptions}</select><input type="text" id="node-group-custom" placeholder="Or type new group name..." value="${d.group || ''}" /></div>` : ''}
             `,
             buttons: buttons, default: "update"
@@ -139,9 +139,9 @@ export function setupInteractions({ svg, g, sheet, simulation, data, renderRefs 
         const updateOutput = (val) => ["Very Weak", "Weak", "Moderate", "Strong", "Very Strong"][val-1] || val;
 
         new Dialog({
-            eventTitle: "Edit Connection",
+            eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.EditRelationship"),
             content: `
-                <div class="form-group"><label>Type</label><input type="text" id="link-label-edit" value="${d.relationshipType}"/></div>
+                <div class="form-group"><label>${game.i18n.localize("CONTINUUM.Common.Name")}</label><input type="text" id="link-label-edit" value="${d.relationshipType}"/></div>
                 <div class="form-group"><label>Strength: <span id="strength-output">${updateOutput(d.strength)}</span></label><input type="range" id="link-strength" min="1" max="5" value="${d.strength}" style="width:100%"/></div>
                 <div class="form-group"><label>Start</label><input type="date" id="link-date-from" value="${d.dateFrom || ''}"/></div>
                 <div class="form-group"><label>End</label><input type="date" id="link-date-to" value="${d.dateTo || ''}"/></div>

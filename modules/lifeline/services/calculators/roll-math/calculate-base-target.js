@@ -27,13 +27,13 @@ export function calculateBaseTarget(actor, key, options = {}) {
         );
         base = highestRank + (Number(options.activeRank) || 0);
     } else if (key === 'spanning') {
-        const quick = Number(foundry.utils.getProperty(actor.system, 'attributes.quick.value')) || 0;
+        const react = Number(foundry.utils.getProperty(actor.system, 'attributes.react.value')) || 0;
         const span = Number(foundry.utils.getProperty(actor.system, 'spanning.span')) || 0;
-        base = quick + span;
+        base = react + span;
     } else if (key === 'naturalSpan') {
-        const quick = Number(foundry.utils.getProperty(actor.system, 'attributes.quick.value')) || 0;
+        const react = Number(foundry.utils.getProperty(actor.system, 'attributes.react.value')) || 0;
         const natSpan = Number(foundry.utils.getProperty(actor.system, 'spanning.naturalSpan')) || 0;
-        base = quick + natSpan;
+        base = react + natSpan;
     } else if (key === 'willpowerTemp') {
         base = Number(foundry.utils.getProperty(actor.system, 'attributes.willpower.temp')) || 0;
     } else if (key === 'willpowerPerm') {
@@ -42,8 +42,8 @@ export function calculateBaseTarget(actor, key, options = {}) {
         base = Number(foundry.utils.getProperty(actor.system, `attributes.${key}.value`)) || 0;
     }
 
-    // Apply Mind penalty for running applications
-    if (key === 'mind') {
+    // Apply Analyze penalty for running applications
+    if (key === 'analyze' || key === 'mind') {
         base += calculateMindPenalty(actor);
     }
 

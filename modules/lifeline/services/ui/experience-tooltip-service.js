@@ -28,7 +28,7 @@ export const ExperienceTooltipService = {
 
         // 1. Determine Date Range
         const start = expData.dateFrom || "???";
-        const end = expData.dateTo || "Open Loop";
+        const end = expData.dateTo || game.i18n.localize("CONTINUUM.ExperienceTooltip.OpenLoop");
 
         // 2. Calculate Most Common Location from Events
         const events = Object.values(expData.events || {});
@@ -36,7 +36,7 @@ export const ExperienceTooltipService = {
             .map(e => e.eventIsSpan ? e.eventSpanFromLocation : e.location)
             .filter(l => typeof l === 'string' && l.trim() !== "");
         
-        let primaryLocation = "Unknown";
+        let primaryLocation = game.i18n.localize("CONTINUUM.ExperienceTooltip.UnknownLocation");
         if (locations.length > 0) {
             const counts = {};
             let maxCount = 0;
@@ -50,7 +50,7 @@ export const ExperienceTooltipService = {
                     mode = cleanLoc;
                 }
             }
-            primaryLocation = mode || "Unknown";
+            primaryLocation = mode || game.i18n.localize("CONTINUUM.ExperienceTooltip.UnknownLocation");
         }
 
         // 3. Calculate Resonance Bonus (two-axis: duration + distance)
@@ -61,7 +61,7 @@ export const ExperienceTooltipService = {
             if (matched && matched.bonus > 0) {
                 bonusText = `<div class="tooltip-row">
                     <i class="fas fa-bolt"></i>
-                    <span>Resonance: +${matched.bonus}</span>
+                    <span>${game.i18n.format("CONTINUUM.ExperienceTooltip.ResonanceBonus", {bonus: matched.bonus})}</span>
                 </div>`;
             }
         } catch (_) {
@@ -83,7 +83,7 @@ export const ExperienceTooltipService = {
         tooltip.id = 'experience-hover-tooltip-global';
         
         tooltip.innerHTML = `
-            <div class="tooltip-header">${expData.name || 'Experience'}</div>
+            <div class="tooltip-header">${expData.name || game.i18n.localize("CONTINUUM.Experiences.ExperienceTitle")}</div>
             ${descText}
             <div class="tooltip-row">
                 <i class="fas fa-calendar-alt"></i> 
@@ -91,7 +91,7 @@ export const ExperienceTooltipService = {
             </div>
             <div class="tooltip-row">
                 <i class="fas fa-map-marker-alt"></i> 
-                <span>Primary: ${primaryLocation}</span>
+                <span>${game.i18n.localize("CONTINUUM.ExperienceTooltip.PrimaryLabel")} ${primaryLocation}</span>
             </div>
             ${bonusText}
         `;

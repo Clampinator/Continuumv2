@@ -26,6 +26,6 @@ export function handleNodeAddition(sheet) {
         };
 
         await sheet.actor.update({ [`system.network.${newId}`]: newNode });
-        ui.notifications.info("Added blank NPC node to map.");
+        ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.AddedBlankNpcNode"));
     });
 }

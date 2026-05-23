@@ -20,7 +20,7 @@ export function handleAppApply(sheet, event) {
 
     const dominant = getDominantIngredient(app);
     if (!dominant) {
-        ui.notifications.warn("No ingredients have been set for this application.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.NpcGeneratorUI.NoIngredients"));
         return;
     }
 

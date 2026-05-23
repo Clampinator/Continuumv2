@@ -1,32 +1,32 @@
 <div class="step-content step-identity">
-  <h3>Identity</h3>
+  <h3>{{localize "CONTINUUM.NpcGenerator.Identity"}}</h3>
 
   <div class="form-group">
-    <label for="npc-name">Name <span class="optional">(optional - leave blank for AI generation)</span></label>
-    <input type="text" id="npc-name" name="data.name" value="{{name}}" placeholder="Enter name or leave blank...">
+    <label for="npc-name">{{localize "CONTINUUM.NpcGenerator.NameOptional"}}</label>
+    <input type="text" id="npc-name" name="data.name" value="{{name}}" placeholder="{{localize 'CONTINUUM.NpcGenerator.NamePlaceholder'}}">
   </div>
 
   <div class="form-group">
-    <label for="npc-region">Region</label>
+    <label for="npc-region">{{localize "CONTINUUM.NpcGenerator.Region"}}</label>
     <select id="npc-region" name="data.region">
-      <option value="">-- Select Region --</option>
+      <option value="">{{localize "CONTINUUM.NpcGenerator.SelectRegion"}}</option>
     </select>
   </div>
 
   <div class="form-group">
-    <label for="npc-culture">Culture</label>
+    <label for="npc-culture">{{localize "CONTINUUM.NpcGenerator.Culture"}}</label>
     <select id="npc-culture" name="data.culture">
-      <option value="">-- Select Region First --</option>
+      <option value="">{{localize "CONTINUUM.NpcGenerator.SelectRegionFirst"}}</option>
     </select>
   </div>
 
   <div class="form-group">
-    <label for="npc-pronouns">Pronouns</label>
-    <input type="text" id="npc-pronouns" name="data.pronouns" value="{{pronouns}}" placeholder="e.g., they/them, she/her, he/him">
+    <label for="npc-pronouns">{{localize "CONTINUUM.NpcGenerator.Pronouns"}}</label>
+    <input type="text" id="npc-pronouns" name="data.pronouns" value="{{pronouns}}" placeholder="{{localize 'CONTINUUM.NpcGenerator.PronounsPlaceholder'}}">
   </div>
 
   <div class="form-group">
-    <button type="button" class="browse-names-btn">Browse Names</button>
-    <span class="hint">Opens fantasynamegenerators.com based on selected culture</span>
+    <button type="button" class="browse-names-btn">{{localize "CONTINUUM.NpcGenerator.BrowseNames"}}</button>
+    <span class="hint">{{localize "CONTINUUM.NpcGenerator.BrowseNamesHint"}}</span>
   </div>
 </div>

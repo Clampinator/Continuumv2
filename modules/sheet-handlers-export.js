@@ -20,17 +20,17 @@ export async function handleImportLifelineClick(sheet, event) {
     event.preventDefault();
 
     new Dialog({
-        eventTitle: "Import Lifeline Data",
+        eventTitle: game.i18n.localize("CONTINUUM.Export.ImportLifeline"),
         content: `
             <div style="margin-bottom: 10px;">
-                <p>Paste the content of your <code>.json</code> export file below.</p>
-                <p style="color: #ff6060; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> WARNING: This will completely overwrite all existing Eras, Experiences, Events, Goals, and Yet items.</p>
+                <p>${game.i18n.localize("CONTINUUM.Export.ImportInstructions")}</p>
+                <p style="color: #ff6060; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> ${game.i18n.localize("CONTINUUM.Export.ImportWarning")}</p>
             </div>
             <textarea name="importJson" style="width:100%; height: 300px; font-family: monospace; white-space: pre; overflow-x: auto; background: #222; color: #fff; padding: 5px; border: 1px solid #555;"></textarea>
         `,
         buttons: {
             import: {
-                label: "Import Data",
+                label: game.i18n.localize("CONTINUUM.Export.ImportData"),
                 icon: '<i class="fas fa-file-import"></i>',
                 callback: async (html) => {
                     const jsonStr = html.find("textarea[name='importJson']").val();
@@ -48,14 +48,14 @@ export async function handleImportLifelineClick(sheet, event) {
                         if (source.theYet) updates['system.theYet'] = source.theYet;
 
                         await sheet.actor.update(updates);
-                        ui.notifications.info("Lifeline imported successfully.");
+                        ui.notifications.info(game.i18n.localize("CONTINUUM.Export.ImportSuccess"));
                         sheet.render();
                     } catch (e) {
-                        ui.notifications.error(`Failed to import data: ${e.message}`);
+                        ui.notifications.error(game.i18n.format("CONTINUUM.Export.ImportFailed", {error: e.message}));
                     }
                 }
             },
-            cancel: { label: "Cancel" }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: "import"
     }, { classes: ["continuum-v2", "dialog"] }).render(true);

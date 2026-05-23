@@ -6,13 +6,13 @@
   <input type="checkbox" id="toggle-org-structure-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-structure-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-org-structure-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Organization Structure</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.OrgStructure.Title"}}</h2>
     </label>
     <div class="org-structure-controls">
       {{#if fiscal.overextension.isOverextended}}
-      <span class="overextension-chip" data-tooltip="Overextended! {{#if fiscal.overextension.severe}}Severe: –2 to rolls, no new units.{{else}}–1 or –2 to rolls.{{/if}}"><i class="fas fa-exclamation-triangle"></i> OVEREXTENDED</span>
+      <span class="overextension-chip" data-tooltip="{{#if fiscal.overextension.severe}}{{localize 'CONTINUUM.OrgStructure.OverextendedSevere'}}{{else}}{{localize 'CONTINUUM.OrgStructure.OverextendedMild'}}{{/if}}"><i class="fas fa-exclamation-triangle"></i> {{localize "CONTINUUM.OrgStructure.Overextended"}}</span>
       {{/if}}
-      <button type="button" class="org-structure-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="org-structure-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
     </div>
   </div>
   <div class="section-content">
@@ -20,93 +20,93 @@
 
         <!-- Description Column -->
         <div class="column">
-          <h3>Description</h3>
+          <h3>{{localize "CONTINUUM.Common.Description"}}</h3>
           <div class="form-row">
-            <label for="org-name-input">Name:</label>
+            <label for="org-name-input">{{localize "CONTINUUM.Common.Name"}}</label>
             <input type="text" id="org-name-input" name="system.structure.orgname" value="{{system.structure.orgname}}" placeholder="{{actor.name}}" />
           </div>
           <div class="form-row">
-            <label for="org-type">Type:</label>
+            <label for="org-type">{{localize "CONTINUUM.OrgStructure.Type"}}</label>
             <select id="org-type" name="system.structure.type">
               {{#select system.structure.type}}
-              <option value="" disabled>Select...</option>
-              <option value="Political">Political</option>
-              <option value="Religious">Religious</option>
-              <option value="Military">Military</option>
-              <option value="Charitable">Charitable</option>
-              <option value="Social">Social</option>
-              <option value="Commercial">Commercial</option>
-              <option value="Educational">Educational</option>
+              <option value="" disabled>{{localize "CONTINUUM.Common.SelectDots"}}</option>
+              <option value="Political">{{localize "CONTINUUM.OrgStructure.Political"}}</option>
+              <option value="Religious">{{localize "CONTINUUM.OrgStructure.Religious"}}</option>
+              <option value="Military">{{localize "CONTINUUM.OrgStructure.Military"}}</option>
+              <option value="Charitable">{{localize "CONTINUUM.OrgStructure.Charitable"}}</option>
+              <option value="Social">{{localize "CONTINUUM.OrgStructure.Social"}}</option>
+              <option value="Commercial">{{localize "CONTINUUM.OrgStructure.Commercial"}}</option>
+              <option value="Educational">{{localize "CONTINUUM.OrgStructure.Educational"}}</option>
               {{/select}}
             </select>
           </div>
           <div class="form-row">
-            <label for="org-race">Race:</label>
+            <label for="org-race">{{localize "CONTINUUM.OrgStructure.Race"}}</label>
             <input type="text" id="org-race" name="system.structure.race" value="{{system.structure.race}}" />
           </div>
         </div>
 
         <!-- Locality Column -->
         <div class="column">
-          <h3>Locality</h3>
+          <h3>{{localize "CONTINUUM.OrgStructure.Locality"}}</h3>
           <div class="form-row">
-            <label for="org-inception">Date of Inception:</label>
+            <label for="org-inception">{{localize "CONTINUUM.OrgStructure.DateOfInception"}}</label>
             <div class="date-picker-container">
-              <input type="text" class="date-text-input" id="org-inception" name="system.structure.inceptionDate" value="{{system.structure.inceptionDate}}" placeholder="YYYY-MM-DD" />
+              <input type="text" class="date-text-input" id="org-inception" name="system.structure.inceptionDate" value="{{system.structure.inceptionDate}}" placeholder="{{localize 'CONTINUUM.Personal.DobPlaceholder'}}" />
               <i class="fas fa-calendar-alt date-picker-icon"></i>
               <input type="date" class="date-picker-hidden" tabindex="-1" />
             </div>
           </div>
           <div class="form-row">
-            <label for="org-headquarters">Headquarters:</label>
+            <label for="org-headquarters">{{localize "CONTINUUM.OrgStructure.Headquarters"}}</label>
             <div style="display: flex; gap: 5px; align-items: center; flex: 1;">
-                <input type="text" id="org-headquarters" name="system.structure.headquarters" value="{{system.structure.headquarters}}" placeholder="City, Country" />
+                <input type="text" id="org-headquarters" name="system.structure.headquarters" value="{{system.structure.headquarters}}" placeholder="{{localize 'CONTINUUM.OrgStructure.HeadquartersPlaceholder'}}" />
                 <input type="hidden" name="system.structure.headquartersLat" value="{{system.structure.headquartersLat}}"/>
                 <input type="hidden" name="system.structure.headquartersLng" value="{{system.structure.headquartersLng}}"/>
-                <button type="button" class="personal-geo-btn personal-locate-btn" eventTitle="Locate on Map"><i class="fas fa-map-marker-alt"></i></button>
-                <button type="button" class="personal-geo-btn personal-grab-btn" eventTitle="Grab Map Center"><i class="fas fa-crosshairs"></i></button>
+                <button type="button" class="personal-geo-btn personal-locate-btn" eventTitle="{{localize 'CONTINUUM.Personal.LocateOnMap'}}"><i class="fas fa-map-marker-alt"></i></button>
+                <button type="button" class="personal-geo-btn personal-grab-btn" eventTitle="{{localize 'CONTINUUM.Personal.GrabMapCenter'}}"><i class="fas fa-crosshairs"></i></button>
             </div>
           </div>
           <div class="form-row">
-            <label for="org-locality">Locality:</label>
+            <label for="org-locality">{{localize "CONTINUUM.OrgStructure.Locality"}}</label>
             <input type="text" id="org-locality" name="system.structure.locality" value="{{system.structure.locality}}" />
           </div>
           <div class="form-row">
-            <label for="org-society">Society:</label>
+            <label for="org-society">{{localize "CONTINUUM.OrgStructure.Society"}}</label>
             <input type="text" id="org-society" name="system.structure.society" value="{{system.structure.society}}" />
           </div>
           <div class="form-row">
-            <label for="org-grace">Grace:</label>
+            <label for="org-grace">{{localize "CONTINUUM.OrgStructure.Grace"}}</label>
             <input type="number" id="org-grace" name="system.structure.grace" value="{{system.structure.grace}}" />
           </div>
         </div>
 
         <!-- Scope Column -->
         <div class="column">
-          <h3>Fiscal Health</h3>
+          <h3>{{localize "CONTINUUM.OrgStructure.FiscalHealth"}}</h3>
           <div class="form-row">
-            <label for="org-size">Size (Tier):</label>
+            <label for="org-size">{{localize "CONTINUUM.OrgStructure.Size"}}</label>
             <select id="org-size" name="system.structure.size">
               {{#select system.structure.size}}
-              <option value="0" disabled>Select...</option>
-              <option value="1">Dyad (1-2)</option>
-              <option value="2">Cluster (3-10)</option>
-              <option value="3">Pack (11-100)</option>
-              <option value="4">Crowd (101-1k)</option>
-              <option value="5">Assembly (1k-10k)</option>
-              <option value="6">Swarm (10k-100k)</option>
-              <option value="7">Metropolis (100k-1M)</option>
-              <option value="8">Supercolony (1M-10M)</option>
-              <option value="9">Megapolis (10M-100M)</option>
-              <option value="10">Gigacosm (100M+)</option>
+              <option value="0" disabled>{{localize "CONTINUUM.Common.SelectDots"}}</option>
+              <option value="1">{{localize "CONTINUUM.OrgStructure.Dyad"}}</option>
+              <option value="2">{{localize "CONTINUUM.OrgStructure.Cluster"}}</option>
+              <option value="3">{{localize "CONTINUUM.OrgStructure.Pack"}}</option>
+              <option value="4">{{localize "CONTINUUM.OrgStructure.Crowd"}}</option>
+              <option value="5">{{localize "CONTINUUM.OrgStructure.Assembly"}}</option>
+              <option value="6">{{localize "CONTINUUM.OrgStructure.Swarm"}}</option>
+              <option value="7">{{localize "CONTINUUM.OrgStructure.Metropolis"}}</option>
+              <option value="8">{{localize "CONTINUUM.OrgStructure.Supercolony"}}</option>
+              <option value="9">{{localize "CONTINUUM.OrgStructure.Megapolis"}}</option>
+              <option value="10">{{localize "CONTINUUM.OrgStructure.Gigacosm"}}</option>
               {{/select}}
             </select>
           </div>
           <div class="form-row">
-            <label for="org-budget">Budget (Tier):</label>
+            <label for="org-budget">{{localize "CONTINUUM.OrgStructure.Budget"}}</label>
             <select id="org-budget" name="system.structure.budget">
               {{#select system.structure.budget}}
-              <option value="0" disabled>Select...</option>
+              <option value="0" disabled>{{localize "CONTINUUM.Common.SelectDots"}}</option>
               <option value="1">$10</option>
               <option value="2">$1k</option>
               <option value="3">$100k</option>
@@ -122,14 +122,14 @@
           </div>
           <div class="fiscal-readout-row" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 10px;">
               <div class="readout-item">
-                  <label>Manpower (MP)</label>
+                  <label>{{localize "CONTINUUM.OrgStructure.Manpower"}}</label>
                   <span class="readout-value {{#if (lt fiscal.mp.remaining 0)}}negative{{/if}}">{{fiscal.mp.spent}} / {{fiscal.mp.total}}</span>
-                  <p class="readout-sub">Size × 10</p>
+                  <p class="readout-sub">{{localize "CONTINUUM.OrgStructure.ManpowerFormula"}}</p>
               </div>
               <div class="readout-item">
-                  <label>Resources (RP)</label>
+                  <label>{{localize "CONTINUUM.OrgStructure.Resources"}}</label>
                   <span class="readout-value {{#if (lt fiscal.rp.remaining 0)}}negative{{/if}}">{{fiscal.rp.spent}} / {{fiscal.rp.total}}</span>
-                  <p class="readout-sub">Budget × 10</p>
+                  <p class="readout-sub">{{localize "CONTINUUM.OrgStructure.ResourcesFormula"}}</p>
               </div>
           </div>
         </div>

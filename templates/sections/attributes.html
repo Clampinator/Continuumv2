@@ -6,10 +6,10 @@
       <input type="checkbox" id="toggle-attributes-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-attributes-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
       <label for="toggle-attributes-{{actor.id}}" class="section-heading-toggle">
-          <h2 class="section-heading">Attributes</h2>
+          <h2 class="section-heading">{{localize "CONTINUUM.Attributes.Title"}}</h2>
       </label>
       <div class="attributes-controls">
-        <button type="button" class="attributes-help" eventTitle="Help"><i class="fas fa-question"></i></button>
+        <button type="button" class="attributes-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
       </div>
   </div>
   <div class="attributes-container">
@@ -18,57 +18,57 @@
       <div class="character-image-container">
         <img class="character-image" src="{{actor.img}}" data-edit="img" eventTitle="{{actor.name}}"/>
       </div>
-      <button type="button" class="token-image-pick" eventTitle="Set Token Image"></button>
+      <button type="button" class="token-image-pick" eventTitle="{{localize 'CONTINUUM.Attributes.SetTokenImage'}}"></button>
     </div>
 
     <div class="attributes-single-row">
-      <!-- Body Block -->
+      <!-- Force Block -->
       <div class="attribute-block">
-        <button type="button" class="roll-attribute" data-attribute="body" data-tooltip="Roll Force">Force</button>
-        <div class="attribute-spinner-viewport" data-attribute="body">
-          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Body Value Spinner">
+        <button type="button" class="roll-attribute" data-attribute="force" data-tooltip="{{localize 'CONTINUUM.Attributes.RollForce'}}">{{localize "CONTINUUM.Attributes.Force"}}</button>
+        <div class="attribute-spinner-viewport" data-attribute="force">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Force Value Spinner">
         </div>
-        <input type="hidden" name="system.attributes.body.value" value="{{system.attributes.body.value}}">
+        <input type="hidden" name="system.attributes.force.value" value="{{system.attributes.force.value}}">
       </div>
 
-      <!-- Mind Block -->
+      <!-- Analyze Block -->
       <div class="attribute-block">
-        <button type="button" class="roll-attribute" data-attribute="mind" data-tooltip="Roll Analyze">Analyze</button>
-        <div class="attribute-spinner-viewport" data-attribute="mind">
-          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Mind Value Spinner">
+        <button type="button" class="roll-attribute" data-attribute="analyze" data-tooltip="{{localize 'CONTINUUM.Attributes.RollAnalyze'}}">{{localize "CONTINUUM.Attributes.Analyze"}}</button>
+        <div class="attribute-spinner-viewport" data-attribute="analyze">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Analyze Value Spinner">
         </div>
-        <input type="hidden" name="system.attributes.mind.value" value="{{system.attributes.mind.value}}">
+        <input type="hidden" name="system.attributes.analyze.value" value="{{system.attributes.analyze.value}}">
       </div>
 
-      <!-- EQ Block -->
+      <!-- Relate Block -->
       <div class="attribute-block">
-        <button type="button" class="roll-attribute" data-attribute="eq" data-tooltip="Roll Relate">Relate</button>
-        <div class="attribute-spinner-viewport" data-attribute="eq">
-          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="EQ Value Spinner">
+        <button type="button" class="roll-attribute" data-attribute="relate" data-tooltip="{{localize 'CONTINUUM.Attributes.RollRelate'}}">{{localize "CONTINUUM.Attributes.Relate"}}</button>
+        <div class="attribute-spinner-viewport" data-attribute="relate">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Relate Value Spinner">
         </div>
-        <input type="hidden" name="system.attributes.eq.value" value="{{system.attributes.eq.value}}">
+        <input type="hidden" name="system.attributes.relate.value" value="{{system.attributes.relate.value}}">
       </div>
 
-      <!-- Quick Block -->
+      <!-- React Block -->
       <div class="attribute-block">
-        <button type="button" class="roll-attribute" data-attribute="quick" data-tooltip="Roll Move">Move</button>
-        <div class="attribute-spinner-viewport" data-attribute="quick">
-          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Quick Value Spinner">
+        <button type="button" class="roll-attribute" data-attribute="react" data-tooltip="{{localize 'CONTINUUM.Attributes.RollReact'}}">{{localize "CONTINUUM.Attributes.React"}}</button>
+        <div class="attribute-spinner-viewport" data-attribute="react">
+          <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="React Value Spinner">
         </div>
-        <input type="hidden" name="system.attributes.quick.value" value="{{system.attributes.quick.value}}">
+        <input type="hidden" name="system.attributes.react.value" value="{{system.attributes.react.value}}">
       </div>
 
       <!-- Willpower Column -->
       <div class="willpower-column">
         <div class="attribute-block willpower-block">
-          <button type="button" class="roll-attribute" data-attribute="willpowerTemp" data-tooltip="Roll Temp Will">Temp Will</button>
+          <button type="button" class="roll-attribute" data-attribute="willpowerTemp" data-tooltip="{{localize 'CONTINUUM.Attributes.RollTempWill'}}">{{localize "CONTINUUM.Attributes.TempWillLabel"}}</button>
           <div class="attribute-spinner-viewport" data-attribute="willpowerTemp">
             <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Temp Will Value Spinner">
           </div>
           <input type="hidden" name="system.attributes.willpower.temp" value="{{system.attributes.willpower.temp}}">
         </div>
         <div class="attribute-block willpower-block">
-          <button type="button" class="roll-attribute" data-attribute="willpowerPerm" data-tooltip="Roll Perm Will">Perm Will</button>
+          <button type="button" class="roll-attribute" data-attribute="willpowerPerm" data-tooltip="{{localize 'CONTINUUM.Attributes.RollPermWill'}}">{{localize "CONTINUUM.Attributes.PermWillLabel"}}</button>
           <div class="attribute-spinner-viewport" data-attribute="willpowerPerm">
             <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Perm Will Value Spinner">
           </div>
@@ -79,7 +79,7 @@
 
     <!-- Benefits Box -->
     <div class="benefits-limits-container">
-      <h3>Benefits</h3>
+      <h3>{{localize "CONTINUUM.Attributes.Benefits"}}</h3>
       <div class="benefits-scroll-list">
         {{#each benefitsList}}
         <label class="benefit-item" eventTitle="{{description}}">

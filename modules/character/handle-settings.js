@@ -2,6 +2,7 @@
 export async function handleCharacterSettingsClick(sheet, event) {
     event.preventDefault();
     const { actor } = sheet;
+    const i18n = game.i18n;
     const playersCanSeeSpan = actor.getFlag('continuum-v2', 'playersCanSeeSpan') ?? false;
     const playersCanSeeNaturalSpan = actor.getFlag('continuum-v2', 'playersCanSeeNaturalSpan') ?? false;
     const playersCanSeeMetabilities = actor.getFlag('continuum-v2', 'playersCanSeeMetabilities') ?? false;
@@ -30,26 +31,26 @@ export async function handleCharacterSettingsClick(sheet, event) {
         }
       </style>
       <form class="character-settings-form">
-        <div class="form-group"><label>Let players see Span</label><input type="checkbox" name="playersCanSeeSpan" ${playersCanSeeSpan ? 'checked' : ''} /></div>
-        <div class="form-group"><label>Let players see Natural Span</label><input type="checkbox" name="playersCanSeeNaturalSpan" ${playersCanSeeNaturalSpan ? 'checked' : ''} /></div>
-        <div class="form-group"><label>Let players see Metabilities</label><input type="checkbox" name="playersCanSeeMetabilities" ${playersCanSeeMetabilities ? 'checked' : ''} /></div>
-        <div class="form-group"><label>Show Ages &amp; Experiences section</label><input type="checkbox" name="showAgesSection" ${showAgesSection ? 'checked' : ''} /></div>
-        <div class="form-group"><label>Show Relationships section</label><input type="checkbox" name="showRelationshipsSection" ${showRelationshipsSection ? 'checked' : ''} /></div>
-        <div class="form-group"><label>Show Goals section</label><input type="checkbox" name="showGoalsSection" ${showGoalsSection ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.LetPlayersSeeSpan")}</label><input type="checkbox" name="playersCanSeeSpan" ${playersCanSeeSpan ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.LetPlayersSeeNaturalSpan")}</label><input type="checkbox" name="playersCanSeeNaturalSpan" ${playersCanSeeNaturalSpan ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.LetPlayersSeeMetabilities")}</label><input type="checkbox" name="playersCanSeeMetabilities" ${playersCanSeeMetabilities ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.ShowAgesExperiences")}</label><input type="checkbox" name="showAgesSection" ${showAgesSection ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.ShowRelationships")}</label><input type="checkbox" name="showRelationshipsSection" ${showRelationshipsSection ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.ShowGoals")}</label><input type="checkbox" name="showGoalsSection" ${showGoalsSection ? 'checked' : ''} /></div>
         <hr style="margin: 12px 0; border-color: #555;">
-        <div class="form-group"><label>Link Lifeline to SpaceTime</label><input type="checkbox" name="spaceTimeLinked" ${spaceTimeLinked ? 'checked' : ''} /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.LinkLifeline")}</label><input type="checkbox" name="spaceTimeLinked" ${spaceTimeLinked ? 'checked' : ''} /></div>
         <hr style="margin: 12px 0; border-color: #555;">
-        <div class="form-group"><label>Lock Operant Potentials</label><input type="checkbox" name="potentialsLocked" ${potentialsLocked ? 'checked' : ''} eventTitle="When locked, players cannot change their Operant Potential maximums" /></div>
+        <div class="form-group"><label>${i18n.localize("CONTINUUM.CharacterSettings.LockPotentials")}</label><input type="checkbox" name="potentialsLocked" ${potentialsLocked ? 'checked' : ''} eventTitle="${i18n.localize("CONTINUUM.CharacterSettings.LockPotentialsHint")}" /></div>
       </form>
     `;
 
     new Dialog({
-      eventTitle: "Character Sheet Settings",
+      eventTitle: i18n.localize("CONTINUUM.CharacterSettings.Title"),
       content: content,
       buttons: {
         save: {
           icon: '<i class="fas fa-save"></i>',
-          label: "Save Changes",
+          label: i18n.localize("CONTINUUM.CharacterSettings.SaveChanges"),
           callback: async (html) => {
             const updates = {
                 'flags.continuum-v2.playersCanSeeSpan': html.find('input[name="playersCanSeeSpan"]').is(':checked'),

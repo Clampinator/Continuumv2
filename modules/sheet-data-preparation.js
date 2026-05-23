@@ -12,6 +12,7 @@ import { calculateWoundCapacity } from '/systems/continuum-v2/modules/temporal-k
 import { getSpanWeightLimit } from '/systems/continuum-v2/modules/temporal-kernel/get-span-weight-limit.js';
 import { isLeveller } from '/systems/continuum-v2/modules/temporal-kernel/is-leveller.js';
 import { isSpanOverburdened } from '/systems/continuum-v2/modules/temporal-kernel/is-span-overburdened.js';
+import { calculateQuickPenalty } from '/systems/continuum-v2/modules/temporal-kernel/calculate-quick-penalty.js';
 import { computeSpanPoolDisplay, applyEventStatsToTemplate } from '/systems/continuum-v2/modules/temporal-engine/compute-span-pool-display.js';
 
 // SPAN POOL: Computed by temporal-kernel/calculate-span-pool.js (pure math).
@@ -24,11 +25,11 @@ function _calculateArmorSummary(context) {
         context.armorItems, context.rangedWeapons, context.meleeWeapons,
         context.totalGearWeight || 0, ITEM_DATA.armor, ITEM_DATA.rangedWeapons, ITEM_DATA.meleeWeapons
     );
-    const bodyValue = Number(foundry.utils.getProperty(context.system, 'attributes.body.value')) || 0;
+    const forceValue = Number(foundry.utils.getProperty(context.system, 'attributes.force.value') || foundry.utils.getProperty(context.system, 'attributes.body.value')) || 0;
     context.armorSummary = {
         ...ipTotals,
         totalEncumbrance,
-        quickPenalty: Math.max(0, totalEncumbrance - bodyValue)
+        quickPenalty: calculateQuickPenalty(totalEncumbrance, forceValue)
     };
 }
 
@@ -92,8 +93,8 @@ export async function prepareSheetData(sheet, options) {
     _calculateArmorSummary(context);
     context.isSpanOverburdened = isSpanOverburdened(context.armorSummary.totalEncumbrance, context.spanWeightLimit);
     context.woundEntries = Object.entries(context.system.combat?.wounds || {}).map(([key, wound]) => ({ key, ...wound }));
-    const bodyVal = Number(context.system.attributes?.body?.value) || 0;
-    context.woundsSummary = calculateWoundCapacity(bodyVal, context.woundEntries);
+    const forceVal = Number(context.system.attributes?.force?.value || context.system.attributes?.body?.value) || 0;
+    context.woundsSummary = calculateWoundCapacity(forceVal, context.woundEntries);
     context.metabilityApplications = Object.entries(context.system.metabilities?.applications || {}).map(([id, app]) => ({ id, ...app }));
     const mapVehicles = (collection, type, key) => Object.entries(collection || {}).map(([id, v]) => ({ id, type, systemKey: key, ...v }));
     context.vehicles = [...mapVehicles(context.system.vehicles, 'vehicle', 'vehicles'), ...mapVehicles(context.system.airVehicles, 'airVehicle', 'airVehicles'), ...mapVehicles(context.system.waterVehicles, 'waterVehicle', 'waterVehicles')];

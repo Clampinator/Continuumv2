@@ -6,11 +6,11 @@
   <input type="checkbox" id="toggle-org-network-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-network-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-org-network-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Network Map</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.OrgNetwork.Title"}}</h2>
     </label>
     <div class="network-controls" style="margin-left: auto; display: flex; gap: 8px;">
-        <button type="button" class="network-reset-zoom" eventTitle="Fit to View"><i class="fas fa-compress-arrows-alt"></i></button>
-        <button type="button" class="network-help" eventTitle="Right-Drag between nodes to link. Right-click to delete."><i class="fas fa-question"></i></button>
+        <button type="button" class="network-reset-zoom" eventTitle="{{localize 'CONTINUUM.OrgNetwork.FitToView'}}"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="network-help" eventTitle="{{localize 'CONTINUUM.OrgNetwork.NetworkHelp'}}"><i class="fas fa-question"></i></button>
     </div>
   </div>
     <div class="section-content" style="padding: 0;">
@@ -20,8 +20,8 @@
           <div id="org-network-graph-{{actor.id}}" class="org-network-container">
               <div class="network-placeholder-text">
                   <i class="fas fa-sitemap"></i><br>
-                  Drag Actors here to build the Org Chart.<br>
-                  <small>Right-Drag between nodes to connect.</small>
+                  {{localize "CONTINUUM.OrgNetwork.DragActorsHere"}}<br>
+                  <small>{{localize "CONTINUUM.OrgNetwork.DragToConnect"}}</small>
               </div>
           </div>
 

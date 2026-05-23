@@ -13,18 +13,18 @@
     <input type="checkbox" id="toggle-org-map-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-org-map-" actor.id))}}checked{{/if}}>
     <div class="section-header-row">
       <label for="toggle-org-map-{{actor.id}}" class="section-heading-toggle">
-        <h2 class="section-heading">Operational Map</h2>
+        <h2 class="section-heading">{{localize "CONTINUUM.Organization.OperationalMap"}}</h2>
       </label>
       <div class="span-graph-controls" style="display: flex; flex-flow: row nowrap; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
-        <button type="button" class="org-lifeline-toggle-map" eventTitle="Toggle Lifeline Graph (Spacebar)"><i class="fas fa-project-diagram"></i></button>
-        <button type="button" class="org-lifeline-reset-view" eventTitle="Reset View"><i class="fas fa-compress-arrows-alt"></i></button>
+        <button type="button" class="org-lifeline-toggle-map" eventTitle="{{localize 'CONTINUUM.Organization.ToggleLifeline'}}"><i class="fas fa-project-diagram"></i></button>
+        <button type="button" class="org-lifeline-reset-view" eventTitle="{{localize 'CONTINUUM.Organization.ResetView'}}"><i class="fas fa-compress-arrows-alt"></i></button>
       </div>
     </div>
 
     <div class="section-content">
       <!-- Mandate HUD -->
       <div class="graph-goal-hud-container">
-        <button type="button" class="goal-hud-add" eventTitle="Create New Mandate"><i class="fas fa-plus"></i> Mandate</button>
+        <button type="button" class="goal-hud-add" eventTitle="{{localize 'CONTINUUM.Organization.CreateNewMandate'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Organization.Mandate"}}</button>
         {{#each mandates as |mandate|}}
           {{#unless (eq mandate.importance "Achieved")}}
           <div class="goal-hud-chip" data-id="{{mandate.id}}" data-importance="{{mandate.importance}}">
@@ -36,10 +36,10 @@
 
       <!-- Unit color legend -->
       <div class="graph-goal-hud-container">
-        <span class="org-lifeline-legend-item" style="color:#E32017;"><i class="fas fa-fist-raised"></i> Physical</span>
-        <span class="org-lifeline-legend-item" style="color:#003688;"><i class="fas fa-user-secret"></i> Espionage</span>
-        <span class="org-lifeline-legend-item" style="color:#9B0056;"><i class="fas fa-bullhorn"></i> Psyops</span>
-        <span class="org-lifeline-legend-item" style="color:#00782A;"><i class="fas fa-laptop-code"></i> Online</span>
+        <span class="org-lifeline-legend-item" style="color:#E32017;"><i class="fas fa-fist-raised"></i> {{localize "CONTINUUM.Organization.Physical"}}</span>
+        <span class="org-lifeline-legend-item" style="color:#003688;"><i class="fas fa-user-secret"></i> {{localize "CONTINUUM.Organization.Espionage"}}</span>
+        <span class="org-lifeline-legend-item" style="color:#9B0056;"><i class="fas fa-bullhorn"></i> {{localize "CONTINUUM.Organization.Psyops"}}</span>
+        <span class="org-lifeline-legend-item" style="color:#00782A;"><i class="fas fa-laptop-code"></i> {{localize "CONTINUUM.Organization.Online"}}</span>
       </div>
 
       <!-- Wrapper: map-mode is the default — graph is the overlay -->
@@ -112,7 +112,7 @@
               <rect class="creation-drag-rect" display="none" x="0" y="0" width="0" height="0"></rect>
               <g class="creation-ui-group">
                 <rect class="creation-bar-era" x="0" height="20"></rect>
-                <text class="creation-label-era" fill="#ff6060" font-size="10" pointer-events="none">Deploy</text>
+                 <text class="creation-label-era" fill="#ff6060" font-size="10" pointer-events="none">{{localize "CONTINUUM.Organization.Deploy"}}</text>
               </g>
             </g>
 
@@ -120,14 +120,14 @@
             <g class="org-operation-creation-group">
               <rect class="org-operation-ghost" display="none" x="0" y="0" width="0" height="452" style="pointer-events:none;"></rect>
               <rect class="org-operation-strip" x="0" y="452" width="100%" height="24"></rect>
-              <text class="org-operation-strip-label" x="50%" y="468" text-anchor="middle" font-size="9" pointer-events="none">+ Operation</text>
+               <text class="org-operation-strip-label" x="50%" y="468" text-anchor="middle" font-size="9" pointer-events="none">{{localize "CONTINUUM.Organization.Operation"}}</text>
             </g>
 
             <!-- Phase period creation strip — drag horizontally to define a new Phase -->
             <g class="org-age-creation-group">
               <rect class="org-age-ghost" display="none" x="0" y="0" width="0" height="452" style="pointer-events:none;"></rect>
               <rect class="org-age-strip" x="0" y="476" width="100%" height="24"></rect>
-              <text class="org-age-strip-label" x="50%" y="492" text-anchor="middle" font-size="9" pointer-events="none">+ Phase Period</text>
+               <text class="org-age-strip-label" x="50%" y="492" text-anchor="middle" font-size="9" pointer-events="none">{{localize "CONTINUUM.Organization.PhasePeriod"}}</text>
             </g>
           </svg>
         </div>
@@ -137,9 +137,9 @@
 
         <!-- Instructions footer -->
         <div class="graph-instructions">
-          <span><i class="fas fa-arrows-alt"></i> Pan/Zoom</span>
-          <span><i class="fas fa-mouse-pointer"></i> Drag Unit Head = Deploy</span>
-          <span style="color:#ffd700;"><i class="fas fa-hand-paper"></i> <strong>Hold Space</strong> = Map</span>
+          <span><i class="fas fa-arrows-alt"></i> {{localize "CONTINUUM.Organization.PanZoom"}}</span>
+          <span><i class="fas fa-mouse-pointer"></i> {{localize "CONTINUUM.Organization.DragUnitHead"}}</span>
+          <span style="color:#ffd700;"><i class="fas fa-hand-paper"></i> <strong>{{localize "CONTINUUM.Organization.HoldSpaceMap"}}</strong></span>
         </div>
       </div>
 
@@ -165,7 +165,7 @@
 <div class="dialog-overlay">
   <div class="dialog-content">
       <div class="dialog-footer">
-        <button type="button" class="dialog-cancel">Cancel</button>
+        <button type="button" class="dialog-cancel">{{localize "CONTINUUM.Common.Cancel"}}</button>
       </div>
   </div>
 </div>

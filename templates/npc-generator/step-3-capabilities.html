@@ -1,27 +1,27 @@
 <div class="step-content step-capabilities">
-  <h3>Capabilities</h3>
+  <h3>{{localize "CONTINUUM.NpcGenerator.Capabilities"}}</h3>
 
   <div class="form-group toggle-group">
     <label class="checkbox-label">
       <input type="checkbox" id="npc-isOperant" name="data.isOperant" {{#if isOperant}}checked{{/if}}>
-      Operant Metabilities (vs Latent)
+      {{localize "CONTINUUM.NpcGenerator.OperantMetabilities"}}
     </label>
-    <span class="hint" id="operant-hint">Mentors are always Operant.</span>
+    <span class="hint" id="operant-hint">{{localize "CONTINUUM.NpcGenerator.MentorAlwaysOperant"}}</span>
   </div>
 
   <div class="metability-grid {{#if isOperant}}{{else}}hidden{{/if}}">
-    <label>Metabilities</label>
+    <label>{{localize "CONTINUUM.NpcGenerator.Metabilities"}}</label>
     <div class="meta-rank-header">
       <span class="meta-label-col"></span>
-      <span class="meta-rank-col">Latent</span>
-      <span class="meta-rank-col">Novice</span>
-      <span class="meta-rank-col">Apprentice</span>
-      <span class="meta-rank-col">Journeyman</span>
-      <span class="meta-rank-col">Master</span>
-      <span class="meta-rank-col">GM</span>
+      <span class="meta-rank-col">{{localize "CONTINUUM.NpcGenerator.Latent"}}</span>
+      <span class="meta-rank-col">{{localize "CONTINUUM.NpcGenerator.Novice"}}</span>
+      <span class="meta-rank-col">{{localize "CONTINUUM.NpcGenerator.Apprentice"}}</span>
+      <span class="meta-rank-col">{{localize "CONTINUUM.NpcGenerator.Journeyman"}}</span>
+      <span class="meta-rank-col">{{localize "CONTINUUM.NpcGenerator.Master"}}</span>
+      <span class="meta-rank-col">{{localize "CONTINUUM.NpcGenerator.GM"}}</span>
     </div>
     <div class="meta-rank-row" data-meta="coercion">
-      <span class="meta-label-col">Coercion</span>
+      <span class="meta-label-col">{{localize "CONTINUUM.NpcGenerator.Coercion"}}</span>
       <label class="meta-rank-col"><input type="radio" name="metability-coercion" value="0" {{#eq metabilities.coercion 0}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-coercion" value="1" {{#eq metabilities.coercion 1}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-coercion" value="2" {{#eq metabilities.coercion 2}}checked{{/eq}}></label>
@@ -30,7 +30,7 @@
       <label class="meta-rank-col"><input type="radio" name="metability-coercion" value="5" {{#eq metabilities.coercion 5}}checked{{/eq}}></label>
     </div>
     <div class="meta-rank-row" data-meta="creativity">
-      <span class="meta-label-col">Creativity</span>
+      <span class="meta-label-col">{{localize "CONTINUUM.NpcGenerator.Creativity"}}</span>
       <label class="meta-rank-col"><input type="radio" name="metability-creativity" value="0" {{#eq metabilities.creativity 0}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-creativity" value="1" {{#eq metabilities.creativity 1}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-creativity" value="2" {{#eq metabilities.creativity 2}}checked{{/eq}}></label>
@@ -39,7 +39,7 @@
       <label class="meta-rank-col"><input type="radio" name="metability-creativity" value="5" {{#eq metabilities.creativity 5}}checked{{/eq}}></label>
     </div>
     <div class="meta-rank-row" data-meta="farsense">
-      <span class="meta-label-col">Farsense</span>
+      <span class="meta-label-col">{{localize "CONTINUUM.NpcGenerator.Farsense"}}</span>
       <label class="meta-rank-col"><input type="radio" name="metability-farsense" value="0" {{#eq metabilities.farsense 0}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-farsense" value="1" {{#eq metabilities.farsense 1}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-farsense" value="2" {{#eq metabilities.farsense 2}}checked{{/eq}}></label>
@@ -48,7 +48,7 @@
       <label class="meta-rank-col"><input type="radio" name="metability-farsense" value="5" {{#eq metabilities.farsense 5}}checked{{/eq}}></label>
     </div>
     <div class="meta-rank-row" data-meta="pk">
-      <span class="meta-label-col">PK</span>
+      <span class="meta-label-col">{{localize "CONTINUUM.NpcGenerator.PK"}}</span>
       <label class="meta-rank-col"><input type="radio" name="metability-pk" value="0" {{#eq metabilities.pk 0}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-pk" value="1" {{#eq metabilities.pk 1}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-pk" value="2" {{#eq metabilities.pk 2}}checked{{/eq}}></label>
@@ -57,7 +57,7 @@
       <label class="meta-rank-col"><input type="radio" name="metability-pk" value="5" {{#eq metabilities.pk 5}}checked{{/eq}}></label>
     </div>
     <div class="meta-rank-row" data-meta="redaction">
-      <span class="meta-label-col">Redaction</span>
+      <span class="meta-label-col">{{localize "CONTINUUM.NpcGenerator.Redaction"}}</span>
       <label class="meta-rank-col"><input type="radio" name="metability-redaction" value="0" {{#eq metabilities.redaction 0}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-redaction" value="1" {{#eq metabilities.redaction 1}}checked{{/eq}}></label>
       <label class="meta-rank-col"><input type="radio" name="metability-redaction" value="2" {{#eq metabilities.redaction 2}}checked{{/eq}}></label>
@@ -68,34 +68,34 @@
   </div>
 
   <div class="form-group">
-    <label for="npc-attr-preset">Attribute Profile</label>
+    <label for="npc-attr-preset">{{localize "CONTINUUM.NpcGenerator.AttributeProfile"}}</label>
     <select id="npc-attr-preset" name="data.attributePreset">
-      <option value="balanced" selected>Balanced (all 4)</option>
-      <option value="physical">Physical</option>
-      <option value="intellectual">Intellectual</option>
-      <option value="social">Social</option>
-      <option value="custom">Custom</option>
+      <option value="balanced" selected>{{localize "CONTINUUM.NpcGenerator.Balanced"}}</option>
+      <option value="physical">{{localize "CONTINUUM.NpcGenerator.Physical"}}</option>
+      <option value="intellectual">{{localize "CONTINUUM.NpcGenerator.Intellectual"}}</option>
+      <option value="social">{{localize "CONTINUUM.NpcGenerator.Social"}}</option>
+      <option value="custom">{{localize "CONTINUUM.NpcGenerator.Custom"}}</option>
     </select>
   </div>
 
   <div class="form-group custom-attributes hidden">
-    <label>Custom Attributes</label>
+    <label>{{localize "CONTINUUM.NpcGenerator.CustomAttributes"}}</label>
     <div class="attr-inputs">
       <div class="attr-row">
-        <label for="npc-attr-body">Body</label>
-        <input type="number" id="npc-attr-body" name="data.customAttributes.body" value="{{customAttributes.body}}" min="1" max="10">
+        <label for="npc-attr-force">{{localize "CONTINUUM.NpcGenerator.Force"}}</label>
+        <input type="number" id="npc-attr-force" name="data.customAttributes.force" value="{{customAttributes.force}}" min="1" max="10">
       </div>
       <div class="attr-row">
-        <label for="npc-attr-mind">Mind</label>
-        <input type="number" id="npc-attr-mind" name="data.customAttributes.mind" value="{{customAttributes.mind}}" min="1" max="10">
+        <label for="npc-attr-analyze">{{localize "CONTINUUM.NpcGenerator.Analyze"}}</label>
+        <input type="number" id="npc-attr-analyze" name="data.customAttributes.analyze" value="{{customAttributes.analyze}}" min="1" max="10">
       </div>
       <div class="attr-row">
-        <label for="npc-attr-eq">EQ</label>
-        <input type="number" id="npc-attr-eq" name="data.customAttributes.eq" value="{{customAttributes.eq}}" min="1" max="10">
+        <label for="npc-attr-relate">{{localize "CONTINUUM.NpcGenerator.Relate"}}</label>
+        <input type="number" id="npc-attr-relate" name="data.customAttributes.relate" value="{{customAttributes.relate}}" min="1" max="10">
       </div>
       <div class="attr-row">
-        <label for="npc-attr-quick">Quick</label>
-        <input type="number" id="npc-attr-quick" name="data.customAttributes.quick" value="{{customAttributes.quick}}" min="1" max="10">
+        <label for="npc-attr-react">{{localize "CONTINUUM.NpcGenerator.React"}}</label>
+        <input type="number" id="npc-attr-react" name="data.customAttributes.react" value="{{customAttributes.react}}" min="1" max="10">
       </div>
     </div>
   </div>

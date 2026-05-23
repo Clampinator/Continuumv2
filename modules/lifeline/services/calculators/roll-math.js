@@ -19,7 +19,7 @@ export const RollMath = {
     getQuickPenalty: calculateQuickPenalty,
 
     /**
-     * Proxies call to the atomic mind penalty calculation unit.
+     * Proxies call to the atomic Analyze penalty calculation unit.
      */
     getMindPenalty: calculateMindPenalty
 };

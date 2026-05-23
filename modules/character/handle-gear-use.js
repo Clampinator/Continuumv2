@@ -1,6 +1,6 @@
 /*
 Routes gear use based on gear type:
-- Firearm: triggers a Quick (ranged) attack roll with the firearm's bonus
+- Firearm: triggers a React (ranged) attack roll with the firearm's bonus
 - Technology/Tool: opens the attribute roll dialog with the gear pre-selected
 - Vehicle: triggers a vehicle roll with the vehicle gear pre-selected
 */
@@ -22,7 +22,7 @@ export function handleGearUse(sheet, event) {
     const html = sheet.element;
 
     if (gearType === 'firearm') {
-        const attackBtn = html.find('.roll-weapon[data-attribute="quick"]').first();
+        const attackBtn = html.find('.roll-weapon[data-attribute="react"]').first();
         if (attackBtn.length) {
             attackBtn.trigger('click');
             html.find('input[name="situational_modifier"]').val(computedBonus);

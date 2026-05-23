@@ -41,7 +41,7 @@ export function manageLinkCreation(svg, g, nodeSel, sheet) {
                     importance: "Professional"
                 }
             });
-            ui.notifications.info(`Connected ${dragSource.name} and ${d.name}.`);
+            ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.ConnectedNodes", {sourceName: dragSource.name, targetName: d.name}));
         }
     });
 

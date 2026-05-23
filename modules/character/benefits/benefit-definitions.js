@@ -25,7 +25,7 @@ export const BENEFIT_DEFINITIONS = [
         name: "Contortionist",
         mechanic: "diceBonus",
         bonusAmount: 1,
-        description: "+1 to Force or Move rolls related to physical flexibility."
+        description: "+1 to Force or React rolls related to physical flexibility."
     },
     {
         id: "extraordinaryBeauty",
@@ -79,14 +79,14 @@ export const BENEFIT_DEFINITIONS = [
         name: "Sharp Reflexes",
         mechanic: "diceBonus",
         bonusAmount: 2,
-        description: "+2 to Move for purposes of rolling for Action Points in combat."
+        description: "+2 to React for purposes of rolling for Action Points in combat."
     },
     {
         id: "senseOfDirection",
         name: "Sense of Direction",
         mechanic: "diceBonus",
         bonusAmount: 1,
-        description: "The character has an innate sense of direction. With a successful Move roll, the character can tell what direction they are facing. +1 modifier applies to this roll."
+        description: "The character has an innate sense of direction. With a successful React roll, the character can tell what direction they are facing. +1 modifier applies to this roll."
     },
     {
         id: "speedReader",

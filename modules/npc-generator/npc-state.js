@@ -43,9 +43,9 @@ export const METABILITY_RANK_LABELS = ['Latent', 'Novice', 'Apprentice', 'Journe
 
 export const ATTRIBUTE_PRESETS = [
   { value: 'balanced', label: 'Balanced (all 4)' },
-  { value: 'physical', label: 'Physical (High Body/Quick)' },
-  { value: 'intellectual', label: 'Intellectual (High Mind/EQ)' },
-  { value: 'social', label: 'Social (High EQ/Mind)' },
+  { value: 'physical', label: 'Physical (High Force/React)' },
+  { value: 'intellectual', label: 'Intellectual (High Analyze/Relate)' },
+  { value: 'social', label: 'Social (High Relate/Analyze)' },
   { value: 'custom', label: 'Custom' }
 ];
 
@@ -86,10 +86,10 @@ export function createInitialState() {
       },
       attributePreset: 'balanced',
       customAttributes: {
-        body: 4,
-        mind: 4,
-        eq: 4,
-        quick: 4
+        force: 4,
+        analyze: 4,
+        relate: 4,
+        react: 4
       },
       role: 'Neutral',
       concept: '',

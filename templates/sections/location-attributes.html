@@ -2,7 +2,7 @@
     <input type="checkbox" id="toggle-location-attributes-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-location-attributes-" actor.id))}}checked{{/if}}>
     <div class="section-header-row">
         <label for="toggle-location-attributes-{{actor.id}}" class="section-heading-toggle">
-            <h2 class="section-heading">Core Attributes & Pools</h2>
+            <h2 class="section-heading">{{localize "CONTINUUM.LocationAttrs.Title"}}</h2>
         </label>
     </div>
     
@@ -16,19 +16,19 @@
             <!-- Core Attributes -->
             <div class="attributes-single-row">
                 <div class="attribute-block">
-                    <button type="button" class="roll-attribute" data-attribute="scale">SCALE</button>
+                    <button type="button" class="roll-attribute" data-attribute="scale">{{localize "CONTINUUM.LocationAttrs.Scale"}}</button>
                     <input type="number" name="system.attributes.scale.value" value="{{system.attributes.scale.value}}" min="0" max="10">
                 </div>
                 <div class="attribute-block">
-                    <button type="button" class="roll-attribute" data-attribute="output">OUTPUT</button>
+                    <button type="button" class="roll-attribute" data-attribute="output">{{localize "CONTINUUM.LocationAttrs.Output"}}</button>
                     <input type="number" name="system.attributes.output.value" value="{{system.attributes.output.value}}" min="0" max="10">
                 </div>
                 <div class="attribute-block">
-                    <button type="button" class="roll-attribute" data-attribute="cohesion">COHESION</button>
+                    <button type="button" class="roll-attribute" data-attribute="cohesion">{{localize "CONTINUUM.LocationAttrs.Cohesion"}}</button>
                     <input type="number" name="system.attributes.cohesion.value" value="{{system.attributes.cohesion.value}}" min="0" max="10">
                 </div>
                 <div class="attribute-block">
-                    <button type="button" class="roll-attribute" data-attribute="civics">CIVICS</button>
+                    <button type="button" class="roll-attribute" data-attribute="civics">{{localize "CONTINUUM.LocationAttrs.Civics"}}</button>
                     <input type="number" name="system.attributes.civics.value" value="{{system.attributes.civics.value}}" min="0" max="10">
                 </div>
             </div>
@@ -36,19 +36,19 @@
             <!-- Spendable Pools -->
             <div class="attribute-column-dual">
                 <div class="attribute-block capital-block">
-                    <span class="static-text">CAPITAL</span>
+                    <span class="static-text">{{localize "CONTINUUM.LocationAttrs.Capital"}}</span>
                     <div class="pool-inputs">
-                        <input type="number" name="system.attributes.capital.value" value="{{system.attributes.capital.value}}" eventTitle="Current">
+                        <input type="number" name="system.attributes.capital.value" value="{{system.attributes.capital.value}}" eventTitle="{{localize 'CONTINUUM.LocationAttrs.Current'}}">
                         <span>/</span>
-                        <input type="number" name="system.attributes.capital.max" value="{{system.attributes.capital.max}}" eventTitle="Max">
+                        <input type="number" name="system.attributes.capital.max" value="{{system.attributes.capital.max}}" eventTitle="{{localize 'CONTINUUM.LocationAttrs.Max'}}">
                     </div>
                 </div>
                 <div class="attribute-block momentum-block">
-                    <span class="static-text">MOMENTUM</span>
+                    <span class="static-text">{{localize "CONTINUUM.LocationAttrs.Momentum"}}</span>
                     <div class="pool-inputs">
-                        <input type="number" name="system.attributes.momentum.value" value="{{system.attributes.momentum.value}}" eventTitle="Current">
+                        <input type="number" name="system.attributes.momentum.value" value="{{system.attributes.momentum.value}}" eventTitle="{{localize 'CONTINUUM.LocationAttrs.Current'}}">
                         <span>/</span>
-                        <input type="number" name="system.attributes.momentum.max" value="{{system.attributes.momentum.max}}" eventTitle="Max">
+                        <input type="number" name="system.attributes.momentum.max" value="{{system.attributes.momentum.max}}" eventTitle="{{localize 'CONTINUUM.LocationAttrs.Max'}}">
                     </div>
                 </div>
             </div>

@@ -229,7 +229,7 @@ export async function importFromCsv(app) {
     input.accept = '.csv,text/csv';
 
     input.onchange = async () => {
-        if (_importing) return void ui.notifications.warn("Import already in progress. Please wait.");
+        if (_importing) return void ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.ImportAlreadyInProgress"));
         _importing = true;
 
         const file = input.files?.[0];
@@ -240,7 +240,7 @@ export async function importFromCsv(app) {
         const allRows = parseCsv(cleanText);
         if (allRows.length < 2) {
             _importing = false;
-            return void ui.notifications.warn("CSV has no data rows.");
+            return void ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CsvNoDataRows"));
         }
 
         // SEPARATE METADATA SECTIONS FROM EVENT ROWS
@@ -341,7 +341,7 @@ export async function importFromCsv(app) {
         const hasTitleColumn = rawHeaders.some(h => titleAliases.includes(h));
         if (!hasTitleColumn && eventRows.length <= 1) {
             _importing = false;
-            return void ui.notifications.warn("CSV has no event rows with an eventTitle column.");
+            return void ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CsvNoEventTitleColumn"));
         }
 
         // Fix title column name for consistency
@@ -446,7 +446,7 @@ export async function importFromCsv(app) {
 
         if (events.length === 0) {
             _importing = false;
-            ui.notifications.warn("No valid events found in CSV.");
+            ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoValidEventsInCsv"));
             return;
         }
 

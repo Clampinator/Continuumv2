@@ -13,7 +13,7 @@ export function showInsertExperienceDialog(viewState, graphData, sheet, svg, dur
     const eraId = context ? context.eraId : null;
 
     if (!eraId) {
-        ui.notifications.warn("Please create a Phase first.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CreatePhaseFirst"));
         viewState.interactionMode = 'pan';
         renderOrgGraph(svg, viewState, graphData);
         return;
@@ -25,14 +25,14 @@ export function showInsertExperienceDialog(viewState, graphData, sheet, svg, dur
 
     const content = `
         <form style="width: 100%;">
-            <div class="form-group"><label>Operation Name</label><input type="text" name="name" value="New Operation" autofocus/></div>
-            ${renderDatePicker("dateFrom", startStr, "Start Date")}
-            ${renderDatePicker("dateTo", endStr, "End Date")}
+            <div class="form-group"><label>${game.i18n.localize("CONTINUUM.Dialogs2.OperationName")}</label><input type="text" name="name" value="${game.i18n.localize("CONTINUUM.Dialogs2.NewOperation")}" autofocus/></div>
+            ${renderDatePicker("dateFrom", startStr, game.i18n.localize("CONTINUUM.Dialogs2.StartDate"))}
+            ${renderDatePicker("dateTo", endStr, game.i18n.localize("CONTINUUM.Dialogs2.EndDate"))}
         </form>
     `;
 
     new Dialog({
-        eventTitle: "Create New Operation",
+        eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.CreateOperation"),
         content: content,
         render: (html) => {
             activateDatePickers(html);
@@ -40,7 +40,7 @@ export function showInsertExperienceDialog(viewState, graphData, sheet, svg, dur
         },
         buttons: {
             create: {
-                label: "Create",
+                label: game.i18n.localize("CONTINUUM.Dialogs2.Create"),
                 icon: '<i class="fas fa-check"></i>',
                 callback: async (html) => {
                     const formData = new foundry.applications.ux.FormDataExtended(html.find("form")[0]).object;
@@ -57,7 +57,7 @@ export function showInsertExperienceDialog(viewState, graphData, sheet, svg, dur
                     Sound.confirm();
                 }
             },
-            cancel: { label: "Cancel" }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: "create",
         close: () => {

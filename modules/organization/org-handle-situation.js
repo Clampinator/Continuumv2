@@ -86,17 +86,17 @@ function pickEngagement(engagements) {
     return new Promise((resolve) => {
         const options = engagements.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
         new Dialog({
-            eventTitle: "Choose Engagement",
-            content: `<form><div class="form-group"><label>Active Engagements</label><select name="engId">${options}</select></div></form>`,
+            eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.ChooseEngagement"),
+            content: `<form><div class="form-group"><label>${game.i18n.localize("CONTINUUM.Dialogs2.ActiveEngagements")}</label><select name="engId">${options}</select></div></form>`,
             buttons: {
                 ok: {
-                    label: "Attack",
+                    label: game.i18n.localize("CONTINUUM.Dialogs2.Attack"),
                     callback: (html) => {
                         const id = html.find('[name="engId"]').val();
                         resolve(engagements.find(e => e.id === id) ?? null);
                     }
                 },
-                cancel: { label: "Cancel", callback: () => resolve(null) }
+                cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel"), callback: () => resolve(null) }
             },
             default: "ok"
         }, { classes: ["continuum-v2", "dialog"] }).render(true);
@@ -115,22 +115,22 @@ function pickNearbyLocation(locations, unitName) {
             return `<option value="${l.id}">${l.name} (${lat}, ${lng})</option>`;
         }).join('');
         new Dialog({
-            eventTitle: "Select Target",
+            eventTitle: game.i18n.localize("CONTINUUM.Dialogs2.SelectTarget"),
             content: `<form>
-                <p><strong>${unitName}</strong> is within operational range of the following locations. Select a target:</p>
+                <p><strong>${unitName}</strong> ${game.i18n.localize("CONTINUUM.Dialogs2.WithinRangeOf")}</p>
                 <div class="form-group">
                     <select name="locId">${options}</select>
                 </div>
             </form>`,
             buttons: {
                 ok: {
-                    label: "Confirm Target",
+                    label: game.i18n.localize("CONTINUUM.Dialogs2.ConfirmTarget"),
                     callback: (html) => {
                         const id = html.find('[name="locId"]').val();
                         resolve(locations.find(l => l.id === id) ?? null);
                     }
                 },
-                cancel: { label: "Cancel", callback: () => resolve(null) }
+                cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel"), callback: () => resolve(null) }
             },
             default: "ok"
         }, { classes: ["continuum-v2", "dialog"] }).render(true);
@@ -168,7 +168,7 @@ export async function handleOrgSituationClick(sheet, event) {
         if (!engagement) return;
         location = game.actors.get(engagement.targetLocationId);
         if (!location) {
-            return ui.notifications.warn("Target location actor not found — it may have been deleted.");
+            return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.TargetLocationNotFound"));
         }
 
     } else {
@@ -176,15 +176,14 @@ export async function handleOrgSituationClick(sheet, event) {
         const deployment = getUnitDeployment(sheet.actor, unitId);
         if (!deployment) {
             return ui.notifications.warn(
-                `${unitName} has no deployment. Drag it onto the Operational Map first.`
+                game.i18n.format("CONTINUUM.Notifications.UnitNotDeployed", {unitName})
             );
         }
 
         const nearby = getLocationsInRange(deployment.lat, deployment.lng);
         if (nearby.length === 0) {
             return ui.notifications.warn(
-                `${unitName} is not within operational range of any revealed location. ` +
-                `Move the unit closer to a target on the Operational Map.`
+                game.i18n.format("CONTINUUM.Notifications.UnitNotInRange", {unitName})
             );
         }
 
@@ -195,49 +194,49 @@ export async function handleOrgSituationClick(sheet, event) {
         await sheet.actor.update({
             [`system.phases.${deployment.phaseId}.operations.${deployment.opId}.engagements.${deployment.engId}.targetLocationId`]: location.id
         });
+
+        // 3. TN = the location's relevant defense attribute
+        const tn = Number(location.system.attributes[locAttrKey]?.value) || 0;
+
+        // 4. Roll: TN - floor(2d10 / 2) — positive delta = success
+        const { roll, delta } = await evaluateDiceRoll(tn, 'normal');
+        const result          = calculateStandardResult(delta);
+
+        // 5. On success, reduce the location's defense attribute by the degree of success
+        const prevVal = tn;
+        let   newVal  = tn;
+        if (delta >= 0) {
+            newVal = Math.max(0, prevVal - delta);
+            await location.update({ [`system.attributes.${locAttrKey}.value`]: newVal });
+        }
+
+        // 6. Post result to chat
+        const d10Part     = roll.dice.find(d => d.faces === 10);
+        const diceResults = d10Part?.results.map(r => ({ value: r.result, discarded: r.active === false })) ?? [];
+
+        const content = await foundry.applications.handlebars.renderTemplate("systems/continuum-v2/templates/chat-org-attack.html", {
+            unitName,
+            locationName:  location.name,
+            orgAttr:       ORG_ATTR_LABEL[attribute]  ?? attribute,
+            locAttr:       LOC_ATTR_LABEL[locAttrKey] ?? locAttrKey,
+            locAttrColor:  conflictInfo.color,
+            tn,
+            diceResults,
+            delta,
+            resultText:    result.text,
+            resultClass:   result.cssClass,
+            isSuccess:     delta >= 0,
+            damageApplied: delta >= 0 ? delta : 0,
+            prevVal,
+            newVal
+        });
+
+        await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+            flavor:  `${sheet.actor.name} — ${unitName} attacks ${location.name}`,
+            content,
+            rolls:   [roll],
+            sound:   CONFIG.sounds.dice
+        });
     }
-
-    // 3. TN = the location's relevant defense attribute
-    const tn = Number(location.system.attributes[locAttrKey]?.value) || 0;
-
-    // 4. Roll: TN - floor(2d10 / 2) — positive delta = success
-    const { roll, delta } = await evaluateDiceRoll(tn, 'normal');
-    const result          = calculateStandardResult(delta);
-
-    // 5. On success, reduce the location's defense attribute by the degree of success
-    const prevVal = tn;
-    let   newVal  = tn;
-    if (delta >= 0) {
-        newVal = Math.max(0, prevVal - delta);
-        await location.update({ [`system.attributes.${locAttrKey}.value`]: newVal });
-    }
-
-    // 6. Post result to chat
-    const d10Part     = roll.dice.find(d => d.faces === 10);
-    const diceResults = d10Part?.results.map(r => ({ value: r.result, discarded: r.active === false })) ?? [];
-
-    const content = await foundry.applications.handlebars.renderTemplate("systems/continuum-v2/templates/chat-org-attack.html", {
-        unitName,
-        locationName:  location.name,
-        orgAttr:       ORG_ATTR_LABEL[attribute]  ?? attribute,
-        locAttr:       LOC_ATTR_LABEL[locAttrKey] ?? locAttrKey,
-        locAttrColor:  conflictInfo.color,
-        tn,
-        diceResults,
-        delta,
-        resultText:    result.text,
-        resultClass:   result.cssClass,
-        isSuccess:     delta >= 0,
-        damageApplied: delta >= 0 ? delta : 0,
-        prevVal,
-        newVal
-    });
-
-    await ChatMessage.create({
-        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-        flavor:  `${sheet.actor.name} — ${unitName} attacks ${location.name}`,
-        content,
-        rolls:   [roll],
-        sound:   CONFIG.sounds.dice
-    });
 }

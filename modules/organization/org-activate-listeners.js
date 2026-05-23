@@ -67,7 +67,7 @@ export function activateOrgListeners(sheet, html) {
         if (dragData.type !== 'Actor') return;
         const actor = await fromUuid(dragData.uuid);
         if (!actor || actor.type !== 'character') {
-            return ui.notifications.warn("Only character actors can be assigned as unit commanders.");
+            return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.OnlyCharacterCommanders"));
         }
         const slot = event.currentTarget;
         await sheet.actor.update({

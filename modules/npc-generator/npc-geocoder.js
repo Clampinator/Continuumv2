@@ -66,7 +66,7 @@ export async function geocodeLocations(locations, addLog) {
     if (fromActor) {
       geoMap.set(loc, fromActor);
       resolved++;
-      if (addLog) addLog(`Location "${loc}" resolved from world data.`);
+      if (addLog) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.LocationResolved", {name: loc}));
       continue;
     }
     unresolved.push(loc);
@@ -80,35 +80,35 @@ export async function geocodeLocations(locations, addLog) {
     }
 
     if (i > 0 && i % GEOCODE_BATCH_SIZE === 0) {
-      if (addLog) addLog(`Geocoding batch pause (${i}/${unresolved.length})...`);
+      if (addLog) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.GeocodeBatchPause", {current: i, total: unresolved.length}));
       await sleep(GEOCODE_BATCH_PAUSE_MS);
     }
 
     const loc = unresolved[i];
-    if (addLog) addLog(`Geocoding "${loc}" (${i + 1}/${unresolved.length})...`);
+    if (addLog) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.Geocoding", {name: loc}));
     const result = await geocodeWithNominatim(loc);
 
     if (result === GEOCODE_RATE_LIMITED) {
       rateLimited = true;
       geoMap.set(loc, { lat: null, lng: null, zoom: null });
       failed++;
-      if (addLog) addLog(`Rate limited by Nominatim. Skipping remaining locations.`);
+      if (addLog) addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.RateLimited"));
       continue;
     } else if (result === null) {
       geoMap.set(loc, { lat: null, lng: null, zoom: null });
       failed++;
-      if (addLog) addLog(`Could not geocode "${loc}". Coordinates will be blank.`);
+      if (addLog) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.GeocodeFailed", {name: loc}));
     } else {
       geoMap.set(loc, { lat: result.lat, lng: result.lng, zoom: result.zoom });
       geocoded++;
-      if (addLog) addLog(`Found "${loc}" at (${result.lat.toFixed(2)}, ${result.lng.toFixed(2)}).`);
+      if (addLog) addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.Geocoded", {name: loc, lat: result.lat.toFixed(2), lng: result.lng.toFixed(2)}));
     }
 
     await sleep(GEOCODE_DELAY_MS);
   }
 
   if (addLog) {
-    addLog(`Location resolution complete: ${resolved} from world, ${geocoded} geocoded, ${failed} unresolved.`);
+    addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.LocationSummary", {resolved: resolved, geocoded: geocoded, failed: failed}));
   }
 
   return geoMap;

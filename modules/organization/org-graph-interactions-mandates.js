@@ -80,7 +80,7 @@ export function attachMandateListeners(html, svg, sheet, viewState, graphData) {
             }
 
             if (droppedNode) {
-                ui.notifications.info(`Mandate linked to ${droppedNode.eventTitle || "Unit Status"}.`);
+                ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.MandateLinked", {nodeTitle: droppedNode.eventTitle || "Unit Status"}));
                 // Actual data linking requires Unit History implementation.
             }
             

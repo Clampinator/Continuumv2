@@ -5,13 +5,13 @@
   <input type="checkbox" id="toggle-spanning-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-spanning-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-spanning-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Spanning</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.Spanning.Title"}}</h2>
     </label>
     <div class="spanning-controls">
-      <button type="button" class="spanning-help" eventTitle="Help"><i class="fas fa-question"></i></button>
-      <button type="button" class="item-add" data-type="spanningAbility" data-tooltip="Add Ability"><i class="fas fa-plus"></i> Ability</button>
+      <button type="button" class="spanning-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="spanningAbility" data-tooltip="{{localize 'CONTINUUM.Spanning.AddAbility'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Spanning.Ability"}}</button>
       {{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
-      <button type="button" class="item-add nat-span-add" data-type="natSpanAbility" data-tooltip="Add Natural Span Ability"><i class="fas fa-plus"></i> Natural Span Ability</button>
+      <button type="button" class="item-add nat-span-add" data-type="natSpanAbility" data-tooltip="{{localize 'CONTINUUM.Spanning.AddNatSpanAbility'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Spanning.NatSpanAbility"}}</button>
       {{/if}}
     </div>
   </div>
@@ -22,8 +22,8 @@
       <!-- Span Block -->
       <div class="attribute-block">
         <button type="button" class="roll-attribute" data-attribute="spanning" 
-                data-tooltip="{{#if isLeveller}}Cannot Span: Leveller (Span 0){{else}}{{#if isSpanOverburdened}}Cannot Span: Overburdened{{else}}Roll Span{{/if}}{{/if}}" 
-                {{#if (or isSpanOverburdened isLeveller)}}disabled{{/if}}>Span</button>
+                data-tooltip="{{#if isLeveller}}{{localize 'CONTINUUM.Spanning.CannotSpanLeveller'}}{{else}}{{#if isSpanOverburdened}}{{localize 'CONTINUUM.Spanning.CannotSpanOverburdened'}}{{else}}{{localize 'CONTINUUM.Spanning.RollSpan'}}{{/if}}{{/if}}" 
+                {{#if (or isSpanOverburdened isLeveller)}}disabled{{/if}}>{{localize "CONTINUUM.Spanning.Span"}}</button>
         <div class="attribute-spinner-viewport" data-attribute="span">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Span Value Spinner">
         </div>
@@ -33,7 +33,7 @@
       <!-- Natural Span Block -->
       {{#if (or @root.isGM @root.playersCanSeeNaturalSpan)}}
       <div class="attribute-block">
-        <button type="button" class="roll-attribute roll-nat-span" data-attribute="naturalSpan" data-tooltip="Roll Natural Span">Nat Span</button>
+        <button type="button" class="roll-attribute roll-nat-span" data-attribute="naturalSpan" data-tooltip="{{localize 'CONTINUUM.Spanning.RollNaturalSpan'}}">{{localize "CONTINUUM.Spanning.NaturalSpan"}}</button>
         <div class="attribute-spinner-viewport" data-attribute="naturalSpan">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Natural Span Spinner">
         </div>
@@ -43,7 +43,7 @@
 
       <!-- Deliberate Frag Block -->
       <div class="attribute-block">
-        <div class="spanning-label">Delib Frag</div>
+        <div class="spanning-label">{{localize "CONTINUUM.Spanning.DeliberateFrag"}}</div>
         <div class="attribute-spinner-viewport" data-attribute="deliberateFrag">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Deliberate Frag Spinner">
         </div>
@@ -52,7 +52,7 @@
 
       <!-- Natural Frag Block -->
       <div class="attribute-block">
-        <div class="spanning-label">Nat Frag</div>
+        <div class="spanning-label">{{localize "CONTINUUM.Spanning.NaturalFrag"}}</div>
         <div class="attribute-spinner-viewport" data-attribute="naturalFrag">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Natural Frag Spinner">
         </div>
@@ -62,9 +62,9 @@
 
     <!-- New Summary Row -->
     <div class="spanning-summary-row">
-        <button type="button" class="recalculate-span" data-tooltip="Recalculate Span"><i class="fas fa-calculator"></i> Calculate</button>
+        <button type="button" class="recalculate-span" data-tooltip="{{localize 'CONTINUUM.Spanning.RecalculateSpan'}}"><i class="fas fa-calculator"></i> {{localize "CONTINUUM.Spanning.Calculate"}}</button>
         <div class="span-remaining-display {{#if isOverSpan}}over-span{{/if}}">
-            <label>Available Span:</label>
+            <label>{{localize "CONTINUUM.Spanning.AvailableSpan"}}</label>
             <span>{{spanTimeRemaining}}</span>
         </div>
     </div>
@@ -75,16 +75,16 @@
       <div class="spanning-ability-item" data-id="{{ability.id}}">
         <div class="spanning-ability-content">
             <div class="spanning-ability-header">
-                <input type="text" class="spanning-ability-name" name="system.spanning.abilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Ability Name" />
-                <div class="attribute-spinner-viewport spanning-ability-spinner" data-spanability="{{ability.id}}" data-tooltip="Ability proficiency (0-3)">
+                <input type="text" class="spanning-ability-name" name="system.spanning.abilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="{{localize 'CONTINUUM.Spanning.AbilityPlaceholder'}}" />
+                <div class="attribute-spinner-viewport spanning-ability-spinner" data-spanability="{{ability.id}}" data-tooltip="{{localize 'CONTINUUM.Spanning.AbilityProficiency'}}">
                     <img src="assets/Continuum%20UI/AttributesCounter.png" class="attribute-spinner-image" alt="Ability Value">
                 </div>
                 <input type="hidden" class="spanning-ability-value-input" name="system.spanning.abilities.{{ability.id}}.value" value="{{ability.value}}" />
             </div>
-            <textarea name="system.spanning.abilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe ability...">{{ability.description}}</textarea>
+            <textarea name="system.spanning.abilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="{{localize 'CONTINUUM.Spanning.AbilityDescriptionPlaceholder'}}">{{ability.description}}</textarea>
         </div>
         <div class="spanning-ability-controls">
-            <a class="item-delete {{#unless (isDeletable ability 'spanningAbility')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable ability 'spanningAbility')}}Cannot delete an element with content{{else}}Delete Ability{{/unless}}" data-type="spanningAbility" data-id="{{ability.id}}"><i class="fas fa-trash"></i></a>
+            <a class="item-delete {{#unless (isDeletable ability 'spanningAbility')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable ability 'spanningAbility')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Spanning.DeleteAbility'}}{{/unless}}" data-type="spanningAbility" data-id="{{ability.id}}"><i class="fas fa-trash"></i></a>
         </div>
       </div>
       {{/each}}
@@ -97,16 +97,16 @@
       <div class="nat-span-ability-item" data-id="{{ability.id}}">
         <div class="nat-span-ability-content">
             <div class="nat-span-ability-header">
-                <input type="text" class="nat-span-ability-name" name="system.spanning.natSpanAbilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="Natural Span Ability Name" />
-                <div class="attribute-spinner-viewport nat-span-ability-spinner" data-natspanability="{{ability.id}}" data-tooltip="Ability proficiency (0-3)">
+                <input type="text" class="nat-span-ability-name" name="system.spanning.natSpanAbilities.{{ability.id}}.name" value="{{ability.name}}" placeholder="{{localize 'CONTINUUM.Spanning.NatSpanAbilityPlaceholder'}}" />
+                <div class="attribute-spinner-viewport nat-span-ability-spinner" data-natspanability="{{ability.id}}" data-tooltip="{{localize 'CONTINUUM.Spanning.AbilityProficiency'}}">
                     <img src="assets/Continuum%20UI/AttributesCounter.png" class="attribute-spinner-image" alt="Ability Value">
                 </div>
                 <input type="hidden" class="nat-span-ability-value-input" name="system.spanning.natSpanAbilities.{{ability.id}}.value" value="{{ability.value}}" />
             </div>
-            <textarea name="system.spanning.natSpanAbilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="Describe ability...">{{ability.description}}</textarea>
+            <textarea name="system.spanning.natSpanAbilities.{{ability.id}}.description" class="js-auto-expand no-paragraph-style" placeholder="{{localize 'CONTINUUM.Spanning.NatSpanDescriptionPlaceholder'}}">{{ability.description}}</textarea>
         </div>
         <div class="nat-span-ability-controls">
-            <a class="item-delete {{#unless (isDeletable ability 'natSpanAbility')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable ability 'natSpanAbility')}}Cannot delete an element with content{{else}}Delete Natural Span Ability{{/unless}}" data-type="natSpanAbility" data-id="{{ability.id}}"><i class="fas fa-trash"></i></a>
+            <a class="item-delete {{#unless (isDeletable ability 'natSpanAbility')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable ability 'natSpanAbility')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Spanning.DeleteNatSpanAbility'}}{{/unless}}" data-type="natSpanAbility" data-id="{{ability.id}}"><i class="fas fa-trash"></i></a>
         </div>
       </div>
       {{/each}}

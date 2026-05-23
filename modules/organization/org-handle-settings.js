@@ -4,9 +4,9 @@ export async function handleOrgSettingsClick(sheet, event) {
     const { actor } = sheet;
     
     new Dialog({
-      eventTitle: "Organization Sheet Settings",
-      content: `<p>No specific organization-only settings available at this version.</p>`,
-      buttons: { ok: { label: "Close" } },
+      eventTitle: game.i18n.localize("CONTINUUM.Notifications.OrganizationSettings"),
+      content: `<p>${game.i18n.localize("CONTINUUM.Notifications.NoOrgSettings")}</p>`,
+      buttons: { ok: { label: game.i18n.localize("CONTINUUM.Notifications.Close") } },
       default: "ok"
     }).render(true);
 }

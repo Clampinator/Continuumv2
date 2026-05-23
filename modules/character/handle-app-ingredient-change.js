@@ -16,7 +16,7 @@ import { getApplicationVolumeLimit } from '/systems/continuum-v2/modules/tempora
 import { clampIngredientValue } from '/systems/continuum-v2/modules/temporal-kernel/clamp-ingredient-value.js';
 
 function _getAnalyze(actor) {
-    return Number(actor.system?.attributes?.mind?.value) || 0;
+    return Number(actor.system?.attributes?.analyze?.value || actor.system?.attributes?.mind?.value) || 0;
 }
 
 function _getOtherTotal(appItem, excludeEl) {

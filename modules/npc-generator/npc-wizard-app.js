@@ -16,7 +16,7 @@ export class NPCWizardApp extends Application {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: 'npc-generator-wizard',
-      eventTitle: 'NPC Generator',
+      eventTitle: game.i18n.localize("CONTINUUM.NpcGenerator.Title"),
       template: 'systems/continuum-v2/templates/npc-generator/npc-wizard.html',
       classes: ['continuum-v2', 'npc-wizard'],
       width: 700,
@@ -70,7 +70,7 @@ export class NPCWizardApp extends Application {
   _populateIdentityStep(html) {
     const regionSelect = html.find('#npc-region');
     if (regionSelect.length) {
-      regionSelect.empty().append('<option value="">-- Select Region --</option>');
+      regionSelect.empty().append(`<option value="">${game.i18n.localize("CONTINUUM.NpcGenerator.SelectRegion")}</option>`);
       REGION_OPTIONS.forEach(r => {
         regionSelect.append(`<option value="${r.value}">${r.label}</option>`);
       });
@@ -128,7 +128,7 @@ export class NPCWizardApp extends Application {
       const operantCheckbox = html.find('#npc-isOperant');
       operantCheckbox.prop('checked', true).prop('disabled', true);
       const operantHint = html.find('#operant-hint');
-      operantHint.text('Mentors are always Operant. This cannot be changed.');
+      operantHint.text(game.i18n.localize("CONTINUUM.NpcGenerator.MentorAlwaysOperant"));
     }
 
     html.find('#npc-isOperant').on('change', (e) => {
@@ -151,7 +151,7 @@ export class NPCWizardApp extends Application {
       });
     });
 
-    ['body', 'mind', 'eq', 'quick'].forEach(attr => {
+    ['force', 'analyze', 'relate', 'react'].forEach(attr => {
       html.find(`#npc-attr-${attr}`).on('input', (e) => {
         this.state.data.customAttributes[attr] = parseInt(e.target.value) || 0;
       });
@@ -214,21 +214,21 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
       logEl.scrollTop(logEl[0].scrollHeight);
     };
 
-    addLog('Querying archive for subject parameters...');
+    addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.QueryingArchive"));
 
     try {
       const apiKey = game.settings.get('continuum-v2', 'geminiApiKey');
       if (!apiKey) {
-        addLog('ERROR: AI API key not configured. Go to Settings > Configure Settings > System Settings.');
+        addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.AiKeyNotConfigured"));
         return;
       }
 
       const provider = game.settings.get('continuum-v2', 'aiProvider') || 'gemini';
-      addLog(`Using ${provider === 'gemini' ? 'Google Gemini' : 'OpenRouter'}...`);
+      addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI." + (provider === 'gemini' ? "UsingGemini" : "UsingOpenRouter")));
       const result = await generateNPC(this.state.data, apiKey, addLog);
       this._generatedData = result;
 
-      addLog(`Subject ${result.name} reconstructed. Archive stable.`);
+      addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.SubjectReconstructed", {name: result.name}));
 
       html.find('.bio-text').html(result.narrative.replace(/\n/g, '<br>'));
       html.find('.secret-text').text(result.secret);
@@ -250,19 +250,19 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
       const stabilityKey = game.settings.get('continuum-v2', 'stabilityAiKey');
       if (stabilityKey) {
         portraitBtn.prop('disabled', false);
-        html.find('.portrait-hint').text('Click to generate portrait image');
+        html.find('.portrait-hint').text(game.i18n.localize("CONTINUUM.NpcGenerator.GeneratePortrait"));
       }
 
     } catch (err) {
       console.error(err);
-      addLog('ERROR: Temporal paradox detected. Archive connection lost.');
+      addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.TemporalParadoxError"));
     }
   }
 
   _handleCopyPrompt(html) {
     const text = html.find('.image-prompt-text').text();
     navigator.clipboard.writeText(text);
-    ui.notifications.info('Image prompt copied to clipboard.');
+    ui.notifications.info(game.i18n.localize("CONTINUUM.NpcGenerator.Copy"));
   }
 
   async _handlePortrait(html) {
@@ -278,22 +278,22 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
       if (previewUrl) {
         this.state.data.portraitPath = path || previewUrl;
         html.find('.portrait-preview').attr('src', previewUrl).show();
-        ui.notifications.info('Portrait generated.');
+        ui.notifications.info(game.i18n.localize("CONTINUUM.NpcGeneratorUI.PortraitGenerated"));
       }
     } catch (err) {
       console.error(err);
-      ui.notifications.error('Failed to generate portrait.');
+      ui.notifications.error(game.i18n.localize("CONTINUUM.NpcGeneratorUI.PortraitFailed"));
     }
   }
 
   async _handleCreateActor(html) {
     if (!this._generatedData) {
-      ui.notifications.error('Please generate an NPC first.');
+      ui.notifications.error(game.i18n.localize("CONTINUUM.NpcGeneratorUI.GenerateFirst"));
       return;
     }
 
     const createBtn = html.find('.npc-wizard-btn-create');
-    createBtn.prop('disabled', true).text('Creating...');
+    createBtn.prop('disabled', true).text(game.i18n.localize("CONTINUUM.NpcGeneratorUI.CreatingActor"));
 
     const logEl = html.find('.generation-log');
     const addLog = (msg) => {
@@ -303,29 +303,29 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
     };
 
     try {
-      addLog('Creating actor...');
+      addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.CreatingActor"));
       const { actor, foundryJson } = await buildActorFromAIResponse(this._generatedData, this.state.data);
 
       if (!actor) {
-        ui.notifications.error('Failed to create actor.');
-        createBtn.prop('disabled', false).text('Create Actor');
+        ui.notifications.error(game.i18n.localize("CONTINUUM.NpcGeneratorUI.ActorFailed"));
+        createBtn.prop('disabled', false).text(game.i18n.localize("CONTINUUM.NpcGenerator.CreateActor"));
         return;
       }
 
-      ui.notifications.info(`Actor "${actor.name}" created.`);
-      addLog(`Actor "${actor.name}" created.`);
+      ui.notifications.info(game.i18n.format("CONTINUUM.NpcGeneratorUI.ActorCreated", {name: actor.name}));
+      addLog(game.i18n.format("CONTINUUM.NpcGeneratorUI.ActorCreated", {name: actor.name}));
 
       this.state.data.createdActorId = actor.id;
       this._createdActor = actor;
       this._foundryJson = foundryJson;
 
-      addLog('Enriching lifeline with locations...');
+      addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.EnrichingLifeline"));
       try {
         await enrichActorLifeline(actor, foundryJson, this.state.data, addLog);
-        addLog('Lifeline enrichment complete.');
+        addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.LifelineEnriched"));
       } catch (lifelineErr) {
         console.warn('Lifeline enrichment failed:', lifelineErr);
-        addLog('Lifeline enrichment had issues (actor still created).');
+        addLog(game.i18n.localize("CONTINUUM.NpcGeneratorUI.LifelineEnrichmentIssues"));
       }
 
       this.state.step = WIZARD_STEPS.COMPLETE;
@@ -333,8 +333,8 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
 
     } catch (err) {
       console.error(err);
-      ui.notifications.error('Failed to create actor.');
-      createBtn.prop('disabled', false).text('Create Actor');
+      ui.notifications.error(game.i18n.localize("CONTINUUM.NpcGeneratorUI.ActorFailed"));
+      createBtn.prop('disabled', false).text(game.i18n.localize("CONTINUUM.NpcGenerator.CreateActor"));
     }
   }
 
@@ -354,7 +354,7 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
 
     const pcActors = game.actors.filter(a => a.type === 'character' && a.owned);
     const pcSelect = html.find('#npc-pc-select');
-    pcSelect.empty().append('<option value="">-- Select a PC --</option>');
+    pcSelect.empty().append(`<option value="">${game.i18n.localize("CONTINUUM.NpcGenerator.SelectPc")}</option>`);
     pcActors.forEach(pc => {
       pcSelect.append(`<option value="${pc.id}">${pc.name}</option>`);
     });
@@ -363,25 +363,25 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
       const pcId = pcSelect.val();
       const relType = html.find('#npc-relationship-type').val();
       if (!pcId || !actor) {
-        ui.notifications.warn('Select a PC to link.');
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.NpcGeneratorUI.SelectPcToLink"));
         return;
       }
       const pcActor = game.actors.get(pcId);
       if (!pcActor) {
-        ui.notifications.error('Selected PC not found.');
+        ui.notifications.error(game.i18n.localize("CONTINUUM.NpcGeneratorUI.ActorFailed"));
         return;
       }
 
-      linkBtn.prop('disabled', true).text('Linking...');
+      linkBtn.prop('disabled', true).text(game.i18n.localize("CONTINUUM.NpcGeneratorUI.Linking") || 'Linking...');
       try {
         await linkToPC(actor, pcActor, relType);
-        ui.notifications.info(`Linked "${actor.name}" to "${pcActor.name}".`);
-        linkBtn.text('Linked!').prop('disabled', true);
-        linkSection.append(`<p class="complete-link-confirm">Linked to ${pcActor.name} as ${relType}.</p>`);
+        ui.notifications.info(game.i18n.format("CONTINUUM.NpcGeneratorUI.LinkedToPc", {npcName: actor.name, pcName: pcActor.name}));
+        linkBtn.text(game.i18n.localize("CONTINUUM.NpcGenerator.LinkedToPc") || 'Linked!').prop('disabled', true);
+        linkSection.append(`<p class="complete-link-confirm">${game.i18n.format("CONTINUUM.NpcGeneratorUI.LinkedToPc", {npcName: actor.name, pcName: pcActor.name})} as ${relType}.</p>`);
       } catch (err) {
         console.error(err);
-        ui.notifications.error('Failed to link to PC.');
-        linkBtn.prop('disabled', false).text('Link to PC');
+        ui.notifications.error(game.i18n.localize("CONTINUUM.NpcGeneratorUI.LinkFailed"));
+        linkBtn.prop('disabled', false).text(game.i18n.localize("CONTINUUM.NpcGenerator.LinkToPcBtn"));
       }
     });
 
@@ -394,7 +394,7 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
 
   _refreshCultureOptions(html, region) {
     const cultureSelect = html.find('#npc-culture');
-    cultureSelect.empty().append('<option value="">-- Select Culture --</option>');
+    cultureSelect.empty().append(`<option value="">${game.i18n.localize("CONTINUUM.NpcGenerator.SelectRegionFirst")}</option>`);
 
     const cultures = REGION_CULTURE_MAP[region] || [];
     cultures.forEach(c => {
@@ -417,13 +417,13 @@ html.find('#npc-name').on('input', (e) => { this.state.data.name = e.target.valu
 
     const typeHint = html.find('#npc-type-hint');
     if (isLeveler) {
-      typeHint.text('Levelers have no knowledge of the Continuum, spanning, or fraternities.');
+      typeHint.text(game.i18n.localize("CONTINUUM.NpcGenerator.LevelerHint"));
     } else if (npcType === 'continuum-v2') {
-      typeHint.text('Continuum Agents are Spanners who follow the Maxims of their fraternity.');
+      typeHint.text(game.i18n.localize("CONTINUUM.NpcGenerator.ContinuumAgentHint"));
     } else if (npcType === 'Narcissist') {
-      typeHint.text('Narcissists are Spanners who reject the Continuum and its Maxims.');
+      typeHint.text(game.i18n.localize("CONTINUUM.NpcGenerator.NarcissistHint"));
     } else if (isMentor) {
-      typeHint.text('Mentors are senior Operant Spanners who train novices in their fraternity.');
+      typeHint.text(game.i18n.localize("CONTINUUM.NpcGenerator.MentorHint"));
     }
 
     if (isLeveler) {

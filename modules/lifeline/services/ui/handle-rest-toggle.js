@@ -58,8 +58,8 @@ export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
     // insertHistoryRow uses them directly instead of re-parsing the
     // date/time strings (which would introduce timezone drift).
     const record = {
-        eventTitle: 'End of Rest',
-        eventNotes: 'Automatic rest completion.',
+        eventTitle: game.i18n.localize("CONTINUUM.RestEvent.EndOfRest"),
+        eventNotes: game.i18n.localize("CONTINUUM.RestEvent.AutomaticRestCompletion"),
         eventDate: formatted.date,
         eventTime: formatted.time,
         eventAge: endAge,
@@ -81,7 +81,7 @@ export async function createEndOfRestEvent(actor, sourceEvent, eraId, expId) {
     };
     await actor.update(nowUpdates);
 
-    ui.notifications.info("Created 'End of Rest' event 24 hours later.");
+    ui.notifications.info(game.i18n.localize("CONTINUUM.RestEvent.CreatedEndOfRest"));
 }
 
 /**

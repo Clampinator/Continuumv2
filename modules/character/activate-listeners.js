@@ -68,12 +68,12 @@ export function activateCharacterListeners(sheet, html) {
     html.on('click', '.lifeline-undo', async (event) => {
         event.preventDefault();
         const did = await undo(sheet.actor);
-        if (!did) ui.notifications.info("Nothing to undo.");
+        if (!did) ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.NothingToUndo"));
     });
     html.on('click', '.lifeline-redo', async (event) => {
         event.preventDefault();
         const did = await redo(sheet.actor);
-        if (!did) ui.notifications.info("Nothing to redo.");
+        if (!did) ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.NothingToRedo"));
     });
 
     // CTRL+Z / CTRL+Y anywhere in the sheet (skips when an input has focus)
@@ -88,11 +88,11 @@ export function activateCharacterListeners(sheet, html) {
         if (event.key === 'z' || event.key === 'Z') {
             event.preventDefault();
             const did = await undo(sheet.actor);
-            if (!did) ui.notifications.info("Nothing to undo.");
+            if (!did) ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.NothingToUndo"));
         } else if (event.key === 'y' || event.key === 'Y') {
             event.preventDefault();
             const did = await redo(sheet.actor);
-            if (!did) ui.notifications.info("Nothing to redo.");
+            if (!did) ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.NothingToRedo"));
         }
     });
 
@@ -107,7 +107,7 @@ export function activateCharacterListeners(sheet, html) {
         const viewport = sheet._spanGraphViewport;
         if (viewport) {
             viewport.autoFocus();
-            ui.notifications.info("Lifeline view reset.");
+            ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.LifelineViewReset"));
         }
     });
 
@@ -116,7 +116,7 @@ export function activateCharacterListeners(sheet, html) {
         const viewport = sheet._spanGraphViewport;
         if (viewport) {
             viewport.updateActor(sheet.actor);
-            ui.notifications.info("Lifeline rail offsets cleared.");
+            ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.LifelineRailOffsetsCleared"));
         } else {
             handleFixRailOffsetsClick(sheet, event);
         }

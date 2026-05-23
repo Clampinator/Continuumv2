@@ -246,7 +246,7 @@
 | templates/npc-generator/step-4-concept.html | NPC wizard step 4: story role, concept, and narrative hook fields |
 | templates/npc-generator/step-5-review.html | NPC wizard step 5: review summary card before final AI generation |
 | templates/npc-generator/step-6-complete.html | NPC wizard step 6: completion confirmation with actor link and close button |
-| templates/sections/attributes.html | Character sheet section for core attributes (Mind, Body, Quick) and derived values |
+| templates/sections/attributes.html | Character sheet section for core attributes (Force, Analyze, React) and derived values |
 | templates/sections/background.html | Character sheet section for background story, biography, and personal narrative |
 | templates/sections/char-relationships-map.html | Character sheet section for the relationship graph SVG visualization |
 | templates/sections/combat.html | Character sheet section for combat: weapons, armor, wounds, and defense values |

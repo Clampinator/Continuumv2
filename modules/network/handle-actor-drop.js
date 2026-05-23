@@ -34,14 +34,14 @@ export async function handleActorDrop(event, sheet) {
 
     // 4. Self-drop Guard
     if (droppedActor.id === actor.id) {
-        ui.notifications.warn("You cannot add this character to their own relationship map.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.CannotAddOwnNetwork"));
         return true;
     }
 
     // 5. Duplicate Guard
     const existing = Object.values(actor.system.network || {}).find(n => n.actorId === droppedActor.id);
     if (existing) {
-        ui.notifications.warn(`${droppedActor.name} is already present in this network.`);
+        ui.notifications.warn(game.i18n.format("CONTINUUM.Notifications.AlreadyInNetwork", {name: droppedActor.name}));
         return true;
     }
 
@@ -88,6 +88,6 @@ export async function handleActorDrop(event, sheet) {
     }
 
     await actor.update(updates);
-    ui.notifications.info(`Added ${droppedActor.name} to the network.`);
+    ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.AddedToNetwork", {name: droppedActor.name}));
     return true;
 }

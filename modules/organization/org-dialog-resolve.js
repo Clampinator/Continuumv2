@@ -10,7 +10,7 @@ import { CONFLICT_TYPE_MAP } from './org-map.js';
 export async function showResolveEngagementDialog(sheet, engagement) {
     const location = game.actors.get(engagement.targetLocationId);
     if (!location) {
-        return ui.notifications.warn("Target location actor not found — it may have been deleted.");
+        return ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.TargetLocationNotFound"));
     }
 
     const conflictInfo = CONFLICT_TYPE_MAP[engagement.conflictType] ?? CONFLICT_TYPE_MAP.physical;
@@ -28,41 +28,41 @@ export async function showResolveEngagementDialog(sheet, engagement) {
     <form style="display:flex;flex-direction:column;gap:12px;padding:8px 0;">
         <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:8px 12px;font-size:0.9em;color:#bbb;">
             <div><strong style="color:#eee;">${location.name}</strong></div>
-            <div>Contested attribute: <strong style="color:${conflictInfo.color};">${locAttrLabel} ${locAttrVal}</strong></div>
+            <div>${game.i18n.localize("CONTINUUM.Dialogs2.ContestedAttribute")} <strong style="color:${conflictInfo.color};">${locAttrLabel} ${locAttrVal}</strong></div>
         </div>
 
         <div class="form-group">
-            <label>Outcome</label>
+            <label>${game.i18n.localize("CONTINUUM.Dialogs2.Outcome")}</label>
             <select name="outcome">
-                <option value="victory">Victory</option>
-                <option value="draw">Draw</option>
-                <option value="defeat">Defeat</option>
-                <option value="ongoing">Ongoing</option>
+                <option value="victory">${game.i18n.localize("CONTINUUM.Dialogs2.Victory")}</option>
+                <option value="draw">${game.i18n.localize("CONTINUUM.Dialogs2.Draw")}</option>
+                <option value="defeat">${game.i18n.localize("CONTINUUM.Dialogs2.Defeat")}</option>
+                <option value="ongoing">${game.i18n.localize("CONTINUUM.Dialogs2.Ongoing")}</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>Drain Capital <span style="color:#aaa;font-size:0.85em;">(current: ${capitalCurrent} / ${capitalMax})</span></label>
+            <label>${game.i18n.localize("CONTINUUM.Dialogs2.DrainCapital")} <span style="color:#aaa;font-size:0.85em;">${game.i18n.format("CONTINUUM.Dialogs2.CurrentMax", {current: capitalCurrent, max: capitalMax})}</span></label>
             <input type="number" name="capitalDrain" value="0" min="0" max="${capitalCurrent}" />
         </div>
 
         <div class="form-group">
-            <label>Drain Momentum <span style="color:#aaa;font-size:0.85em;">(current: ${momentumCurrent} / ${momentumMax})</span></label>
+            <label>${game.i18n.localize("CONTINUUM.Dialogs2.DrainMomentum")} <span style="color:#aaa;font-size:0.85em;">${game.i18n.format("CONTINUUM.Dialogs2.CurrentMax", {current: momentumCurrent, max: momentumMax})}</span></label>
             <input type="number" name="momentumDrain" value="0" min="0" max="${momentumCurrent}" />
         </div>
 
         <div class="form-group">
-            <label>Resolution eventNotes</label>
-            <textarea name="eventNotes" placeholder="Record what happened…" style="height:80px;">${currentNotes}</textarea>
+            <label>${game.i18n.localize("CONTINUUM.Dialogs2.ResolutionNotes")}</label>
+            <textarea name="eventNotes" placeholder="${game.i18n.localize('CONTINUUM.Dialogs2.RecordWhatHappened')}" style="height:80px;">${currentNotes}</textarea>
         </div>
     </form>`;
 
     new Dialog({
-        eventTitle: `Resolve: ${engagement.name}`,
+        eventTitle: game.i18n.format("CONTINUUM.Dialogs2.ResolveEngagement", {name: engagement.name}),
         content,
         buttons: {
             resolve: {
-                label: "Apply Resolution",
+                label: game.i18n.localize("CONTINUUM.Dialogs2.ApplyResolution"),
                 icon: '<i class="fas fa-check"></i>',
                 callback: async (html) => {
                     const fd = new foundry.applications.ux.FormDataExtended(html.find('form')[0]).object;
@@ -89,11 +89,11 @@ export async function showResolveEngagementDialog(sheet, engagement) {
                     const drained = [];
                     if (drainCap > 0) drained.push(`${drainCap} Capital`);
                     if (drainMom > 0) drained.push(`${drainMom} Momentum`);
-                    const suffix = drained.length ? ` — drained ${drained.join(' and ')} from ${location.name}` : '';
-                    ui.notifications.info(`Engagement resolved: ${outcome.charAt(0).toUpperCase() + outcome.slice(1)}${suffix}`);
+                    const suffix = drained.length ? game.i18n.format("CONTINUUM.Notifications.DrainedFromLocation", {drainList: drained.join(' and '), locationName: location.name}) : '';
+                    ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.EngagementResolved", {outcome: outcome.charAt(0).toUpperCase() + outcome.slice(1), suffix}));
                 }
             },
-            cancel: { label: "Cancel" }
+            cancel: { label: game.i18n.localize("CONTINUUM.Common.Cancel") }
         },
         default: "resolve"
     }, { classes: ["continuum-v2", "dialog"] }).render(true);

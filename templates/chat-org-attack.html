@@ -3,16 +3,16 @@
   <div class="attacker-section">
     <div class="roll-banner-header">
       <i class="fas fa-crosshairs"></i>
-      <span class="header-text">ORG CONFLICT READOUT</span>
+      <span class="header-text">{{localize "CONTINUUM.Chat.OrgConflictReadout"}}</span>
     </div>
 
     <div class="tactical-grid">
       <div class="grid-cell">
-        <span class="cell-label">Unit</span>
+        <span class="cell-label">{{localize "CONTINUUM.Chat.Unit"}}</span>
         <span class="cell-value">{{unitName}}</span>
       </div>
       <div class="grid-cell">
-        <span class="cell-label">Target</span>
+        <span class="cell-label">{{localize "CONTINUUM.Chat.Target"}}</span>
         <span class="cell-value">{{locationName}}</span>
       </div>
       <div class="grid-cell target">
@@ -28,7 +28,7 @@
         {{/each}}
       </div>
       <div class="total-hexagon-container">
-        <span class="cell-label">Delta</span>
+        <span class="cell-label">{{localize "CONTINUUM.Chat.Delta"}}</span>
         <div class="total-hexagon">
           <span class="total-val">{{delta}}</span>
         </div>
@@ -38,8 +38,8 @@
     {{#if isSuccess}}
     <div class="combat-hud-overlay">
       <div class="hud-item damage">
-        <span class="hud-label"><i class="fas fa-burst"></i> {{locAttr}} Reduced</span>
-        <span class="hud-value">{{prevVal}} → {{newVal}} (−{{damageApplied}})</span>
+        <span class="hud-label"><i class="fas fa-burst"></i> {{localize "CONTINUUM.Chat.AttributeReduced" attr=locAttr}}</span>
+        <span class="hud-value">{{localize "CONTINUUM.Chat.PrevToNew" old=prevVal new=newVal delta=damageApplied}}</span>
       </div>
     </div>
     {{/if}}

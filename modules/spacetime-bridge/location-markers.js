@@ -161,7 +161,7 @@ function _onMarkerContextMenu(e, markerKey) {
     menu.querySelector('[data-action="update-from-token"]').addEventListener('click', async () => {
         closeMenu();
         if (!_updateFn || !tokenDoc) {
-            ui.notifications.warn('No token found for this character on the map.');
+            ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.TokenNoPosition"));
             return;
         }
         await _updateFn(actor, tokenDoc, markerKey);

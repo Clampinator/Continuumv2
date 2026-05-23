@@ -23,9 +23,9 @@ describe('calculateBaseTarget', () => {
       type: 'character',
       system: {
         attributes: {
-          quick: { value: 3 },
-          mind: { value: 4 },
-          body: { value: 3 },
+          react: { value: 3 },
+          analyze: { value: 4 },
+          force: { value: 3 },
           willpower: { temp: 2, perm: 5 }
         },
         spanning: { span: 2, naturalSpan: 1 },

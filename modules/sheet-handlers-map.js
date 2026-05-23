@@ -8,7 +8,7 @@ export async function handlePersonalLocateClick(sheet, event) {
 
     const locationName = input.val();
     if (!locationName) {
-        ui.notifications.warn("Please enter a birth location first.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.PleaseEnterBirthLocation"));
         return;
     }
 
@@ -66,7 +66,7 @@ export async function handlePersonalTokenClick(sheet, event) {
     button.prop('disabled', false);
 
     if (!result) {
-        ui.notifications.warn("No SpaceTime position available. Set the slider to a time when this character has a located lifeline event, then try again.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoSpaceTimePosition"));
         return;
     }
 

@@ -7,6 +7,7 @@ import { api } from '../system-api.js';
 import { initCombatSocket } from './combat/combat-socket.js';
 import { registerSceneControl } from './npc-generator/scene-controls.js';
 import { runLifelineAudit } from './lifeline/services/lifeline-audit.js';
+import { migrateAttributeRename } from './migration/attribute-rename.js';
 
 /**
  * Pre-loads Handlebars partials.
@@ -47,8 +48,7 @@ async function preloadHandlebarsTemplates() {
     "systems/continuum-v2/templates/npc-generator/step-2-time-faction.html",
     "systems/continuum-v2/templates/npc-generator/step-3-capabilities.html",
     "systems/continuum-v2/templates/npc-generator/step-4-concept.html",
-    "systems/continuum-v2/templates/npc-generator/step-5-review.html",
-    "systems/continuum-v2/templates/vehicle-combat/scene-canvas.hbs"
+    "systems/continuum-v2/templates/npc-generator/step-5-review.html"
   ];
   
   const loadTemplatesFn = foundry.applications?.handlebars?.loadTemplates ?? globalThis.loadTemplates;
@@ -59,8 +59,8 @@ Hooks.once('init', async () => {
 
 
   game.settings.register('continuum-v2', 'googleMapsApiKey_v3', {
-    name: "Google Maps API Key",
-    hint: "Enter your Google Maps API Key. Requires 'Maps JavaScript API' and 'Geocoding API'.",
+    name: game.i18n.localize("CONTINUUM.Settings.GoogleMapsApiKey"),
+    hint: game.i18n.localize("CONTINUUM.Settings.GoogleMapsApiKeyHint"),
     scope: 'world',
     config: true,
     type: String,
@@ -69,21 +69,21 @@ Hooks.once('init', async () => {
   });
 
   game.settings.register('continuum-v2', 'aiProvider', {
-    name: "AI Provider",
-    hint: "Choose which AI service to use for NPC generation. Google Gemini (direct) or OpenRouter.",
+    name: game.i18n.localize("CONTINUUM.Settings.AiProvider"),
+    hint: game.i18n.localize("CONTINUUM.Settings.AiProviderHint"),
     scope: 'world',
     config: true,
     type: String,
     choices: {
-      gemini: "Google Gemini (direct)",
-      openrouter: "OpenRouter"
+      gemini: game.i18n.localize("CONTINUUM.Settings.AiProviderGemini"),
+      openrouter: game.i18n.localize("CONTINUUM.Settings.AiProviderOpenRouter")
     },
     default: "gemini"
   });
 
   game.settings.register('continuum-v2', 'geminiApiKey', {
-    name: "AI API Key",
-    hint: "Your API key for NPC generation. Use a Google AI Studio key for Gemini, or an OpenRouter key for OpenRouter.",
+    name: game.i18n.localize("CONTINUUM.Settings.AiApiKey"),
+    hint: game.i18n.localize("CONTINUUM.Settings.AiApiKeyHint"),
     scope: 'world',
     config: true,
     type: String,
@@ -91,8 +91,8 @@ Hooks.once('init', async () => {
   });
 
   game.settings.register('continuum-v2', 'stabilityAiKey', {
-    name: "Stability AI API Key",
-    hint: "Optional. Enables portrait image generation in the NPC Generator.",
+    name: game.i18n.localize("CONTINUUM.Settings.StabilityAiKey"),
+    hint: game.i18n.localize("CONTINUUM.Settings.StabilityAiKeyHint"),
     scope: 'world',
     config: true,
     type: String,
@@ -108,32 +108,35 @@ Hooks.once('init', async () => {
   ActorsCol.registerSheet('continuum-v2', ContinuumActorSheet, {
     types: ['character'],
     makeDefault: true,
-    label: 'Continuum Character Sheet'
+    label: game.i18n.localize("CONTINUUM.SheetLabels.Character")
   });
 
   ActorsCol.registerSheet('continuum-v2', ContinuumOrganizationSheet, {
     types: ['organization'],
     makeDefault: true,
-    label: 'Continuum Organization Sheet'
+    label: game.i18n.localize("CONTINUUM.SheetLabels.Organization")
   });
 
   ActorsCol.registerSheet('continuum-v2', ContinuumLocationSheet, {
     types: ['location'],
     makeDefault: true,
-    label: 'Continuum Location Sheet'
+    label: game.i18n.localize("CONTINUUM.SheetLabels.Location")
   });
 
   ItemsCol.registerSheet('continuum-v2', ContinuumItemSheet, {
     types: ['gear', 'artifact', 'ability'],
     makeDefault: true,
-    label: 'Continuum Item Sheet'
+    label: game.i18n.localize("CONTINUUM.SheetLabels.Item")
   });
 
   Handlebars.registerHelper('concat', function(...args) { return args.slice(0, -1).join(''); });
   Handlebars.registerHelper('eq', function(a, b) { return a == b; });
   Handlebars.registerHelper('metaLabel', function(rank) {
-    const labels = ['Latent', 'Novice', 'Apprentice', 'Journeyman', 'Master', 'Grand Master'];
-    return labels[Number(rank)] || `Rank ${rank}`;
+    const key = `CONTINUUM.MetaLabels.${rank}`;
+    const localized = game.i18n.localize(key);
+    // If localization returns the key itself (not found), use fallback
+    if (localized === key) return game.i18n.format("CONTINUUM.MetaLabels.RankFallback", { rank });
+    return localized;
   });
   Handlebars.registerHelper('add', function(a, b) { return Number(a) + Number(b); });
   Handlebars.registerHelper('multiply', function(a, b) { return Number(a) * Number(b); });
@@ -159,10 +162,10 @@ Hooks.on('createItem', (item) => {
   if (!isNew) return;
 
   const gearTypes = [
-    { value: 'firearm', label: 'Firearm', icon: 'fa-crosshairs' },
-    { value: 'technology', label: 'Technology', icon: 'fa-microchip' },
-    { value: 'tool', label: 'Tool', icon: 'fa-wrench' },
-    { value: 'vehicle', label: 'Vehicle', icon: 'fa-car' }
+    { value: 'firearm', label: game.i18n.localize("CONTINUUM.GearTypes.Firearm"), icon: 'fa-crosshairs' },
+    { value: 'technology', label: game.i18n.localize("CONTINUUM.GearTypes.Technology"), icon: 'fa-microchip' },
+    { value: 'tool', label: game.i18n.localize("CONTINUUM.GearTypes.Tool"), icon: 'fa-wrench' },
+    { value: 'vehicle', label: game.i18n.localize("CONTINUUM.GearTypes.Vehicle"), icon: 'fa-car' }
   ];
 
   const buttons = {};
@@ -181,8 +184,8 @@ Hooks.on('createItem', (item) => {
   }
 
   new Dialog({
-    eventTitle: 'Select Gear Type',
-    content: '<p>What type of gear are you creating?</p>',
+    eventTitle: game.i18n.localize("CONTINUUM.Dialogs.SelectGearType"),
+    content: '<p>' + game.i18n.localize("CONTINUUM.GearTypes.GearTypeQuestion") + '</p>',
     buttons,
     default: 'technology'
   }, { top: Math.min(window.innerHeight - 200, 200), left: Math.min(window.innerWidth - 300, 300) }).render(true);
@@ -192,6 +195,7 @@ Hooks.once('ready', () => {
   initCombatSocket();
   runLifelineAudit();
   _migrateAgesToEras();
+  _migrateAttributeRename();
 });
 
 /*
@@ -211,4 +215,13 @@ async function _migrateAgesToEras() {
     await actor.update(updates);
 
   }
+}
+
+/*
+One-time migration: rename attribute keys from body/mind/eq/quick to force/analyze/relate/react.
+Runs only when old keys exist and new keys do not. GM only.
+*/
+async function _migrateAttributeRename() {
+  if (!game.user?.isGM) return;
+  migrateAttributeRename();
 }

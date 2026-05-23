@@ -2,6 +2,7 @@ import { DefenderProfile } from './modules/combat/defender-profile.js';
 import { calculateQuickPenalty } from './modules/lifeline/services/calculators/roll-math/calculate-quick-penalty.js';
 import { batchGeocodeActor, batchGeocodeAllLinked } from './modules/spacetime-bridge/batch-geocode.js';
 import { resolveLocation } from './modules/state/geocode-service.js';
+import { getAttributeLabel } from './modules/attribute-labels.js';
 
 /**
  * Exposes a public API for the Continuum system, allowing modules and macros to interact with it.
@@ -10,7 +11,7 @@ export const api = {
     /**
      * Rolls for Action Points based on a character's attribute.
      */
-    async rollAP({ actor, attribute = 'body' }) {
+    async rollAP({ actor, attribute = 'force' }) {
         // 1. Calculate the base target value for the roll from the actor's attribute.
         let baseTarget = Math.floor(foundry.utils.getProperty(actor, `system.attributes.${attribute}.value`) || 0);
 
@@ -19,8 +20,8 @@ export const api = {
         const ipTotal = Object.values(wounds).reduce((total, wound) => total + (Number(wound.ip) || 0), 0);
         baseTarget -= Math.floor(ipTotal);
 
-        // 3. Apply unified Quick Penalty (Armor + Weapons + Gear)
-        if (attribute === 'quick' || attribute === 'spanning') {
+        // 3. Apply unified React Penalty (Armor + Weapons + Gear)
+        if (attribute === 'react' || attribute === 'spanning') {
             const penalty = calculateQuickPenalty(actor);
             baseTarget -= penalty;
         }
@@ -44,9 +45,9 @@ export const api = {
         }
 
         // 6. Announce the roll and its result to the chat for transparency.
-        const attributeName = attribute.charAt(0).toUpperCase() + attribute.slice(1);
-        const flavorText = `${actor.name} rolls for ${attributeName} Action Points`;
-        const outcomeText = actionPoints > 0 ? `Gains ${actionPoints} Action Point${actionPoints > 1 ? 's' : ''}!` : "Botch! Gains no Action Points this round.";
+        const attributeName = getAttributeLabel(attribute);
+        const flavorText = game.i18n.format("CONTINUUM.Chat.RollsForAP", {name: actor.name, attribute: attributeName});
+        const outcomeText = actionPoints > 0 ? game.i18n.format("CONTINUUM.Chat.GainsActionPoints", {count: actionPoints, s: actionPoints > 1 ? 's' : ''}) : game.i18n.localize("CONTINUUM.Chat.BotchNoAP");
         const outcomeColor = actionPoints > 0 ? "#28a745" : "#b30000";
 
         const content = await roll.render();

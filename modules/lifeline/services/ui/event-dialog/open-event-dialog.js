@@ -169,7 +169,7 @@ function _activateInternalListeners(html, dialog, actor) {
         btn.find('i').attr('class', 'fas fa-person');
 
         if (!result) {
-            ui.notifications.warn("No SpaceTime position available. Set the slider to a time when this character has a located lifeline event, then try again.");
+            ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoSpaceTimePosition"));
             return;
         }
 

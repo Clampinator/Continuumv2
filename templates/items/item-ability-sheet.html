@@ -2,14 +2,14 @@
     <header class="sheet-header">
         <img class="profile-img" src="{{item.img}}" data-edit="img" eventTitle="{{item.name}}"/>
         <div class="header-fields">
-            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'CONTINUUM.Common.Name'}}"/></h1>
             <div class="grid grid-2col">
                 <div class="resource">
-                    <label class="resource-label">Rank</label>
+                    <label class="resource-label">{{localize "CONTINUUM.ItemSheets.Rank"}}</label>
                     <input type="text" name="system.rank" value="{{system.rank}}" data-dtype="Number"/>
                 </div>
                 <div class="resource">
-                    <label class="resource-label">Cooldown</label>
+                    <label class="resource-label">{{localize "CONTINUUM.ItemSheets.Cooldown"}}</label>
                     <input type="text" name="system.cooldown" value="{{system.cooldown}}" data-dtype="Number"/>
                 </div>
             </div>
@@ -18,7 +18,7 @@
 
     <div class="sheet-body">
         <div class="description">
-            <h3>Description</h3>
+            <h3>{{localize "CONTINUUM.Common.Description"}}</h3>
             {{editor system.description target="system.description" button=true owner=owner editable=editable}}
         </div>
     </div>

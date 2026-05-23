@@ -1,4 +1,3 @@
-
 <!--====================-->
 <!-- GOALS SECTION      -->
 <!--====================-->
@@ -10,11 +9,11 @@
   <div class="section-header-row">
     <!-- The label correctly points to the checkbox's unique ID -->
         <label for="toggle-goals-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Goals</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.Goals.Title"}}</h2>
     </label>
     <div class="goals-controls">
-      <button type="button" class="goals-help" eventTitle="Help"><i class="fas fa-question"></i></button>
-      <button type="button" class="item-add" data-type="goal" data-tooltip="Add a new Goal"><i class="fas fa-plus"></i> Add Goal</button>
+      <button type="button" class="goals-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="goal" data-tooltip="{{localize 'CONTINUUM.Goals.AddGoal'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Goals.AddGoal"}}</button>
     </div>
   </div>
 
@@ -23,22 +22,22 @@
       {{#each goals as |goal|}}
           <div class="goal-item" data-id="{{goal.id}}" {{#if goal.displayColor}}style="background-color: {{goal.displayColor}};"{{/if}}>
             <div class="goal-row">
-              <label class="goal-label">I will...</label>
-              <input type="text" class="goal-description" name="system.goals.{{goal.id}}.description" value="{{goal.description}}" placeholder="...achieve something great."/>
+              <label class="goal-label">{{localize "CONTINUUM.Goals.IWill"}}</label>
+              <input type="text" class="goal-description" name="system.goals.{{goal.id}}.description" value="{{goal.description}}" placeholder="{{localize 'CONTINUUM.Goals.AchievePlaceholder'}}"/>
               <select class="goal-importance" name="system.goals.{{goal.id}}.importance">
-                <option value="" disabled {{#unless goal.importance}}selected{{/unless}}>Importance...</option>
-                <option value="Passing" {{#if (eq goal.importance "Passing")}}selected{{/if}}>Passing</option>
-                <option value="Mild" {{#if (eq goal.importance "Mild")}}selected{{/if}}>Mild</option>
-                <option value="Important" {{#if (eq goal.importance "Important")}}selected{{/if}}>Important</option>
-                <option value="Extreme" {{#if (eq goal.importance "Extreme")}}selected{{/if}}>Extreme</option>
-                <option value="Critical" {{#if (eq goal.importance "Critical")}}selected{{/if}}>Critical</option>
+                <option value="" disabled {{#unless goal.importance}}selected{{/unless}}>{{localize "CONTINUUM.Goals.Importance"}}</option>
+                <option value="Passing" {{#if (eq goal.importance "Passing")}}selected{{/if}}>{{localize "CONTINUUM.Goals.Passing"}}</option>
+                <option value="Mild" {{#if (eq goal.importance "Mild")}}selected{{/if}}>{{localize "CONTINUUM.Goals.Mild"}}</option>
+                <option value="Important" {{#if (eq goal.importance "Important")}}selected{{/if}}>{{localize "CONTINUUM.Goals.Important"}}</option>
+                <option value="Extreme" {{#if (eq goal.importance "Extreme")}}selected{{/if}}>{{localize "CONTINUUM.Goals.Extreme"}}</option>
+                <option value="Critical" {{#if (eq goal.importance "Critical")}}selected{{/if}}>{{localize "CONTINUUM.Goals.Critical"}}</option>
               </select>
             </div>
             <div class="goal-row">
-              <label class="goal-label">by...</label>
-              <input type="text" class="goal-condition" name="system.goals.{{goal.id}}.condition" value="{{goal.condition}}" placeholder="...completing this task."/>
+              <label class="goal-label">{{localize "CONTINUUM.Goals.By"}}</label>
+              <input type="text" class="goal-condition" name="system.goals.{{goal.id}}.condition" value="{{goal.condition}}" placeholder="{{localize 'CONTINUUM.Goals.CompletePlaceholder'}}"/>
               <div class="goal-controls">
-                  <a class="item-delete {{#unless (isDeletable goal 'goal')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable goal 'goal')}}Cannot delete an element with content{{else}}Delete Goal{{/unless}}" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
+                  <a class="item-delete {{#unless (isDeletable goal 'goal')}}disabled{{/unless}}" data-tooltip="{{#unless (isDeletable goal 'goal')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Goals.DeleteGoal'}}{{/unless}}" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
               </div>
             </div>
           </div>
@@ -47,7 +46,7 @@
 
     {{#if resolvedGoals.length}}
     <div class="goals-resolved-section">
-      <h4 class="goals-resolved-heading"><i class="fas fa-check-circle"></i> Resolved</h4>
+      <h4 class="goals-resolved-heading"><i class="fas fa-check-circle"></i> {{localize "CONTINUUM.Goals.Resolved"}}</h4>
       <div class="goals-list">
         {{#each resolvedGoals as |goal|}}
             <div class="goal-item goal-item--resolved" data-id="{{goal.id}}">
@@ -55,12 +54,12 @@
                 <i class="fas fa-check-circle goal-resolved-icon"></i>
                 <span class="goal-description goal-description--resolved">{{goal.description}}</span>
                 <div class="goal-controls">
-                  <a class="item-delete" data-tooltip="Delete Goal" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
+                  <a class="item-delete" data-tooltip="{{localize 'CONTINUUM.Goals.DeleteGoal'}}" data-type="goal" data-id="{{goal.id}}"><i class="fas fa-trash"></i></a>
                 </div>
               </div>
               {{#if goal.condition}}
               <div class="goal-row">
-                <label class="goal-label">by...</label>
+                <label class="goal-label">{{localize "CONTINUUM.Goals.By"}}</label>
                 <span class="goal-condition--resolved">{{goal.condition}}</span>
               </div>
               {{/if}}

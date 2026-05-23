@@ -7,22 +7,22 @@
   <input type="checkbox" id="toggle-relationships-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-relationships-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-relationships-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Relationships</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.Relationships.Title"}}</h2>
     </label>
     <div class="relationships-controls">
-      <button type="button" class="relationships-help" eventTitle="Help"><i class="fas fa-question"></i></button>
-      <button type="button" class="item-add" data-type="relationship" data-tooltip="Add Relationship"><i class="fas fa-plus"></i> Add</button>
+      <button type="button" class="relationships-help" eventTitle="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
+      <button type="button" class="item-add" data-type="relationship" data-tooltip="{{localize 'CONTINUUM.Relationships.AddRelationship'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Common.Add"}}</button>
     </div>
   </div>
 
   <div class="relationships-list">
     <!-- Header Row -->
     <div class="relationship-item-header">
-      <div class="relationship-name">Name</div>
-      <div class="relationship-type">Relationship</div>
-      <div class="relationship-importance">Sphere</div>
-      <div class="relationship-when">When</div>
-      <div class="relationship-where">Where</div>
+       <div class="relationship-name">{{localize "CONTINUUM.Relationships.Name"}}</div>
+       <div class="relationship-type">{{localize "CONTINUUM.Relationships.RelationshipType"}}</div>
+       <div class="relationship-importance">{{localize "CONTINUUM.Relationships.Sphere"}}</div>
+       <div class="relationship-when">{{localize "CONTINUUM.Relationships.When"}}</div>
+       <div class="relationship-where">{{localize "CONTINUUM.Relationships.Where"}}</div>
       <div class="relationship-controls"></div> <!-- Spacer for delete button -->
     </div>
 
@@ -31,36 +31,36 @@
     <div class="relationship-item" data-id="{{rel.id}}">
       <div class="relationship-item-main-row">
         <div class="relationship-name">
-          <input type="text" name="system.relationships.{{rel.id}}.name" value="{{rel.name}}" placeholder="Character Name"/>
+           <input type="text" name="system.relationships.{{rel.id}}.name" value="{{rel.name}}" placeholder="{{localize 'CONTINUUM.Relationships.CharacterNamePlaceholder'}}"/>
         </div>
         <div class="relationship-type">
           <select name="system.relationships.{{rel.id}}.relationshipType">
-            <option value="" disabled {{#unless rel.relationshipType}}selected{{/unless}}>Select...</option>
-            <option value="Sibling" {{#if (eq rel.relationshipType "Sibling")}}selected{{/if}}>Sibling</option>
-            <option value="Parent" {{#if (eq rel.relationshipType "Parent")}}selected{{/if}}>Parent</option>
-            <option value="Grandparent" {{#if (eq rel.relationshipType "Grandparent")}}selected{{/if}}>Grandparent</option>
-            <option value="Aunt" {{#if (eq rel.relationshipType "Aunt")}}selected{{/if}}>Aunt</option>
-            <option value="Uncle" {{#if (eq rel.relationshipType "Uncle")}}selected{{/if}}>Uncle</option>
-            <option value="Cousin" {{#if (eq rel.relationshipType "Cousin")}}selected{{/if}}>Cousin</option>
-            <option value="Friend" {{#if (eq rel.relationshipType "Friend")}}selected{{/if}}>Friend</option>
-            <option value="Ex" {{#if (eq rel.relationshipType "Ex")}}selected{{/if}}>Ex</option>
-            <option value="Partner" {{#if (eq rel.relationshipType "Partner")}}selected{{/if}}>Partner</option>
-            <option value="Progeny" {{#if (eq rel.relationshipType "Progeny")}}selected{{/if}}>Progeny</option>
-            <option value="Spouse" {{#if (eq rel.relationshipType "Spouse")}}selected{{/if}}>Spouse</option>
-            <option value="Acquaintance" {{#if (eq rel.relationshipType "Acquaintance")}}selected{{/if}}>Acquaintance</option>
-            <option value="Subordinate" {{#if (eq rel.relationshipType "Subordinate")}}selected{{/if}}>Subordinate</option>
-            <option value="Superior" {{#if (eq rel.relationshipType "Superior")}}selected{{/if}}>Superior</option>
-            <option value="Colleague" {{#if (eq rel.relationshipType "Colleague")}}selected{{/if}}>Colleague</option>
+             <option value="" disabled {{#unless rel.relationshipType}}selected{{/unless}}>{{localize "CONTINUUM.Relationships.SelectType"}}</option>
+             <option value="Sibling" {{#if (eq rel.relationshipType "Sibling")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Sibling"}}</option>
+             <option value="Parent" {{#if (eq rel.relationshipType "Parent")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Parent"}}</option>
+             <option value="Grandparent" {{#if (eq rel.relationshipType "Grandparent")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Grandparent"}}</option>
+             <option value="Aunt" {{#if (eq rel.relationshipType "Aunt")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Aunt"}}</option>
+             <option value="Uncle" {{#if (eq rel.relationshipType "Uncle")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Uncle"}}</option>
+             <option value="Cousin" {{#if (eq rel.relationshipType "Cousin")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Cousin"}}</option>
+             <option value="Friend" {{#if (eq rel.relationshipType "Friend")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Friend"}}</option>
+             <option value="Ex" {{#if (eq rel.relationshipType "Ex")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Ex"}}</option>
+             <option value="Partner" {{#if (eq rel.relationshipType "Partner")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Partner"}}</option>
+             <option value="Progeny" {{#if (eq rel.relationshipType "Progeny")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Progeny"}}</option>
+             <option value="Spouse" {{#if (eq rel.relationshipType "Spouse")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Spouse"}}</option>
+             <option value="Acquaintance" {{#if (eq rel.relationshipType "Acquaintance")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Acquaintance"}}</option>
+             <option value="Subordinate" {{#if (eq rel.relationshipType "Subordinate")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Subordinate"}}</option>
+             <option value="Superior" {{#if (eq rel.relationshipType "Superior")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Superior"}}</option>
+             <option value="Colleague" {{#if (eq rel.relationshipType "Colleague")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Colleague"}}</option>
           </select>
         </div>
         <div class="relationship-importance">
           <select name="system.relationships.{{rel.id}}.importance">
-            <option value="" disabled {{#unless rel.importance}}selected{{/unless}}>Select...</option>
-            <option value="Public" {{#if (eq rel.importance "Public")}}selected{{/if}}>Public</option>
-            <option value="Social" {{#if (eq rel.importance "Social")}}selected{{/if}}>Social</option>
-            <option value="Professional" {{#if (eq rel.importance "Professional")}}selected{{/if}}>Professional</option>
-            <option value="Personal" {{#if (eq rel.importance "Personal")}}selected{{/if}}>Personal</option>
-            <option value="Intimate" {{#if (eq rel.importance "Intimate")}}selected{{/if}}>Intimate</option>
+             <option value="" disabled {{#unless rel.importance}}selected{{/unless}}>{{localize "CONTINUUM.Relationships.SelectType"}}</option>
+             <option value="Public" {{#if (eq rel.importance "Public")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Public"}}</option>
+             <option value="Social" {{#if (eq rel.importance "Social")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Social"}}</option>
+             <option value="Professional" {{#if (eq rel.importance "Professional")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Professional"}}</option>
+             <option value="Personal" {{#if (eq rel.importance "Personal")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Personal"}}</option>
+             <option value="Intimate" {{#if (eq rel.importance "Intimate")}}selected{{/if}}>{{localize "CONTINUUM.Relationships.Intimate"}}</option>
           </select>
         </div>
         <div class="relationship-when">
@@ -71,28 +71,28 @@
           </div>
         </div>
         <div class="relationship-where">
-          <input type="text" name="system.relationships.{{rel.id}}.where" value="{{rel.where}}" placeholder="Location Met"/>
+           <input type="text" name="system.relationships.{{rel.id}}.where" value="{{rel.where}}" placeholder="{{localize 'CONTINUUM.Relationships.LocationMet'}}"/>
         </div>
         <div class="relationship-controls">
-          <a class="item-delete {{#unless (isDeletable rel 'relationship')}}disabled{{/unless}}" eventTitle="{{#unless (isDeletable rel 'relationship')}}Cannot delete an element with content{{else}}Delete Relationship{{/unless}}" data-type="relationship" data-id="{{rel.id}}"><i class="fas fa-trash"></i></a>
+           <a class="item-delete {{#unless (isDeletable rel 'relationship')}}disabled{{/unless}}" eventTitle="{{#unless (isDeletable rel 'relationship')}}{{localize 'CONTINUUM.Common.CannotDeleteWithContent'}}{{else}}{{localize 'CONTINUUM.Relationships.DeleteRelationship'}}{{/unless}}" data-type="relationship" data-id="{{rel.id}}"><i class="fas fa-trash"></i></a>
         </div>
       </div>
-      <textarea name="system.relationships.{{rel.id}}.eventNotes" class="js-auto-expand no-paragraph-style" placeholder="eventNotes about this relationship...">{{~rel.eventNotes~}}</textarea>
+      <textarea name="system.relationships.{{rel.id}}.eventNotes" class="js-auto-expand no-paragraph-style" placeholder="{{localize 'CONTINUUM.Relationships.EventNotes'}}">{{~rel.eventNotes~}}</textarea>
       
       <!-- Folded Favors Section -->
       <div class="relationship-favor-row">
-        <label class="favor-label">Favor</label>
-        <input type="text" class="favor-description" name="system.relationships.{{rel.id}}.favor.description" value="{{rel.favor.description}}" placeholder="Favor owed or due..."/>
+         <label class="favor-label">{{localize "CONTINUUM.Relationships.Favor"}}</label>
+         <input type="text" class="favor-description" name="system.relationships.{{rel.id}}.favor.description" value="{{rel.favor.description}}" placeholder="{{localize 'CONTINUUM.Relationships.FavorPlaceholder'}}"/>
         <select class="favor-importance" name="system.relationships.{{rel.id}}.favor.importance">
-            <option value="" disabled {{#unless rel.favor.importance}}selected{{/unless}}>Imp...</option>
-            <option value="Critical" {{#if (eq rel.favor.importance "Critical")}}selected{{/if}}>Critical</option>
-            <option value="Extremely Important" {{#if (eq rel.favor.importance "Extremely Important")}}selected{{/if}}>Extremely Important</option>
-            <option value="Very Important" {{#if (eq rel.favor.importance "Very Important")}}selected{{/if}}>Very Important</option>
-            <option value="Important" {{#if (eq rel.favor.importance "Important")}}selected{{/if}}>Important</option>
-            <option value="Moderately Important" {{#if (eq rel.favor.importance "Moderately Important")}}selected{{/if}}>Moderately Important</option>
-            <option value="Less Important" {{#if (eq rel.favor.importance "Less Important")}}selected{{/if}}>Less Important</option>
-            <option value="Unimportant" {{#if (eq rel.favor.importance "Unimportant")}}selected{{/if}}>Unimportant</option>
-            <option value="Done" {{#if (eq rel.favor.importance "Done")}}selected{{/if}}>Done</option>
+             <option value="" disabled {{#unless rel.favor.importance}}selected{{/unless}}>{{localize "CONTINUUM.Relationships.FavorImportance"}}</option>
+             <option value="Critical" {{#if (eq rel.favor.importance "Critical")}}selected{{/if}}>{{localize "CONTINUUM.Favors.Critical"}}</option>
+             <option value="Extremely Important" {{#if (eq rel.favor.importance "Extremely Important")}}selected{{/if}}>{{localize "CONTINUUM.Favors.ExtremelyImportant"}}</option>
+             <option value="Very Important" {{#if (eq rel.favor.importance "Very Important")}}selected{{/if}}>{{localize "CONTINUUM.Favors.VeryImportant"}}</option>
+             <option value="Important" {{#if (eq rel.favor.importance "Important")}}selected{{/if}}>{{localize "CONTINUUM.Favors.Important"}}</option>
+             <option value="Moderately Important" {{#if (eq rel.favor.importance "Moderately Important")}}selected{{/if}}>{{localize "CONTINUUM.Favors.ModeratelyImportant"}}</option>
+             <option value="Less Important" {{#if (eq rel.favor.importance "Less Important")}}selected{{/if}}>{{localize "CONTINUUM.Favors.LessImportant"}}</option>
+             <option value="Unimportant" {{#if (eq rel.favor.importance "Unimportant")}}selected{{/if}}>{{localize "CONTINUUM.Favors.Unimportant"}}</option>
+             <option value="Done" {{#if (eq rel.favor.importance "Done")}}selected{{/if}}>{{localize "CONTINUUM.Favors.Done"}}</option>
         </select>
         
         <div class="date-picker-container favor-when" style="flex: 0 0 120px;">

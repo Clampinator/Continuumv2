@@ -2,10 +2,10 @@
     <input type="checkbox" id="toggle-location-map-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-location-map-" actor.id))}}checked{{/if}}>
     <div class="section-header-row">
         <label for="toggle-location-map-{{actor.id}}" class="section-heading-toggle">
-            <h2 class="section-heading">World Map & Chronology</h2>
+            <h2 class="section-heading">{{localize "CONTINUUM.LocationMap.Title"}}</h2>
         </label>
         <div class="map-controls" style="margin-left: auto; display: flex; gap: 8px;">
-            <button type="button" class="reset-map-view" eventTitle="Reset View"><i class="fas fa-crosshairs"></i></button>
+            <button type="button" class="reset-map-view" eventTitle="{{localize 'CONTINUUM.LocationMap.ResetView'}}"><i class="fas fa-crosshairs"></i></button>
         </div>
     </div>
     
@@ -13,19 +13,19 @@
         <div class="location-map-wrapper">
             <div id="location-world-map" class="location-world-map"></div>
             <div class="map-overlay-instructions">
-                Right-click to place markers. Use the slider to shift eras.
+                {{localize "CONTINUUM.LocationMap.Instructions"}}
             </div>
         </div>
 
         <div class="chronology-controls">
-            <label>Temporal Slider</label>
+            <label>{{localize "CONTINUUM.LocationMap.TemporalSlider"}}</label>
             <input type="range" class="time-slider" min="-5000" max="5000" value="{{system.details.year}}">
-            <div class="time-display">Current Era: {{system.details.year}} {{system.details.era}}</div>
+            <div class="time-display">{{localize "CONTINUUM.LocationMap.CurrentEra" year=system.details.year era=system.details.era}}</div>
         </div>
 
         <div class="briefing-section">
-            <h3 class="subsection-header">Tactical Briefing</h3>
-            <textarea name="system.briefing" placeholder="AI Intelligence Briefing...">{{system.briefing}}</textarea>
+            <h3 class="subsection-header">{{localize "CONTINUUM.LocationMap.TacticalBriefing"}}</h3>
+            <textarea name="system.briefing" placeholder="{{localize 'CONTINUUM.LocationMap.BriefingPlaceholder'}}">{{system.briefing}}</textarea>
         </div>
     </div>
 </div>

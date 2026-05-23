@@ -5,10 +5,10 @@
   <input type="checkbox" id="toggle-combat-{{actor.id}}" class="sheet-hidden event-toggle-checkbox" {{#if (lookup toggles (concat "toggle-combat-" actor.id))}}checked{{/if}}>
   <div class="section-header-row">
     <label for="toggle-combat-{{actor.id}}" class="section-heading-toggle">
-      <h2 class="section-heading">Combat</h2>
+      <h2 class="section-heading">{{localize "CONTINUUM.Combat.Title"}}</h2>
     </label>
     <div class="combat-controls">
-      <button type="button" class="combat-help" data-tooltip="Help"><i class="fas fa-question"></i></button>
+      <button type="button" class="combat-help" data-tooltip="{{localize 'CONTINUUM.Common.Help'}}"><i class="fas fa-question"></i></button>
     </div>
   </div>
 
@@ -19,20 +19,20 @@
     {{#if firearmItems}}
     <div class="combat-subsection custom-firearms-section">
       <div class="subsection-header">
-        <h3>Custom Firearms</h3>
+        <h3>{{localize "CONTINUUM.Combat.CustomFirearms"}}</h3>
       </div>
       <div class="combat-item-header custom-firearm-header">
-        <div class="weapon-name">Firearm</div>
-        <div class="weapon-carried">Carried</div>
-        <div class="weapon-rating">Attack</div>
-        <div class="weapon-stat">Bonus</div>
-        <div class="weapon-stat">Hnd</div>
-        <div class="weapon-stat">Amm</div>
-        <div class="weapon-stat">Rel</div>
-        <div class="weapon-stat">Ammo</div>
-        <div class="weapon-stat">RoF</div>
-        <div class="weapon-stat">Conc.</div>
-        <div class="weapon-stat">Enc.</div>
+        <div class="weapon-name">{{localize "CONTINUUM.Combat.CustomFirearms"}}</div>
+        <div class="weapon-carried">{{localize "CONTINUUM.Combat.Carried"}}</div>
+        <div class="weapon-rating">{{localize "CONTINUUM.Combat.Attack"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Bonus"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Handling"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Ammunition"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Reliability"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Ammo"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.RoF"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Concealment"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Encumbrance"}}</div>
         <div class="weapon-damage-group">
 		    <div class="weapon-damage-item"><span>G</span></div>
             <div class="weapon-damage-item"><span>F</span></div>
@@ -54,7 +54,7 @@
             <input type="checkbox" class="gear-carried-toggle" data-item-id="{{firearm.id}}" {{#if firearm.system.carried}}checked{{/if}} />
           </div>
           <div class="weapon-rating">
-            <button type="button" class="roll-weapon roll-custom-firearm" data-gear-id="{{firearm.id}}" data-attribute="quick">Attack</button>
+            <button type="button" class="roll-weapon roll-custom-firearm" data-gear-id="{{firearm.id}}" data-attribute="react">{{localize "CONTINUUM.Combat.Attack"}}</button>
           </div>
           <div class="weapon-stat">
             <span class="weapon-stat-display">+{{firearm.computedBonus}}</span>
@@ -90,7 +90,7 @@
             <div class="weapon-damage-item"><span class="weapon-stat-display">{{#if firearm.firearmStats}}{{firearm.firearmStats.damageA}}{{else}}-{{/if}}</span></div>
           </div>
           <div class="weapon-controls">
-            <a class="item-edit" eventTitle="Edit Firearm" data-item-id="{{firearm.id}}"><i class="fas fa-edit"></i></a>
+             <a class="item-edit" eventTitle="{{localize 'CONTINUUM.Combat.EditFirearm'}}" data-item-id="{{firearm.id}}"><i class="fas fa-edit"></i></a>
           </div>
         </div>
         {{/each}}
@@ -101,19 +101,19 @@
     <!-- Ranged Weapons Section -->
     <div class="combat-subsection">
       <div class="subsection-header">
-        <h3>Ranged Weapons</h3>
-        <button type="button" class="item-add" data-type="rangedWeapon" data-tooltip="Add Ranged Weapon"><i class="fas fa-plus"></i> Add</button>
+        <h3>{{localize "CONTINUUM.Combat.RangedWeapons"}}</h3>
+        <button type="button" class="item-add" data-type="rangedWeapon" data-tooltip="{{localize 'CONTINUUM.Combat.AddRangedWeapon'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Common.Add"}}</button>
       </div>
 
       <!-- Ranged Weapon Header Row -->
       <div class="combat-item-header">
-        <div class="weapon-name">Weapon</div>
-        <div class="weapon-carried">Carried</div>
-        <div class="weapon-rating">Attack</div>
-        <div class="weapon-stat">Ammo</div>
-        <div class="weapon-stat">RoF</div>
-        <div class="weapon-stat">Conc.</div>
-        <div class="weapon-stat">Enc.</div>
+        <div class="weapon-name">{{localize "CONTINUUM.Combat.Weapon"}}</div>
+        <div class="weapon-carried">{{localize "CONTINUUM.Combat.Carried"}}</div>
+        <div class="weapon-rating">{{localize "CONTINUUM.Combat.Attack"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Ammo"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.RoF"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Concealment"}}</div>
+        <div class="weapon-stat">{{localize "CONTINUUM.Combat.Encumbrance"}}</div>
         <div class="weapon-damage-group">
 		    <div class="weapon-damage-item"><span>G</span></div>
             <div class="weapon-damage-item"><span>F</span></div>
@@ -141,7 +141,7 @@
             <input type="checkbox" name="system.combat.rangedWeapons.{{weapon.id}}.carried" {{#if weapon.carried}}checked{{/if}} />
           </div>
           <div class="weapon-rating">
-            <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="quick">Attack</button>
+             <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="react">{{localize "CONTINUUM.Combat.Attack"}}</button>
           </div>
           <div class="weapon-stat">
             <span class="weapon-stat-display">{{weapon.ammo}}</span>
@@ -179,7 +179,7 @@
             </div>
           </div>
           <div class="weapon-controls">
-            <a class="item-delete" data-tooltip="Delete Weapon" data-type="rangedWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
+             <a class="item-delete" data-tooltip="{{localize 'CONTINUUM.Combat.DeleteWeapon'}}" data-type="rangedWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
           </div>
         </div>
         {{/each}}
@@ -189,18 +189,18 @@
 <!-- Melee Weapons Section -->
 <div class="combat-subsection">
   <div class="subsection-header">
-    <h3>Melee Weapons</h3>
-    <button type="button" class="item-add" data-type="meleeWeapon" data-tooltip="Add Melee Weapon"><i class="fas fa-plus"></i> Add</button>
+    <h3>{{localize "CONTINUUM.Combat.MeleeWeapons"}}</h3>
+    <button type="button" class="item-add" data-type="meleeWeapon" data-tooltip="{{localize 'CONTINUUM.Combat.AddMeleeWeapon'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Common.Add"}}</button>
   </div>
 
   <!-- Melee Weapon Header Row -->
   <div class="combat-item-header">
-    <div class="weapon-name">Weapon</div>
-    <div class="weapon-carried">Carried</div>
-    <div class="weapon-rating">Attack</div>
-    <div class="weapon-stat">Conc.</div>
-    <div class="weapon-stat">Enc.</div>
-    <div class="weapon-stat">Dmg.</div>
+    <div class="weapon-name">{{localize "CONTINUUM.Combat.Weapon"}}</div>
+    <div class="weapon-carried">{{localize "CONTINUUM.Combat.Carried"}}</div>
+    <div class="weapon-rating">{{localize "CONTINUUM.Combat.Attack"}}</div>
+    <div class="weapon-stat">{{localize "CONTINUUM.Combat.Concealment"}}</div>
+    <div class="weapon-stat">{{localize "CONTINUUM.Combat.Encumbrance"}}</div>
+    <div class="weapon-stat">{{localize "CONTINUUM.Combat.Damage"}}</div>
     <div class="weapon-controls"></div> <!-- Spacer for alignment -->
   </div>
 
@@ -219,7 +219,7 @@
         <input type="checkbox" name="system.combat.meleeWeapons.{{weapon.id}}.carried" {{#if weapon.carried}}checked{{/if}} />
       </div>
       <div class="weapon-rating">
-        <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="body">Attack</button>
+        <button type="button" class="roll-weapon" data-id="{{weapon.id}}" data-attribute="force">{{localize "CONTINUUM.Combat.Attack"}}</button>
       </div>
       <div class="weapon-stat">
         <span class="weapon-stat-display">{{weapon.conceal}}</span>
@@ -231,7 +231,7 @@
         <span class="weapon-stat-display">{{weapon.damage}}</span>
       </div>
       <div class="weapon-controls">
-        <a class="item-delete" data-tooltip="Delete Weapon" data-type="meleeWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
+         <a class="item-delete" data-tooltip="{{localize 'CONTINUUM.Combat.DeleteWeapon'}}" data-type="meleeWeapon" data-id="{{weapon.id}}"><i class="fas fa-trash"></i></a>
       </div>
     </div>
     {{/each}}
@@ -241,8 +241,8 @@
     <!-- Armor Section -->
     <div class="combat-subsection"> <!-- This is the container for the whole Armor subsection -->
       <div class="subsection-header">
-        <h3>Armor</h3>
-        <button type="button" class="item-add" data-type="armor" data-tooltip="Add Armor"><i class="fas fa-plus"></i> Add</button>
+        <h3>{{localize "CONTINUUM.Combat.Armor"}}</h3>
+        <button type="button" class="item-add" data-type="armor" data-tooltip="{{localize 'CONTINUUM.Combat.AddArmor'}}"><i class="fas fa-plus"></i> {{localize "CONTINUUM.Common.Add"}}</button>
       </div>
 
       <!-- New Layout Container -->
@@ -266,8 +266,8 @@
         <div class="armor-layout-right">
           <!-- Armor Header Row -->
           <div class="combat-item-header armor-header">
-            <div class="weapon-name">Armor Type</div>
-            <div class="weapon-stat">Enc.</div>
+             <div class="weapon-name">{{localize "CONTINUUM.Combat.ArmorType"}}</div>
+             <div class="weapon-stat">{{localize "CONTINUUM.Combat.Encumbrance"}}</div>
             <!-- MODIFIED: Header for IP locations now matches row structure -->
             <div class="weapon-damage-group">
                 <div class="weapon-damage-item"><span>G</span></div>
@@ -319,7 +319,7 @@
                 </div>
               </div>
               <div class="weapon-controls">
-                <a class="item-delete" data-tooltip="Delete Armor" data-type="armor" data-id="{{armor.id}}"><i class="fas fa-trash"></i></a>
+                 <a class="item-delete" data-tooltip="{{localize 'CONTINUUM.Combat.DeleteArmor'}}" data-type="armor" data-id="{{armor.id}}"><i class="fas fa-trash"></i></a>
               </div>
             </div>
             {{/each}}
@@ -328,15 +328,15 @@
           <!-- Armor Summary Stats -->
           <div class="armor-summary-stats">
             <div class="summary-stat-row">
-              <label>Total Encumbrance:</label>
+              <label>{{localize "CONTINUUM.Combat.TotalEncumbrance"}}</label>
               <span>{{armorSummary.totalEncumbrance}}</span>
             </div>
             <div class="summary-stat-row">
-              <label>Force Attribute:</label>
-              <span>{{system.attributes.body.value}}</span>
+              <label>{{localize "CONTINUUM.Combat.ForceAttribute"}}</label>
+              <span>{{system.attributes.force.value}}</span>
             </div>
             <div class="summary-stat-row penalty">
-              <label>Move Penalty:</label>
+              <label>{{localize "CONTINUUM.Combat.MovePenalty"}}</label>
               <span>-{{armorSummary.quickPenalty}}</span>
             </div>
           </div>
@@ -348,13 +348,13 @@
     <div class="combat-subsection wounds-stuff-container">
       <!-- Wounds Column -->
       <div class="wounds-column">
-        <h3>Wounds</h3>
+        <h3>{{localize "CONTINUUM.Combat.Wounds"}}</h3>
         <div class="wounds-grid">
           <!-- Header Row -->
           <div class="wounds-header">
-            <div>IP</div>
-            <div>Bruise/Lethal</div>
-            <div>Bleed</div>
+             <div>{{localize "CONTINUUM.Combat.IP"}}</div>
+             <div>{{localize "CONTINUUM.Combat.BruiseLethal"}}</div>
+             <div>{{localize "CONTINUUM.Combat.Bleeding"}}</div>
           </div>
           <!-- Data Rows -->
           {{#each woundEntries as |wound|}}
@@ -364,9 +364,9 @@
             </div>
             <input type="hidden" name="system.combat.wounds.{{wound.key}}.ip" value="{{wound.ip}}">
             <select name="system.combat.wounds.{{wound.key}}.type">
-              <option value="" {{#if (eq wound.type "")}}selected{{/if}}>---</option>
-              <option value="Bruise" {{#if (eq wound.type "Bruise")}}selected{{/if}}>Bruise</option>
-              <option value="Lethal" {{#if (eq wound.type "Lethal")}}selected{{/if}}>Lethal</option>
+               <option value="" {{#if (eq wound.type "")}}selected{{/if}}>---</option>
+               <option value="Bruise" {{#if (eq wound.type "Bruise")}}selected{{/if}}>{{localize "CONTINUUM.Combat.Bruise"}}</option>
+               <option value="Lethal" {{#if (eq wound.type "Lethal")}}selected{{/if}}>{{localize "CONTINUUM.Combat.Lethal"}}</option>
             </select>
             <input type="checkbox" name="system.combat.wounds.{{wound.key}}.bleeding" {{#if wound.bleeding}}checked{{/if}} />
           </div>
@@ -375,11 +375,11 @@
         <!-- Summary Row -->
         <div class="wounds-summary">
           <div class="summary-item">
-            <label>IP Total:</label>
+             <label>{{localize "CONTINUUM.Combat.IPTotal"}}</label>
             <span>{{woundsSummary.ipTotal}}</span>
           </div>
           <div class="summary-item">
-            <label>IP Remaining:</label>
+             <label>{{localize "CONTINUUM.Combat.IPRemaining"}}</label>
             <span>{{woundsSummary.ipRemaining}}</span>
           </div>
         </div>

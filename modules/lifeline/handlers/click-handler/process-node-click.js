@@ -76,7 +76,7 @@ export function processNodeClick(target, sheet, isEditRequest, graphData) {
         if (_hasCoord(lat) && _hasCoord(lng)) {
             panToCoordinates(lat, lng, zoom || 12, actorId);
         } else {
-            ui.notifications.info(`Event "${eventData.eventTitle || 'Untitled'}" has no location data.`);
+            ui.notifications.info(game.i18n.format("CONTINUUM.Notifications.EventNoLocationData", {eventTitle: eventData.eventTitle || 'Untitled'}));
         }
     }
 

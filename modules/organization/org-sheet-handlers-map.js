@@ -7,7 +7,7 @@ import { panToLocation, getMapCenterLocation, getActorTokenLocation, updateActor
 export async function handleOrgLocateClick(sheet, event) {
     event.preventDefault();
     if (!window.google?.maps) {
-        ui.notifications.warn("Map API not loaded yet. Please wait a moment.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.MapApiNotLoaded"));
         return;
     }
 
@@ -18,7 +18,7 @@ export async function handleOrgLocateClick(sheet, event) {
 
     const locationName = input.val();
     if (!locationName) {
-        ui.notifications.warn("Please enter a headquarters location first.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.PleaseEnterHeadquarters"));
         return;
     }
 
@@ -47,7 +47,7 @@ export async function handleOrgLocateClick(sheet, event) {
 export async function handleOrgGrabClick(sheet, event) {
     event.preventDefault();
     if (!window.google?.maps) {
-        ui.notifications.warn("Map API not loaded yet. Please wait a moment.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.MapApiNotLoaded"));
         return;
     }
 
@@ -86,7 +86,7 @@ export async function handleOrgTokenClick(sheet, event) {
     button.prop('disabled', false);
 
     if (!result) {
-        ui.notifications.warn("No SpaceTime position available. Set the slider to a time when this actor has a located lifeline event, then try again.");
+        ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoSpaceTimePosition"));
         return;
     }
 

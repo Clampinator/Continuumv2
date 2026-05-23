@@ -57,7 +57,7 @@ export async function handleOrgPointerUp(event, svg, viewState, graphData, sheet
             if (dist < 25) {
                 const yetId = viewState.draggedYetId;
                 await markYetFulfilled(sheet.actor, yetId);
-                ui.notifications.info("Yet Fulfilled!");
+                ui.notifications.info(game.i18n.localize("CONTINUUM.Notifications.YetFulfilled"));
                 sheet.render();
                 return;
             }
