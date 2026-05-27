@@ -221,6 +221,7 @@ export function showCreateExperienceDialog(viewState, graphData, sheet, svg, dur
                             name: formData.name,
                             dateFrom: normalizeDateInput(formData.dateFrom),
                             dateTo: normalizeDateInput(formData.dateTo),
+                            linkedAspects: [],
                             events: {},
                             color: "#2a2a2a",
                             sort: newSort

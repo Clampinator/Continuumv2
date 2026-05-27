@@ -267,3 +267,96 @@
   width: 50px;
   height: 50px !important;
 }
+
+/*==========================*/
+/* PROGRESSION THERMOMETER  */
+/*==========================*/
+
+/* The thermometer is a border glow around each attribute/metability block
+   that fills proportionally to progression credit. The block gets a border
+   that transitions from dim to bright based on how close the aspect is
+   to leveling up. When eligible for level-up, the border pulses gold. */
+
+.attribute-block.progress-ready {
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  animation: thermo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes thermo-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 215, 0, 0.3); }
+  50% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.7); }
+}
+
+/* Progress thermometer bar inside attribute blocks */
+.progress-thermo {
+  width: 80%;
+  height: 4px;
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-thermo-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.5s ease;
+}
+
+.progress-thermo-fill.attr-fill {
+  background: linear-gradient(90deg, #005577, #00e5ff);
+}
+
+.progress-thermo-fill.meta-fill {
+  background: linear-gradient(90deg, #770055, #ff00ff);
+}
+
+.progress-thermo-label {
+  font-size: 0.55em;
+  color: #888;
+  text-align: center;
+  font-family: monospace;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+/* Level Up button appears inside the block when eligible */
+.level-up-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffd700;
+  border: 1px solid #b8860b;
+  color: #000;
+  font-size: 0.55em;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-top: 2px;
+  animation: thermo-pulse-btn 1.5s ease-in-out infinite;
+}
+
+.level-up-btn:hover {
+  background: #ffeb3b;
+  transform: scale(1.2);
+}
+
+@keyframes thermo-pulse-btn {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; box-shadow: 0 0 8px rgba(255, 215, 0, 0.6); }
+}
+
+/* At-potential metabilities have dimmed thermometer */
+.metability-potential-frame.at-potential .progress-thermo {
+  border-color: #555;
+  background: #222;
+}
+
+.metability-potential-frame.at-potential .progress-thermo-fill {
+  background: #555;
+}

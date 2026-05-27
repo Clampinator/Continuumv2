@@ -20,7 +20,7 @@ export async function handleCharacterItemAdd(sheet, event) {
         }
         case 'experience':
             const eraId = button.dataset.eraId;
-            if (eraId) updates[`system.eras.${eraId}.experiences.${newId}`] = { id: newId, name: "New Experience", sort: Date.now(), events: {} };
+            if (eraId) updates[`system.eras.${eraId}.experiences.${newId}`] = { id: newId, name: "New Experience", sort: Date.now(), linkedAspects: [], events: {} };
             break;
         case 'event':
             const targetEraId = button.dataset.eraId;

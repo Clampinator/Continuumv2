@@ -1,10 +1,8 @@
 
 import { initializeSpanGraph } from './modules/span-graph/integration/sheet-handler.js';
 
-// ... (rest of imports remains similar, but I'll add the new one at top)
 import { prepareCharacterData } from './modules/character/prepare-data.js';
-import { activateCharacterListeners } from './modules/character/activate-listeners.js';
-// ... (omitting middle imports for brevity in thought, but I must provide exact literal)
+import { activateCharacterListeners, _populateProgressionThermometers } from './modules/character/activate-listeners.js';
 import { handleCharacterItemAdd } from './modules/character/item-add.js';
 import { handleCharacterEventAdd } from './modules/character/event-add.js';
 import { handleCharacterItemDelete } from './modules/character/item-delete.js';
@@ -68,6 +66,9 @@ export class ContinuumActorSheet extends BaseActorSheet {
     super.activateListeners(html);
     activateCharacterListeners(this, html);
     initializeSpanGraph(this.actor, html, this);
+    // Progression thermometers need viewport state, which is created by
+    // initializeSpanGraph. Populate them after the viewport exists.
+    _populateProgressionThermometers(html, this);
   }
 
   /** @override */

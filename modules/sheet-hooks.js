@@ -99,6 +99,18 @@ Hooks.once('init', async () => {
     default: ""
   });
 
+  // PROGRESSION: When enabled, The Forgetting (experience recency/duration decay)
+  // reduces progression credit for old, short experiences. Default OFF: raw
+  // subjective years count in full regardless of how long ago they ended.
+  game.settings.register('continuum-v2', 'forgettingAffectsProgression', {
+    name: 'Forgetting Affects Progression',
+    hint: 'When enabled, old and short experiences contribute less to attribute/metability progression. The same decay that affects resonance bonuses (The Forgetting) also reduces progression credit. Default: OFF - all linked subjective years count in full.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   game.system.api = api;
   await preloadHandlebarsTemplates();
 

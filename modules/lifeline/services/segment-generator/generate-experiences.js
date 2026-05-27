@@ -277,6 +277,7 @@ export function generateExperiences(sortedEras, nodes, nowNode, levelingAge = nu
                 isOngoing,
                 isClosed,
                 opacity,
+                linkedAspects: exp.linkedAspects || [],
                 bonus: calculateExperienceBonus(isOngoing, mechanicalEndAge, startAge, nowAge)
             });
         });

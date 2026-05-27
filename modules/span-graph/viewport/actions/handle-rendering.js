@@ -19,7 +19,8 @@ export function renderViewport(viewport, state, manifest) {
     viewport.eraRenderer.render(manifest.eras, height);
 
     // 2. Content Layer (Physical path)
-    viewport.experienceRenderer.render(manifest);
+    const nowAge = state?.levelingAge ?? state?.nowNode?.x ?? null;
+    viewport.experienceRenderer.render(manifest, nowAge);
     viewport.railRenderer.render(manifest);
     viewport.nodeRenderer.render(manifest);
 

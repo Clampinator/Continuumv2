@@ -1,4 +1,3 @@
-
 <!--====================-->
 <!-- ATTRIBUTES SECTION -->
 <!--====================-->
@@ -23,39 +22,43 @@
 
     <div class="attributes-single-row">
       <!-- Force Block -->
-      <div class="attribute-block">
+      <div class="attribute-block" data-aspect="force">
         <button type="button" class="roll-attribute" data-attribute="force" data-tooltip="{{localize 'CONTINUUM.Attributes.RollForce'}}">{{localize "CONTINUUM.Attributes.Force"}}</button>
         <div class="attribute-spinner-viewport" data-attribute="force">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Force Value Spinner">
         </div>
         <input type="hidden" name="system.attributes.force.value" value="{{system.attributes.force.value}}">
+        <div class="progress-thermo" data-aspect="force"></div>
       </div>
 
       <!-- Analyze Block -->
-      <div class="attribute-block">
+      <div class="attribute-block" data-aspect="analyze">
         <button type="button" class="roll-attribute" data-attribute="analyze" data-tooltip="{{localize 'CONTINUUM.Attributes.RollAnalyze'}}">{{localize "CONTINUUM.Attributes.Analyze"}}</button>
         <div class="attribute-spinner-viewport" data-attribute="analyze">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Analyze Value Spinner">
         </div>
         <input type="hidden" name="system.attributes.analyze.value" value="{{system.attributes.analyze.value}}">
+        <div class="progress-thermo" data-aspect="analyze"></div>
       </div>
 
       <!-- Relate Block -->
-      <div class="attribute-block">
+      <div class="attribute-block" data-aspect="relate">
         <button type="button" class="roll-attribute" data-attribute="relate" data-tooltip="{{localize 'CONTINUUM.Attributes.RollRelate'}}">{{localize "CONTINUUM.Attributes.Relate"}}</button>
         <div class="attribute-spinner-viewport" data-attribute="relate">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="Relate Value Spinner">
         </div>
         <input type="hidden" name="system.attributes.relate.value" value="{{system.attributes.relate.value}}">
+        <div class="progress-thermo" data-aspect="relate"></div>
       </div>
 
       <!-- React Block -->
-      <div class="attribute-block">
+      <div class="attribute-block" data-aspect="react">
         <button type="button" class="roll-attribute" data-attribute="react" data-tooltip="{{localize 'CONTINUUM.Attributes.RollReact'}}">{{localize "CONTINUUM.Attributes.React"}}</button>
         <div class="attribute-spinner-viewport" data-attribute="react">
           <img src="assets/Continuum UI/AttributesCounter.png" class="attribute-spinner-image" alt="React Value Spinner">
         </div>
         <input type="hidden" name="system.attributes.react.value" value="{{system.attributes.react.value}}">
+        <div class="progress-thermo" data-aspect="react"></div>
       </div>
 
       <!-- Willpower Column -->

@@ -17,6 +17,84 @@ import { isLeveller } from '/systems/continuum-v2/modules/temporal-kernel/is-lev
 import { isSpanOverburdened } from '/systems/continuum-v2/modules/temporal-kernel/is-span-overburdened.js';
 import { calculateQuickPenalty } from '/systems/continuum-v2/modules/temporal-kernel/calculate-quick-penalty.js';
 import { computeSpanPoolDisplay, applyEventStatsToTemplate } from '/systems/continuum-v2/modules/temporal-engine/compute-span-pool-display.js';
+import { calculateAspectProgression } from '/systems/continuum-v2/modules/temporal-kernel/calculate-aspect-progression.js';
+import { calculateLevelUp } from '/systems/continuum-v2/modules/temporal-kernel/calculate-level-up.js';
+
+/**
+ * Computes aspect progression data from the actor's current state and
+ * the viewport's computed experience ages. Can be called from prepare-data
+ * (during sheet render) or from the viewport callback (after first render).
+ *
+ * @param {Object} actor - The Foundry actor
+ * @param {Object} sheet - The ActorSheet instance (for viewport access)
+ * @param {Object} [context] - The template context (optional; used as fallback
+ *   for prepared eras and system data. If omitted, reads from actor.system.)
+ * @returns {{ progression: Object, eligibleLevelUps: Array } | null}
+ */
+export function computeAspectProgression(actor, sheet, context) {
+    // SHORT CIRCUIT: If the viewport pipeline already computed progression,
+    // use it directly.
+    const vpProgression = sheet._spanGraphViewport?.latestState?.progression;
+    console.log('Continuum | computeAspect: vpProgression=' + !!vpProgression + ', viewport=' + !!sheet._spanGraphViewport + ', latestState=' + !!sheet._spanGraphViewport?.latestState);
+    if (vpProgression) {
+        return {
+            progression: vpProgression,
+            eligibleLevelUps: vpProgression._eligibleLevelUps || []
+        };
+    }
+
+    const SECONDS_IN_YEAR = 31536000;
+    const SECONDS_IN_DAY = 86400;
+
+    // Prefer viewport state for ages; fall back to subjectiveNow
+    const nowAge = sheet._spanGraphViewport?.latestState?.nowNode?.x;
+    const sys = context?.system || actor.system;
+    const subjectiveNowSecs = (nowAge != null)
+        ? Number(nowAge)
+        : (Number(sys.personal?.subjectiveNow) || 0);
+
+    const progressionLevelingAge = sheet._spanGraphViewport?.latestState?.levelingAge ?? nowAge;
+
+    // Use prepared eras array if available (from context during render),
+    // otherwise build our own from raw actor.system.eras.
+    const eras = context?.eras
+        || Object.entries(sys.eras || {}).map(([id, era]) => ({ ...era, id }));
+
+    if (progressionLevelingAge == null || !eras?.length) return null;
+
+    const forgettingEnabled = game?.settings?.get('continuum-v2', 'forgettingAffectsProgression') ?? false;
+    const attrs = sys.attributes;
+    const metas = sys.metabilities;
+    const currentLevels = {
+        force: Number(attrs?.force?.value) || 0,
+        analyze: Number(attrs?.analyze?.value) || 0,
+        relate: Number(attrs?.relate?.value) || 0,
+        react: Number(attrs?.react?.value) || 0,
+        coercion: Number(metas?.coercion?.value) || 0,
+        creativity: Number(metas?.creativity?.value) || 0,
+        farsense: Number(metas?.farsense?.value) || 0,
+        pk: Number(metas?.pk?.value) || 0,
+        redaction: Number(metas?.redaction?.value) || 0
+    };
+
+    const computedExperiences = sheet._spanGraphViewport?.latestState?.experiences || [];
+    const dobStr = sys.personal?.dob;
+    const dobMs = dobStr ? new Date(dobStr + 'T00:00:00').getTime() : 0;
+    const nowAgeSeconds = progressionLevelingAge ?? subjectiveNowSecs;
+    const enrichedEras = _enrichErasWithAgesForProgression(eras, computedExperiences, dobMs, nowAgeSeconds);
+    const progression = calculateAspectProgression(enrichedEras, progressionLevelingAge, currentLevels, forgettingEnabled);
+
+    const metabilityPotentials = {
+        coercion: Number(metas?.coercion?.potential) || 0,
+        creativity: Number(metas?.creativity?.potential) || 0,
+        farsense: Number(metas?.farsense?.potential) || 0,
+        pk: Number(metas?.pk?.potential) || 0,
+        redaction: Number(metas?.redaction?.potential) || 0
+    };
+    const eligibleLevelUps = calculateLevelUp(progression, metabilityPotentials);
+
+    return { progression, eligibleLevelUps };
+}
 
 // SPAN POOL: Computed by temporal-kernel/calculate-span-pool.js (pure math).
 // AGE: Computed by temporal-translator/age-converter.js (pure formatting).
@@ -173,5 +251,132 @@ export async function prepareCharacterData(sheet, options) {
 
     context.benefitsList = BENEFIT_DEFINITIONS.map(b => ({ ...b, selected: !!(context.system.benefits?.[b.id]) }));
 
+    // ASPECT PROGRESSION: Compute how close each aspect is to level-up
+    // based on accumulated subjective years in linked experiences.
+    const progressionResult = computeAspectProgression(sheet.actor, sheet, context);
+    if (progressionResult) {
+        const { progression, eligibleLevelUps } = progressionResult;
+        const metas = context.system.metabilities;
+        const metabilityPotentials = {
+            coercion: Number(metas?.coercion?.potential) || 0,
+            creativity: Number(metas?.creativity?.potential) || 0,
+            farsense: Number(metas?.farsense?.potential) || 0,
+            pk: Number(metas?.pk?.potential) || 0,
+            redaction: Number(metas?.redaction?.potential) || 0
+        };
+
+        context.aspectProgression = progression;
+        context.eligibleLevelUps = eligibleLevelUps;
+
+        // Store on sheet instance for _populateProgressionThermometers
+        sheet._progressionData = progression;
+        sheet._eligibleLevelUpsData = eligibleLevelUps;
+
+        const ASPECT_LABELS = {
+            force: 'Force', analyze: 'Analyze', relate: 'Relate', react: 'React',
+            coercion: 'Coercion', creativity: 'Creativity', farsense: 'Farsense',
+            pk: 'PK', redaction: 'Redaction'
+        };
+        context.attributeProgressionList = ['force', 'analyze', 'relate', 'react'].map(key => {
+            const p = progression[key];
+            if (!p) return null;
+            const percent = p.nextLevelCost > 0 ? Math.min(100, Math.round((p.progressYears / p.nextLevelCost) * 100)) : 0;
+            const eligible = eligibleLevelUps.some(lu => lu.aspect === key);
+            return { key, label: ASPECT_LABELS[key], ...p, progressPercent: percent, canLevelUp: eligible };
+        }).filter(Boolean);
+
+        context.metabilityProgressionList = ['coercion', 'creativity', 'farsense', 'pk', 'redaction'].map(key => {
+            const p = progression[key];
+            if (!p) return null;
+            const percent = p.nextLevelCost > 0 ? Math.min(100, Math.round((p.progressYears / p.nextLevelCost) * 100)) : 0;
+            const eligible = eligibleLevelUps.some(lu => lu.aspect === key);
+            const pot = metabilityPotentials[key] || 0;
+            const atPotential = p.currentLevel >= pot && pot > 0;
+            return { key, label: ASPECT_LABELS[key], ...p, progressPercent: percent, canLevelUp: eligible && !atPotential, atPotential };
+        }).filter(Boolean);
+    } else {
+        context.aspectProgression = null;
+        context.eligibleLevelUps = [];
+    }
+
     return context;
+}
+
+/**
+ * Enriches era experience data with startAgeSeconds/endAgeSeconds
+ * derived from already-computed experience bounding boxes.
+ * Falls back to date-string parsing when the viewport hasn't
+ * computed experience bounding boxes yet (first render).
+ */
+function _enrichErasWithAgesForProgression(eras, computedExperiences, dobMs, nowAgeSeconds) {
+    const MS_PER_SECOND = 1000;
+    const SECONDS_PER_YEAR = 31536000;
+
+    // Build a lookup of experience ID -> computed experience
+    const expLookup = new Map();
+    for (const ce of computedExperiences) {
+        if (ce.id) expLookup.set(ce.id, ce);
+    }
+
+    // Fallback: compute subjective age in seconds from a date string
+    // using the actor's DOB timestamp. Returns null if unparseable.
+    const _dateStrToAgeSeconds = (dateStr) => {
+        if (!dateStr || !String(dateStr).trim()) return null;
+        const ms = new Date(dateStr.trim() + 'T00:00:00').getTime();
+        if (isNaN(ms) || ms < dobMs) return null;
+        return (ms - dobMs) / MS_PER_SECOND;
+    };
+
+    const result = {};
+    for (const era of eras) {
+        const eraId = era.id;
+        // ERAS FORMAT BRIDGE: era.experiences can be either an OBJECT
+        // (keyed by Foundry doc ID, from raw actor.system.eras) or an
+        // ARRAY (from the prepared context.eras in prepareCharacterData).
+        // When it's an array, the Object.entries keys are numeric strings
+        // ('0', '1', ...) which won't match the viewport's exp IDs. Use
+        // the exp.id field instead.
+        const rawExps = era.experiences || {};
+        const isExpArray = Array.isArray(rawExps);
+        const expEntries = (isExpArray
+            ? rawExps.map((exp, idx) => [exp.id || String(idx), exp])
+            : Object.entries(rawExps)
+        ).map(([expId, exp]) => {
+            // For array-format experiences, use exp.id for the lookup
+            const lookupKey = isExpArray ? (exp.id || expId) : expId;
+            const computed = expLookup.get(lookupKey);
+
+            // Prefer pre-computed ages from the viewport pipeline
+            let startAgeSeconds = computed ? computed.startAge : null;
+            let endAgeSeconds = computed ? computed.endAge : null;
+
+            // FALLBACK: When the viewport hasn't computed experiences yet,
+            // derive ages from the experience's dateFrom/dateTo strings.
+            // This ensures progression totals are meaningful even on the
+            // very first sheet render before the span graph has run.
+            if (startAgeSeconds === null) {
+                startAgeSeconds = _dateStrToAgeSeconds(exp.dateFrom);
+            }
+            if (endAgeSeconds === null) {
+                const isOngoing = !!(exp.isOngoing || !exp.dateTo || String(exp.dateTo).trim() === '');
+                if (isOngoing) {
+                    // Ongoing experiences extend to the character's current age
+                    endAgeSeconds = nowAgeSeconds;
+                } else {
+                    endAgeSeconds = _dateStrToAgeSeconds(exp.dateTo);
+                }
+            }
+
+            return [expId, {
+                ...exp,
+                startAgeSeconds,
+                endAgeSeconds
+            }];
+        });
+        result[eraId] = {
+            ...era,
+            experiences: Object.fromEntries(expEntries)
+        };
+    }
+    return result;
 }

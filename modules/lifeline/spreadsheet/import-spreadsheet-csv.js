@@ -322,6 +322,7 @@ export async function importFromCsv(app) {
                     dateFrom: exp.dateFrom,
                     dateTo: exp.dateTo,
                     isOngoing: exp.isOngoing,
+                    linkedAspects: [],
                     sort: exp.sort,
                     events: {}
                 };

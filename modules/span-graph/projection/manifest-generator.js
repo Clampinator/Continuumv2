@@ -65,8 +65,10 @@ export function generateManifest(state, viewport, interaction = null) {
                 y: Math.min(topLeft.y, bottomRight.y),
                 width: Math.max(0, Math.abs(bottomRight.x - topLeft.x)),
                 height: Math.max(0, Math.abs(bottomRight.y - topLeft.y)),
+                startAge: exp.startAge, endAge: exp.endAge,
                 isOngoing: exp.isOngoing, isClosed: exp.isClosed,
-                opacity: exp.opacity, bonus: exp.bonus
+                opacity: exp.opacity, bonus: exp.bonus,
+                linkedAspects: exp.linkedAspects || []
             });
         });
     }

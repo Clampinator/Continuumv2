@@ -21,15 +21,28 @@ export class ExperienceRenderer {
    * Renders experiences from a pre-calculated manifest.
    *
    * @param {Object} manifest - The RenderManifest containing experiences array.
+   * @param {number} nowAge - Current subjective age in seconds (for ongoing label)
    */
-  render(manifest) {
+  render(manifest, nowAge = null) {
     if (!this.group || !manifest.experiences) return;
     this.group.innerHTML = '';
+
+    const SECONDS_PER_YEAR = 31536000;
 
     const labelSlots = {};
 
     manifest.experiences.forEach(exp => {
-        const { x, y, width, height, isOngoing, opacity, bonus, name, id, eraId } = exp;
+        const { x, y, width, height, isOngoing, opacity, bonus, name, id, eraId, linkedAspects, startAge, endAge } = exp;
+
+        // ASPECT COLORS: Map aspect keys to colors for linked-aspect indicators.
+        const ASPECT_COLORS = {
+            force: '#ff4444', analyze: '#44aaff', relate: '#44ff44', react: '#ffaa00',
+            coercion: '#ff00ff', creativity: '#aa44ff', farsense: '#44ffff', pk: '#ff88ff', redaction: '#ffff44'
+        };
+        const ASPECT_SHORT = {
+            force: 'F', analyze: 'A', relate: 'R', react: 'X',
+            coercion: 'C', creativity: 'Cr', farsense: 'Fs', pk: 'PK', redaction: 'Rd'
+        };
 
         // 1. Draw Box (visual container - no pointer events so clicks pass through)
         const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -65,6 +78,23 @@ export class ExperienceRenderer {
             }
             this._occupySlot(slot, x, x + width, labelSlots);
 
+            // Build display text: name + age range
+            const startYears = (startAge != null && startAge !== 0) ? Math.floor(startAge / SECONDS_PER_YEAR) : null;
+            const endYears = isOngoing ? null : ((endAge != null && endAge !== 0) ? Math.floor(endAge / SECONDS_PER_YEAR) : null);
+            let ageLabel = '';
+            if (startYears !== null) {
+                if (isOngoing) {
+                    ageLabel = `${startYears}y→`;
+                } else if (endYears !== null && endYears !== startYears) {
+                    ageLabel = `${startYears}-${endYears}y`;
+                } else {
+                    ageLabel = `${startYears}y`;
+                }
+            }
+            const displayText = ageLabel
+                ? (bonus !== undefined && bonus > 0) ? `${ageLabel} ${name} (+${bonus})` : `${ageLabel} ${name}`
+                : (bonus !== undefined && bonus > 0) ? `${name} (+${bonus})` : name;
+
             const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             label.setAttribute('x', x + 5);
             label.setAttribute('y', y + 12 + (slot * 12));
@@ -78,12 +108,34 @@ export class ExperienceRenderer {
             label.setAttribute('data-id', id);
             label.setAttribute('data-era-id', eraId);
             label.classList.add('graph-exp-label');
-            // Display bonus next to name when available
-            const displayText = (bonus !== undefined && bonus !== null && bonus > 0)
-                ? `${name} (+${bonus})`
-                : name;
             label.textContent = displayText;
             this.group.appendChild(label);
+
+            // 3. Draw Aspect Indicators (small colored dots/letters for linked aspects)
+            if (linkedAspects && linkedAspects.length > 0 && width > 40) {
+                const indicatorY = y + 12 + (slot * 12) + 3;
+                let indicatorX = x + width - 5;
+                // Render right-to-left so first aspect appears leftmost
+                for (let i = linkedAspects.length - 1; i >= 0; i--) {
+                    const aspectKey = linkedAspects[i];
+                    const color = ASPECT_COLORS[aspectKey] || '#888';
+                    const short = ASPECT_SHORT[aspectKey] || '?';
+                    const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    indicator.setAttribute('x', indicatorX);
+                    indicator.setAttribute('y', indicatorY);
+                    indicator.style.fill = color;
+                    indicator.style.fontSize = '7px';
+                    indicator.style.fontFamily = 'monospace';
+                    indicator.style.fontWeight = 'bold';
+                    indicator.style.opacity = opacity;
+                    indicator.style.pointerEvents = 'none';
+                    indicator.textContent = short;
+                    // Position indicators right-aligned within the experience box
+                    this.group.appendChild(indicator);
+                    // Estimate text width and move left for next indicator
+                    indicatorX -= (short.length * 5 + 3);
+                }
+            }
         }
     });
   }

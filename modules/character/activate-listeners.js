@@ -47,6 +47,37 @@ export function activateCharacterListeners(sheet, html) {
     html.on('click', '.sheet-settings-button', sheet._onSettingsClick.bind(sheet));
     html.on('click', '.situation-roll-button', sheet._onSituationClick.bind(sheet));
 
+    // LEVEL UP: Handle progression level-up button clicks.
+    // The kernel determines which aspects are eligible. Clicking the
+    // button increments the aspect value by 1 on the actor.
+    html.on('click', '.level-up-btn', async (event) => {
+        event.preventDefault();
+        const btn = event.currentTarget;
+        const aspect = btn.dataset.aspect;
+        if (!aspect) return;
+
+        // Determine if this is an attribute or metability
+        const ATTRIBUTE_KEYS = ['force', 'analyze', 'relate', 'react'];
+        const isAttribute = ATTRIBUTE_KEYS.includes(aspect);
+
+        if (isAttribute) {
+            const currentVal = Number(sheet.actor.system.attributes[aspect]?.value) || 0;
+            if (currentVal <= 0) {
+                ui.notifications.warn(`Cannot level up ${aspect}: current value is ${currentVal}. This usually means the attribute was not saved correctly.`);
+                return;
+            }
+            await sheet.actor.update({ [`system.attributes.${aspect}.value`]: currentVal + 1 });
+        } else {
+            // Metabilities: clamp to potential
+            const currentVal = Number(sheet.actor.system.metabilities[aspect]?.value) || 0;
+            const potential = Number(sheet.actor.system.metabilities[aspect]?.potential) || 0;
+            const newVal = Math.min(currentVal + 1, potential);
+            await sheet.actor.update({ [`system.metabilities.${aspect}.value`]: newVal });
+        }
+
+        ui.notifications.info(`${aspect.charAt(0).toUpperCase() + aspect.slice(1)} leveled up!`);
+    });
+
     // Help Handlers
     html.on('click', '.personal-info-help', handlePersonalHelpClick);
     html.on('click', '.attributes-help', handleAttributesHelpClick);
@@ -271,4 +302,107 @@ export function activateCharacterListeners(sheet, html) {
     setTimeout(() => {
         if (sheet.rendered) initializeCharRelationshipGraph(sheet);
     }, 150);
+}
+
+/**
+ * Populates progression thermometer bars inside attribute and metability blocks.
+ * Reads kernel-computed progression data from the sheet context and renders
+ * a fill bar + year count + level-up button inside each .progress-thermo div.
+ * Also applies a glowing border to blocks eligible for level-up.
+ */
+export function _populateProgressionThermometers(html, sheet) {
+    // AUTHORITY: Always prefer the viewport's engine-computed progression.
+    let progression = null;
+    let eligibleLevelUps = [];
+    const vpProg = sheet._spanGraphViewport?.latestState?.progression;
+    console.log('Continuum | Thermometer: vpProgression=' + !!vpProg + ', cachedProgression=' + !!sheet._progressionData + ', viewport=' + !!sheet._spanGraphViewport + ', latestState=' + !!sheet._spanGraphViewport?.latestState);
+
+    if (vpProg) {
+        progression = vpProg;
+        eligibleLevelUps = vpProg._eligibleLevelUps || [];
+    } else {
+        progression = sheet._progressionData;
+        eligibleLevelUps = sheet._eligibleLevelUpsData || [];
+    }
+
+    // Cache the result for reuse
+    sheet._progressionData = progression;
+    sheet._eligibleLevelUpsData = eligibleLevelUps;
+
+    if (!progression) return;
+
+    // Log actual values once per call
+    const keys = ['force', 'analyze', 'relate', 'react'];
+    const vals = keys.map(k => `${k}=${progression[k]?.progressYears ?? '?'}/${progression[k]?.nextLevelCost ?? '?'}`).join(', ');
+    console.log('Continuum | Thermometer values: ' + vals);
+
+    const ATTRIBUTE_KEYS = ['force', 'analyze', 'relate', 'react'];
+    const META_KEYS = ['coercion', 'creativity', 'farsense', 'pk', 'redaction'];
+    const isAttribute = (key) => ATTRIBUTE_KEYS.includes(key);
+
+    // Process attribute thermometer divs
+    html.find('.progress-thermo').each(function () {
+        const thermo = $(this);
+        const aspect = thermo.data('aspect');
+        if (!aspect || !progression[aspect]) return;
+
+        const p = progression[aspect];
+        const percent = p.nextLevelCost > 0 ? Math.min(100, Math.round((p.progressYears / p.nextLevelCost) * 100)) : 0;
+        const eligible = eligibleLevelUps.some(lu => lu.aspect === aspect);
+        const fillClass = isAttribute(aspect) ? 'attr-fill' : 'meta-fill';
+
+        // Clear existing content
+        thermo.empty();
+
+        // Fill bar
+        const fill = $(`<div class="progress-thermo-fill ${fillClass}"></div>`);
+        fill.css('width', percent + '%');
+        thermo.append(fill);
+
+        // Year label
+        const label = $(`<div class="progress-thermo-label">${p.progressYears}/${p.nextLevelCost}yr</div>`);
+        thermo.append(label);
+
+        // Level-up button if eligible
+        if (eligible) {
+            const btn = $(`<button type="button" class="level-up-btn" data-aspect="${aspect}" data-tooltip="Level Up!"><i class="fas fa-arrow-up"></i></button>`);
+            thermo.append(btn);
+        }
+
+        // Add glow border to the parent attribute/metability block
+        if (eligible) {
+            thermo.closest('.attribute-block, .metability-potential-frame').addClass('progress-ready');
+        }
+    });
+
+    // Also handle metability thermometer divs (added via template)
+    html.find('.progress-thermo-meta').each(function () {
+        const thermo = $(this);
+        const aspect = thermo.data('aspect');
+        if (!aspect || !progression[aspect]) return;
+
+        const p = progression[aspect];
+        const percent = p.nextLevelCost > 0 ? Math.min(100, Math.round((p.progressYears / p.nextLevelCost) * 100)) : 0;
+        const potential = Number(sheet.actor.system.metabilities[aspect]?.potential) || 0;
+        const atPotential = p.currentLevel >= potential && potential > 0;
+        const eligible = eligibleLevelUps.some(lu => lu.aspect === aspect) && !atPotential;
+
+        thermo.empty();
+
+        const fill = $(`<div class="progress-thermo-fill meta-fill"></div>`);
+        fill.css('width', percent + '%');
+        thermo.append(fill);
+
+        const label = $(`<div class="progress-thermo-label">${p.progressYears}/${p.nextLevelCost}yr</div>`);
+        thermo.append(label);
+
+        if (eligible) {
+            const btn = $(`<button type="button" class="level-up-btn" data-aspect="${aspect}" data-tooltip="Level Up!"><i class="fas fa-arrow-up"></i></button>`);
+            thermo.append(btn);
+        }
+
+        if (eligible) {
+            thermo.closest('.metability-potential-frame').addClass('progress-ready');
+        }
+    });
 }

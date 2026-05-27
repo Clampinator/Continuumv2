@@ -58,7 +58,7 @@ export function buildContextOptions(actor, currentEraId = null, currentExpId = n
         const isCurrent = currentExpId === exp.id;
         const mValue = `move:${eraId}:${exp.id}`;
         const mId = `ctx-m-${exp.id}`;
-        const status = (!exp.dateTo || exp.dateTo.trim() === "") ? "" : ` ${game.i18n.localize("CONTINUUM.ContextDialog.ClosedLabel")}`;
+        const status = (exp.isOngoing || !exp.dateTo || exp.dateTo.trim() === "") ? "" : ` ${game.i18n.localize("CONTINUUM.ContextDialog.ClosedLabel")}`;
         experienceOptions += `<div class="context-item sub-item">
             <input type="radio" name="experienceAction" value="${mValue}" id="${mId}" ${isCurrent ? 'checked' : ''}>
             <label for="${mId}">Exp: ${exp.name}${status}</label>
@@ -68,8 +68,8 @@ export function buildContextOptions(actor, currentEraId = null, currentExpId = n
     // LIFECYCLE CONTROLS: Close/reopen experiences, start new
     let lifecycleHtml = '';
 
-    const openExps = eraExps.filter(exp => !exp.dateTo || exp.dateTo.trim() === "");
-    const closedExps = eraExps.filter(exp => exp.dateTo && exp.dateTo.trim() !== "");
+    const openExps = eraExps.filter(exp => !exp.dateTo || exp.dateTo.trim() === "" || exp.isOngoing);
+    const closedExps = eraExps.filter(exp => exp.dateTo && exp.dateTo.trim() !== "" && !exp.isOngoing);
 
     if (openExps.length > 0) {
         lifecycleHtml += `<div class="context-item optgroup-header">${game.i18n.localize("CONTINUUM.ContextDialog.EndOpenExperiences")}</div>`;

@@ -252,7 +252,7 @@ export function openOrgEncounterEditDialog(sheet, engNode, graphData) {
                             updates[`system.eras.${matchingPhase.id}.experiences.${newId}`] = {
                                 id: newId, name: 'New Operation',
                                 dateFrom: fd.engDate || '', dateTo: '',
-                                isOngoing: true, description: '', events: {}, sort: maxSort + 1000,
+                                isOngoing: true, description: '', linkedAspects: [], events: {}, sort: maxSort + 1000,
                             };
                         } else {
                             ui.notifications.warn(game.i18n.localize("CONTINUUM.Notifications.NoPhasePeriodForDate"));

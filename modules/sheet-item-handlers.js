@@ -40,6 +40,7 @@ export async function handleItemAdd(sheet, event) {
                 id: newId,
                 name: "New Experience",
                 sort: Date.now(),
+                linkedAspects: [],
                 events: {}
             };
             break;

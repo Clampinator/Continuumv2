@@ -663,3 +663,29 @@ input.minimize-toggle-cb:not(:checked) + label.minimize-maximize-toggle::before 
 .experience-hover-tooltip .tooltip-row span {
     color: #eee;
 }
+
+/* --- LINKED ASPECTS BADGES --- */
+.linked-aspects-badges {
+    display: inline-flex;
+    gap: 2px;
+    margin-left: 4px;
+}
+
+.linked-aspect-badge {
+    font-size: 0.65em;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    font-family: monospace;
+}
+
+.linked-aspect-badge.aspect-force { background: rgba(255, 68, 68, 0.3); color: #ff4444; border: 1px solid #ff4444; }
+.linked-aspect-badge.aspect-analyze { background: rgba(68, 170, 255, 0.3); color: #44aaff; border: 1px solid #44aaff; }
+.linked-aspect-badge.aspect-relate { background: rgba(68, 255, 68, 0.3); color: #44ff44; border: 1px solid #44ff44; }
+.linked-aspect-badge.aspect-react { background: rgba(255, 170, 0, 0.3); color: #ffaa00; border: 1px solid #ffaa00; }
+.linked-aspect-badge.aspect-coercion { background: rgba(255, 0, 255, 0.3); color: #ff00ff; border: 1px solid #ff00ff; }
+.linked-aspect-badge.aspect-creativity { background: rgba(170, 68, 255, 0.3); color: #aa44ff; border: 1px solid #aa44ff; }
+.linked-aspect-badge.aspect-farsense { background: rgba(68, 255, 255, 0.3); color: #44ffff; border: 1px solid #44ffff; }
+.linked-aspect-badge.aspect-pk { background: rgba(255, 136, 255, 0.3); color: #ff88ff; border: 1px solid #ff88ff; }
+.linked-aspect-badge.aspect-redaction { background: rgba(255, 255, 68, 0.3); color: #ffff44; border: 1px solid #ffff44; }

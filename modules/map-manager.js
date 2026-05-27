@@ -224,7 +224,15 @@ function _interpolateLatLng(waypoints, ms) {
 export async function getActorTokenLocation(actor) {
     if (!actor) return null;
     const stApi = game.modules.get('spacetime')?.api;
-    const sliderMs = stApi?.getCurrentTimestamp?.() ?? null;
+    // The spacetime module's getCurrentTimestamp can throw if the timeline
+    // slider DOM element isn't rendered (e.g. the SpaceTime map is closed).
+    // Guard against this so the event dialog always opens.
+    let sliderMs = null;
+    try {
+        sliderMs = stApi?.getCurrentTimestamp?.() ?? null;
+    } catch (_e) {
+        sliderMs = null;
+    }
 
     // If a proxy token was manually dragged, its latlng is the
     // authoritative position - the player physically placed it there.

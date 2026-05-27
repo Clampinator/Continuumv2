@@ -659,6 +659,7 @@ function showOrgOperationCreateDialog(sheet, eraId, startAgeSecs, endAgeSecs, in
                             id: newId, name: fd.name || 'New Operation',
                             dateFrom: fd.dateFrom || '', dateTo: fd.dateTo || '',
                             isOngoing: !!fd.isOngoing, description: fd.description || '',
+                            linkedAspects: [],
                             events: {}, sort: maxSort + 1000,
                         }
                     });

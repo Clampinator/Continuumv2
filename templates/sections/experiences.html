@@ -100,6 +100,13 @@
               </span>
               
               <input type="text" class="experience-eventTitle" name="system.eras.{{experience.sourceAgeId}}.experiences.{{experience.id}}.name" value="{{experience.name}}" placeholder="{{localize 'CONTINUUM.Experiences.ExperienceTitle'}}" />
+              {{#if experience.linkedAspects}}
+              <span class="linked-aspects-badges">
+                {{#each experience.linkedAspects}}
+                <span class="linked-aspect-badge aspect-{{this}}">{{this}}</span>
+                {{/each}}
+              </span>
+              {{/if}}
               <label>{{localize "CONTINUUM.Common.From"}}</label>
               
               <div class="date-picker-container experience-date">
